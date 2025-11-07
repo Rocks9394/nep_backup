@@ -1,0 +1,72 @@
+-- phpMyAdmin SQL Dump
+-- version 4.6.6deb5ubuntu0.5
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost:3306
+-- Generation Time: May 13, 2021 at 02:03 PM
+-- Server version: 8.0.22
+-- PHP Version: 7.4.16
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `goforfit`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `chainopts`
+--
+
+CREATE TABLE `chainopts` (
+  `id` int NOT NULL,
+  `chainname` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `chainopts`
+--
+
+INSERT INTO `chainopts` (`id`, `chainname`) VALUES
+(1, 'Vidya Bharati Akhil Bharatiya Shiksha Sansthan (Vidya Bharti Schools)'),
+(2, 'Kendriya Vidyalaya Sangathan'),
+(3, 'Navodaya Vidyalaya Samiti'),
+(4, 'Chinmaya Education Movement (Chinmaya Vidyalayas)'),
+(5, 'Arya Samaj (DAV Schools)'),
+(6, 'VHP Schools'),
+(7, 'Catholic Schools (All India National Association of Catholic Schools)'),
+(8, 'Maharishi Vidya Mandir Schools'),
+(9, 'Sainik Schools Society (Sainik Schools)'),
+(10, 'Army/Air Force/Navy/other Military Schools'),
+(11, 'Delhi Public School Society (DPS)');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `chainopts`
+--
+ALTER TABLE `chainopts`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `chainopts`
+--
+ALTER TABLE `chainopts`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
