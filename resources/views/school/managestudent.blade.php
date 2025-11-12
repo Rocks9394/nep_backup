@@ -103,9 +103,7 @@
 							<th scope="col">Gender</th>
 							<th scope="col">Birth Date</th>
 							<th scope="col">Status</th>
-							@if(Auth::user()->id==974)
-								<th scope="col">Login</th>
-							@endif
+							<th scope="col">Login</th>
 						</tr>
 					</thead>
 					<tbody> </tbody>
@@ -434,7 +432,6 @@
 				{ 	data: 'gender', name: 'gender' },
 				{	data: 'dob', name: 'dob' },
 				{	data: 'status', name: 'status'},
-				@if(Auth::user()->id==974)
 				{
 					data: null,
 					orderable: false,
@@ -450,8 +447,7 @@
 							</button>
 						`;
 					}
-				},	
-				@endif			
+				},		
 			],
 			columnDefs: [
 				{ targets: 0, orderable: false, className: 'no-sort' }
