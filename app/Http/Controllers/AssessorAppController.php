@@ -1401,7 +1401,7 @@ class AssessorAppController extends Controller
 	    $ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
 
 	    // Fetch report + benchmarks
-	    $reportData    = $this->getReportData($studentId);
+	    $reportData    = $this->getReportData($studentId,$TermMasterId);
 	    $mappedReport  = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
 	    $groupedReport = $mappedReport->groupBy('Category');
 

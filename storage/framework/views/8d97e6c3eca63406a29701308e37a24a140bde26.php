@@ -1,36 +1,36 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="twitter:card" value="summary">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="msapplication-TileImage" content="{{ asset('public/favicon.ico')}}" />
-    <title>@yield('title')</title>
-    <link rel="icon" href="{{ asset('public/favicon.ico')}}" sizes="32x32" />
-    <link rel="apple-touch-icon-precomposed" href="{{ asset('public/favicon.ico')}}" />
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <meta name="msapplication-TileImage" content="<?php echo e(asset('public/favicon.ico')); ?>" />
+    <title><?php echo $__env->yieldContent('title'); ?></title>
+    <link rel="icon" href="<?php echo e(asset('public/favicon.ico')); ?>" sizes="32x32" />
+    <link rel="apple-touch-icon-precomposed" href="<?php echo e(asset('public/favicon.ico')); ?>" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 
-    <link rel="stylesheet" href="{{ asset('resources/css/dashboard.min.css') }}" media="screen">
-    <link href="{{ asset('resources/css/style.css') }}" rel="stylesheet" media="all">
-    <link rel="stylesheet" href="{{ asset('resources/css/custom-style.css') }}">
-    <link href="{{ asset('resources/css/responsive.css') }}" rel="stylesheet" media="screen">
+    <link rel="stylesheet" href="<?php echo e(asset('resources/css/dashboard.min.css')); ?>" media="screen">
+    <link href="<?php echo e(asset('resources/css/style.css')); ?>" rel="stylesheet" media="all">
+    <link rel="stylesheet" href="<?php echo e(asset('resources/css/custom-style.css')); ?>">
+    <link href="<?php echo e(asset('resources/css/responsive.css')); ?>" rel="stylesheet" media="screen">
 
-    <link href="{{ asset('resources/css/print.css') }}" rel="stylesheet" media="print">
+    <link href="<?php echo e(asset('resources/css/print.css')); ?>" rel="stylesheet" media="print">
     
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.4/summernote.css" rel="stylesheet">
-    <script src="{{ asset('resources/js/jquery.min.js') }}"></script>
+    <script src="<?php echo e(asset('resources/js/jquery.min.js')); ?>"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.4/summernote.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <!-- DataTable CSS -->
-    <script src="{{ asset('public/assets/DataTables/datatables.js') }}"></script>
-    <script src="{{ asset('public/assets/DataTables/datatables.min.js') }}"></script>
+    <script src="<?php echo e(asset('public/assets/DataTables/datatables.js')); ?>"></script>
+    <script src="<?php echo e(asset('public/assets/DataTables/datatables.min.js')); ?>"></script>
     <!-- DataTables Buttons JS -->    
     <script src="https://cdn.datatables.net/select/2.0.3/js/dataTables.select.js"></script>
     <script src="https://cdn.datatables.net/select/2.0.3/js/select.bootstrap4.js"></script>
@@ -95,121 +95,99 @@
         });
     </script>
 
-    @stack('style-css')
+    <?php echo $__env->yieldPushContent('style-css'); ?>
 
-    <link rel="stylesheet" href="{{ asset('public/assets/css/take-test-root.css') }}">
-    <link rel="stylesheet" href="{{ asset('public/assets/css/take-test-style.css') }}">
+    <link rel="stylesheet" href="<?php echo e(asset('public/assets/css/take-test-root.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('public/assets/css/take-test-style.css')); ?>">
 
 </head>
 
 
-<body oncopy="return false" oncut="return false" class="{{ last(request()->segments()) }}  common-inner-cls" >
+<body oncopy="return false" oncut="return false" class="<?php echo e(last(request()->segments())); ?>  common-inner-cls" >
 
     <nav class="navbar navbar-light top_nav_bar px-0">
         <div class="container d-flex justify-content-between w-100">
 	
             <!-- Left Logo -->
-            @php  $SchoolDetails = Helper::GetSchoolDetails();  @endphp
+            <?php  $SchoolDetails = Helper::GetSchoolDetails();  ?>
 
-            @if(!empty($SchoolDetails))
-                @if($SchoolDetails->logo)
-                    <img src="{{ asset('public/assets/uploads/logos/' . $SchoolDetails->logo) }}" style="height:42px; padding:0;">
-                @else
-                    <p>School: {{ $SchoolDetails->school_name }} @if($SchoolDetails->school_code)| {{ $SchoolDetails->school_code }}@endif</p>
-                @endif
-            @endif
+            <?php if(!empty($SchoolDetails)): ?>
+                <?php if($SchoolDetails->logo): ?>
+                    <img src="<?php echo e(asset('public/assets/uploads/logos/' . $SchoolDetails->logo)); ?>" style="height:42px; padding:0;">
+                <?php else: ?>
+                    <p>School: <?php echo e($SchoolDetails->school_name); ?> <?php if($SchoolDetails->school_code): ?>| <?php echo e($SchoolDetails->school_code); ?><?php endif; ?></p>
+                <?php endif; ?>
+            <?php endif; ?>
             
 
             <!-- Mid-Logo -->
-            @if(auth()->guard('sstudent')->check())
-                <a class="navbar-brand logo d-lg-block d-none" href="{{ route('student.dashboard') }}">
-                    <img src="{{ asset('resources/images/gofor-fit-logo.png') }}" class="d-inline-block align-top" alt="student">
+            <?php if(auth()->guard('sstudent')->check()): ?>
+                <a class="navbar-brand logo d-lg-block d-none" href="<?php echo e(route('student.dashboard')); ?>">
+                    <img src="<?php echo e(asset('resources/images/gofor-fit-logo.png')); ?>" class="d-inline-block align-top" alt="student">
                 </a>
-            @else
-                <a class="navbar-brand logo d-lg-block d-none" href="{{ route('filldart.dashboard') }}">
-                    <img src="{{ asset('resources/images/gofor-fit-logo.png') }}" class="d-inline-block align-top" alt="others">
+            <?php else: ?>
+                <a class="navbar-brand logo d-lg-block d-none" href="<?php echo e(route('filldart.dashboard')); ?>">
+                    <img src="<?php echo e(asset('resources/images/gofor-fit-logo.png')); ?>" class="d-inline-block align-top" alt="others">
                 </a>
-            @endif
+            <?php endif; ?>
         
             <!-- Right Side DropDown -->
             <div class="btn-group">
                 <div class="user-cred order-md-12">
                     <ul class="navbar-nav">
 
-                        {{--
-                        @guest
-                        <li class="nav-item l_area mr-2">
-                            @if(Route::has('login'))
-                            <a class="nav-link user-login" href="{{ route('login') }}">{{ __('Login') }}</a>
-                            @endif
-                        </li>
-
-                        @else
-                        <li class="nav-item dropdown avtar">
-                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="{{ route('filldart.dashboard') }}" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                <img src="{{ asset('resources/images/avtar.png') }}" class="d-inline-block align-top" height="32" alt="avtar">
-                                {{ Auth::user()->name }}
-                            </a>
-                            <div class="dropdown-menu user-menu" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="{{ url('editprofile') }}/{{ Auth::user()->id }}">
-                                    {{ __('Edit Profile') }}
-                                </a>
-                                <a class="dropdown-item last_child" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                    {{ __('Logout') }}
-                                </a>
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                    @csrf
-                                </form>
-                            </div>
-                        </li>
-                        @endguest
-                        --}}
+                        
 
 
-                        @if(auth()->guard('web')->guest() && auth()->guard('sstudent')->guest())
+                        <?php if(auth()->guard('web')->guest() && auth()->guard('sstudent')->guest()): ?>
                             <li class="nav-item l_area mr-2">
-                                <a class="nav-link user-login" href="{{ route('login') }}">{{ __('Login') }}</a>
+                                <a class="nav-link user-login" href="<?php echo e(route('login')); ?>"><?php echo e(__('Login')); ?></a>
                             </li>
-                        @else
+                        <?php else: ?>
                             <li class="nav-item dropdown avtar">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="{{ route('filldart.dashboard') }}" role="button"
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="<?php echo e(route('filldart.dashboard')); ?>" role="button"
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    <img src="{{ asset('resources/images/avtar.png') }}" class="d-inline-block align-top" height="32" alt="avtar">
+                                    <img src="<?php echo e(asset('resources/images/avtar.png')); ?>" class="d-inline-block align-top" height="32" alt="avtar">
                                     <span class="d-md-block d-none">
-                                    @if(auth()->guard('web')->check())
+                                    <?php if(auth()->guard('web')->check()): ?>
                                     
-                                        {{ Auth::user()->name }}
-                                    @elseif(auth()->guard('sstudent')->check())
-                                        {{ Auth::guard('sstudent')->user()->student_name }}
-                                    @endif
+                                        <?php echo e(Auth::user()->name); ?>
+
+                                    <?php elseif(auth()->guard('sstudent')->check()): ?>
+                                        <?php echo e(Auth::guard('sstudent')->user()->student_name); ?>
+
+                                    <?php endif; ?>
                                 </span>
                                 </a>
                                 <div class="dropdown-menu user-menu" aria-labelledby="navbarDropdown">
-                                    @if(auth()->guard('web')->check())
-                                        @if(Auth::user()->role_id == '4')
-                                            <a class="dropdown-item" href="{{ route('update.profile')}}">
-                                            {{ __('School Profile') }}
+                                    <?php if(auth()->guard('web')->check()): ?>
+                                        <?php if(Auth::user()->role_id == '4'): ?>
+                                            <a class="dropdown-item" href="<?php echo e(route('update.profile')); ?>">
+                                            <?php echo e(__('School Profile')); ?>
+
                                         </a>
-                                        @else
-                                        <a class="dropdown-item" href="{{ url('editprofile/' . Auth::user()->id) }}">
-                                            {{ __('Edit Profile') }}
+                                        <?php else: ?>
+                                        <a class="dropdown-item" href="<?php echo e(url('editprofile/' . Auth::user()->id)); ?>">
+                                            <?php echo e(__('Edit Profile')); ?>
+
                                         </a>
-                                        @endif
-                                    @elseif(auth()->guard('sstudent')->check())
-                                       <a class="dropdown-item" href="{{ route('student.profile')}}">
-                                            {{ __('Edit Profile') }}
+                                        <?php endif; ?>
+                                    <?php elseif(auth()->guard('sstudent')->check()): ?>
+                                       <a class="dropdown-item" href="<?php echo e(route('student.profile')); ?>">
+                                            <?php echo e(__('Edit Profile')); ?>
+
                                         </a>
-                                    @endif
-                                    <a class="dropdown-item last_child" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
+                                    <?php endif; ?>
+                                    <a class="dropdown-item last_child" href="<?php echo e(route('logout')); ?>" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                        <?php echo e(__('Logout')); ?>
+
                                     </a>
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
+                                    <form id="logout-form" action="<?php echo e(route('logout')); ?>" method="POST" class="d-none">
+                                        <?php echo csrf_field(); ?>
                                     </form>
                                 </div>
                             </li>
-                        @endif
+                        <?php endif; ?>
                     </ul>
                 </div>
             </div>
@@ -221,7 +199,7 @@
                 
             </div>
         </noscript>
-         @if (session('Auth_id'))
+         <?php if(session('Auth_id')): ?>
              <style>
                 .btn-outline-custom {
                     color: #ff8000 !important;
@@ -250,21 +228,21 @@
             </script>
             <div style="background-color: #292775; color: #fff; padding: 5px; text-align: center;">
                 You are logged in as 
-                <strong>{{ session('student_name') }}</strong> 
-                ({{ session('clsss') }}-{{ session('section') }} | RollNo: {{session('rollno')}})                
+                <strong><?php echo e(session('student_name')); ?></strong> 
+                (<?php echo e(session('clsss')); ?>-<?php echo e(session('section')); ?> | RollNo: <?php echo e(session('rollno')); ?>)                
                 <button id="leaveImpersonation" class="btn btn-sm btn-outline-custom" style="">Return to School</button>
             </div>
-        @endif
+        <?php endif; ?>
 
-    @yield('content')
+    <?php echo $__env->yieldContent('content'); ?>
 
-    @stack('page-script')
-    @include('layouts.footer')   
+    <?php echo $__env->yieldPushContent('page-script'); ?>
+    <?php echo $__env->make('layouts.footer', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>   
 
     <script>            
         $('#leaveImpersonation').on('click', function() {
             $.ajax({
-                url: "{{route('school.leaveStudent')}}",
+                url: "<?php echo e(route('school.leaveStudent')); ?>",
                 method: 'POST',
                 data: { _token: $('meta[name="csrf-token"]').attr('content') },
                 success: function(response) {
@@ -279,4 +257,4 @@
     </script>
 </body>
 
-</html>
+</html><?php /**PATH C:\xampp\htdocs\nep\resources\views/layouts/filldart-app.blade.php ENDPATH**/ ?>

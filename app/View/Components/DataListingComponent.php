@@ -59,7 +59,7 @@ class DataListingComponent extends Component
 
 
         $defaultButtons = [
-            ['type' => 'excelHtml5', 'text' => 'Excel']
+            // ['type' => 'excelHtml5', 'text' => 'Excel'] default button ->removed
         ];
 
 

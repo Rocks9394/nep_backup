@@ -16,11 +16,11 @@
          <div class="heading-rw mt-2 mb-2">
             <h1>{{$title}}</h1>
 			
-			@php
-				$classSection = \App\Helpers\Helper::ClassSectionName($studentInfo->custom_class_id);
-			@endphp
-		
-			{{-- <p><a href="{{ route('fms.skills.reports.pdf') }}">Download PDF</a></p> --}}
+            @php
+               $classSection = \App\Helpers\Helper::ClassSectionName($studentInfo->custom_class_id);
+            @endphp
+         
+            {{-- <p><a href="{{ route('fms.skills.reports.pdf') }}">Download PDF</a></p> --}}
 			
          </div>
       </div>
@@ -44,109 +44,94 @@
                   <!--<h2>FMS Development Report</h2>-->
                   <h3 class="mt-3 mb-0">Locomotor Skills</h3>
                   <div class="test__tble mt-3">
-				  
-                  <table>
-                     <tr>
-                        <th width="50px">P1</th>
-                        <th>{{ $ReportDetail1[0]->skill_name }}</th>
-                        <th width="70px">Term 1</th>
-                        <th width="70px">Term 2</th>
-                     </tr>
-					 
+
+                     @if(!empty($ReportDetail1) && count($ReportDetail1) > 0)
+                     <table>
+                        <tr>
+                           <th width="50px">P1</th>
+                           <th>{{ $ReportDetail1[0]->skill_name }}</th>
+                           <th width="70px">Term 1</th>
+                           <th width="70px">Term 2</th>
+                        </tr>				 
+                        
+                        @foreach($ReportDetail1 as $key => $val) 
+                        <tr>
+                           <td>{{ $val->skill_type_name }}</td>
+                           <td>{{ $val->description }}</td>
+                           <td>@if($val->skill_type_value == 'Y') <img src="{{ asset('public/assets/imgs/check.svg') }}">
+                           @endif
+                           </td>
+                           <td></td>
+                        </tr>
+                        @endforeach				  
+                     </table>
+                     @endif
+
+                     @if(!empty($ReportDetail2) && count($ReportDetail2) > 0)
+                     <table>				  
+                        <tr>
+                           <th width="50px">P2</th>
+                           <th>{{ $ReportDetail2[0]->skill_name }}</th>
+                           <th width="70px">Term 1</th>
+                           <th width="70px">Term 2</th>
+                        </tr>
+                  
+                        @foreach($ReportDetail2 as $key2 => $val2) 
+                        <tr>
+                           <td>{{ $val2->skill_type_name }}</td>
+                           <td>{{ $val2->description }}</td>
+                           <td>@if($val2->skill_type_value == 'Y') <img src="{{ asset('public/assets/imgs/check.svg') }}">
+                           @endif
+                           </td>
+                           <td></td>
+                        </tr>
+                        @endforeach				  
+                     </table>
+                     @endif
+               
+                     @if(!empty($ReportDetail3) && count($ReportDetail3) > 0)
+                     <table>				  
+                        <tr>
+                           <th width="50px">P3</th>
+                           <th>{{ $ReportDetail3[0]->skill_name }}</th>
+                           <th width="70px">Term 1</th>
+                           <th width="70px">Term 2</th>
+                        </tr>
                      
-					@foreach($ReportDetail1 as $key => $val) 
-                     <tr>
-                        <td>{{ $val->skill_type_name }}</td>
-                        <td>{{ $val->description }}</td>
-                        <td>@if($val->skill_type_value == 'Y') <img src="{{ asset('public/assets/imgs/check.svg') }}">
-						@endif
-						</td>
-                        <td></td>
-                     </tr>
-                    @endforeach
-				  
-				  </table>
-				  
-                  <table>
-				  
-					 <tr>
-                        <th width="50px">P2</th>
-                        <th>{{ $ReportDetail2[0]->skill_name }}</th>
-                        <th width="70px">Term 1</th>
-                        <th width="70px">Term 2</th>
-                     </tr>
-					 
-                    
-                  
-                   
-					@foreach($ReportDetail2 as $key2 => $val2) 
-                     <tr>
-                        <td>{{ $val2->skill_type_name }}</td>
-                        <td>{{ $val2->description }}</td>
-                        <td>@if($val2->skill_type_value == 'Y') <img src="{{ asset('public/assets/imgs/check.svg') }}">
-						@endif
-						</td>
-                        <td></td>
-                     </tr>
-                    @endforeach
-				  
-                  </table>
-				  
-				  
-				  <table>
-				  
-					 <tr>
-                        <th width="50px">P3</th>
-                        <th>{{ $ReportDetail3[0]->skill_name }}</th>
-                        <th width="70px">Term 1</th>
-                        <th width="70px">Term 2</th>
-                     </tr>
-					 
-                    
-                  
-                   
-					@foreach($ReportDetail3 as $key3 => $val3) 
-                     <tr>
-                        <td>{{ $val3->skill_type_name }}</td>
-                        <td>{{ $val3->description }}</td>
-                        <td>@if($val3->skill_type_value == 'Y') <img src="{{ asset('public/assets/imgs/check.svg') }}">
-						@endif
-						</td>
-                        <td></td>
-                     </tr>
-                    @endforeach
-				  
-                  </table>
-				  
-				  
-				  <table>
-				  
-					 <tr>
-                        <th width="50px">P4</th>
-                        <th>{{ $ReportDetail4[0]->skill_name }}</th>
-                        <th width="70px">Term 1</th>
-                        <th width="70px">Term 2</th>
-                     </tr>
-					 
-                    
-                  
-                   
-					@foreach($ReportDetail4 as $key4 => $val4) 
-                     <tr>
-                        <td>{{ $val4->skill_type_name }}</td>
-                        <td>{{ $val4->description }}</td>
-                        <td>@if($val4->skill_type_value == 'Y') <img src="{{ asset('public/assets/imgs/check.svg') }}">
-						@endif
-						</td>
-                        <td></td>
-                     </tr>
-                    @endforeach
-				  
-                  </table>
-                 
-
-	
-
+                        @foreach($ReportDetail3 as $key3 => $val3) 
+                           <tr>
+                              <td>{{ $val3->skill_type_name }}</td>
+                              <td>{{ $val3->description }}</td>
+                              <td>@if($val3->skill_type_value == 'Y') <img src="{{ asset('public/assets/imgs/check.svg') }}">
+                              @endif
+                              </td>
+                              <td></td>
+                           </tr>
+                        @endforeach				  
+                     </table>
+                     @endif
+               
+                     @if(!empty($ReportDetail4) && count($ReportDetail4) > 0)
+                     <table>				  
+                        <tr>
+                           <th width="50px">P4</th>
+                           <th>{{ $ReportDetail4[0]->skill_name }}</th>
+                           <th width="70px">Term 1</th>
+                           <th width="70px">Term 2</th>
+                        </tr>
+                     
+                        @foreach($ReportDetail4 as $key4 => $val4) 
+                        <tr>
+                           <td>{{ $val4->skill_type_name }}</td>
+                           <td>{{ $val4->description }}</td>
+                           <td>@if($val4->skill_type_value == 'Y') <img src="{{ asset('public/assets/imgs/check.svg') }}">
+                           @endif
+                           </td>
+                           <td></td>
+                        </tr>
+                        @endforeach				  
+                     </table>
+                     @endif
 
                   </div>
                </div>
@@ -154,8 +139,5 @@
          </div>
       </div>
    </div>
-
-
-
 </div>
 @endsection

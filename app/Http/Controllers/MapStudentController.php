@@ -8,6 +8,7 @@ use DB;
 use Response;
 use Validator;
 use Redirect;
+use Session;
 use App\Models\Sport;
 use Auth;
 use App\Models\Skill;
@@ -251,22 +252,14 @@ class MapStudentController extends Controller
 		 	)		
 			->where('students.status','active')
 			->where('custom_classes.status','1');
-		
-		if($role_id == 3) {
-			$schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->pluck('school_id');
-			$classeQuery->WhereIn('custom_classes.school_id', array($schoolId))
-			->groupBy(
-			'custom_classes.id',
-			'custom_classes.class_id',
-			'custom_classes.section',
-			DB::raw("CASE 
-				WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-				THEN custom_classes.nomenclature 
-				ELSE class.name 
-			END")
-			);
-			
-		} elseif($role_id == 4) {
+
+		if (\Auth::guard('sstudent')->check() || session('Auth_id')) {
+	        $UserData = \Auth::guard('sstudent')->user();
+	        $schoolId = $UserData->school_id;
+	        $classId = $UserData->custom_class_id;
+	        $classeQuery->where('students.id', $UserData->id)->where('custom_classes.id', $classId);
+	    }
+		elseif($role_id == 4) {
 			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
 			$classeQuery->WhereIn('custom_classes.school_id', array($schoolId))
 			->groupBy(
@@ -280,12 +273,26 @@ class MapStudentController extends Controller
 			END")
 			);
 
-		} elseif (\Auth::guard('sstudent')->check()) {
-	        $UserData = \Auth::guard('sstudent')->user();
-	        $schoolId = $UserData->school_id;
-	        $classId = $UserData->custom_class_id;
-	        $classeQuery->where('custom_classes.id', $classId);
-	    }
+		} 
+		elseif($role_id == 3) {
+			if(Session::get('SelectSchoolId')){	
+				$schoolId = Session::get('SelectSchoolId');			
+			}else{			
+				$schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->pluck('school_id');
+			}
+			$classeQuery->WhereIn('custom_classes.school_id', array($schoolId))
+			->groupBy(
+			'custom_classes.id',
+			'custom_classes.class_id',
+			'custom_classes.section',
+			DB::raw("CASE 
+				WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
+				THEN custom_classes.nomenclature 
+				ELSE class.name 
+			END")
+			);
+			
+		} 
 
 	    $classes = $classeQuery->orderBy('custom_classes.orders', 'ASC')->get();
 

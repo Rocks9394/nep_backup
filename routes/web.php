@@ -397,6 +397,11 @@ Route::prefix('school')->group(function(){
 	Route::get('students-sports', [SchoolRecordController::class, 'StudentsSportsMapping'])->name('students-sports-mapping')->middleware('module_access:managestudent');
 	Route::post('students-sports/export', [SchoolRecordController::class, 'ExportStudentsSportsMapping'])->name('expoort.students-sports-mapping');
    
+
+	// login as student routes 
+	Route::post('login-as-student', [SchoolRecordController::class, 'loginAsStudent'])->name('school.loginAsStudent');
+    Route::post('leave-student', [SchoolRecordController::class, 'leaveStudent'])->name('school.leaveStudent');
+
 	
 });
 

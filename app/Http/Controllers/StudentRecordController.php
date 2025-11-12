@@ -215,26 +215,6 @@ class StudentRecordController extends Controller
 		$title = 'Daily Tracker'; 
 		return view('parent.dailytracker2', compact('title','dailyReportCard','SessionAndTerm'));
 		
-		
-
-		/*
-
-		$studentId = Auth::guard('sstudent')->user();
-		$studentsDetails = Sstudent::with([
-			'StudentReport' => function($query){
-				$query->select('id','school_id','student_id','level','submitted_by','skill_area_id','skill_sports_id','technique_id','activity_id','class_id','date','period')->orderBy('date', 'DESC')->orderBy('period', 'ASC')
-					->with([ 
-						'skillArea' =>fn ($skillArea) => $skillArea->select('id','name'),
-						'sport', 'technique',
-						'level' => fn ($class) => $class->select('id','level_name'),
-						'classname' => fn ($class) => $class->select('id','name'),
-						'activity'=> fn ($activity) => $activity->select('id','title','image') 
-					]);
-			},
-		])->where('id', $studentId->id)->get();
-		$title = 'Daily Tracker'; 
-		return view('parent.dailytracker', compact('title', 'studentsDetails'));
-		*/
 	}
 
 
@@ -342,7 +322,7 @@ class StudentRecordController extends Controller
 		->orderBy('reportMapping.skill_type_id', 'ASC')
 		->get();
 		
-				$ReportDetail3 = DB::table('skillreport_skilltype_termtype_mapping as reportMapping')
+		$ReportDetail3 = DB::table('skillreport_skilltype_termtype_mapping as reportMapping')
 		->join('skill_reports', 'skill_reports.id', '=' , 'reportMapping.skill_report_id')
 		->join('skill_types', 'skill_types.id', '=' , 'reportMapping.skill_type_id')
 		->join('term_types', 'term_types.id', '=' , 'reportMapping.term_type_id')
@@ -353,7 +333,7 @@ class StudentRecordController extends Controller
 		->orderBy('reportMapping.skill_type_id', 'ASC')
 		->get();
 		
-				$ReportDetail4 = DB::table('skillreport_skilltype_termtype_mapping as reportMapping')
+		$ReportDetail4 = DB::table('skillreport_skilltype_termtype_mapping as reportMapping')
 		->join('skill_reports', 'skill_reports.id', '=' , 'reportMapping.skill_report_id')
 		->join('skill_types', 'skill_types.id', '=' , 'reportMapping.skill_type_id')
 		->join('term_types', 'term_types.id', '=' , 'reportMapping.term_type_id')
@@ -363,6 +343,7 @@ class StudentRecordController extends Controller
 		->where('reportMapping.skill_report_id', 4)
 		->orderBy('reportMapping.skill_type_id', 'ASC')
 		->get();
+		
 		
 
 		return view('parent.fms-report', compact('title', 'studentInfo', 'ReportDetail1', 'ReportDetail2', 'ReportDetail3', 'ReportDetail4'));
@@ -492,9 +473,10 @@ class StudentRecordController extends Controller
 		$studentId = $id;
 	    $studentsData = $this->getStudentData($studentId);
 
-	    // echo "<pre>"; print_r($studentsData);exit();
 	    
 	    $TermMasterId = $this->getTermId($studentsData->schools_id);
+
+	    // echo "<pre>"; print_r($TermMasterId);exit();
 		
 	    $dob          = Carbon::parse($studentsData->dob);
 	    $studentAge   = $dob->age;
@@ -502,7 +484,7 @@ class StudentRecordController extends Controller
 	    $ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
 		
 	    // Fetch report + benchmarks
-	    $reportData    = $this->getReportData($studentId);
+	    $reportData    = $this->getReportData($studentId,$TermMasterId);
 	    $mappedReport  = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
 
 

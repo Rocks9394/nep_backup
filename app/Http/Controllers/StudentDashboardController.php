@@ -34,13 +34,21 @@ class StudentDashboardController extends Controller
 	
 	function __construct()
 	{
-		$this->middleware('auth.auth_student')->except(['ViewFitnessReport','getPerformance','getBmiBenchmark','getBenchmark','formatBenchmarks','formatRange','formatValue']);;
+		$this->middleware('auth.auth_student')->except(['dashboard','ViewFitnessReport','getPerformance','getBmiBenchmark','getBenchmark','formatBenchmarks','formatRange','formatValue']);;
         
 	}	
 
     public function dashboard(){
         $title = "Student Dashboard";
-        $studentId = Auth::guard('sstudent')->user()->id;
+        // $studentId = Auth::guard('sstudent')->user()->id;
+
+        $studentId = null;
+        
+        if (Session::has('student_id')) {
+            $studentId = Session::get('student_id');
+        }else{
+            $studentId = Auth::guard('sstudent')->user()->id;
+        }
 
         $currentDate = Carbon::now()->format('Y/m/d');
            
@@ -109,24 +117,6 @@ class StudentDashboardController extends Controller
 		->Where('school_id', $SchoolId)
 		->orderBy('custom_classes.orders', 'ASC')
 		->get();
-
-        // $testTypes = DB::table('class_fitness_tests')
-        // ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'class_fitness_tests.test_type_id')
-        // ->join('skill_reports', 'skill_reports.TestTypeMasterID', '=', 'TestTypeMaster.TestTypeID')
-        // ->select(
-        //     'class_fitness_tests.test_type_id',
-        //     'skill_reports.skill_name',
-        //     'class_fitness_tests.class_id'
-        // )
-        // ->where('class_fitness_tests.class_id', $classId)
-        // ->get();
-        
-
-        // $fmsScores = DB::table('skillreport_skilltype_termtype_mapping')
-        // ->where('student_id', $studentId)
-        // ->select('skill_report_id', DB::raw('COUNT(*) as entry_count'))
-        // ->groupBy('skill_report_id')
-        // ->get();
 
         $fmsTestData = DB::table('class_fitness_tests')
         ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'class_fitness_tests.test_type_id')

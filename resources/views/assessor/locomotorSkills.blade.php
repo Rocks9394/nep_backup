@@ -97,7 +97,6 @@ document.addEventListener("DOMContentLoaded", function() {
         modal.find('.modal-title').text(testName);
 
         let allVideos = @json($videos);
-        console.log(allVideos);
         let filtered = allVideos.filter(v => v.testType_id == testTypeId);
         let html = '';
 

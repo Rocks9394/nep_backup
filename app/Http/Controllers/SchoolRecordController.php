@@ -3296,7 +3296,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	    $ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
 
 	    // Fetch report + benchmarks
-	    $reportData    = $this->getReportData($studentId);
+	    $reportData    = $this->getReportData($studentId,$TermMasterId);
 	    $mappedReport  = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
 
 	    $groupedReport = $mappedReport->groupBy('Category');
@@ -3987,7 +3987,6 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	                $query->where('s.section_id', $section_id);
 	            }
 	        }
-
 	        $filters = [
 	            'class_id' => function ($query, $value) {
 	                list($class_id, $section_id) = array_pad(explode('-', $value), 2, null);
@@ -4001,7 +4000,16 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	                }
 	            },
 	        ];
-
+			
+			$search = $request->input('search.value');
+			if ($search) {
+				$query->where(function ($q) use ($search) {
+					$q->where('s.student_name', 'LIKE', "%{$search}%")
+					->orWhere('s.section_id', 'LIKE', "%{$search}%")
+					->orWhere('sp.name', 'LIKE', "%{$search}%")
+					->orWhere('u.name', 'LIKE', "%{$search}%");
+				});
+			}
 
 	        return $dataTable
             ->setQuery($query)
@@ -4039,5 +4047,100 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	    return Excel::download(new \App\Exports\StudentSportsMappingExport($ids, $schoolId, $schoolName), $fileName);
 	}
 
+
+	// date: 10-11-2025 login as student method 
+
+	public function loginAsStudent(Request $request){
+
+        // dd($request->student_id);
+        $student = Sstudent::where('id', $request->student_id)
+	        ->where('status', 'active')
+	        ->first();
+
+        // dd($student);
+        if (!$student) {
+            return response()->json(['success' => false, 'message' => 'Student has been transferred.']);
+        }
+
+		$class = DB::table('custom_classes')
+			->join('class','class.id','=','custom_classes.class_id')
+			->join('students','students.custom_class_id','=' ,'custom_classes.id')
+			->select('custom_classes.id','custom_classes.class_id','custom_classes.section',
+
+				DB::raw("CASE 
+					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
+					THEN custom_classes.nomenclature 
+					ELSE class.name 
+				END AS classname")
+
+				// 'class.name AS classname'
+			)->where('students.id',$request->student_id)->first();
+
+        session([
+            'Auth_id' => Auth::guard('web')->id(),
+            'impersonate_guard' => 'web',
+			'student_id' => $request->student_id,
+			'student_name' => $student->student_name,
+			'clsss' => $class->classname,
+			'section' => $student->section_id,
+			'rollno' => $student->rollno,
+        ]);
+        Auth::guard('sstudent')->login($student);
+
+        $request->session()->regenerate();
+        $cookie = cookie(
+            'my_cookie_dot',
+            $this->generateRandomString(),
+            60,
+            '/',
+            config('app.cookie_domain'),
+            true,
+            true,
+            false,
+            'None'
+        );
+
+        return response()->json([
+            'success' => true,
+            'redirect_url' => route('student.dashboard')
+        ])->cookie($cookie);
+
+        return response()->json([
+            'success' => true,
+            'redirect_url' => route('student.dashboard')
+        ]);
+    }
+
+    public function leaveStudent(Request $request){
+        $schoolId = session('Auth_id');
+        $guard = session('impersonate_guard');
+
+        if (!$schoolId || !$guard) {
+            return response()->json(['success' => false, 'message' => 'No impersonation session found']);
+        }
+
+        Auth::guard('sstudent')->logout();
+
+        $user = Auth::guard($guard)->loginUsingId($schoolId);
+
+        session()->forget(['Auth_id', 'impersonate_guard', 'student_id', 'student_name', 'clsss', 'section', 'rollno']);
+        $request->session()->regenerate();
+        $cookie = cookie(
+            'my_cookie_dot',
+            $this->generateRandomString(),
+            60,
+            '/',
+            config('app.cookie_domain'),
+            true,
+            true,
+            false,
+            'None'
+        );
+
+        return response()->json([
+            'success' => true,
+            'redirect_url' => route('managestudent')
+        ])->cookie($cookie);
+    }
 
 }

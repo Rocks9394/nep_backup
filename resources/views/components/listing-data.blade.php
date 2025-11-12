@@ -151,6 +151,7 @@ $(function () {
             }
         },
         columns: columnsConfig,
+        searchDelay: 2000,
         buttons: [{
             extend: 'collection',
             text: 'Export',
@@ -159,7 +160,7 @@ $(function () {
         }],
 
         initComplete: function () {
-
+            $('.dt-search input[type="search"]').attr('placeholder', 'Search here...');
             if (enableClassFilter) {
                 const classList = @json($classes ?? []);
                 const $dropdown = $('<select class="form-select form-select-sm ms-2" id="filter-class"></select>');               

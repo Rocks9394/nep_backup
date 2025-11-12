@@ -217,7 +217,7 @@
                                 <img src="{{ asset('public/assets/imgs/height-icon.jpg') }}" alt="Height" class="img-fluid img lazy-image" loading="lazy" />
                                 <div class="weight-input">
                                     <h4>Height</h4>
-                                    <span>{{$bmiRecord->height}} cm</span>
+                                    <span>{{ $bmiRecord->height ?? '---' }} cm</span>
                                 </div>
                             </div>
                         </div>
@@ -226,7 +226,7 @@
                                 <img src="{{ asset('public/assets/imgs/weight-icon.png') }}" alt="weight" class="img-fluid img lazy-image" loading="lazy" />
                                 <div class="weight-input">
                                     <h4>Weight</h4>
-                                    <span>{{$bmiRecord->weight}} kg</span>
+                                    <span>{{ $bmiRecord->weight ?? '---' }} kg</span>
                                 </div>
                             </div>
                             <div class="clearfix"></div>
@@ -239,7 +239,7 @@
                         <div class="meater left-text w-100">                                
                             <div class="left-text benchmark">
                                 <h4>BMI</h4>
-                                <span>{{$bmiRecord->score}} ({{$bmiRecord->level}})</span>
+                                <span>{{$bmiRecord->score ?? '---' }} ({{$bmiRecord->level ?? '---' }})</span>
                                 <a href="#" id="openModal">BMI Benchmark <i class="fa fa-angle-right"></i></a>
                             </div>
                             <div id="bmi_gauge"></div>
@@ -383,7 +383,7 @@
     google.charts.setOnLoadCallback(drawChart);
 
     function drawChart() {
-        const bmi = {{ $bmiRecord->score }};
+        const bmi = {{ $bmiRecord->score ?? 0 }};
         const benchmark = @json($getBmiBenchmark);
 
         const extractNumbers = (text) => {
