@@ -57,7 +57,7 @@
                         @endphp
 
                         @foreach($groupedReports as $skillName => $reports)
-                           <table>
+                           <table border="1">
                                  <tr>
                                     <th width="50px">#</th>
                                     <th>{{ $skillName }}</th>

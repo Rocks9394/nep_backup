@@ -46,6 +46,10 @@
 		white-space: normal !important;
 		overflow-wrap: anywhere !important;
 	}	
+	.form-control[readonly] {
+		background-color: #ffffff !important;
+		opacity: 1;
+	}
 </style>
 
 <div class="container">

@@ -57,7 +57,7 @@
                         ?>
 
                         <?php $__currentLoopData = $groupedReports; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $skillName => $reports): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                           <table>
+                           <table border="1">
                                  <tr>
                                     <th width="50px">#</th>
                                     <th><?php echo e($skillName); ?></th>

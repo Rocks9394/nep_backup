@@ -299,12 +299,6 @@ class StudentRecordController extends Controller
 		->first();
 		
 		$schoolId = $studentInfo->school_id;
-		
-		// $termIds = TermMaster::where('school_id', $schoolId)
-		// ->where('is_active', 1)
-		// ->whereDate('term_start_date', '<=', today())
-		// ->whereDate('term_end_date', '>=', today())
-		// ->value('id');
 
 		$year = date('Y');
 		$month = date('m');
