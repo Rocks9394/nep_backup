@@ -32,7 +32,8 @@
                <div class="stu__bmi">
                   <div class="std-report-info">
                      <p><span>Name: </span><?php echo e($studentInfo->student_name); ?></p>
-                     <p><span>Class: <?php echo e($classSection->name.'-'.$classSection->section); ?></span></p>
+                     <p><span>Class: <?php echo e($classSection->name.'-'.$classSection->section); ?></span></p>                     
+                     <p><span>Roll No: </span><?php echo e($studentInfo->rollno); ?></p>
                      <p><span>User ID: </span><?php echo e($studentInfo->user_id); ?></p>
                      <p><span>Gender/DOB: </span><?php echo e($studentInfo->gender); ?>/<?php echo e($studentInfo->dob); ?></p>
                      <p><span>School: </span><?php echo e($studentInfo->school_name); ?></p>
@@ -44,95 +45,54 @@
                   <!--<h2>FMS Development Report</h2>-->
                   <h3 class="mt-3 mb-0">Locomotor Skills</h3>
                   <div class="test__tble mt-3">
+                     <?php if(!empty($ReportDetail) && count($ReportDetail) > 0): ?>
 
-                     <?php if(!empty($ReportDetail1) && count($ReportDetail1) > 0): ?>
-                     <table>
-                        <tr>
-                           <th width="50px">P1</th>
-                           <th><?php echo e($ReportDetail1[0]->skill_name); ?></th>
-                           <th width="70px">Term 1</th>
-                           <th width="70px">Term 2</th>
-                        </tr>				 
-                        
-                        <?php $__currentLoopData = $ReportDetail1; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $val): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?> 
-                        <tr>
-                           <td><?php echo e($val->skill_type_name); ?></td>
-                           <td><?php echo e($val->description); ?></td>
-                           <td><?php if($val->skill_type_value == 'Y'): ?> <img src="<?php echo e(asset('public/assets/imgs/check.svg')); ?>">
-                           <?php endif; ?>
-                           </td>
-                           <td></td>
-                        </tr>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>				  
-                     </table>
-                     <?php endif; ?>
+                        <?php
+                           $groupedReports = $ReportDetail->groupBy('skill_name');
+                           $termIds = $termsDetail->pluck('id')->toArray();
+                           $term1Id = $termIds[0] ?? null;
+                           $term2Id = $termIds[1] ?? null;
+                        ?>
 
-                     <?php if(!empty($ReportDetail2) && count($ReportDetail2) > 0): ?>
-                     <table>				  
-                        <tr>
-                           <th width="50px">P2</th>
-                           <th><?php echo e($ReportDetail2[0]->skill_name); ?></th>
-                           <th width="70px">Term 1</th>
-                           <th width="70px">Term 2</th>
-                        </tr>
-                  
-                        <?php $__currentLoopData = $ReportDetail2; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key2 => $val2): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?> 
-                        <tr>
-                           <td><?php echo e($val2->skill_type_name); ?></td>
-                           <td><?php echo e($val2->description); ?></td>
-                           <td><?php if($val2->skill_type_value == 'Y'): ?> <img src="<?php echo e(asset('public/assets/imgs/check.svg')); ?>">
-                           <?php endif; ?>
-                           </td>
-                           <td></td>
-                        </tr>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>				  
-                     </table>
+                        <?php $__currentLoopData = $groupedReports; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $skillName => $reports): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                           <table>
+                                 <tr>
+                                    <th width="50px">#</th>
+                                    <th><?php echo e($skillName); ?></th>
+                                    <th width="120px">Current Term</th>
+                                    <th width="120px">Previous Term</th>
+                                 </tr>
+
+                                 <?php $__currentLoopData = $reports->groupBy('skill_type_name'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $skillTypeName => $skillTypeRows): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php
+                                       $term1 = $skillTypeRows->firstWhere('term_id', $term1Id);
+                                       $term2 = $skillTypeRows->firstWhere('term_id', $term2Id);
+                                    ?>
+
+                                    <tr>
+                                       <td><?php echo e($skillTypeName); ?></td>
+                                       <td><?php echo e($skillTypeRows->first()->description ?? ''); ?></td>
+
+                                       
+                                       <td class="text-center">
+                                             <?php if(!empty($term1) && $term1->skill_type_value == 'Y'): ?>
+                                                <img class="tick" src="<?php echo e(asset('public/assets/imgs/check.svg')); ?>">
+                                             <?php endif; ?>
+                                       </td>
+
+                                       
+                                       <td class="text-center">
+                                             <?php if(!empty($term2) && $term2->skill_type_value == 'Y'): ?>
+                                                <img class="tick" src="<?php echo e(asset('public/assets/imgs/check.svg')); ?>">
+                                             <?php endif; ?>
+                                       </td>
+                                    </tr>
+                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                           </table>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
                      <?php endif; ?>
-               
-                     <?php if(!empty($ReportDetail3) && count($ReportDetail3) > 0): ?>
-                     <table>				  
-                        <tr>
-                           <th width="50px">P3</th>
-                           <th><?php echo e($ReportDetail3[0]->skill_name); ?></th>
-                           <th width="70px">Term 1</th>
-                           <th width="70px">Term 2</th>
-                        </tr>
                      
-                        <?php $__currentLoopData = $ReportDetail3; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key3 => $val3): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?> 
-                           <tr>
-                              <td><?php echo e($val3->skill_type_name); ?></td>
-                              <td><?php echo e($val3->description); ?></td>
-                              <td><?php if($val3->skill_type_value == 'Y'): ?> <img src="<?php echo e(asset('public/assets/imgs/check.svg')); ?>">
-                              <?php endif; ?>
-                              </td>
-                              <td></td>
-                           </tr>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>				  
-                     </table>
-                     <?php endif; ?>
-               
-                     <?php if(!empty($ReportDetail4) && count($ReportDetail4) > 0): ?>
-                     <table>				  
-                        <tr>
-                           <th width="50px">P4</th>
-                           <th><?php echo e($ReportDetail4[0]->skill_name); ?></th>
-                           <th width="70px">Term 1</th>
-                           <th width="70px">Term 2</th>
-                        </tr>
-                     
-                        <?php $__currentLoopData = $ReportDetail4; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key4 => $val4): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?> 
-                        <tr>
-                           <td><?php echo e($val4->skill_type_name); ?></td>
-                           <td><?php echo e($val4->description); ?></td>
-                           <td><?php if($val4->skill_type_value == 'Y'): ?> <img src="<?php echo e(asset('public/assets/imgs/check.svg')); ?>">
-                           <?php endif; ?>
-                           </td>
-                           <td></td>
-                        </tr>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>				  
-                     </table>
-                     <?php endif; ?>
-
                   </div>
                </div>
             </div>

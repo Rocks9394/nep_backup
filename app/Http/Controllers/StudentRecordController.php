@@ -286,8 +286,7 @@ class StudentRecordController extends Controller
 		return view('parent.login');
 	}
 	
-	public function FMSskillReport()
-	{
+	public function FMSskillReport(){
 		$user       = Auth::guard('sstudent')->user();
 		$studentId  = $user->id;
 		
@@ -298,55 +297,65 @@ class StudentRecordController extends Controller
 		->where('students.id', $studentId)
 		->select('students.*','schools.school_name')
 		->first();
+		
+		$schoolId = $studentInfo->school_id;
+		
+		// $termIds = TermMaster::where('school_id', $schoolId)
+		// ->where('is_active', 1)
+		// ->whereDate('term_start_date', '<=', today())
+		// ->whereDate('term_end_date', '>=', today())
+		// ->value('id');
+
+		$year = date('Y');
+		$month = date('m');
+		$day = date('d');
+		if ($month < 4 || ($month == 3 && $day <= 31)) {
+			$academicYear = ($year - 1) . '-' . $year;
+		} else {
+			$academicYear = $year . '-' . ($year + 1);
+		}
+
+
+		$termsDetail = DB::table('term_masters')
+			->select('id')
+			->where('school_id', $schoolId)
+			->where('is_active', '1')
+			->where('academic_year', $academicYear)
+			->orderBy('id', 'DESC')
+			->limit(2)
+			->get();
+
+		$termIds = $termsDetail->pluck('id')->toArray();
+		
+		$skills = [1,2,3,4];
+
+		$ReportDetail = DB::table('skillreport_skilltype_termtype_mapping as sstm')
+			->join('term_masters as tm', 'tm.id', '=', 'sstm.term_master_id')
+			->join('skill_reports', 'skill_reports.id', '=', 'sstm.skill_report_id')
+			->join('skill_types', 'skill_types.id', '=', 'sstm.skill_type_id')
+			->select(
+				'tm.id as term_id',
+				'tm.term_name',
+				'skill_reports.id as skill_report_id',
+				'skill_reports.skill_name',
+				'skill_types.id as skill_type_id',
+				'skill_types.skill_type_name',
+				'skill_types.description',
+				'sstm.student_id',
+				'sstm.skill_type_value'
+			)
+			->where('sstm.student_id', $studentId)
+			->whereIn('sstm.skill_report_id', $skills)
+			->whereIn('sstm.term_master_id', $termIds)
+			->orderBy('sstm.skill_report_id', 'ASC')
+			->orderBy('sstm.skill_type_id', 'ASC')
+			->get();
 
 		
-		$ReportDetail1 = DB::table('skillreport_skilltype_termtype_mapping as reportMapping')
-		->join('skill_reports', 'skill_reports.id', '=' , 'reportMapping.skill_report_id')
-		->join('skill_types', 'skill_types.id', '=' , 'reportMapping.skill_type_id')
-		->join('term_types', 'term_types.id', '=' , 'reportMapping.term_type_id')
-		->select('reportMapping.*','skill_reports.skill_name','skill_type_name','description','term_name')
-		->where('student_id', $studentId)
-		->where('reportMapping.status', 1)
-		->where('reportMapping.skill_report_id', 1)
-		->orderBy('reportMapping.skill_type_id', 'ASC')
-		->get();
-		
-		$ReportDetail2 = DB::table('skillreport_skilltype_termtype_mapping as reportMapping')
-		->join('skill_reports', 'skill_reports.id', '=' , 'reportMapping.skill_report_id')
-		->join('skill_types', 'skill_types.id', '=' , 'reportMapping.skill_type_id')
-		->join('term_types', 'term_types.id', '=' , 'reportMapping.term_type_id')
-		->select('reportMapping.*','skill_reports.skill_name','skill_type_name','description','term_name')
-		->where('student_id', $studentId)
-		->where('reportMapping.status', 1)
-		->where('reportMapping.skill_report_id', 2)
-		->orderBy('reportMapping.skill_type_id', 'ASC')
-		->get();
-		
-		$ReportDetail3 = DB::table('skillreport_skilltype_termtype_mapping as reportMapping')
-		->join('skill_reports', 'skill_reports.id', '=' , 'reportMapping.skill_report_id')
-		->join('skill_types', 'skill_types.id', '=' , 'reportMapping.skill_type_id')
-		->join('term_types', 'term_types.id', '=' , 'reportMapping.term_type_id')
-		->select('reportMapping.*','skill_reports.skill_name','skill_type_name','description','term_name')
-		->where('student_id', $studentId)
-		->where('reportMapping.status', 1)
-		->where('reportMapping.skill_report_id', 3)
-		->orderBy('reportMapping.skill_type_id', 'ASC')
-		->get();
-		
-		$ReportDetail4 = DB::table('skillreport_skilltype_termtype_mapping as reportMapping')
-		->join('skill_reports', 'skill_reports.id', '=' , 'reportMapping.skill_report_id')
-		->join('skill_types', 'skill_types.id', '=' , 'reportMapping.skill_type_id')
-		->join('term_types', 'term_types.id', '=' , 'reportMapping.term_type_id')
-		->select('reportMapping.*','skill_reports.skill_name','skill_type_name','description','term_name')
-		->where('student_id', $studentId)
-		->where('reportMapping.status', 1)
-		->where('reportMapping.skill_report_id', 4)
-		->orderBy('reportMapping.skill_type_id', 'ASC')
-		->get();
-		
+		// echo "<pre>"; print_r($ReportDetail);exit();		
 		
 
-		return view('parent.fms-report', compact('title', 'studentInfo', 'ReportDetail1', 'ReportDetail2', 'ReportDetail3', 'ReportDetail4'));
+		return view('parent.fms-report', compact('title', 'studentInfo', 'termsDetail', 'ReportDetail'));
 		
 	
 	}

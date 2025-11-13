@@ -32,7 +32,8 @@
                <div class="stu__bmi">
                   <div class="std-report-info">
                      <p><span>Name: </span>{{ $studentInfo->student_name }}</p>
-                     <p><span>Class: {{ $classSection->name.'-'.$classSection->section }}</span></p>
+                     <p><span>Class: {{ $classSection->name.'-'.$classSection->section }}</span></p>                     
+                     <p><span>Roll No: </span>{{ $studentInfo->rollno }}</p>
                      <p><span>User ID: </span>{{ $studentInfo->user_id }}</p>
                      <p><span>Gender/DOB: </span>{{ $studentInfo->gender }}/{{ $studentInfo->dob }}</p>
                      <p><span>School: </span>{{ $studentInfo->school_name }}</p>
@@ -44,95 +45,54 @@
                   <!--<h2>FMS Development Report</h2>-->
                   <h3 class="mt-3 mb-0">Locomotor Skills</h3>
                   <div class="test__tble mt-3">
+                     @if(!empty($ReportDetail) && count($ReportDetail) > 0)
 
-                     @if(!empty($ReportDetail1) && count($ReportDetail1) > 0)
-                     <table>
-                        <tr>
-                           <th width="50px">P1</th>
-                           <th>{{ $ReportDetail1[0]->skill_name }}</th>
-                           <th width="70px">Term 1</th>
-                           <th width="70px">Term 2</th>
-                        </tr>				 
-                        
-                        @foreach($ReportDetail1 as $key => $val) 
-                        <tr>
-                           <td>{{ $val->skill_type_name }}</td>
-                           <td>{{ $val->description }}</td>
-                           <td>@if($val->skill_type_value == 'Y') <img src="{{ asset('public/assets/imgs/check.svg') }}">
-                           @endif
-                           </td>
-                           <td></td>
-                        </tr>
-                        @endforeach				  
-                     </table>
-                     @endif
+                        @php
+                           $groupedReports = $ReportDetail->groupBy('skill_name');
+                           $termIds = $termsDetail->pluck('id')->toArray();
+                           $term1Id = $termIds[0] ?? null;
+                           $term2Id = $termIds[1] ?? null;
+                        @endphp
 
-                     @if(!empty($ReportDetail2) && count($ReportDetail2) > 0)
-                     <table>				  
-                        <tr>
-                           <th width="50px">P2</th>
-                           <th>{{ $ReportDetail2[0]->skill_name }}</th>
-                           <th width="70px">Term 1</th>
-                           <th width="70px">Term 2</th>
-                        </tr>
-                  
-                        @foreach($ReportDetail2 as $key2 => $val2) 
-                        <tr>
-                           <td>{{ $val2->skill_type_name }}</td>
-                           <td>{{ $val2->description }}</td>
-                           <td>@if($val2->skill_type_value == 'Y') <img src="{{ asset('public/assets/imgs/check.svg') }}">
-                           @endif
-                           </td>
-                           <td></td>
-                        </tr>
-                        @endforeach				  
-                     </table>
+                        @foreach($groupedReports as $skillName => $reports)
+                           <table>
+                                 <tr>
+                                    <th width="50px">#</th>
+                                    <th>{{ $skillName }}</th>
+                                    <th width="120px">Current Term</th>
+                                    <th width="120px">Previous Term</th>
+                                 </tr>
+
+                                 @foreach($reports->groupBy('skill_type_name') as $skillTypeName => $skillTypeRows)
+                                    @php
+                                       $term1 = $skillTypeRows->firstWhere('term_id', $term1Id);
+                                       $term2 = $skillTypeRows->firstWhere('term_id', $term2Id);
+                                    @endphp
+
+                                    <tr>
+                                       <td>{{ $skillTypeName }}</td>
+                                       <td>{{ $skillTypeRows->first()->description ?? '' }}</td>
+
+                                       {{-- Latest Term (Term 1) --}}
+                                       <td class="text-center">
+                                             @if(!empty($term1) && $term1->skill_type_value == 'Y')
+                                                <img class="tick" src="{{ asset('public/assets/imgs/check.svg') }}">
+                                             @endif
+                                       </td>
+
+                                       {{-- Previous Term (Term 2) --}}
+                                       <td class="text-center">
+                                             @if(!empty($term2) && $term2->skill_type_value == 'Y')
+                                                <img class="tick" src="{{ asset('public/assets/imgs/check.svg') }}">
+                                             @endif
+                                       </td>
+                                    </tr>
+                                 @endforeach
+                           </table>
+                        @endforeach
+
                      @endif
-               
-                     @if(!empty($ReportDetail3) && count($ReportDetail3) > 0)
-                     <table>				  
-                        <tr>
-                           <th width="50px">P3</th>
-                           <th>{{ $ReportDetail3[0]->skill_name }}</th>
-                           <th width="70px">Term 1</th>
-                           <th width="70px">Term 2</th>
-                        </tr>
                      
-                        @foreach($ReportDetail3 as $key3 => $val3) 
-                           <tr>
-                              <td>{{ $val3->skill_type_name }}</td>
-                              <td>{{ $val3->description }}</td>
-                              <td>@if($val3->skill_type_value == 'Y') <img src="{{ asset('public/assets/imgs/check.svg') }}">
-                              @endif
-                              </td>
-                              <td></td>
-                           </tr>
-                        @endforeach				  
-                     </table>
-                     @endif
-               
-                     @if(!empty($ReportDetail4) && count($ReportDetail4) > 0)
-                     <table>				  
-                        <tr>
-                           <th width="50px">P4</th>
-                           <th>{{ $ReportDetail4[0]->skill_name }}</th>
-                           <th width="70px">Term 1</th>
-                           <th width="70px">Term 2</th>
-                        </tr>
-                     
-                        @foreach($ReportDetail4 as $key4 => $val4) 
-                        <tr>
-                           <td>{{ $val4->skill_type_name }}</td>
-                           <td>{{ $val4->description }}</td>
-                           <td>@if($val4->skill_type_value == 'Y') <img src="{{ asset('public/assets/imgs/check.svg') }}">
-                           @endif
-                           </td>
-                           <td></td>
-                        </tr>
-                        @endforeach				  
-                     </table>
-                     @endif
-
                   </div>
                </div>
             </div>
