@@ -5,24 +5,23 @@
 
 <div class="container all-chaptr-cards mt-5">
    <div class="row">
-      <div class="col-12">
-         <a href="<?php echo e(route('student.dashboard')); ?>" class="back-button">
-            <span class="arrow">
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5" />
-               </svg>
-            </span>
-         </a>
-         <div class="heading-rw mt-2 mb-2">
-            <h1><?php echo e($title); ?></h1>
-			
-            <?php
-               $classSection = \App\Helpers\Helper::ClassSectionName($studentInfo->custom_class_id);
-            ?>
+      <div class="col-12">   
+         <div class="heading-rw mt-0 mt-md-1 mb-0 p-0">
+               <?php if(auth()->guard('sstudent')->check()): ?>
+               <a href="<?php echo e(route('student.dashboard')); ?>" class="back-button">
+               <span class="arrow"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5" />
+                  </svg></span> 
+               </a>
+               <?php else: ?>
+               <a href="<?php echo e(route('filldart.dashboard')); ?>" class="back-button">
+               <span class="arrow"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5" />
+                  </svg></span> 
+               </a>
+               <?php endif; ?>
          
-            
-			
+               <h1 class="ml-md-4 mb-0"><?php echo e($title); ?></h1>
          </div>
+      
       </div>
    </div>
    <div class="row">
@@ -31,6 +30,9 @@
             <div class="stu__report__area">
                <div class="stu__bmi">
                   <div class="std-report-info">
+                     <?php
+                        $classSection = \App\Helpers\Helper::ClassSectionName($studentInfo->custom_class_id);
+                     ?>
                      <p><span>Name: </span><?php echo e($studentInfo->student_name); ?></p>
                      <p><span>Class: <?php echo e($classSection->name.'-'.$classSection->section); ?></span></p>                     
                      <p><span>Roll No: </span><?php echo e($studentInfo->rollno); ?></p>
