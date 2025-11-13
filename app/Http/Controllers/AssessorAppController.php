@@ -199,7 +199,9 @@ class AssessorAppController extends Controller
 			->groupBy(
 			'custom_classes.id',
 			'custom_classes.class_id',
-			'custom_classes.section',
+			'custom_classes.section',			
+			'custom_classes.nomenclature',
+			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -207,7 +209,7 @@ class AssessorAppController extends Controller
 				END")
 			)
 			->get();
-
+			// echo "<pre>";  print_r($selectedClass);exit();
 
 
  		$classes = DB::table('custom_classes')
@@ -230,7 +232,9 @@ class AssessorAppController extends Controller
 			->groupBy(
 			'custom_classes.id',
 			'custom_classes.class_id',
-			'custom_classes.section',
+			'custom_classes.section',			
+			'custom_classes.nomenclature',
+			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -259,7 +263,9 @@ class AssessorAppController extends Controller
 			->groupBy(
 			'custom_classes.id',
 			'custom_classes.class_id',
-			'custom_classes.section',
+			'custom_classes.section',			
+			'custom_classes.nomenclature',
+			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
