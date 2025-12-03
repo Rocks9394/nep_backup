@@ -133,6 +133,23 @@
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?> 
                         
                             </ul>
+
+                             <br>
+                             <h4 class="test-cat">Physical Fitness Assessment for Age 13-18 (Class 9-12)</h4>
+                            <ul class="list-group mt-0">
+                            
+                            <?php $__currentLoopData = $cbseData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $keys => $vals): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <li>
+                                    <?php if(in_array($vals->TestCategoryID, [2,6])): ?> 
+                                     <a href="<?php echo e(route('assessor.app.physical.senior.test', ['TestcategoryId' => $vals->TestCategoryID, 'SeniorBMI'=>True])); ?>"><span><?php echo e($vals->TestCategoryName); ?> </span><span class="arrow-i"><i class="bi bi-arrow-right"></i></span></a>
+                                    <?php else: ?>
+                                    <a href="<?php echo e(route('assessor.app.physical.test', ['TestcategoryId' => $vals->TestCategoryID])); ?>"><span><?php echo e($vals->TestCategoryName); ?> </span><span class="arrow-i"><i class="bi bi-arrow-right"></i></span></a>  
+                                    <?php endif; ?>                                   
+
+                                </li>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?> 
+                        
+                            </ul>
                         </div>
                     </div>
                 </div>

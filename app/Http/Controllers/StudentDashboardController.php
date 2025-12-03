@@ -86,7 +86,7 @@ class StudentDashboardController extends Controller
         $classId = $studentData->class_id;
         // dd($SchoolId);
 
-        $bmiRecord = DB::table('SeniorTestResults as str')
+        $bmiRecord = DB::table('seniortestresults as str')
         ->join('term_masters as tm', 'tm.id', '=', 'str.TermId')
         ->select('str.height', 'str.weight', 'str.score', 'str.level')
         ->where('str.TestTypeID', 18)
@@ -119,8 +119,8 @@ class StudentDashboardController extends Controller
 		->get();
 
         $fmsTestData = DB::table('class_fitness_tests')
-        ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'class_fitness_tests.test_type_id')
-        ->join('skill_reports', 'skill_reports.TestTypeMasterID', '=', 'TestTypeMaster.TestTypeID')
+        ->join('testtypemaster', 'testtypemaster.TestTypeID', '=', 'class_fitness_tests.test_type_id')
+        ->join('skill_reports', 'skill_reports.TestTypeMasterID', '=', 'testtypemaster.TestTypeID')
         ->leftJoin('skillreport_skilltype_termtype_mapping as sst', function($join) use ($studentId) {
             $join->on('sst.skill_report_id', '=', 'skill_reports.id')
             ->where('sst.student_id', '=', $studentId);
@@ -141,7 +141,8 @@ class StudentDashboardController extends Controller
             'class_fitness_tests.test_type_id',
             'skill_reports.skill_name',
             'class_fitness_tests.class_id',
-            'skill_reports.id'
+            'skill_reports.id',
+            'skill_reports.icons'
         )
         ->get();
 
@@ -169,7 +170,7 @@ class StudentDashboardController extends Controller
 		}
         // $studentId = 6968;
 
-        $fitnessTest = DB::table('SeniorTestResults as str')
+        $fitnessTest = DB::table('seniortestresults as str')
             ->join('skill_reports', 'skill_reports.id', '=', 'str.TestTypeID')
             ->join('term_masters as tm', 'tm.id', '=', 'str.TermId')
             ->where('str.StudentID', $studentId)

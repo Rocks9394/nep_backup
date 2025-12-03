@@ -59,6 +59,13 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-check2-square" viewBox="0 0 16 16"> <path d="M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8a.5.5 0 0 1 0 1H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5V8a.5.5 0 0 1 1 0v5a1.5 1.5 0 0 1-1.5 1.5z"/>  <path d="m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0"/></svg>
                                                 <span class="d-none d-sm-block">Registered With School</span>
                                             </label>
+
+                                            <!-- Export Button -->
+                                            <button id="enableExportBtn" type="button" class="btn btn-secondary btn-sm d-flex align-items-center" style="gap:5px; display:none !important;">
+                                                <img src="https://nep.goforfit.in/public/assets/imgs/export.svg">
+                                                <span class="d-none d-sm-block trainer-action-btn">Export</span>
+                                            </button>
+
                                             <label class="btn btn-secondary btn-sm d-flex align-items-center {{ $errors->any() ? 'active' : '' }}" style="gap:5px;">
                                                 <input type="radio" name="options" id="option2" autocomplete="off" {{ $errors->any() ? 'checked' : '' }}> 
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg>
@@ -96,7 +103,7 @@
                                                 </thead>
                                                 <tbody>
                                                     @foreach($mappedTrainers as $trainer)
-                                                    <tr>
+                                                    <tr data-userid="{{ $trainer->id }}">
                                                         <td>{{ $trainer->self_registrationId ?? 'N.A.' }}</td>
                                                         <td>{{ $trainer->name }}</td>
                                                         <td>{{ $trainer->email }}</td>
@@ -167,9 +174,9 @@ $(document).ready(function () {
     function toggleSections() {
         if ($('#option2').is(':checked')) {
 
-            console.log('checked')
             $('#addTrainerForm').show();
             $('#mappedTrainersContainer').hide();
+            $('#enableExportBtn')[0].style.setProperty('display', 'none', 'important');
             if ("{{ $errors->any() }}" === "1") {
                 $('#addTrainerForm').show();
             }
@@ -177,15 +184,55 @@ $(document).ready(function () {
            // $('#trainer_search_box').hide();
             $('#addTrainerForm').hide();
             $('#mappedTrainersContainer').show();
+            $('#enableExportBtn').css('display', 'inline-block');
         }
     }
 
     $('input[name="options"]').on('change', toggleSections);
+    $('#enableExportBtn').hide();
     toggleSections(); // run on page load
 });
 
+$('#enableExportBtn').on('click', function() {
+        // Collect all user IDs from the table
+    var schoolUserIds = [];
+    $('#mappedTrainersContainer tbody tr').each(function() {
+        var userid = $(this).data('userid');
+        if(userid) schoolUserIds.push(userid);
+    });
 
+    console.log(schoolUserIds);
+    if(schoolUserIds.length === 0) {
+        alert('No users to export!');
+        return;
+    }
 
+    $.ajax({
+        url: "{{ route('export.school.users') }}",
+        type: "POST",
+        data: { school_user_ids: schoolUserIds, export_type: 'excel', role: 'trainer' },
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        xhrFields: { responseType: 'blob' }, // important for downloading file
+        success: function(blob) {
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = "trainers-credential.xlsx";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            Swal.fire({
+                title: 'Success',
+                icon: 'success',
+                text: 'Trainers credentials downloaded.',
+                allowOutsideClick: false
+            });
+        },
+        error: function(err) {
+            console.error(err);
+            alert('Error generating Excel');
+        }
+    });
+});
 
 
 $(document).ready(function () {

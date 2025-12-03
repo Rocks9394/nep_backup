@@ -62,6 +62,7 @@ trait ReportHelperTrait
                 'TestTypeMaster.ScoreCriteria'
             )
             ->where('SeniorTestResults.TermId', $TermMasterId)
+            ->orderBy('SeniorTestResults.created_at', 'desc')
             ->where('StudentID', $studentId)->get();
     }
 
@@ -347,6 +348,7 @@ trait ReportHelperTrait
             ->join('TestCategoryMaster as tcm', 'tcm.TestCategoryID', '=', 'ttm.TestCategoryID')
             ->where('sst.student_id', $studentId)
             ->where('sst.term_master_id', $TermMasterId)
+            ->orderBy('sst.created_at', 'desc')
             ->select(
                 'tcm.TestCategoryName',
                 'sr.skill_name',
@@ -354,7 +356,7 @@ trait ReportHelperTrait
                 'sr.TestTypeMasterID',
                 DB::raw('COUNT(sr.skill_name) as skill_count')
             )
-            ->groupBy('tcm.TestCategoryName','sr.id','sr.skill_name','sr.TestTypeMasterID')
+            ->groupBy('tcm.TestCategoryName','sr.id','sr.skill_name','sr.TestTypeMasterID','sst.created_at')
             ->get()
             ->groupBy('TestCategoryName');
 

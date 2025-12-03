@@ -337,7 +337,7 @@
         
         <div class="form-row download-report mb-4">
             <div class="col-12 col-sm-4 col-lg-4 mb-3">
-                <a href="{{ route('student.report', ['id' => auth()->guard('sstudent')->user()->id] )}}" class="btn btn-primary btn-lg w-100" target="_blank">Download Report </a>
+                <a href="{{ route('student.report')}}" class="btn btn-primary btn-lg w-100" target="_blank">Download Report </a>
             </div>
             <div class="col-12 col-sm-4 col-lg-4 mb-3">
                 <a class="btn btn-primary btn-lg w-100 notAvailable" target="_blank">Fitness History <i class="fa fa-angle-right"></i> </a>
@@ -351,8 +351,8 @@
     </div> 
 </div>
 
-
-<div id="bmiModal" class="modal">
+<!-- BMI benchmark modal  -->
+<div id="bmiModal" class="modal" data-backdrop="static" data-keyboard="false">
     <div class="modal-content">
         <span class="close">&times;</span>
         <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; margin-top:30px; border: 0px; font-size: 14px; border-collapse: collapse; color:#333; text-align:left;">
@@ -377,6 +377,8 @@
         </table>
     </div>
 </div>
+
+
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
     google.charts.load('current', {'packages':['gauge']});
@@ -521,30 +523,37 @@
 </script>
 <script>
   document.getElementById("openModal").addEventListener("click", function(e) {
-    e.preventDefault();
-    document.getElementById("bmiModal").style.display = "block";
+        e.preventDefault();
+        document.getElementById("bmiModal").style.display = "block";
   });
   document.querySelector(".close").addEventListener("click", function() {
-    document.getElementById("bmiModal").style.display = "none";
+        document.getElementById("bmiModal").style.display = "none";
   });
 
+  document.getElementById("bmiModal").addEventListener("click", function(e) {
+        if (e.target === this) {
+            e.stopPropagation();
+        }
+    });
   window.addEventListener("click", function(event) {
-    const modal = document.getElementById("bmiModal");
-    if (event.target === modal) {
-      modal.style.display = "none";
-    }
+        const modal = document.getElementById("bmiModal");
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
   });
 
 
 let fitnessTest = @json($fitnessTest);
 const levelMap = {
+    'L0': 0,
     'L1': 1,
     'L2': 2,
     'L3': 3,
     'L4': 4,
     'L5': 5,
     'L6': 6,
-    'L7': 7
+    'L7': 7,
+    'L8': 8
 };
 
 const levels = fitnessTest.map(test => test.level);
@@ -555,7 +564,7 @@ const sum = numericScores.reduce((acc, score) => acc + score, 0);
 
 const avgScore = numericScores.length ? sum / numericScores.length : 0;
 
-const maxScore = 7;
+const maxScore = 8;
 
 const overallPercentile = ((avgScore) / maxScore) * 100;
 

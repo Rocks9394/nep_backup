@@ -16,8 +16,8 @@
     <div class="container">
         <div class="t-mrg2">
             <div class="all-chaptr-cards filter-bx1">
-                <div class="row">
-                    <div class="col-12">   
+                <div class="row mb-5">
+                    <div class="col-12 d-flex">   
                         <div class="heading-rw mt-0 mt-md-1 mb-0 p-0">
                             @if(auth()->guard('sstudent')->check())
                             <a href="{{route('student.dashboard')}}" class="back-button">
@@ -33,28 +33,26 @@
                         
                             <h1 class="ml-md-4 mb-0">{{$title}}</h1>
                         </div>
+                        <div class="col">
+                            <div class="session_term d-flex mb-2 flex-row-reverse">                          
+                                <select class="dropdown" name="session_term" id="session_term">
+                                    @php
+                                        $maxId = $SessionAndTerm->max('id');
+                                    @endphp
+
+                                    @foreach($SessionAndTerm as $data)
+                                        <option 
+                                            class="dropdown-item" 
+                                            value="{{ $data->id }}" 
+                                            {{ $data->id == $maxId ? 'selected' : '' }}>
+                                            {{ $data->academic_year }} | {{ $data->term_name }}
+                                        </option>
+                                    @endforeach
+
+                                </select>
+                            </div>
+                        </div>
                     
-                    </div>
-                </div>
-                
-                <div class="col">
-                    <div class="session_term d-flex mb-2 flex-row-reverse">                           
-
-                        <select class="dropdown" name="session_term" id="session_term">
-                            @php
-                                $maxId = $SessionAndTerm->max('id');
-                            @endphp
-
-                            @foreach($SessionAndTerm as $data)
-                                <option 
-                                    class="dropdown-item" 
-                                    value="{{ $data->id }}" 
-                                    {{ $data->id == $maxId ? 'selected' : '' }}>
-                                    {{ $data->academic_year }} | {{ $data->term_name }}
-                                </option>
-                            @endforeach
-
-                        </select>
                     </div>
                 </div>
                 

@@ -133,6 +133,23 @@
                             @endforeach 
                         
                             </ul>
+
+                             <br>
+                             <h4 class="test-cat">Physical Fitness Assessment for Age 13-18 (Class 9-12)</h4>
+                            <ul class="list-group mt-0">
+                            
+                            @foreach($cbseData as $keys => $vals)
+                                <li>
+                                    @if(in_array($vals->TestCategoryID, [2,6])) 
+                                     <a href="{{ route('assessor.app.physical.senior.test', ['TestcategoryId' => $vals->TestCategoryID, 'SeniorBMI'=>True]) }}"><span>{{ $vals->TestCategoryName }} </span><span class="arrow-i"><i class="bi bi-arrow-right"></i></span></a>
+                                    @else
+                                    <a href="{{ route('assessor.app.physical.test', ['TestcategoryId' => $vals->TestCategoryID]) }}"><span>{{ $vals->TestCategoryName }} </span><span class="arrow-i"><i class="bi bi-arrow-right"></i></span></a>  
+                                    @endif                                   
+
+                                </li>
+                            @endforeach 
+                        
+                            </ul>
                         </div>
                     </div>
                 </div>

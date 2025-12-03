@@ -36,7 +36,7 @@
                     </div>
 
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
-                        <a href="<?php echo e(route('student.report', ['id' => auth()->guard('sstudent')->user()->id] )); ?>" class="box">
+                        <a href="<?php echo e(route('student.report')); ?>" class="box">
                             <div data-toggle="tooltip" data-placement="top" title="Progress Report">
                                 <img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/taketest.svg')); ?>">
                             </div>
@@ -45,8 +45,9 @@
                     </div>
 
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
-                        <a href="<?php echo e(route('student.test.dashboard' )); ?>" class="box">
-                            <div data-toggle="tooltip" data-placement="top" title="Student Dashboard">
+                        <!-- <a href="<?php echo e(route('student.test.dashboard' )); ?>" class="box"> -->
+                        <a href="#" id="notAvailable" class="box">
+                            <div>
                                 <img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/Dashboard.svg')); ?>">
                             </div>
                             <span>Student Dashboard</span>
@@ -205,7 +206,7 @@
 
 </script>
 <script>
-    $('#loadProgressReport').on('click', function (e) {
+    $('#notAvailable').on('click', function (e) {
 
         Swal.fire({
             icon: 'info',
@@ -214,19 +215,6 @@
             confirmButtonText: 'OK'
         });
         return;
-        e.preventDefault();
-        $.ajax({
-            url: "<?php echo e(route('student.report', ['id' => auth()->guard('sstudent')->user()->id])); ?>",
-            type: 'GET',
-            dataType: 'html',
-            success: function (response) {
-                $('#progressReportContainer').html(response);
-            },
-            error: function (xhr) {
-                alert('Failed to load progress report.');
-                console.error(xhr.responseText);
-            }
-        });
     });
 </script>
 

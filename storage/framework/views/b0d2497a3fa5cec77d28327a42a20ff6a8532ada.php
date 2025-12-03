@@ -718,7 +718,7 @@
                                                         </tr>
                                                         <tr>
                                                             <td style="padding: 3px 4px; text-align:left;"><img src="<?php echo e(asset('public/assets/imgs/2smiles.png')); ?>" alt="" style="height: 20px;"></td>
-                                                            <td style="padding: 3px 4px; font-weight: 500; color:#000;">Dveloping</td>
+                                                            <td style="padding: 3px 4px; font-weight: 500; color:#000;">Developping</td>
                                                             <td style="padding: 3px 4px; text-align: left;">Making great progress with noticeable improvement and effort!</td>
                                                         </tr>
                                                         <tr>

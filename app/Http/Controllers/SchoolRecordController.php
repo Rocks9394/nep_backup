@@ -53,6 +53,7 @@ use App\Traits\ReportHelperTrait;
 
 use App\Exports\StudentsCredentialsExport;
 use App\Exports\SchoolUserCredentials;
+use App\Exports\TrainerCredentials;
 use App\Models\DashboardModule;
 use App\Services\DataTableListService;
 
@@ -2144,35 +2145,11 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
         }
     }
 
-
-	/**
-	 * 06-11-2024
-	 * Generate identity Card. 
-	 * */
-
-	// public function generateIdCard(Request $request) {
-
-    // 	$studentIds = $request->input('student_ids');
-	//     $students = DB::table('schools')->select('schools.school_name','schools.logo','schools.school_code','schools.address','schools.pincode','students.student_name','students.gender','students.student_uid','class.name as class_name','students.section_id')
-	//     	->join('students','students.school_id', 'schools.id')
-	//     	->join('class','class.id', 'students.class_id')			
-	// 		->where('students.status', 'active')
-	//     	->whereIn('students.id', $studentIds)->get();
-		
-	// 	if($students->isEmpty()){
-	// 		return response()->json(['error' => false,'message' => 'No active students']);
-	// 	}
-
-	//     $pdf = PDF::loadView('school.generate.studentIcard', compact('students'));
-	//     return $pdf->download('student_cards.pdf');
-    // }
-
 	public function generateIdCard(Request $request) {
 
 		$request->validate([
             'student_ids'   => 'required|array',
             'student_ids.*' => 'integer|exists:students,id',
-            'export_type'   => 'required|in:single,separate',
         ]);
 
         $studentIds = $request->input('student_ids', []);
@@ -2183,8 +2160,6 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			->where('students.status', 'active')
 	    	->whereIn('students.id', $studentIds)->get();
 
-        $exportType = $request->input('export_type', 'single');
-
         $activeCount = DB::table('students')
             ->whereIn('id', $studentIds)
             ->where('status', 'active')
@@ -2193,34 +2168,29 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
         if ($activeCount === 0) {
             return response()->json(['error' => true, 'message' => 'No active students found']);
         }
+		$grouped = $students->groupBy(function ($student) {
+			return $student->class_name . '_' . $student->section_id;
+		});
 
-		if ($exportType === 'single') {
-			$pdf = PDF::loadView('school.generate.studentIcard', compact('students'));
-	    	return $pdf->download('student_icards.pdf');
-        }else{
-			$grouped = $students->groupBy(function ($student) {
-				return $student->class_name . '_' . $student->section_id;
-			});
+		// Create a temporary ZIP file
+		$zipFileName = 'student_I-Cards'. '.zip';
+		$zipPath = tempnam(sys_get_temp_dir(), 'zip');
+		$zip = new ZipArchive;
+		$zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
-			// Create a temporary ZIP file
-			$zipFileName = 'student_I-Cards'. '.zip';
-			$zipPath = tempnam(sys_get_temp_dir(), 'zip');
-			$zip = new ZipArchive;
-			$zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+		foreach ($grouped as $key => $group) {
+			$first = $group->first();
+			$className = preg_replace('/[^A-Za-z0-9\-]/', '-', $first->class_name);
+			$sectionName = 'Section-' . $first->section_id;
 
-			foreach ($grouped as $key => $group) {
-				$first = $group->first();
-				$className = preg_replace('/[^A-Za-z0-9\-]/', '-', $first->class_name);
-				$sectionName = 'Section-' . $first->section_id;
-
-				$pdf = PDF::loadView('school.generate.studentIcard', ['students' => $group]);
-				$pdfContent = $pdf->output();
-				$zip->addFromString("{$className}/{$sectionName}_student_icards.pdf", $pdfContent);
-			}
-
-			$zip->close();
-			return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
+			$pdf = PDF::loadView('school.generate.studentIcard', ['students' => $group]);
+			$pdfContent = $pdf->output();
+			$zip->addFromString("{$className}/{$sectionName}_student_icards.pdf", $pdfContent);
 		}
+
+		$zip->close();
+		return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
+		
     }
 
 	
@@ -3268,7 +3238,14 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	        ->addColumn('viewReport', function($row) {
 			    $url = route('reports.view', $row->student_id); 
 			    $html = '<a href="'.$url.'" class="btn btn-sm btn-primary" style="text-align:center;" target="_blank">View</a>';
-			    return $html;
+			    
+				$cbse_classes  = ['9','10','11','12'];
+
+				if (in_array($row->class_id, $cbse_classes)) {
+					$cbseUrl = route('reports.cbse', $row->student_id);
+					$html .= ' <a href="'.$cbseUrl.'" class="btn btn-sm btn-success" target="_blank">CBSE Report</a>';
+				}
+				return $html;
 			})
 
             ->rawColumns(['checkbox','class_id','dob','viewReport'])
@@ -3873,15 +3850,20 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	public function exportSchoolUsers(Request $request) {
 
 	    $schoolUserIds = $request->input('school_user_ids', []);
-
 	    if(empty($schoolUserIds)) {
 
 	        return response()->json(['message' => 'No users selected'], 400);
 	    }
 
 	    $timestamp = Carbon::now()->format('Ymd_His');
-	    $fileName = "school-users_{$timestamp}.xlsx";
-	    return Excel::download(new SchoolUserCredentials($schoolUserIds), $fileName);
+		if($request->role=='trainer'){
+			$fileName = "trainers-credential_{$timestamp}.xlsx";
+			return Excel::download(new TrainerCredentials($schoolUserIds), $fileName);
+		}
+		else{
+			$fileName = "school-users_{$timestamp}.xlsx";
+			return Excel::download(new SchoolUserCredentials($schoolUserIds), $fileName);
+		}
 
 	}
 
@@ -4142,5 +4124,36 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
             'redirect_url' => route('managestudent')
         ])->cookie($cookie);
     }
+
+	public function ViewCbseReport($id){
+
+		$studentId = $id;
+	    $studentsData = $this->getStudentData($studentId);
+	    $TermMasterId = $this->getTermId($studentsData->schools_id);
+		
+	    $dob          = Carbon::parse($studentsData->dob);
+	    $studentAge   = $dob->age;
+	    $studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
+	    $ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
+		
+	    $reportData    = $this->getReportData($studentId,$TermMasterId);
+
+		
+		
+	    $mappedReport  = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
+		
+	    $groupedReport = $mappedReport->groupBy('Category');
+		
+		$getBmiBenchmark = $getBmiBenchmark =  $this->getBmiBenchmark($ageGender);
+		
+		$classes = [9,10,11,12];
+		
+		[$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport);
+		
+		echo"<pre>";print_r($getFitnessBenchmark);exit();
+		// echo"<pre>";print_r($orderedReportData);exit();
+
+		return view('assessor.reports.cbse-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark','classes'));
+	}
 
 }

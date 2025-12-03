@@ -471,9 +471,9 @@ class StudentRecordController extends Controller
 	}
 
 
-	public function ViewFitnessReport($id) {
+	public function ViewFitnessReport() {
 
-		$studentId = $id;
+		$studentId = Auth::guard('sstudent')->user()->id;
 	    $studentsData = $this->getStudentData($studentId);
 
 	    

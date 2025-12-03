@@ -235,11 +235,11 @@
 										</div>
 										<div class="form-group col-md-3">
 											<label for="current-term-start">Start Date</label>
-											<input class="form-control" type="text" id="current-term-start" name="current-term-start" value="{{$termsDetail->term_start_date}}" readonly>
+											<input class="form-control" type="text" id="current-term-start" name="current-term-start" value="{{ \Carbon\Carbon::parse($termsDetail->term_start_date)->format('d/m/Y')}}" readonly>
 										</div>
 										<div class="form-group col-md-3">
 											<label for="current-term-end">End Date</label>
-											<input class="form-control" type="text" id="current-term-end" name="current-term-end" value="{{$termsDetail->term_end_date}}" readonly>
+											<input class="form-control" type="text" id="current-term-end" name="current-term-end" value="{{\Carbon\Carbon::parse($termsDetail->term_end_date)->format('d/m/Y')}}" readonly>
 										</div>
 									</div>
 								@endforeach

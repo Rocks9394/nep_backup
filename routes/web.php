@@ -294,7 +294,7 @@ Route::middleware('auth.auth_student')->group(function () {
 	Route::get('daily-tracker', [StudentRecordController::class,'dailyreport'])->name('skill.dailyreport');
 	Route::get('dashboard' , [StudentRecordController::class, 'dashboard'])->name('dashboard');
 	
-	Route::get('viewReport/{id}' , [StudentRecordController::class, 'ViewFitnessReport'])->name('student.report');
+	Route::get('viewReport' , [StudentRecordController::class, 'ViewFitnessReport'])->name('student.report');
 	
 	Route::get('fms-skills-report', [StudentRecordController::class,'FMSskillReport'])->name('fms.skills.reports');
 	
@@ -365,6 +365,7 @@ Route::prefix('school')->group(function(){
 	Route::get('fms-report', [SchoolRecordController::class, 'FMSReport'])->name('fms.report');
 	Route::get('fitness-report', [SchoolRecordController::class, 'FitnessReports'])->name('fitness.report')->middleware('module_access:fitness.report');
 	Route::get('reports/{id}', [SchoolRecordController::class, 'ViewFitnessReport'])->name('reports.view');
+	Route::get('reports-cbse/{id}', [SchoolRecordController::class, 'ViewCbseReport'])->name('reports.cbse');
 	
 	Route::get('test-relay-auth', [SchoolRecordController::class,'DOTNETREPORT'])->name('test.relay.auth');
 

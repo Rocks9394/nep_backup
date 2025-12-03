@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cookie;
 use App\Helpers\Helper;
 use Artisan;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -165,6 +166,7 @@ class LoginController extends Controller
 			$cookiepassword = base64_encode(base64_encode($student_pwd));
 
 			$student = Sstudent::where('user_id', $student_id)->where('status','<>','transfer')->where('is_active','<>', 0)->first();
+			 Log::warning('User profile updated.', ['user_id' => 1, 'action' => 'update']);
                     
             if($student && $student->password == $student_uid) 
 			{
@@ -289,92 +291,6 @@ class LoginController extends Controller
     }
 
 
-    /*
-    public function loginTest(Request $request) {
-
-        
-        $data = $request->all();
-
-        $rules = [];
-        $messages = [];
-
-        if ($data['login_by'] == 'Parent') {
-            $rules = [
-                'student_id' => 'required|numeric',
-                'dob' => 'required|date_format:m/d/Y',
-                'captcha' => 'required|captcha'
-            ];
-            
-            $messages = [
-                'student_id.required' => 'The school ID field is required.',
-                'numeric.required' => 'Student id must be numeric.',
-                'dob.required' => 'The date of birth field is required.',
-                'dob.date_format' => 'The date of birth does not match the format dd/mm/yy',
-                'captcha.required' => 'The captcha field is required.',
-                'captcha.captcha' => 'Invalid captcha code, please try again.'
-            ];
-        } elseif ($data['login_by'] == 'Trainer') {
-            $rules = [
-                'email' => 'required|email',
-                'password' => 'required',
-                'captcha' => 'required|captcha'
-            ];
-
-            $messages = [
-                'email.required' => 'The email field is required.',
-                'email.email' => 'Please enter a valid email address.',
-                'password.required' => 'The password field is required.',
-                'captcha.required' => 'The captcha field is required.',
-                'captcha.captcha' => 'Invalid captcha code, please try again.'
-            ];
-        } else {
-            return redirect()->route('academics')->with(['status' => 'error', 'msg' => 'Invalid login option selected.']);
-        }
-
-        $validator = Validator::make($data, $rules, $messages);
-
-
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-        
-        if ($data['login_by'] == 'Parent') {
-           
-            $student_id = $request->input('student_id');            
-            $dob = $request->input('dob');
-
-            $school_id = substr($student_id, 0, 4); 
-            $student_registration = substr($student_id, 4);
-            $student = Sstudent::where('school_id', $school_id)->where('student_uid', $student_registration)->first();
-            if ($student && $student->dob == $dob) {
-                Auth::guard('sstudent')->login($student); 
-                return redirect()->route('student.dashboard');
-            }
-
-           
-
-            return redirect()->route('login2')->with(['status' => 'error', 'msg' => 'Invalid credentials.']);  
-
-        } elseif ($data['login_by'] == 'Trainer') {
-
-            $credentials = $request->only('email', 'password');
-            if (Auth::attempt($credentials, $request->filled('remember'))) {
-                return redirect()->route('filldart.dashboard');
-            } else {
-                return redirect()->route('academics')->with(['status' => 'error', 'msg' => 'Invalid credentials.']);
-            }
-        }
-
-        return redirect()->route('academics')->with(['status' => 'error', 'msg' => 'Invalid login option selected.']);
-    }
-
-
-    public function showLoginForm2(){
-        return view('auth.logintest');
-    }
-
-    */
 
 
     public function showCustomLoginForm() {
@@ -500,7 +416,7 @@ class LoginController extends Controller
 	    $student_id = $request->input('student_id');
 	    $dob = $request->input('dob'); // Used as password
 	    $student = Sstudent::where('user_id', $student_id)
-	        ->where('status', '<>', 'transfer')
+	        ->where('status', '<>', 'transfer')->where('is_active','<>', 0)
 	        ->first();
 
 	    if ($student && $student->password == $dob) {
