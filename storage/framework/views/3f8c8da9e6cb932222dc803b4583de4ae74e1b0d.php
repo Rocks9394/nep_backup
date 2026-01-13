@@ -46,6 +46,16 @@
 		white-space: normal !important;
 		overflow-wrap: anywhere !important;
 	}	
+	/* #studentTableRecords .no-grey[readonly] {
+		background-color: #fff !important;
+		color: black;
+		opacity: 1;
+		cursor: default
+	} */
+	.form-control[readonly] {
+		background-color: #ffffff;
+		opacity: 1;
+	}
 </style>
 
 <div class="container">
@@ -103,9 +113,7 @@
 							<th scope="col">Gender</th>
 							<th scope="col">Birth Date</th>
 							<th scope="col">Status</th>
-							<?php if(Auth::user()->id==974): ?>
-								<th scope="col">Login</th>
-							<?php endif; ?>
+							<th scope="col">Login</th>
 						</tr>
 					</thead>
 					<tbody> </tbody>
@@ -383,7 +391,7 @@
 						return `
 							<div class="name-edit-wrapper position-relative">
 								<input type="text" 
-									class="form-control form-control-md student-name update_name" 
+									class="form-control form-control-sm student-name update_name" 
 									value="${data}" 
 									data-name="${row.student_name}" 
 									data-id="${row.student_id}" 
@@ -400,7 +408,7 @@
 						return `
 							<div class="uid-edit-wrapper position-relative">
 								<input type="text" 
-									class="form-control form-control-md student-uid update_uid" 
+									class="form-control form-control-sm student-uid update_uid" 
 									value="${data}" 
 									data-uid="${row.student_uid}" 
 									data-id="${row.student_id}" 
@@ -434,7 +442,6 @@
 				{ 	data: 'gender', name: 'gender' },
 				{	data: 'dob', name: 'dob' },
 				{	data: 'status', name: 'status'},
-				<?php if(Auth::user()->id==974): ?>
 				{
 					data: null,
 					orderable: false,
@@ -450,8 +457,7 @@
 							</button>
 						`;
 					}
-				},	
-				<?php endif; ?>			
+				},			
 			],
 			columnDefs: [
 				{ targets: 0, orderable: false, className: 'no-sort' }
@@ -541,7 +547,7 @@
 								selected: true
 							},
 							columns: function (idx, data, node) {
-								return idx !== 0;
+								return idx !== 0 && idx != 11;
 							},
 							format: {
 								body: function(data, row, column, node) {
@@ -571,7 +577,7 @@
 								selected: true
 							},
 							columns: function (idx, data, node) {
-								return idx !== 0;
+								return idx !== 0 && idx != 11;
 							},							
 							format: {
 								body: function(data, row, column, node) {
@@ -603,7 +609,7 @@
 								selected: true
 							},
 							columns: function (idx, data, node) {
-								return idx !== 0;
+								return idx !== 0 && idx != 11;
 							},
 							format: {
 								body: function(data, row, column, node) {
@@ -959,7 +965,7 @@
 				}),
 				success: function(response) {
 					Swal.close();
-					showExportIcardOptions(response.class_summary, studentIds);
+					generateIcardsFiles(studentIds, response.class_summary);
 				},
 				error: function(xhr, status, error) {
 					Swal.close();
@@ -973,44 +979,12 @@
 
 		}
 
-		function showExportIcardOptions(classSummary, studentIds) {
-			Swal.fire({
-				title: 'Generate I Cards',
-				icon: 'info',
-				html: `
-					<div style="text-align:left">
-						<p class="text-center mb-3"><strong>Select Download Option</strong></p>
-						<label><input type="radio" name="exportOption" value="separate" checked> Download class-wise students I-Cards<strong> (.zip)</strong></label><br>
-						<label><input type="radio" name="exportOption" value="single"> Download all selected students I-Cards</label><hr>
-						<p class="text-center"><small><i class="fas fa-info-circle"></i> ${classSummary.length} classes, ${studentIds.length} students total</small></p>
-					</div>
-				`,
-				showCancelButton: true,
-				confirmButtonText: 'Download',
-				cancelButtonText: 'Cancel',
-				reverseButtons: true,
-				allowOutsideClick: false,
-				width: 400,
-				preConfirm: () => {
-					const option = document.querySelector('input[name="exportOption"]:checked').value;
-					return { exportOption: option };
-				}
-			}).then(result => {
-				if (result.isConfirmed) {
-					generateIcardsFiles(studentIds, result.value.exportOption, classSummary);
-				}
-			});
-		}
-
-		function generateIcardsFiles(studentIds, exportType, classSummary = null) {
-			const isFolderStructure = exportType === 'separate';
+		function generateIcardsFiles(studentIds, clsses) {
 			
 			Swal.fire({
 				icon: 'info',
-				title: isFolderStructure ? "Creating Class-wise Folders" : "Generating Single File",
-				html: isFolderStructure 
-					? `Creating folder structure with ${classSummary.length} classes...<br>This may take a moment.`
-					: "Generating single I-cards pdf file...",
+				title: "Creating Class-wise Folders",
+				html: `Generating I-cards for ${clsses.length} classes in .zip file...<br>This may take a moment.`,
 				allowOutsideClick: false,
 				didOpen: () => { Swal.showLoading(); }
 			});
@@ -1022,21 +996,15 @@
 				data: JSON.stringify({
 					_token: "<?php echo e(csrf_token()); ?>",
 					student_ids: studentIds,
-					export_type: exportType
 				}),
 				xhrFields: { 
 					responseType: "blob" 
 				},
 				success: function (data, textStatus, xhr) {
 					Swal.close();
-					
-					let filename = 'students-Icards-all-classes.xlsx';
-					let successMessage = 'I-cards downloaded successfully!';
-					if (isFolderStructure) {
 						filename = 'students-Icards-class-wise.zip';
 						successMessage = `Class-wise Icards downloaded!`;
-					}
-
+						
 					// Try to get filename from response headers
 					const disposition = xhr.getResponseHeader('Content-Disposition');
 					if (disposition && disposition.indexOf('attachment') !== -1) {

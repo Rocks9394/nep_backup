@@ -547,7 +547,7 @@
 								selected: true
 							},
 							columns: function (idx, data, node) {
-								return idx !== 0;
+								return idx !== 0 && idx != 11;
 							},
 							format: {
 								body: function(data, row, column, node) {
@@ -577,7 +577,7 @@
 								selected: true
 							},
 							columns: function (idx, data, node) {
-								return idx !== 0;
+								return idx !== 0 && idx != 11;
 							},							
 							format: {
 								body: function(data, row, column, node) {
@@ -609,7 +609,7 @@
 								selected: true
 							},
 							columns: function (idx, data, node) {
-								return idx !== 0;
+								return idx !== 0 && idx != 11;
 							},
 							format: {
 								body: function(data, row, column, node) {

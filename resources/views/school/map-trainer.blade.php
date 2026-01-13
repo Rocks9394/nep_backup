@@ -11,7 +11,7 @@
        margin-top: 22px;
    }
 </style>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <div class="">
    
 
@@ -99,6 +99,7 @@
                                                         <th>Phone</th>
                                                         <th>Status</th>
                                                         <th>Action</th>
+                                                        <th>Remove</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -116,6 +117,13 @@
                                                             <a href="#" data-trainer-id="{{ $trainer->id }}" class="map-trainer-btn" id="map-trainer">Map</a>
                                                         @endif
                                                         </td>
+
+                                                        <td  style="text-align: center;">
+                                                            <a href="#" data-trainer-id="{{ $trainer->id }}" class="remove-trainer-btn" id="remove-trainer">
+                                                                <i class="fa fa-trash-o" style="font-size:24px;color:red"></i>
+                                                            </a>
+                                                        </td>
+
                                                     </tr>
                                                     @endforeach
                                                 </tbody>
@@ -345,6 +353,48 @@ $(document).on('click', '.map-trainer-btn', function () {
     });
     
 });
+
+
+$(document).on('click', '.remove-trainer-btn', function () {
+
+    let action = 'Remove';
+    const trainerId = $(this).data('trainer-id');
+    let route = "{{ route('remove.trainer') }}";
+    let message = `Do you want to remove this trainer from the school?`;
+    TakeAction(action, message, trainerId, route);
+
+});
+
+function TakeAction(action, message, trainerId, route ){
+
+    handleResponseMessages( 'warning',  'Are you sure?', `${message}`, {
+        showCancel: true,
+        confirmText: `Yes, ${action} it!`,
+        cancelText: 'Cancel',
+        onConfirm: () => { 
+            $.ajax({
+                url: route,
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    trainer_id: trainerId
+                },
+                success: function (response) {
+                    handleResponseMessages( 'success',  '', response.message, {
+                        confirmText: 'OK',
+                        onConfirm: () => { location.reload(); }
+                    });
+                },
+
+                error: function (xhr) {
+                    handleResponseMessages( 'error',  '', 'An error occurred while mapping the trainer.');
+                }
+            });
+        },
+        onCancel: () => { console.log('Cancelled!'); }
+    });
+}
+
 
 
 $(document).on('click', '.unmap-trainer-btn', function () {

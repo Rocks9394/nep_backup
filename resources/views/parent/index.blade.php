@@ -20,6 +20,16 @@
             <div class="col-12 col-md-10 col-lg-10">
                 <div class="form-row" style="justify-content: center;">
                     
+
+                    <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
+                        <a href="{{ route('student.test.dashboard' )}}" class="box">
+                            <div>
+                                <img class="img-fluid" alt="" src="{{ asset('public/uploads/icons/Dashboard.svg') }}">
+                            </div>
+                            <span>Student Dashboard</span>
+                        </a>
+                    </div>
+                    
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4 text-center">
                         <a href="{{ route('skill.dailyreport') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('public/uploads/icons/skills-report.svg') }}"></div><span>Daily Tracker</span></a>
                     </div>
@@ -41,16 +51,6 @@
                                 <img class="img-fluid" alt="" src="{{ asset('public/uploads/icons/taketest.svg') }}">
                             </div>
                             <span>Progress Report</span>
-                        </a>
-                    </div>
-
-                    <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
-                        <!-- <a href="{{ route('student.test.dashboard' )}}" class="box"> -->
-                        <a href="#" id="notAvailable" class="box">
-                            <div>
-                                <img class="img-fluid" alt="" src="{{ asset('public/uploads/icons/Dashboard.svg') }}">
-                            </div>
-                            <span>Student Dashboard</span>
                         </a>
                     </div>
                     

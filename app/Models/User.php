@@ -58,5 +58,10 @@ class User extends Authenticatable
         
         return $this->hasOne(Usermeta::class, 'user_id', 'id');
     }
+    
+    public function securityAnswers() {
+        
+        return $this->hasOne(UserSecurityAnswer::class);
+    }
 
 }

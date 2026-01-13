@@ -28,7 +28,11 @@
 	    width: 7%;
 	}
 	table#studentReportsTable thead tr th:nth-child(10) {
-	    width: 10%;
+	    width: 14%;
+	}
+	table#studentReportsTable tbody tr td:nth-child(10) {
+		text-align: center;
+		width: 14%;
 	}
 	table#studentReportsTable th.dt-orderable-none .dt-column-order {
 	    display: none !important;

@@ -65,8 +65,51 @@ class SchoolRecordController extends Controller
 	{
         $this->middleware('auth:web');
     }
+	
+	public function SchoolDashboardGraph() 
+	{
+		
+		$title = 'Dashboard Graph';
+		
+		
+		
+		
+		$userId  = Auth::user()->id;
+		$role_id =  \Auth::user()->role_id;
+	
+		$schoolId = 0;
+		
+		if($role_id == 4)
+		{
+			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+			
+			$result = DB::table('SeniorTestResults')
+			->select('LEVEL', DB::raw('COUNT(*) as total'))
+			->where('SchoolID', $schoolId)
+			->whereRaw("LEVEL REGEXP '^L[0-9]+$'")
+			->groupBy('LEVEL')
+			->orderByRaw("CAST(SUBSTRING(LEVEL, 2) AS UNSIGNED)")
+			->get();
+			
+			//die('--you are not a teacher. teacher can only access--');
+		}
+		else
+		{
+			die('--you dont have access for this panel. sorry for inconvenation--');
+		}
+		
+		echo "<pre>";
+		print_r($result);
+		die("---change the detail---");
+		
+		
+	
+    	return view('school.graph-dashboard', compact('title', 'result')); 
+			
+	}
 
-    public function SchoolDashboard() {
+    public function SchoolDashboard() 
+	{
 		
 		$dates = Helper::LastTwoDates();
 		#echo "<pre>";
@@ -711,7 +754,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			
 
 			$school = School::find($school_id);
-			$trainerList = $school->getTrainers->where('status',1);
+			$trainerList = $school->getTrainers;//->where('status',1);
 			foreach ($trainerList as $trainer) {
 			    $trainer->name = User::where('id', $trainer->trainer_id)->orderBy('name')->first()->name;
 			}
@@ -2879,7 +2922,6 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 	public function UnMapTrainer(Request $request) {
 
-	
 	    $title = 'DeActivate Trainer';
 	    $schoolUserId = auth()->id();
 	    $school_id = DB::table('school_reference')->where('school_user_id', $schoolUserId)->where('status', 1)->value('school_id');
@@ -2907,6 +2949,20 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	            return response()->json(['message' => 'Trainer mapping not found.'], 404);
 	        }
 	    }
+	}
+
+	public function RemoveTrainer(Request $request) {
+
+		if($request->ajax()){
+
+			$trainer_id = $request->trainer_id;
+			$school_id = DB::table('school_reference')->where('school_user_id', auth()->id())->value('school_id');
+			
+			DB::table('school_trainers')->where('school_id', $school_id)->where('trainer_id', $trainer_id)->delete();
+
+		    return response()->json(['message' => 'Trainer Removed successfully!'], 200);
+		}
+
 	}
 
 	public function autocomplete(Request $request) {
@@ -3238,14 +3294,15 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	        ->addColumn('viewReport', function($row) {
 			    $url = route('reports.view', $row->student_id); 
 			    $html = '<a href="'.$url.'" class="btn btn-sm btn-primary" style="text-align:center;" target="_blank">View</a>';
-			    
+
 				$cbse_classes  = ['9','10','11','12'];
 
-				if (in_array($row->class_id, $cbse_classes)) {
+				if (in_array($row->class_id, $cbse_classes) && Auth::user()->id == 974) {
 					$cbseUrl = route('reports.cbse', $row->student_id);
-					$html .= ' <a href="'.$cbseUrl.'" class="btn btn-sm btn-success" target="_blank">CBSE Report</a>';
+					$html .= ' <a href="'.$cbseUrl.'" class="btn btn-sm btn-success" target="_blank">CBSE</a>';
 				}
-				return $html;
+
+			    return $html;
 			})
 
             ->rawColumns(['checkbox','class_id','dob','viewReport'])
@@ -4125,6 +4182,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
         ])->cookie($cookie);
     }
 
+	// for cbse report card 
 	public function ViewCbseReport($id){
 
 		$studentId = $id;
@@ -4143,17 +4201,9 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	    $mappedReport  = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
 		
 	    $groupedReport = $mappedReport->groupBy('Category');
-		
-		$getBmiBenchmark = $getBmiBenchmark =  $this->getBmiBenchmark($ageGender);
-		
+		// echo"<pre>";print_r($groupedReport);exit();
 		$classes = [9,10,11,12];
-		
-		[$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport);
-		
-		echo"<pre>";print_r($getFitnessBenchmark);exit();
-		// echo"<pre>";print_r($orderedReportData);exit();
 
-		return view('assessor.reports.cbse-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark','classes'));
+		return view('assessor.reports.cbse-report', compact('studentsData','groupedReport','classes'));
 	}
-
 }

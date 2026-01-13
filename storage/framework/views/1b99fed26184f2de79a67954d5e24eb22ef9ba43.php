@@ -11,8 +11,8 @@
 </style>
 
 <div class="container all-chaptr-cards mt-5">
-   <div class="row">
-      <div class="col-12">   
+   <div class="row mb-5">
+      <div class="col-12 d-flex">   
          <div class="heading-rw mt-0 mt-md-1 mb-0 p-0">
                <?php if(auth()->guard('sstudent')->check()): ?>
                <a href="<?php echo e(route('student.dashboard')); ?>" class="back-button">
@@ -27,27 +27,27 @@
                <?php endif; ?>
          
                <h1 class="ml-md-4 mb-0"><?php echo e($title); ?></h1>
-         </div>      
-      </div>
-      <div class="col">
-         <div class="session_term d-flex flex-row-reverse">
-            <select class="dropdown" name="session_term" id="session_term">
-               <?php
-                  $maxId = $SessionAndTerm->max('id');
-               ?>
+         </div>  
+         <div class="col">
+            <div class="session_term d-flex flex-row-reverse">
+               <select class="dropdown" name="session_term" id="session_term">
+                  <?php
+                     $maxId = $SessionAndTerm->max('id');
+                  ?>
 
-               <?php $__currentLoopData = $SessionAndTerm; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $data): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                  <option 
-                     class="dropdown-item" 
-                     value="<?php echo e($data->id); ?>" 
-                     <?php echo e($data->id == $maxId ? 'selected' : ''); ?>>
-                     <?php echo e($data->academic_year); ?> | <?php echo e($data->term_name); ?>
+                  <?php $__currentLoopData = $SessionAndTerm; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $data): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                     <option 
+                        class="dropdown-item" 
+                        value="<?php echo e($data->id); ?>" 
+                        <?php echo e($data->id == $maxId ? 'selected' : ''); ?>>
+                        <?php echo e($data->academic_year); ?> | <?php echo e($data->term_name); ?>
 
-                  </option>
-               <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-            </select>
-         </div>
-      </div>
+                     </option>
+                  <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+               </select>
+            </div>
+         </div>    
+      </div>      
    </div>
 
    <div class="row" id="skill_report1">

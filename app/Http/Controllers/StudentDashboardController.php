@@ -86,7 +86,7 @@ class StudentDashboardController extends Controller
         $classId = $studentData->class_id;
         // dd($SchoolId);
 
-        $bmiRecord = DB::table('seniortestresults as str')
+        $bmiRecord = DB::table('SeniorTestResults as str')
         ->join('term_masters as tm', 'tm.id', '=', 'str.TermId')
         ->select('str.height', 'str.weight', 'str.score', 'str.level')
         ->where('str.TestTypeID', 18)
@@ -119,8 +119,8 @@ class StudentDashboardController extends Controller
 		->get();
 
         $fmsTestData = DB::table('class_fitness_tests')
-        ->join('testtypemaster', 'testtypemaster.TestTypeID', '=', 'class_fitness_tests.test_type_id')
-        ->join('skill_reports', 'skill_reports.TestTypeMasterID', '=', 'testtypemaster.TestTypeID')
+        ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'class_fitness_tests.test_type_id')
+        ->join('skill_reports', 'skill_reports.TestTypeMasterID', '=', 'TestTypeMaster.TestTypeID')
         ->leftJoin('skillreport_skilltype_termtype_mapping as sst', function($join) use ($studentId) {
             $join->on('sst.skill_report_id', '=', 'skill_reports.id')
             ->where('sst.student_id', '=', $studentId);
@@ -141,8 +141,7 @@ class StudentDashboardController extends Controller
             'class_fitness_tests.test_type_id',
             'skill_reports.skill_name',
             'class_fitness_tests.class_id',
-            'skill_reports.id',
-            'skill_reports.icons'
+            'skill_reports.id'
         )
         ->get();
 
@@ -170,7 +169,7 @@ class StudentDashboardController extends Controller
 		}
         // $studentId = 6968;
 
-        $fitnessTest = DB::table('seniortestresults as str')
+        $fitnessTest = DB::table('SeniorTestResults as str')
             ->join('skill_reports', 'skill_reports.id', '=', 'str.TestTypeID')
             ->join('term_masters as tm', 'tm.id', '=', 'str.TermId')
             ->where('str.StudentID', $studentId)
@@ -196,9 +195,24 @@ class StudentDashboardController extends Controller
             $item->levelOutcome = $levelLabels[$level] ?? 'Unknown';
         }
 
-            // dd($fitnessTest);
+        $categories_id2 = [];
+        $categoty = "";
+
+        if(in_array($studentData->class_id, [1, 2, 3])){
+            $categories_id2 = [6,2];
+        }else{
+            $categories_id2 = [3,10,12,11,8,9,5,4,15];
+        }
+        if($studentData->gender == 'Male'){
+            $categoty = "Boys";
+        }else{
+            $categoty = "Girls";
+        }
+        
+
+        $getFitnessBenchmark = $this->getBenchmark($studentAge, $categoty, $categories_id2);
 
         
-        return view('parent.testDashboard', compact('title', 'getBmiBenchmark', 'studentData', 'studentAge', 'bmiRecord','class','classId','fmsTestData','fitnessTest'));
+        return view('parent.testDashboard', compact('title', 'getBmiBenchmark', 'studentData', 'studentAge', 'getFitnessBenchmark', 'bmiRecord','class','classId','fmsTestData','fitnessTest'));
     }
 }

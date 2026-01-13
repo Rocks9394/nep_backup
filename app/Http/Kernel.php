@@ -66,5 +66,6 @@ class Kernel extends HttpKernel
         'auth.auth_student' => \App\Http\Middleware\AuthenticateStudent::class,
 		'trainerschool' => \App\Http\Middleware\TrainerSchoolMiddleware::class,
         'module_access' => \App\Http\Middleware\CheckModuleAccess::class,
+        'check.questions' => \App\Http\Middleware\CheckSecurityQuestions::class,
     ];
 }

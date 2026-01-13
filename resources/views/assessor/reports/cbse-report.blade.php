@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Health and Activity Record</title>
 
     <style>
@@ -18,11 +19,6 @@
         table th, table td {
             text-align: left;
             vertical-align: middle;
-        }
-        input {
-            border: none;
-            width: 100%;
-            text-align: center;
         }
         .table-container {
             overflow-x: auto;
@@ -44,9 +40,8 @@
         .table-responsive-sm {
             margin-bottom: 0;
         }
-        .disable{
-            pointer-events: none;    
-            cursor: not-allowed;
+        .score{
+            text-align: center;
         }
     </style>
 </head>
@@ -68,9 +63,9 @@
                 'Sit and Reach' => 'Sit and Reach Test',
                 '600 Mtr Run' => '600 meter run/walk',
                 'Flamingo Balance Test' => 'Flamingo Balance Test',
-                'Shuttle Run' => 'Shuttle Run',
+                'Shuttle Run' => 'Shuttle Run (4×10 m)',
                 'Sprint / Dash' => '50 mt. dash',
-                'Standing Vertical Jump' => 'Standing Vertical Jump',
+                'Standing Vertical Jump' => 'Vertical Jump',
                 'Plate Tapping' => 'Plate Tapping',
                 'Alternative Hand Wall Toss Test' => 'Alternative Hand Wall Toss Test',
             ];
@@ -78,8 +73,8 @@
         @endphp
 
         @php
-            function getScore($orderedReportData, $dbTestName) {
-                foreach ($orderedReportData as $categoryData) {
+            function getScore($groupedReport, $dbTestName) {
+                foreach ($groupedReport as $categoryData) {
                     foreach ($categoryData as $item) {
                         if (strtolower($item['Test_Name']) == strtolower($dbTestName)) {
                             if($dbTestName == 'BMI'){
@@ -121,8 +116,7 @@
                         <td>Body Mass Index for specific Age and Gender</td>
                         @foreach($classList as $class)
                             <td>
-                                <input type="text" class="disable" 
-                                    value="{{ $studentsData->class_id == $class ? getScore($orderedReportData, $testMap['BMI']) : '--' }}">
+                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['BMI']) : '--' }}</p>
                             </td>
                         @endforeach
                     </tr>
@@ -134,8 +128,7 @@
                         <td>Abdominal Muscular Endurance</td>
                         @foreach($classList as $class)
                             <td>
-                                <input type="text" class="disable" 
-                                    value="{{ $studentsData->class_id == $class ? getScore($orderedReportData, $testMap['Partial Curl up']) : '--' }}">
+                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Partial Curl up']) : '--' }}</p>
                             </td>
                         @endforeach
 
@@ -147,9 +140,8 @@
                         <td>Muscular Endurance / Functional Strength</td>
                         @foreach($classList as $class)
                             <td>
-                                <input type="text" class="disable" 
-                                    value="{{ $studentsData->class_id == $class ? getScore($orderedReportData, $testMap['Partial Curl up']) : '--' }}">
-                            </td>
+                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Flexed/Bent Arm Hang']) : '--' }}</p>
+                            </td>                            
                         @endforeach
                     </tr>
 
@@ -160,8 +152,7 @@
                         <td>Measures flexibility of lower back and hamstrings</td>
                         @foreach($classList as $class)
                             <td>
-                                <input type="text" class="disable" 
-                                    value="{{ $studentsData->class_id == $class ? getScore($orderedReportData, $testMap['Sit and Reach']) : '--' }}">
+                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Sit and Reach']) : '--' }}</p>
                             </td>
                         @endforeach
                     </tr>
@@ -171,10 +162,9 @@
                         <td></td>
                         <td>600 Mtr Run</td>
                         <td>Cardiovascular Fitness</td>
-                       @foreach($classList as $class)
+                        @foreach($classList as $class)
                             <td>
-                                <input type="text" class="disable" 
-                                    value="{{ $studentsData->class_id == $class ? getScore($orderedReportData, $testMap['600 Mtr Run']) : '--' }}">
+                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['600 Mtr Run']) : '--' }}</p>
                             </td>
                         @endforeach
                     </tr>
@@ -186,8 +176,7 @@
                         <td>Ability to balance on a single leg</td>
                         @foreach($classList as $class)
                             <td>
-                                <input type="text" class="disable" 
-                                    value="{{ $studentsData->class_id == $class ? getScore($orderedReportData, $testMap['Flamingo Balance Test']) : '--' }}">
+                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Flamingo Balance Test']) : '--' }}</p>
                             </td>
                         @endforeach
                     </tr>
@@ -200,8 +189,7 @@
                         <td>Test of speed and agility</td>
                         @foreach($classList as $class)
                             <td>
-                                <input type="text" class="disable" 
-                                    value="{{ $studentsData->class_id == $class ? getScore($orderedReportData, $testMap['Shuttle Run']) : '--' }}">
+                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Shuttle Run']) : '--' }}</p>
                             </td>
                         @endforeach
                     </tr>
@@ -213,8 +201,7 @@
                         <td>Determines acceleration and speed</td>
                         @foreach($classList as $class)
                             <td>
-                                <input type="text" class="disable" 
-                                    value="{{ $studentsData->class_id == $class ? getScore($orderedReportData, $testMap['Sprint / Dash']) : '--' }}">
+                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Sprint / Dash']) : '--' }}</p>
                             </td>
                         @endforeach
                     </tr>
@@ -227,8 +214,7 @@
                         <td>Measures leg power</td>
                         @foreach($classList as $class)
                             <td>
-                                <input type="text" class="disable" 
-                                    value="{{ $studentsData->class_id == $class ? getScore($orderedReportData, $testMap['Standing Vertical Jump']) : '--' }}">
+                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Standing Vertical Jump']) : '--' }}</p>
                             </td>
                         @endforeach
                     </tr>
@@ -240,8 +226,7 @@
                         <td>Tests speed & coordination</td>
                         @foreach($classList as $class)
                             <td>
-                                <input type="text" class="disable" 
-                                    value="{{ $studentsData->class_id == $class ? getScore($orderedReportData, $testMap['Plate Tapping']) : '--' }}">
+                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Plate Tapping']) : '--' }}</p>
                             </td>
                         @endforeach
                     </tr>
@@ -253,8 +238,7 @@
                         <td>Measures hand–eye coordination</td>
                          @foreach($classList as $class)
                             <td>
-                                <input type="text" class="disable" 
-                                    value="{{ $studentsData->class_id == $class ? getScore($orderedReportData, $testMap['Alternative Hand Wall Toss Test']) : '--' }}">
+                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Alternative Hand Wall Toss Test']) : '--' }}</p>
                             </td>
                         @endforeach
                     </tr>
@@ -275,33 +259,56 @@
 
     <script>
         async function downloadPDF() {
-            const { jsPDF } = window.jspdf;
+    
+            Swal.fire({
+                title: 'Generating PDF...',
+                text: 'Please wait while the PDF is being generated.',
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+                allowOutsideClick: false,
+            });
 
-            const pdf = new jsPDF('landscape', 'pt', 'a4');
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('landscape', 'pt', 'a4');
+                const element = document.getElementById("content-to-download");        
+                const canvas = await html2canvas(element, { scale: 4 });
+                const imgData = canvas.toDataURL('image/png');
 
-            const element = document.getElementById("content-to-download");
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
 
-            const canvas = await html2canvas(element, { scale: 2 });
-            const imgData = canvas.toDataURL('image/png');
+                const imgWidth = canvas.width;
+                const imgHeight = canvas.height;
+                const scale = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
+                const finalWidth = imgWidth * scale;
+                const finalHeight = imgHeight * scale;
+                const marginX = (pageWidth - finalWidth) / 2;
+                const marginY = (pageHeight - finalHeight) / 2;
+        
+                pdf.addImage(imgData, 'PNG', marginX, marginY, finalWidth, finalHeight);       
+                pdf.save("Cbse_Health_Record.pdf");
 
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
-
-            const imgWidth = canvas.width;
-            const imgHeight = canvas.height;
-
-            const scale = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
-
-            const finalWidth = imgWidth * scale;
-            const finalHeight = imgHeight * scale;
-
-            const marginX = (pageWidth - finalWidth) / 2;
-            const marginY = (pageHeight - finalHeight) / 2;
-
-            pdf.addImage(imgData, 'PNG', marginX, marginY, finalWidth, finalHeight);
-            pdf.save("Health_Record_Single_Page.pdf");
+                Swal.close();                        
+                Swal.fire({
+                    icon: 'success',
+                    title: 'PDF Generated',
+                    text: 'The PDF has been successfully generated and downloaded.',
+                    allowOutsideClick: false,
+                });
+            } catch (error) {        
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong while generating the PDF. Please try again.',
+                    allowOutsideClick: false,
+                });
+            }
         }
     </script>
+
 
 
 </body>

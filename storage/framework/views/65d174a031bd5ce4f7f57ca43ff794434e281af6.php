@@ -1,5 +1,5 @@
 
-<?php $__env->startSection('title', 'CISCE | ' . $title); ?>
+<?php $__env->startSection('title', 'Goforfit | ' . $title); ?>
 <?php $__env->startSection('content'); ?>
 
 <?php $__env->startPush('style-css'); ?>
@@ -9,8 +9,8 @@
 <style>
     .score-bar {
         display: flex;
-        width: 250px;
-        height: 20px;
+        width: 100px;
+        height: 10px;
         border: 1px solid #333;
         border-radius: 5px;
         overflow: hidden;
@@ -23,12 +23,6 @@
         transition: opacity 0.3s ease-in-out;
     }
 
-    .segment-1 { background-color: #f44336; } 
-    .segment-2 { background-color: #ff9800; }
-    .segment-3 { background-color: #ffeb3b; } 
-    .segment-4 { background-color: #8bc34a; }
-    .segment-5 { background-color: #4caf50; } 
-
     .score-label {
         font-family: sans-serif;
         margin-top: 5px;
@@ -36,41 +30,42 @@
 
     .level-bar {
         display: flex;
-        gap: 2px;
         margin: 10px 0;
+        overflow: hidden;
+        border-radius: 8px;
+        background-color: #e0e0e0;
+        height: 10px;
     }
 
-    .color-levels {
-        flex: 1;
-        height: 10px;
-        background-color: #e0e0e0; /* Default (inactive) color */
-        border-radius: 4px;
-        transition: background-color 0.3s ease, opacity 0.3s ease;
-    }
     .segment2 {
         flex: 1;
-        height: 15px;
-        width: 100px;
         background-color: #e0e0e0;
-        border-radius: 5px;
-        transition: all 0.5s ease;
-        margin: 2px;
+        opacity: 0;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.6s ease, opacity 0.4s ease;
     }
 
+    .segment2.filled {
+        opacity: 1;
+        transform: scaleX(1);
+    }
+
+    .segment2:first-child {
+        border-radius: 8px 0 0 8px;
+    }
     .segment2:last-child {
-        margin-right: 0;
+        border-radius: 0 8px 8px 0;
     }
-
-    .segments-1.filled { background-color: #f44336; } /* Red */
-    .segments-2.filled { background-color: #ff5722; } /* Deep Orange */
-    .segments-3.filled { background-color: #ff9800; } /* Orange */
-    .segments-4.filled { background-color: #ffc107; } /* Amber */
-    .segments-5.filled { background-color: #8bc34a; } /* Light Green */
-    .segments-6.filled { background-color: #4caf50; } /* Green */
-    .segments-7.filled { background-color: #388e3c; } /* Dark Green */
+    .segment2.filled-max {
+        border-top: 2px solid #e7da27;
+        border-bottom: 2px solid #e7da27;
+        box-sizing: border-box;
+        animation: shimmer-green 2s infinite alternate;
+    }
 
     .modal {
-        display: none; /* Hidden by default */
+        display: none;
         position: fixed; 
         z-index: 1; 
         left: 0;
@@ -78,7 +73,7 @@
         width: 100%;
         height: 100%;
         overflow: auto; 
-        background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+        background-color: rgba(0,0,0,0.5);
     }
 
     .modal-content {
@@ -111,7 +106,7 @@
         border-radius: 5px
     }
     * {text-rendering: optimizeLegibility; font-size:100%;}
-        /* svg g g {font-size:0px;} */
+       
     #bmi_gauge svg g g {
         font-size: 0px !important;
     }
@@ -157,24 +152,37 @@
 
 <div class="all-chaptr-cards">
     <div class="container">
-        <!-- <h2 class="text-center m-2"><?php echo e($title); ?></h2> -->
-        <div class="row mt-5">
-            <div class="col-12 col-md-6 col-lg-6 apst">
-                <a href="<?php echo e(route('student.dashboard')); ?>" class="back-btn">
-                <img src="<?php echo e(asset('public/assets/imgs/back-arrow.png')); ?>" alt="">
-                </a>
+        <div class="col p-0 mt-2">
+                <div class="heading-rw mt-3 mt-md-1 mb-0 p-0">
+                    <a href="<?php echo e(route('student.dashboard')); ?>" class="back-button">
+                        <span class="arrow">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 3.293l6 6V14a1 1 0 0 1-1 1h-4v-4H7v4H3a1 1 0 0 1-1-1V9.293l6-6z"/>
+                            </svg>
+                        </span>
+                    </a>                
+                    <h1 class="ml-md-4 mb-0">Back to home</h1>
+                </div>
+            
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-12 col-md-12 col-lg-12 apst">
                 <div class="user-information backgroud-01 w-100">
                 <img src="<?php echo e(asset('resources/images/avtar.png')); ?>" class="d-inline-block align-top" height="35" alt="avtar">
-                <div class="left-text pl-3 w-100 user-u-info">
+                <div class="left-text pl-3 w-50 user-u-info">
                     <h2><?php echo e(Auth::guard('sstudent')->user()->student_name); ?></h2>
                     <h3><?php echo e($studentAge); ?> Years, <?php echo e($studentData->gender); ?></h3>
-                    <p class="lead"><?php echo e($studentData->school_name); ?></p>
+                </div>
+                <div>
+                    <h2><?php echo e($studentData->school_name); ?></h2>
+                    <!-- <h2 class="lead"><?php echo e($studentData->school_name); ?></h2> -->
                     <p><?php echo e($studentData->className); ?>-<?php echo e($studentData->section); ?>, Roll No: <?php echo e($studentData->rollno); ?></p>
                 </div>
                 </div>
             </div>
 
-            <div class="col-4 col-md-2 col-lg-2 apst">
+            <!-- <div class="col-4 col-md-2 col-lg-2 apst">
                 <div class="student-rank left-text text-center backgroud-01 h-100 d-flex flex-column justify-content-center align-items-center">
                     <h4>School Rank</h4>
                     <span>12</span>
@@ -193,8 +201,8 @@
                     <h4>National Rank</h4>
                     <span>10222</span>
                 </div>
-            </div>
-            </div>
+            </div> -->
+        </div>
 
 
 
@@ -259,7 +267,7 @@
         
         <div class="clearfix"></div>
 
-        <div class="my-5">
+        <div class="my-3">
              
 
             <div class="row no-gutters">
@@ -267,18 +275,18 @@
                 <?php if(in_array((string) $classId, $juniorClassess)): ?>   
                 <h2 class="test-heading text-center mt-2 mb-3">FMS Development Tests</h2>
                     <?php $__currentLoopData = $fmsTestData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $test): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <div class="col-12 col-md-6 col-lg-6 col-xl-4">
+                        <div class="col-12 col-md-6 col-lg-6 col-xl-4 mb-1">
                             <div class="test-box">
                                 <div class="tests left-text">
                                     <img src="<?php echo e(asset('public/icons/BatteryOfTests/' . $test->icons)); ?>" alt="logo" class="img-fluid img lazy-image" loading="lazy" />
                                     <div class="left-text w-100">
                                         <h4><?php echo e($test->skill_name); ?></h4>
                                         <div class="score-bar w-100" id="scoreBar">
-                                            <div class="segment segment-1"></div>
-                                            <div class="segment segment-2"></div>
-                                            <div class="segment segment-3"></div>
-                                            <div class="segment segment-4"></div>
-                                            <div class="segment segment-5"></div>
+                                            <div class="segment"></div>
+                                            <div class="segment"></div>
+                                            <div class="segment"></div>
+                                            <div class="segment"></div>
+                                            <div class="segment"></div>
                                         </div>
                                         <div class="score-outcome d-flex justify-content-between align-items-center">
                                             <div class="score-label" id="scoreLabel"><?php echo e($test->score); ?></div>                           
@@ -300,23 +308,23 @@
             <div class="row no-gutters">
 
                 <?php if(in_array((string) $classId, $juniorClassess) || in_array((string) $classId, $siniorClassess)): ?>  
-                <h2 class="test-heading text-center mt-3 mb-3">Fitness Tests</h2>
+                <h2 class="test-heading text-center mt-2 mb-3">Fitness Tests</h2>
                     <?php $__currentLoopData = $fitnessTest; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $test): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?> 
-                        <div class="col-12 col-md-6 col-lg-6 col-xl-4">
+                        <div class="col-12 col-md-6 col-lg-6 col-xl-4 mb-1">
                             <div class="test-box">
                                 <div class="tests left-text">
                                     <img src="<?php echo e(asset('public/icons/BatteryOfTests/' . $test->icons)); ?>" alt="logo" class="img-fluid img lazy-image" loading="lazy" />
                                     <div class="left-text w-100">
                                         <h4><?php echo e($test->skill_name); ?></h4>
                                         <div class="level-box">
-                                            <div class="current-lavel">Current Level</div>
                                             <div class="clearfix"></div>
                                             
                                             <div class="level-bar" data-score="<?php echo e($test->level); ?>">
                                                 <?php for($i = 1; $i <= 7; $i++): ?>
-                                                <div class="segment2 segments-<?php echo e($i); ?>"></div>
+                                                    <div class="segment2"></div>
                                                 <?php endfor; ?>
                                             </div>
+
 
                                             <div class="score-outcome d-flex justify-content-between align-items-center">
                                                 <div class="score-label" id="scoreLabel">Level <?php echo e($test->level); ?></div>                           
@@ -336,14 +344,14 @@
 
         
         <div class="form-row download-report mb-4">
-            <div class="col-12 col-sm-4 col-lg-4 mb-3">
+            <div class="col-12 col-sm-6 col-lg-6 mb-3">
                 <a href="<?php echo e(route('student.report')); ?>" class="btn btn-primary btn-lg w-100" target="_blank">Download Report </a>
             </div>
-            <div class="col-12 col-sm-4 col-lg-4 mb-3">
+            <!-- <div class="col-12 col-sm-4 col-lg-4 mb-3">
                 <a class="btn btn-primary btn-lg w-100 notAvailable" target="_blank">Fitness History <i class="fa fa-angle-right"></i> </a>
-            </div>
-            <div class="col-12 col-sm-4 col-lg-4 mb-3">
-                <a class="btn btn-primary btn-lg w-100 notAvailable" target="_blank">National Benchmark<span></span><i class="fa fa-angle-right"> </a>
+            </div> -->
+            <div class="col-12 col-sm-6 col-lg-6 mb-3">
+                <a href="" id="openFitnessModal" class="btn btn-primary btn-lg w-100" >National Benchmark </a>
             </div>
         </div>
 
@@ -378,9 +386,68 @@
     </div>
 </div>
 
+<!-- fitness benchmark modal  -->
+
+<div id="fitnessBenchmark" class="modal" data-backdrop="static" data-keyboard="false">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; margin-top:30px; border: 0px; font-size: 14px; border-collapse: collapse; color:#333; text-align:left;">
+            <tr>
+                <td>
+                    <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid #0A87CD; font-size: 12px; border-collapse: collapse; color:#000;">
+                        <tr style="background-color: #0A87CD;">
+                            <td style="padding: 5px 10px; font-weight: bold; color:#fff; font-size: 14px;" colspan="8">Fitness Benchmarks for <?php echo e($studentAge); ?> years <?php echo e($studentData->gender); ?></td>
+                        </tr>
+                        <tr style="font-weight: bold; background-color: #fecd0a; font-size: 12px; color: #000;">
+                            <td style="padding: 4px;"></td>
+                            <td style="padding: 4px;">L1 (Very Low)</td>
+                            <td style="padding: 4px;">L2 (Low)</td>
+                            <td style="padding: 4px;">L3 (Developing)</td>
+                            <td style="padding: 4px;">L4 (Moderate)</td>
+                            <td style="padding: 4px;">L5 (Good)</td>
+                            <td style="padding: 4px;">L6 (High)</td>
+                            <td style="padding: 4px;">L7 (Excellent)</td>
+                        </tr>
+                        <tr style="background-color: #fff6d1; font-weight: 500; color:#333;">
+                            <td style="padding: 4px;"></td>
+                            <td style="padding: 4px;">< 20 %ile</td>
+                            <td style="padding: 4px;">≥ 20 %ile</td>
+                            <td style="padding: 4px;">≥ 40 %ile</td>
+                            <td style="padding: 4px;">≥ 60 %ile</td>
+                            <td style="padding: 4px;">≥ 70 %ile</td>
+                            <td style="padding: 4px;">≥ 80 %ile</td>
+                            <td style="padding: 4px;">≥ 90 %ile</td>
+                        </tr>
+                        
+                        <?php $__empty_1 = true; $__currentLoopData = $getFitnessBenchmark; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $skillname): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                        <tr>            
+                            <td style="padding: 4px; font-weight: bold; color: #000;"><?php echo e($skillname->skill_name); ?></td>
+                            <?php $__currentLoopData = $skillname->ranges; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $level => $range): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <td style="padding: 4px;"><?php echo e($range); ?></td>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </tr>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                <tr>                                                  
+                                <td style="padding: 4px;" colspan="8"> 
+                                    <p style="text-align:center;"> <span style="padding: 4px; font-weight: bold; color: #000;">Note : </span> No Fitness Benchmarks available for a <?php echo e($studentAge); ?>-year-old <?php echo e($studentData->gender); ?>.</p>
+                                </td>
+                                
+                                </tr>                                                 
+                        <?php endif; ?>       
+
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
+
+    // google gague for bmi 
+
     google.charts.load('current', {'packages':['gauge']});
     google.charts.setOnLoadCallback(drawChart);
 
@@ -457,11 +524,10 @@
             if (currentValue === targetValue) clearInterval(interval);
         }, 50);
     }
-    
-    // window.addEventListener('resize', drawChart);
-</script>
 
-<script>
+    
+    // for fms tets 
+
     document.addEventListener('DOMContentLoaded', function () {
         const maxScore = 5;
 
@@ -473,46 +539,74 @@
             const score = parseFloat(scoreLabel.textContent);
             const segments = scoreBar.querySelectorAll('.segment');
 
+            const fillColor = getColorByScore(score);
+
             segments.forEach((segment, index) => {
-            const segmentIndex = index + 1;
-            if (score >= segmentIndex) {
-                segment.style.opacity = '1';
-            } else if (score > index && score < segmentIndex) {
-                segment.style.opacity = (score - index).toFixed(2);
-            } else {
-                segment.style.opacity = '0.15';
-            }
+                if (index < score) {
+                    segment.style.opacity = '1';
+                    segment.style.backgroundColor = fillColor;
+                } else {
+                    segment.style.opacity = '0.15';
+                }
             });
 
             scoreLabel.textContent = `Score: ${score}/${maxScore}`;
         });
-    });
-</script>
 
-<script>
+        function getColorByScore(score) {
+            if (score <= 1) return '#f44336'; // red
+            if (score <= 3) return '#ff9800'; // orange
+            if (score === 4) return '#8bc34a'; // light green
+            return '#4caf50'; // green
+        }
+    });
+
+    // for fitness tests 
+
     document.addEventListener('DOMContentLoaded', function () {
-        const maxLevel = 7;
+        const levelColors = {
+            1: '#f44336',
+            2: '#ff5722',
+            3: '#ff9800',
+            4: '#ffc107',
+            5: '#8bc34a',
+            6: '#4caf50',
+            7: '#388e3c'
+        };
 
         function applyColoredLevelProgress() {
-            const levelBars = document.querySelectorAll('.level-bar');
+            document.querySelectorAll('.level-bar').forEach(levelBar => {
 
-            levelBars.forEach(levelBar => {
-                const rawLevel = levelBar.getAttribute('data-score') || 'L0';
+                const rawLevel = levelBar.getAttribute('data-score') || '0';
                 const level = parseFloat(rawLevel.replace(/[^0-9.]/g, '')) || 0;
                 const segments = levelBar.querySelectorAll('.segment2');
 
+                if (level === 0) {
+                    segments.forEach(segment => {
+                        segment.classList.remove('filled', 'filled-max');
+                        segment.style.backgroundColor = '#e0e0e0';
+                        segment.style.opacity = '0.3';
+                    });
+                    return;
+                }
+                const color = levelColors[Math.min(Math.floor(level), 7)];
 
                 segments.forEach((segment, index) => {
                     const segmentIndex = index + 1;
 
                     if (level >= segmentIndex) {
                         segment.classList.add('filled');
+                        segment.style.backgroundColor = color;
                         segment.style.opacity = '1';
-                    } else if (level > index && level < segmentIndex) {
-                        segment.classList.add('filled');
-                        segment.style.opacity = (level - index).toFixed(2);
+                        if (level === 8) {
+                            segment.classList.add('filled-max');
+                        } else {
+                            segment.classList.remove('filled-max');
+                        }
+
                     } else {
-                        segment.classList.remove('filled');
+                        segment.classList.remove('filled', 'filled-max');
+                        segment.style.backgroundColor = '#e0e0e0';
                         segment.style.opacity = '0.3';
                     }
                 });
@@ -520,125 +614,109 @@
         }
         applyColoredLevelProgress();
     });
-</script>
-<script>
-  document.getElementById("openModal").addEventListener("click", function(e) {
-        e.preventDefault();
-        document.getElementById("bmiModal").style.display = "block";
-  });
-  document.querySelector(".close").addEventListener("click", function() {
-        document.getElementById("bmiModal").style.display = "none";
-  });
-
-  document.getElementById("bmiModal").addEventListener("click", function(e) {
-        if (e.target === this) {
-            e.stopPropagation();
-        }
-    });
-  window.addEventListener("click", function(event) {
-        const modal = document.getElementById("bmiModal");
-        if (event.target === modal) {
-            modal.style.display = "none";
-        }
-  });
 
 
-let fitnessTest = <?php echo json_encode($fitnessTest, 15, 512) ?>;
-const levelMap = {
-    'L0': 0,
-    'L1': 1,
-    'L2': 2,
-    'L3': 3,
-    'L4': 4,
-    'L5': 5,
-    'L6': 6,
-    'L7': 7,
-    'L8': 8
-};
-
-const levels = fitnessTest.map(test => test.level);
-
-const numericScores = levels.map(level => levelMap[level] || 0);
-
-const sum = numericScores.reduce((acc, score) => acc + score, 0);
-
-const avgScore = numericScores.length ? sum / numericScores.length : 0;
-
-const maxScore = 8;
-
-const overallPercentile = ((avgScore) / maxScore) * 100;
-
-// Display the initial structure
-document.getElementById('overallFitness').innerHTML = `
-  <h4>Overall Fitness Level</h4>
-  <span>0%</span>
-`;
 
 
-let start = 0;
-const end = overallPercentile;
-const duration = 2000; // 2 seconds
-const stepTime = 20;   // update every 20ms
-const increment = end / (duration / stepTime);
 
-const spanElement = document.querySelector('#overallFitness span');
+    // for overall fitness 
 
-const timer = setInterval(() => {
-  start += increment;
-  if (start >= end) {
-    start = end;
-    clearInterval(timer);
-  }
-  spanElement.textContent = `${start.toFixed(2)}%`;
-}, stepTime);
-
-
-// Load Google Charts
-google.charts.load('current', {'packages':['corechart']});
-google.charts.setOnLoadCallback(drawOverallFitness);
-
-function drawOverallFitness() {
-    var targetValue = parseFloat(overallPercentile.toFixed(2));
-    
-    var data = google.visualization.arrayToDataTable([
-        ['Label', 'Value'],
-        ['Fitness', 0] 
-    ]);
-    var formatter = new google.visualization.NumberFormat({
-        pattern: '#.##'
-    });
-    formatter.format(data, 1);
-    
-    var options = {
-        greenFrom: 0,
-        greenTo: 100,
-        minorTicks: 0,
-        majorTicks: [],
-        hideTicks: true,
-        max: 100,
-        animation: { 
-            duration: 500,
-            easing: 'linear'
-        }
+    let fitnessTest = <?php echo json_encode($fitnessTest, 15, 512) ?>;
+    const levelMap = {
+        'L0': 0,
+        'L1': 1,
+        'L2': 2,
+        'L3': 3,
+        'L4': 4,
+        'L5': 5,
+        'L6': 6,
+        'L7': 7,
+        'L8': 8
     };
 
-    var chart = new google.visualization.Gauge(document.getElementById('donut_single'));
-    chart.draw(data, options);
-    let current = 0;
-    let step = targetValue / 50;
+    const levels = fitnessTest.map(test => test.level);
 
-    let interval = setInterval(() => {
-        current += step;
-        if (current >= targetValue) {
-            current = targetValue;
-            clearInterval(interval);
-        }
+    const numericScores = levels.map(level => levelMap[level] || 0);
 
-        data.setValue(0, 1, parseFloat(current.toFixed(2)));
+    const sum = numericScores.reduce((acc, score) => acc + score, 0);
+
+    const avgScore = numericScores.length ? sum / numericScores.length : 0;
+
+    const maxScore = 8;
+
+    const overallPercentile = ((avgScore) / maxScore) * 100;
+
+    // Display the initial structure
+    document.getElementById('overallFitness').innerHTML = `
+    <h4>Overall Fitness Level</h4>
+    <span>0 %ile</span>
+    `;
+
+
+    let start = 0;
+    const end = overallPercentile;
+    const duration = 2000; // 2 seconds
+    const stepTime = 20;   // update every 20ms
+    const increment = end / (duration / stepTime);
+
+    const spanElement = document.querySelector('#overallFitness span');
+
+    const timer = setInterval(() => {
+    start += increment;
+    if (start >= end) {
+        start = end;
+        clearInterval(timer);
+    }
+    spanElement.textContent = `${start.toFixed(2)} %ile`;
+    }, stepTime);
+
+
+    // Load Google Charts
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawOverallFitness);
+
+    function drawOverallFitness() {
+        var targetValue = parseFloat(overallPercentile.toFixed(2));
+        
+        var data = google.visualization.arrayToDataTable([
+            ['Label', 'Value'],
+            ['Fitness', 0] 
+        ]);
+        var formatter = new google.visualization.NumberFormat({
+            pattern: '#.##'
+        });
         formatter.format(data, 1);
+        
+        var options = {
+            greenFrom: 0,
+            greenTo: 100,
+            minorTicks: 0,
+            majorTicks: [],
+            hideTicks: true,
+            max: 100,
+            animation: { 
+                duration: 500,
+                easing: 'linear'
+            }
+        };
+
+        var chart = new google.visualization.Gauge(document.getElementById('donut_single'));
         chart.draw(data, options);
-    }, 50);
-}
+        let current = 0;
+        let step = targetValue / 50;
+
+        let interval = setInterval(() => {
+            current += step;
+            if (current >= targetValue) {
+                current = targetValue;
+                clearInterval(interval);
+            }
+
+            data.setValue(0, 1, parseFloat(current.toFixed(2)));
+            formatter.format(data, 1);
+            chart.draw(data, options);
+        }, 50);
+    }
 
     document.addEventListener("DOMContentLoaded", function() {
         const images = document.querySelectorAll('.lazy-image');
@@ -656,16 +734,52 @@ function drawOverallFitness() {
 
 
 
-    $('.notAvailable').on('click', function (e) {
+    // open bmi benchmark 
 
-        Swal.fire({
-            icon: 'info',
-            title: 'Not Available',
-            text: 'Data not available. Please try again later.',
-            confirmButtonText: 'OK',
-            allowOutsideClick: false
+    document.getElementById("openModal").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("bmiModal").style.display = "block";
+    });
+    document.querySelector(".close").addEventListener("click", function() {
+            document.getElementById("bmiModal").style.display = "none";
+    });
+
+    document.getElementById("bmiModal").addEventListener("click", function(e) {
+            if (e.target === this) {
+                e.stopPropagation();
+            }
         });
-        return;
+    window.addEventListener("click", function(event) {
+            const modal = document.getElementById("bmiModal");
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+    });
+
+    // fitness benchmark modal 
+
+    document.getElementById("openFitnessModal").addEventListener("click", function(e) {
+        e.preventDefault();
+        document.getElementById("fitnessBenchmark").style.display = "block";
+    });
+    const closeButtons = document.querySelectorAll("#fitnessBenchmark .close");
+
+    closeButtons.forEach(button => {
+        button.addEventListener("click", function() {
+            document.getElementById("fitnessBenchmark").style.display = "none";
+        });
+    });
+
+    document.getElementById("fitnessBenchmark").addEventListener("click", function(e) {
+        if (e.target === this) {
+            e.stopPropagation();
+        }
+    });
+    window.addEventListener("click", function(event) {
+        const modal = document.getElementById("fitnessBenchmark");
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
     });
 </script>
 

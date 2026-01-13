@@ -50,7 +50,7 @@
 
             <x-get-student-list :classes="$classes" :type="$type"  />
         
-            <form class="row" method="POST" name="saveFlamingoRecord" id="save_partial_curl_up_record_id" action="">
+            <form class="row" method="POST" name="saveFlamingoRecord" id="alternative_hand_toss" action="">
                     {{method_field('post')}}
                     @csrf
                     
@@ -144,27 +144,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
 <script>
 $(document).ready(function() {
-    $('#save_partial_curl_up_record_id').submit(function(e) {
+    $('#alternative_hand_toss').submit(function(e) {
         e.preventDefault();
         const studentId = document.getElementById('selected_student_id').value;
-        const curlUpCount = document.getElementById('count_total_number_id')?.value;
+        const catchCount = document.getElementById('count_total_number_id')?.value;
 
         if (!studentId) {
             handleResponseMessages( 'warning',  'Add Student', 'Please select the student');
             return;
         }
-        if (curlUpCount === null || curlUpCount === undefined || curlUpCount === ""){
-            handleResponseMessages( 'warning',  'Add curl-up count', 'Please add curl-up count');
+        if (catchCount === null || catchCount === undefined || catchCount === ""){
+            handleResponseMessages( 'warning',  'Add catch count', 'Please add catch count');
             return;
         }
         submitLoader();
         $.ajax({
-            url: '{{ route("partial.curl.up.record.submit") }}', // or your route URL
+            url: '{{ route("partial.curl.up.record.submit") }}',
             method: 'POST',
             data: $(this).serialize(),
             success: function(response) {
 				Swal.close();
-				$('#save_partial_curl_up_record_id')[0].reset();
+				$('#alternative_hand_toss')[0].reset();
                 handleResponseMessages( 'success',  '', response.message, {
                     confirmText: 'OK',
                     onConfirm: function () {

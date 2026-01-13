@@ -133,9 +133,9 @@
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?> 
                         
                             </ul>
-
-                             <br>
-                             <h4 class="test-cat">Physical Fitness Assessment for Age 13-18 (Class 9-12)</h4>
+                            <?php if(Auth::user()->id == 995): ?>
+                            <br>
+                             <h4 class="test-cat">Adittional Fitness Assessment for Age 13-18 (Class 9-12)</h4>
                             <ul class="list-group mt-0">
                             
                             <?php $__currentLoopData = $cbseData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $keys => $vals): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -150,6 +150,8 @@
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?> 
                         
                             </ul>
+                            <?php endif; ?>
+
                         </div>
                     </div>
                 </div>

@@ -56,7 +56,7 @@ h5.card-title {
             <div class="card">
               <div class="card-body p-0">
                 <h5 class="card-title mt-3">Total Students</h5>
-                <p class="card-text mt-2" style="font-weight:600;">{{ $SchoolData['students']->count() }}</p>
+                <p class="card-text mt-2" style="font-weight:600;"><a href="{{ route('schoolDashboardGraph') }}">{{ $SchoolData['students']->count() }}</a></p>
 
                  <div class="students_count">
                       <p >{{ $SchoolData['students']->where('gender', 'Male')->count() }} Boys</p>

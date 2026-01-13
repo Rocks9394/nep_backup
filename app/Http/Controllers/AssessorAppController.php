@@ -62,15 +62,14 @@ class AssessorAppController extends Controller
 		$junior1 = array(2, 6, 3);
 		
 		$senior = array(8, 9, 5, 4, 15, 3);
-		
 		$cbseTests = array(6, 7, 1, 2, 131);
-
+	
 		$juniorData = DB::table('TestCategoryMaster')->whereIn('TestCategoryID',$junior)->orderByRaw('FIELD(TestCategoryID, ' . implode(',', $junior) . ')')->get();
 		
 		$juniorData1 = DB::table('TestCategoryMaster')->whereIn('TestCategoryID',$junior1)->orderByRaw('FIELD(TestCategoryID, ' . implode(',', $junior1) . ')')->get();
 		
 		$seniorData = DB::table('TestCategoryMaster')->whereIn('TestCategoryID',$senior)->orderByRaw('FIELD(TestCategoryID, ' . implode(',', $senior) . ')')->get();
-		
+
 		$cbseData = DB::table('TestCategoryMaster')->whereIn('TestCategoryID',$cbseTests)->orderByRaw('FIELD(TestCategoryID, ' . implode(',', $cbseTests) . ')')->get();
 		
 		$title = 'TAKE FITNESS ASSESSMENT';
@@ -118,8 +117,8 @@ class AssessorAppController extends Controller
 		
 		$CategoryName = DB::table('TestCategoryMaster')->where('TestCategoryID',$TestcategoryId)->value('TestCategoryName');
 			
-		$testType = DB::table('testtypemaster')->where('TestCategoryID',$TestcategoryId)->where('TestsApplicable',1)->get();
-		#$testType = DB::table('testtypemaster')->where('TestCategoryID',$TestcategoryId)->get();
+		$testType = DB::table('TestTypeMaster')->where('TestCategoryID',$TestcategoryId)->where('TestsApplicable',1)->get();
+		#$testType = DB::table('TestTypeMaster')->where('TestCategoryID',$TestcategoryId)->get();
 
 		$title = $CategoryName ?? 'Test';
 
@@ -140,8 +139,8 @@ class AssessorAppController extends Controller
 		
 		$CategoryName = DB::table('TestCategoryMaster')->where('TestCategoryID',$TestcategoryId)->value('TestCategoryName');
 			
-		$testType = DB::table('testtypemaster')->where('TestCategoryID',$TestcategoryId)->where('TestsApplicable',2)->get();
-		#$testType = DB::table('testtypemaster')->where('TestCategoryID',$TestcategoryId)->get();
+		$testType = DB::table('TestTypeMaster')->where('TestCategoryID',$TestcategoryId)->where('TestsApplicable',2)->get();
+		#$testType = DB::table('TestTypeMaster')->where('TestCategoryID',$TestcategoryId)->get();
 
 		$title = $CategoryName ?? 'Test';
 
@@ -150,7 +149,7 @@ class AssessorAppController extends Controller
 		$videos = DB::table('fitness_test_videos')
 			->whereIn('testType_id', $testTypeIds)
 			->get();
-
+			
 		return view('assessor.locomotorSkills', compact('title','testType', 'TestcategoryId', 'SeniorBMI','videos'));		
 
 	}
@@ -204,8 +203,6 @@ class AssessorAppController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
-			'custom_classes.nomenclature',
-			'class.name',  
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -237,8 +234,6 @@ class AssessorAppController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
-			'custom_classes.nomenclature',
-			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -260,7 +255,6 @@ class AssessorAppController extends Controller
 
 			// 'class.name AS classname'
 			)
-		
 		->Where('custom_classes.school_id', $SchoolId)
 		->where('students.status','active')
 			->orderBy('custom_classes.orders', 'ASC')
@@ -268,8 +262,6 @@ class AssessorAppController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
-			'custom_classes.nomenclature',
-			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -280,6 +272,7 @@ class AssessorAppController extends Controller
 		$seniorclasses = $query->whereIn('class.id', array(4,5,6,7,8,9,10,11,12))->get();
 		$additionalClasses = $query->whereIn('class.id', array(9,10,11,12))->get();
 		
+		
 		$students = DB::table('students')
 		->join('custom_classes', 'students.custom_class_id', '=', 'custom_classes.id')
 		->join('class', 'class.id', '=', 'custom_classes.class_id')
@@ -289,8 +282,6 @@ class AssessorAppController extends Controller
 			'students.student_name',
 			'students.custom_class_id',
 			'custom_classes.section',
-			'custom_classes.nomenclature',
-			'class.name',
 			DB::raw("CASE 
 				WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 				THEN custom_classes.nomenclature 
@@ -316,18 +307,19 @@ class AssessorAppController extends Controller
 			$title = $skillReport->skill_name;
 			return view('assessor.senior-bmi', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 		}
-		elseif($skillReport->skill_name == 'Flamingo Balance Test' && $SeniorBMI == false)
+		elseif($skillReport->skill_name == 'Flamingo Balance Test')
 		{
 			$title = $skillReport->skill_name;
 			return view('assessor.flamingo', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 			
 		}
-	    elseif($skillReport->skill_name == 'Plate Tapping' && $SeniorBMI == false)
+	    elseif($skillReport->skill_name == 'Plate Tapping')
 		{
 			$title = $skillReport->skill_name;
 			return view('assessor.plate-tapping', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 			
 		}
+		// additional tests for cbse report 
 		elseif($skillReport->skill_name == 'Flamingo Balance Test' && $SeniorBMI == true)
 		{
 			$classes = $additionalClasses;
@@ -341,9 +333,7 @@ class AssessorAppController extends Controller
 			$title = $skillReport->skill_name;
 			return view('assessor.plate-tapping', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 			
-		}
-
-		
+		}		
 		//flexed/Bent Arm hang
 		elseif($skillReport->skill_name == 'Flexed/Bent Arm Hang')
 		{
@@ -369,7 +359,7 @@ class AssessorAppController extends Controller
 			
 		}
 		//hand wall toss
-		elseif($skillReport->skill_name == 'Alternate Hand Toss (Wall Toss Test)')
+		elseif($skillReport->skill_name == 'Alternative Hand Wall Toss Test')
 		{
 			$classes = $additionalClasses;
 			$title = $skillReport->skill_name;
@@ -1127,7 +1117,7 @@ class AssessorAppController extends Controller
 			} else {
 				$students = $getData->whereNotExists(function ($query) use ($skillReportId,$termMasterId) {
 						$query->select(DB::raw(1))
-							->from('seniortestresults as mapping')
+							->from('SeniorTestResults as mapping')
 							->whereRaw('mapping.StudentID = students.id')
 							->where('mapping.TestTypeID', '=', $skillReportId)
 							->where('mapping.TermId', '=', $termMasterId);
@@ -1244,7 +1234,7 @@ class AssessorAppController extends Controller
 	        		break;
 
 	        	case 'fitnessTest':
-	        		$testExists = DB::table('seniortestresults')    
+	        		$testExists = DB::table('SeniorTestResults')    
 	                ->where('StudentID', $student->id)
 	                ->where('SchoolID', $schoolId)
 	                ->where('TermId', $termMasterId)
@@ -1306,7 +1296,7 @@ class AssessorAppController extends Controller
 	        		break;
 
 	        	case 'fitnessTest':
-	        		$testExists = DB::table('seniortestresults')
+	        		$testExists = DB::table('SeniorTestResults')
 	                ->where('StudentID', $studentId)
 	                ->where('SchoolID', $request->school_id)
 	                ->where('TermId', $termMasterId)
@@ -1543,7 +1533,7 @@ class AssessorAppController extends Controller
             $length = $request->input('length', 100);
 		
             $query = DB::table('students as s')
-		        ->leftJoin('seniortestresultssummary as r', function ($join) use ($TermMasterId) {
+		        ->leftJoin('SeniorTestResultsSummary as r', function ($join) use ($TermMasterId) {
 					$join->on('s.id', '=', 'r.student_id')
 						->where('r.term_id', '=', $TermMasterId);
 					})
@@ -1921,7 +1911,7 @@ class AssessorAppController extends Controller
 	    ];
 
 	    // 1. Fetch all results for the given school, skip null students
-	    $results = DB::table('seniortestresults')
+	    $results = DB::table('SeniorTestResults')
 	        ->where('SchoolID', $schoolId)
 	        ->whereNotNull('StudentID')
 	        ->whereNotNull('TermId')
@@ -1972,7 +1962,7 @@ class AssessorAppController extends Controller
 	        }
 
 	        // 4. Insert or update the summary table
-	        DB::table('seniortestresultssummary')->updateOrInsert(
+	        DB::table('SeniorTestResultsSummary')->updateOrInsert(
 	            [
 	                'student_id' => $studentId,
 	                'term_id'    => $termId,
@@ -2040,9 +2030,9 @@ class AssessorAppController extends Controller
 	        13 => 'dribbling_feet',
 	        14 => 'kicking_ball',
 	        15 => 'beam_walk',
-	        16 => 'plate_tapping',        // from seniortestresults
-	        17 => 'flamingo_balance',     // from seniortestresults
-	        18 => 'bmi'                   // from seniortestresults
+	        16 => 'plate_tapping',        // from SeniorTestResults
+	        17 => 'flamingo_balance',     // from SeniorTestResults
+	        18 => 'bmi'                   // from SeniorTestResults
 	    ];
 
 	    $count = 0;
@@ -2097,8 +2087,8 @@ class AssessorAppController extends Controller
 	    }
 
 
-		/*Part 2: Handle seniortestresults (16–18)*/
-	    $seniorRecords = DB::table('seniortestresults')
+		/*Part 2: Handle SeniorTestResults (16–18)*/
+	    $seniorRecords = DB::table('SeniorTestResults')
 	        ->where('SchoolID', $schoolId)
 	        ->select('StudentID','SchoolID','TermId','TestTypeID','Score','height','weight','created_at')
 	        ->orderBy('created_at')

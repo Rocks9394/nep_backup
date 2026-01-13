@@ -452,8 +452,8 @@
 
                                                                     <tr>
                                                                         <td style="padding: 4px 4px 4px 6px; font-weight: 500; color:#000; text-align: center;">---</td>
-                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;">---</td>
-                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;">---</td>
+                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;"><?php echo e($value[1]['score'] ?? '---'); ?></td>
+                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;"><?php echo e($value[1]['Level'] ?? '---'); ?></td>
 
                                                                     </tr>
                                                                 </table>

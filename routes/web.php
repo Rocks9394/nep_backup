@@ -31,6 +31,7 @@ use App\Http\Controllers\SchoolRecordController;
 use App\Http\Controllers\ParentDashoboardController;
 use App\Http\Controllers\AssessorAppController;
 
+use App\Http\Controllers\Auth\PasswordRecoveryControlller;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,22 +53,9 @@ Route::get('/debug', function () {
     throw new Exception('This is a test exception!');
 });
 
-Route::get('/test-error', function () {
-    abort(500, 'This is a test error.');
-});
 
-//Route::get('/404', function () {
-//    abort(404);
-//});
-
-//Route::get('/login', function(){  die('gg'); })->name('login');
 
 Route::get('get_classes_schoolwise', [App\Http\Controllers\Academy::class, 'getClassesSchoolWise'])->name('get_classes_schoolwise');
-
-/*Route::get('/', function () {
-    return view('welcome');
-});*/
-
 
 Route::get('/assessor-app-index', [App\Http\Controllers\AssessorAppController::class, 'index']);
 Route::get('/assessor-app-agility', [App\Http\Controllers\AssessorAppController::class, 'agility']);
@@ -341,10 +329,14 @@ Route::prefix('school')->group(function(){
 
 	Route::get('mapping-sports', [SchoolRecordController::class,'MapSports'])->name('mapping.sports')->middleware('module_access:mapping.sports');
 	Route::put('mapping-sports/{id}', [SchoolRecordController::class,'SaveMappedSports'])->name('mapping.sports.update');
+	
+	/* Handle Trainers */
 	Route::get('map-trainer', [SchoolRecordController::class,'MapTrainer'])->name('mapping.trainer')->middleware('module_access:mapping.trainer');;
 	Route::get('autocomplete-trainer', [SchoolRecordController::class, 'autocomplete'])->name('autocomplete.trainer');
 	Route::post('trainer-map', [SchoolRecordController::class, 'MapTrainer'])->name('trainer.map');
-	Route::post('trainer-unmap', [SchoolRecordController::class, 'UnMapTrainer'])->name('trainer.unmap'); 
+	Route::post('trainer-unmap', [SchoolRecordController::class, 'UnMapTrainer'])->name('trainer.unmap');
+	Route::post('remove-trainer', [SchoolRecordController::class, 'RemoveTrainer'])->name('remove.trainer');
+
 
 	/* download template for bulk upload */
 	Route::get('download-template', [SchoolRecordController::class, 'downloadTemplate'])->name('download-template');
@@ -364,7 +356,7 @@ Route::prefix('school')->group(function(){
 	/* Report Cards */
 	Route::get('fms-report', [SchoolRecordController::class, 'FMSReport'])->name('fms.report');
 	Route::get('fitness-report', [SchoolRecordController::class, 'FitnessReports'])->name('fitness.report')->middleware('module_access:fitness.report');
-	Route::get('reports/{id}', [SchoolRecordController::class, 'ViewFitnessReport'])->name('reports.view');
+	Route::get('reports/{id}', [SchoolRecordController::class, 'ViewFitnessReport'])->name('reports.view');	
 	Route::get('reports-cbse/{id}', [SchoolRecordController::class, 'ViewCbseReport'])->name('reports.cbse');
 	
 	Route::get('test-relay-auth', [SchoolRecordController::class,'DOTNETREPORT'])->name('test.relay.auth');
@@ -406,7 +398,7 @@ Route::prefix('school')->group(function(){
 	
 });
 
-
+Route::get('school-dashboard-graph', [SchoolRecordController::class,'SchoolDashboardGraph'])->name('schoolDashboardGraph')->middleware('module_access:schoolDashboard');
 Route::get('school-dashboard', [SchoolRecordController::class,'SchoolDashboard'])->name('schoolDashboard')->middleware('module_access:schoolDashboard');
 Route::get('viewdart', [SchoolRecordController::class,'viewSchoolDart'])->name('viewschooldart')->middleware('module_access:viewschooldart');
 Route::post('viewdart',[SchoolRecordController::class, 'getReport'])->name('getDartReport');
@@ -505,6 +497,20 @@ Route::get('/', [App\Http\Controllers\GeneralController::class, 'index'])->name(
 Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'newLoginForm'])->name('login');
 Route::get('/login-test', [App\Http\Controllers\Auth\LoginController::class, 'newLoginForm'])->name('login.test');
 Route::post('/login-test', [App\Http\Controllers\Auth\LoginController::class, 'loginNew'])->name('auth.login.new');
+
+
+/* Forget Passsword Route */
+Route::post('password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('password.update');
+Route::get('password/reset/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::get('password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+
+
+Route::post('password-reset/check-email-exists', [PasswordRecoveryControlller::class, 'checkEmailExists'])->name('check.email.existance');
+Route::post('/password-reset/verify-backup-code', [PasswordRecoveryControlller::class, 'verifySecurityCode'])->name('verify.security-code');
+Route::post('/password/recovery/get-questions', [PasswordRecoveryControlller::class, 'getUserSecurityQuestions'])->name('security.get-questions');
+Route::post('/password-reset/verify-security-questions', [PasswordRecoveryControlller::class, 'verifySecurityQuestions'])->name('security.verify-questions');
+
 
 
 // Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');

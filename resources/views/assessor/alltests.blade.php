@@ -133,9 +133,9 @@
                             @endforeach 
                         
                             </ul>
-
-                             <br>
-                             <h4 class="test-cat">Physical Fitness Assessment for Age 13-18 (Class 9-12)</h4>
+                            @if(Auth::user()->id == 995)
+                            <br>
+                             <h4 class="test-cat">Adittional Fitness Assessment for Age 13-18 (Class 9-12)</h4>
                             <ul class="list-group mt-0">
                             
                             @foreach($cbseData as $keys => $vals)
@@ -150,6 +150,8 @@
                             @endforeach 
                         
                             </ul>
+                            @endif
+
                         </div>
                     </div>
                 </div>
