@@ -32,7 +32,7 @@ use App\Http\Controllers\ParentDashoboardController;
 use App\Http\Controllers\AssessorAppController;
 
 use App\Http\Controllers\Auth\PasswordRecoveryControlller;
-
+use App\Http\Controllers\Auth\ChangePasswordController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -390,6 +390,11 @@ Route::prefix('school')->group(function(){
 	Route::get('students-sports', [SchoolRecordController::class, 'StudentsSportsMapping'])->name('students-sports-mapping')->middleware('module_access:managestudent');
 	Route::post('students-sports/export', [SchoolRecordController::class, 'ExportStudentsSportsMapping'])->name('expoort.students-sports-mapping');
    
+
+	/* Change Password */
+	Route::get('password/change', [ChangePasswordController::class, 'showChangeForm'])->name('password.change');
+    Route::post('security-settings/questions', [ChangePasswordController::class, 'updateQuestions'])->name('security.update-questions');
+    Route::post('security-settings/password', [ChangePasswordController::class, 'updatePassword'])->name('security.update-password')->middleware(['auth', 'check.questions']);
 
 	// login as student routes 
 	Route::post('login-as-student', [SchoolRecordController::class, 'loginAsStudent'])->name('school.loginAsStudent');

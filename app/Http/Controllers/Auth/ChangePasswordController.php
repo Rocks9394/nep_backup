@@ -98,10 +98,15 @@ class ChangePasswordController extends Controller
 
             $backupCode = strtoupper(bin2hex(random_bytes(4)));
 
-            UsersBackupCode::create([
-                'user_id'   => $user->id,
-                'code_hash' => Hash::make($backupCode),
-            ]);
+    
+            UsersBackupCode::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'code_hash' => Hash::make($backupCode),
+                    'used'      => 0,
+                    'updated_at' => now(),
+                ]
+            );
 
             return response()->json([
                 'success' => true,

@@ -11,6 +11,24 @@
     }
 ?>
 
+
+
+<?php if(Auth::user()->role_id == '4'): ?>
+
+	
+
+<?php elseif(Auth::user()->role_id == '3'): ?>
+	<marquee behavior="scroll" direction="left" scrollamount="5" onmouseover="this.stop()" onmouseout="this.start()" style="font-size: 16px;
+	font-weight: 500;
+	background-color: #ff8000;
+	color: #fff;
+	padding: 4px;">
+	<strong>Important Notice: </strong><span>Kindly update your profile details (email, mobile number, and date of birth) in the Edit Profile section. If all details are already updated, please ignore this notice.</span>
+</marquee>
+<?php endif; ?>
+
+
+
 <div class="container">
     <div class="t-mrg">
         <div class="row text-center justify-content-md-center">

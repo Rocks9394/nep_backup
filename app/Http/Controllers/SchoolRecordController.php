@@ -72,8 +72,6 @@ class SchoolRecordController extends Controller
 		$title = 'Dashboard Graph';
 		
 		
-		
-		
 		$userId  = Auth::user()->id;
 		$role_id =  \Auth::user()->role_id;
 	
@@ -81,16 +79,88 @@ class SchoolRecordController extends Controller
 		
 		if($role_id == 4)
 		{
+			
 			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
 			
+			
+			// i got the active students only [not got the transfer students]
+			$studentscount = DB::table('schools')
+			->join('students', 'students.school_id', '=' , 'schools.id') 
+			->where('schools.id', $schoolId)
+			->where('students.status','=', 1)
+			->count();
+			
+			
+			#echo "<pre>";
+			#print_r($studentscount);
+			#die('---change the detail----');
+			
+			
+			
+			
+	
 			$result = DB::table('SeniorTestResults')
 			->select('LEVEL', DB::raw('COUNT(*) as total'))
 			->where('SchoolID', $schoolId)
-			->whereRaw("LEVEL REGEXP '^L[0-9]+$'")
-			->groupBy('LEVEL')
+			->groupBy('LEVEL');
+			
+			
+			$resultLevel = (clone $result)
+			->whereRaw("LEVEL REGEXP '^L[1-7]+$'")
+			->whereIn('TestTypeID', [19, 20, 21, 22, 23])
 			->orderByRaw("CAST(SUBSTRING(LEVEL, 2) AS UNSIGNED)")
 			->get();
 			
+				
+			$graph1levels = [];
+			$percentages = [];
+
+			foreach ($resultLevel as $roww) 
+			{
+				$graph1levels[] = $roww->LEVEL;
+
+				// avoid divide-by-zero drama
+				//$percentage = $studentscount > 0 ? (int) round(($roww->total / $studentscount) * 100): 0;
+				
+				$percentage = $studentscount > 0 ? (int) round($roww->total): 0;
+
+				$percentages[] = $percentage;
+			}
+			
+			#echo "<pre>";
+			#print_r($graph1levels);
+			#print_r($percentages);
+			#die('---');
+			
+			
+			
+		
+			$resulthealth = (clone $result)
+			->whereIn('LEVEL', ['UW', 'N', 'OW', 'OB'])
+			->orderByRaw("FIELD(LEVEL, 'UW', 'N', 'OW', 'OB')")
+			->get();
+			
+			
+			
+			
+			$healthLevels = [];
+			$healthPercentages = [];
+
+			foreach ($resulthealth as $rowH) 
+			{
+				$healthLevels[] = $rowH->LEVEL;
+
+				$percentageHlt = $studentscount > 0
+				? (int) round(($rowH->total / $studentscount) * 100)
+				: 0;
+
+				$healthPercentages[] = $percentageHlt;
+			}
+
+		
+		
+		
+		
 			//die('--you are not a teacher. teacher can only access--');
 		}
 		else
@@ -98,13 +168,215 @@ class SchoolRecordController extends Controller
 			die('--you dont have access for this panel. sorry for inconvenation--');
 		}
 		
-		echo "<pre>";
-		print_r($result);
-		die("---change the detail---");
-		
+			
 		
 	
-    	return view('school.graph-dashboard', compact('title', 'result')); 
+		/* 1st graph value */
+		$letnenlevels 	 =  $graph1levels;
+		 $letnentotals   =  $percentages;
+		
+		/* 2nd graph value */
+		$healthLevels    =  $healthLevels;
+		$healthTotals    =  $healthPercentages;
+		
+	
+
+		$resultRRR = DB::table('SeniorTestResults')
+		->select(
+		'LEVEL',
+		DB::raw('COUNT(StudentID) AS Total_Student')
+		)
+		->whereRaw("LEVEL REGEXP '^L[1-7]+$'")
+		->groupBy('LEVEL')
+		->orderByRaw("CAST(SUBSTRING(LEVEL, 2) AS UNSIGNED)")
+		->get();
+
+		// Prepare data for Highcharts
+		$ranked_schoolsFitness = $resultRRR->pluck('Total_Student')->toArray();
+	
+		
+
+		$resultRRRHealth = DB::table('SeniorTestResults')
+		->select(
+		'LEVEL',
+		DB::raw('COUNT(StudentID) AS Total_Student')
+		)
+		->whereIn('LEVEL', ['UW', 'N', 'OW', 'OB'])
+		->groupBy('LEVEL')
+		->orderByRaw("FIELD(LEVEL, 'UW', 'N', 'OW', 'OB')")
+		->get();
+
+		// Prepare data for your Highchart
+		$healthRankData = $resultRRRHealth->pluck('Total_Student')->toArray();
+		
+		
+		
+		
+			/* third graph */
+			
+			/*$data = DB::table('SeniorTestResults as str')
+			->join('skill_reports as sr', 'sr.id', '=', 'str.TestTypeID')
+			->select(
+			'sr.skill_name',
+			'str.level',
+			DB::raw('COUNT(*) as total')
+			)
+			->where('str.SchoolID', $schoolId)
+			->whereIn('str.TestTypeID', [19, 20, 21, 22, 23])
+			->whereNotNull('str.level')
+			->whereNotIn('str.level', ['', 'N.A.'])
+			->whereRaw("LEVEL REGEXP '^L[1-7]+$'")
+			->groupBy('sr.skill_name', 'str.level')
+			->orderBy('sr.skill_name')
+			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
+			->get();
+			
+			
+			$levels = [];
+			$series = [];
+
+			foreach ($data as $row) 
+			{
+				$levels[$row->level] = true;
+				$series[$row->skill_name][$row->level] = $row->total;
+			}
+			
+		
+			$categories = array_keys($levels);			
+			sort($categories);
+			
+
+
+			$chartSeries = [];
+
+			foreach ($series as $skill => $values) 
+			{
+				$rowData = [];
+				foreach ($categories as $level) 
+				{
+					$rowData[] = $values[$level] ?? 0; // fill missing levels
+			    }
+			
+
+				$chartSeries[] = 
+				[
+					'name' => $skill,
+					'data' => $rowData
+				];
+			}*/
+			
+		
+		
+		#echo "<pre>";
+		#print_r($chartSeries);
+		#die('---change the detail---');
+		
+		
+		// -------------------------------------
+		// 1. Fetch data from DB
+		// -------------------------------------
+		$data = DB::table('SeniorTestResults as str')
+			->join('skill_reports as sr', 'sr.id', '=', 'str.TestTypeID')
+			->select(
+				'sr.skill_name',
+				'str.level',
+				DB::raw('COUNT(*) as total')
+			)
+			->where('str.SchoolID', $schoolId)
+			->whereIn('str.TestTypeID', [19, 20, 21, 22, 23])
+			->whereNotNull('str.level')
+			->whereNotIn('str.level', ['', 'N.A.'])
+			->whereRaw("str.level REGEXP '^L[1-7]+$'")
+			->groupBy('sr.skill_name', 'str.level')
+			->orderBy('sr.skill_name')
+			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
+			->get();
+
+
+		// -------------------------------------
+		// 2. Prepare containers
+		// -------------------------------------
+		$skills = [];
+		$levels = [];
+		$matrix = [];
+
+
+		// -------------------------------------
+		// 3. Normalize data
+		//    matrix[skill][level] = total
+		// -------------------------------------
+		foreach ($data as $row) {
+			$skills[$row->skill_name] = true;
+			$levels[$row->level] = true;
+			$matrix[$row->skill_name][$row->level] = (int) $row->total;
+		}
+
+
+		// -------------------------------------
+		// 4. X-axis categories (skills)
+		// -------------------------------------
+		$categories = array_keys($skills);
+
+
+		// -------------------------------------
+		// 5. Sort levels L1 → L7
+		// -------------------------------------
+		$levelNames = array_keys($levels);
+		usort($levelNames, function ($a, $b) {
+			return (int) substr($a, 1) <=> (int) substr($b, 1);
+		});
+
+
+		// -------------------------------------
+		// 6. Define colors per level
+		// -------------------------------------
+		$levelColors = [
+			'L1' => '#ff4d5a',
+			'L2' => '#ffb366',
+			'L3' => '#ffd87d',
+			'L4' => '#7ecad9',
+			'L5' => '#a6d96a',
+			'L6' => '#7bc043',
+			'L7' => '#0a8f3d',
+		];
+
+
+		// -------------------------------------
+		// 7. Build Highcharts series
+		//    SERIES = LEVEL WISE (IMPORTANT FIX)
+		// -------------------------------------
+		$chartSeries = [];
+
+		foreach ($levelNames as $level) {
+			$rowData = [];
+
+			foreach ($categories as $skill) {
+				$rowData[] = $matrix[$skill][$level] ?? 0;
+			}
+
+			$chartSeries[] = [
+				'name'  => $level,                        // ✅ REQUIRED
+				'data'  => $rowData,
+				'color' => $levelColors[$level] ?? '#000000'
+			];
+		}
+
+
+		// -------------------------------------
+		// 8. Final output (send to view / debug)
+		// -------------------------------------
+		/*echo '<pre>';
+		print_r([
+			'categories'  => $categories,
+			'chartSeries' => $chartSeries
+		]);
+		exit;*/
+
+		
+		
+		
+
+    	return view('school.graph-dashboard', compact('title', 'letnenlevels', 'letnentotals', 'ranked_schoolsFitness', 'healthLevels', 'healthTotals', 'healthRankData', 'categories', 'chartSeries')); 
 			
 	}
 
@@ -211,6 +483,8 @@ class SchoolRecordController extends Controller
 			->where('schools.id', $schoolId)
 			->where('students.status','active')
 			->get();
+			
+			
 
 		
 		$classData = [];
@@ -362,6 +636,11 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		$schoolId = DB::table('school_reference') ->where('school_user_id', $SchoolUserId)->where('status', 1)->value('school_id');
 		$school = School::findOrFail($schoolId);
 		$schoolSportsCount = $school->sports->count();
+		
+		
+		#echo "<pre>";
+		#print_r($SchoolData);
+		#die('----');
 	
 		
     	$title = 'Dashboard';

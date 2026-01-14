@@ -283,6 +283,8 @@ class ViewTrainerController extends Controller
 	{
 		$classList = '';
 		$trainer_id = Auth::user()->id;
+		
+
 		$school_id = Session::get('SelectSchoolId');
 		$title   = 'Modify Dart';
 		$school = School::find($school_id);
@@ -370,7 +372,8 @@ class ViewTrainerController extends Controller
 			    return redirect()->route('modify.trainer.record',['edit' => 'success'])->with('success', 'Data midify successfully!');
 				
 			}
-			else{
+			else
+			{
 				return redirect()->route('modify.trainer.record',['edit' => 'error'])->with('error', 'data not match in our records!');
 			}
 			
@@ -392,8 +395,10 @@ class ViewTrainerController extends Controller
 
 				ViewDart::where('school_id',$school_id)->where('custm_cls_id',$custom_class_id)->where('date',$request->date_delete)->where('period',$request->period_delete)->where('trainer_id',$trainer_id)->delete();	
 				
-				  return redirect()->route('modify.trainer.record',['edit' => 'success-delete'])->with('success', 'Data midify successfully!');
-			}else{
+				return redirect()->route('modify.trainer.record',['edit' => 'success-delete'])->with('success', 'Data midify successfully!');
+				
+			}else
+			{
 				return redirect()->route('modify.trainer.record',['edit' => 'error'])->with('error', 'data not match in our records!');
 			}
 			
