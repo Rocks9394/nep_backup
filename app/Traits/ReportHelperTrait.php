@@ -40,6 +40,33 @@ trait ReportHelperTrait
             ->value('id');
     }
 
+
+    public function getReportData($studentId) {
+
+        return DB::table('SeniorTestResults')
+            ->join('skill_reports','skill_reports.id','=','SeniorTestResults.TestTypeId')
+            ->join('TestTypeMaster','TestTypeMaster.TestTypeId','=','skill_reports.TestTypeMasterID')
+            ->join('TestCategoryMaster','TestCategoryMaster.TestCategoryID','=','TestTypeMaster.TestCategoryID')
+            ->join('term_masters','term_masters.id','=', 'SeniorTestResults.TermId')
+            ->select(
+                'SeniorTestResults.TestTypeID',
+                'SeniorTestResults.TermId',
+                'SeniorTestResults.created_at',
+                'SeniorTestResults.Score',
+                'skill_reports.skill_name',
+                'skill_reports.TestTypeMasterID',
+                'SeniorTestResults.weight',
+                'SeniorTestResults.height',
+                'TestTypeMaster.TestCategoryID',
+                'TestTypeMaster.ScoreUnit',
+                'TestCategoryMaster.TestCategoryName',
+                'TestTypeMaster.ScoreCriteria'
+            )
+            ->orderBy('SeniorTestResults.created_at', 'desc')
+            ->where('StudentID', $studentId)
+            ->get();
+    }
+    /*
     public function getReportData($studentId,$TermMasterId) {
 
         return DB::table('SeniorTestResults')
@@ -64,7 +91,7 @@ trait ReportHelperTrait
             ->where('SeniorTestResults.TermId', $TermMasterId)
             ->orderBy('SeniorTestResults.created_at', 'desc')
             ->where('StudentID', $studentId)->get();
-    }
+    }*/
 
 
     public function mapReportData($reportData, $studentAge, $studentGender, $ageGender) {
@@ -308,7 +335,7 @@ trait ReportHelperTrait
 
 
 
-    protected function getJuniorReportData($classId, $studentId, $studentAge, $studentGender, $groupedReportData, $TermMasterId)  {
+    protected function getJuniorReportData($classId , $studentId, $studentAge, $studentGender, $groupedReportData, $TermMasterId)  {
         
         $junior1 = [2,6,3];    //TestCategoryMasterID
         $juniorData1 = DB::table('TestCategoryMaster')

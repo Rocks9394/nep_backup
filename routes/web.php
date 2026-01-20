@@ -266,6 +266,9 @@ Route::get('getactive-test', [App\Http\Controllers\PEActivityController::class, 
  * Route for handling all report.
  * */
 Route::get('skills-report', [ReportController::class,'index'])->name('skill-report');
+Route::post('generate-reportcards', [ReportController::class, 'queueBulkReportCards'])->name('generate.reportcards');
+Route::get('/fitness-report/available', [ReportController::class, 'CheckReportAvailablity'])->name('fitness.report.available');
+Route::get('reports/{id}', [ReportController::class, 'ViewFitnessReport'])->name('reports.view.test');
 
 
 /**
@@ -356,9 +359,23 @@ Route::prefix('school')->group(function(){
 	/* Report Cards */
 	Route::get('fms-report', [SchoolRecordController::class, 'FMSReport'])->name('fms.report');
 	Route::get('fitness-report', [SchoolRecordController::class, 'FitnessReports'])->name('fitness.report')->middleware('module_access:fitness.report');
-	Route::get('reports/{id}', [SchoolRecordController::class, 'ViewFitnessReport'])->name('reports.view');	
-	Route::get('reports-cbse/{id}', [SchoolRecordController::class, 'ViewCbseReport'])->name('reports.cbse');
+	Route::get('reports/{id}', [SchoolRecordController::class, 'ViewFitnessReport'])->name('reports.view');
 	
+	/* On Development Phase  */
+	Route::get('fitness-report-test', [ReportController::class, 'FitnessReports'])->name('fitness.report.test')->middleware('module_access:fitness.report');
+	Route::get('report/download/{batchId}', [ReportController::class, 'requestDownload'])->name('report.download.permanent');
+	Route::get('report/download/{batchId}/signed', [ReportController::class, 'downloadSigned'])->name('report.download.signed');
+	Route::get('higherclass/summary', [ReportController::class, 'HigherClassTestSummary'])->name('higherclasstestsummary');
+	Route::get('lowerclass/summary', [ReportController::class, 'LowerClassTestSummary'])->name('lowerclasstestsummary');
+	Route::get('reports/{id}', [ReportController::class, 'ViewFitnessReport'])->name('reports.view');
+
+
+
+	Route::get('reports-cbse/{id}', [SchoolRecordController::class, 'ViewCbseReport'])->name('reports.cbse');
+
+
+
+
 	Route::get('test-relay-auth', [SchoolRecordController::class,'DOTNETREPORT'])->name('test.relay.auth');
 
 	/*Activity Gallary */  

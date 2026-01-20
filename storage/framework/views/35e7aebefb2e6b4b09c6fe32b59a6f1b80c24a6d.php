@@ -13,8 +13,8 @@
   }
 </style>
 
-<div class="container">
-	<div class="t-mrg2 mb-5 pb-5">
+<div>
+	<div class="t-mrg2">
         <div class="container all-chaptr-cards">	
 			<div class="row">
 				<div class="col">
@@ -65,7 +65,7 @@
 							<?php echo csrf_field(); ?>
 							<?php echo method_field('PUT'); ?>
 							
-							<h5 class="card-title text-left mt-1 mb-4">School Details</h5> 
+							<h2 class="card-title text-left mt-1 mb-4">School Details</h2> 
 							<!-- School Code (readonly) -->
 							<div class="form-row">
 								<div class="form-group col-md-3">
@@ -142,7 +142,7 @@ endif;
 unset($__errorArgs, $__bag); ?>">
 										<option value="">Choose...</option>
 										<?php $__currentLoopData = $states; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $state): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-											<option value="<?php echo e($state->name); ?>"
+											<option value="<?php echo e($state->id ?? ''); ?>|<?php echo e($state->name); ?>"
 												<?php echo e((old('state') ?? $schoolData->state) == $state->name ? 'selected' : ''); ?>>
 												<?php echo e($state->name); ?>
 
@@ -159,24 +159,32 @@ endif;
 unset($__errorArgs, $__bag); ?>
 								</div>
 
-								<!-- District -->
 								<div class="form-group col-md-3">
-									<label for="selectDistrict">District </label>
-									<input type="text" name="district" id="selectDistrict"
-										class="form-control <?php $__errorArgs = ['district'];
+									<label for="selectDistrict">District <span style="color: red; font-weight: bold;">*</span></label>
+									<select id="selectDistrict" name="district" class="form-control <?php $__errorArgs = ['district'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>"
-										value="<?php echo e(old('district', $schoolData->district)); ?>" readonly>
+unset($__errorArgs, $__bag); ?>">
+										<option value="" <?php echo e((old('district') ?? $schoolData->district ?? '') == '' ? 'selected' : ''); ?>>Select</option>
+										<?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+											<option value="<?php echo e($district->id ?? ''); ?>"
+												<?php echo e((old('district') ?? $schoolData->district) == $district->name ? 'selected' : ''); ?>>
+												<?php echo e($district->name); ?>
+
+											</option>
+										<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+									</select>
 									<?php $__errorArgs = ['district'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> <div class="invalid-feedback"><?php echo e($message); ?></div> <?php unset($message);
+$message = $__bag->first($__errorArgs[0]); ?>
+										<div class="invalid-feedback"><?php echo e($message); ?></div>
+									<?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
@@ -193,7 +201,7 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>"
-										id="city" name="city" value="<?php echo e(old('city', $schoolData->city)); ?>" readonly>
+										id="city" name="city" value="<?php echo e(old('city', $schoolData->city)); ?>">
 									<?php $__errorArgs = ['city'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -239,7 +247,7 @@ if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>" id="schoolEmail" name="school_email" value="<?php echo e(old('schoolEmail') ?? $schoolData->s_email ?? ''); ?>">
+unset($__errorArgs, $__bag); ?>" id="schoolEmail" name="school_email" value="<?php echo e(old('schoolEmail') ?? $schoolData->s_email ?? ''); ?>" required>
 									<?php $__errorArgs = ['school_email'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -357,105 +365,87 @@ unset($__errorArgs, $__bag); ?>
 										<?php endif; ?>
 									</div>					           
 								</div>
-							</div>			
-						
+							</div>
+
 							
-							<h5 class="mt-4">School Terms</h5>
-
-							<?php if(!$activeTerm): ?>
-								<div class="form-row">
-									<div class="form-group col-md-3">
-										<label for="term-select">Terms in School<span class="text-danger">*</span></label>
-										<select id="term-select" name="term-select" class="form-control <?php $__errorArgs = ['term-select'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>">
-											<option value="">Select Term</option>									
-											<option value="1">1</option>									
-											<option value="2">2</option>									
-											<option value="3">3</option>									
-											<option value="4">4</option>								
-										</select>
-										<small class="text-danger text-sm">Only for current academic year</small>
-									</div>
-									<div class="form-group col-md-9" id="term-details"></div>
-								</div>							
-							<?php else: ?>
-								
-								<?php $__currentLoopData = $termsDetail->reverse()->values(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $termsDetail): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-									<div class="form-row">
-										<div class="form-group col-md-3">
-											<label for="current-term"><?php echo e($index === 0 ? 'Previous' : 'Current'); ?> Term</label>
-											<input class="form-control" type="text" id="current-term" name="current-term" value="<?php echo e($termsDetail->term_name); ?>" readonly>
-										</div>
-										<div class="form-group col-md-3">
-											<label for="academic_year">Academic Year</label>
-											<input class="form-control" type="text" id="academic_year" name="academic_year" value="<?php echo e($termsDetail->academic_year); ?>" readonly>
-										</div>
-										<div class="form-group col-md-3">
-											<label for="current-term-start">Start Date</label>
-											<input class="form-control" type="text" id="current-term-start" name="current-term-start" value="<?php echo e(\Carbon\Carbon::parse($termsDetail->term_start_date)->format('d/m/Y')); ?>" readonly>
-										</div>
-										<div class="form-group col-md-3">
-											<label for="current-term-end">End Date</label>
-											<input class="form-control" type="text" id="current-term-end" name="current-term-end" value="<?php echo e(\Carbon\Carbon::parse($termsDetail->term_end_date)->format('d/m/Y')); ?>" readonly>
-										</div>
-									</div>
-								<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-								
-								<h5 class="mb-4">Add Term</h5>
-								<div class="form-row">
-									<div class="form-group col-md-3">
-										<label for="term">Term Name</label>
-										
-										<select class="form-control" name="term" id="term">
-											<option value="">--Select--</option>
-											<option value="Full Term">Full Term</option>
-											<option value="Term-1">Term-1</option>
-											<option value="Term-2">Term-2</option>
-											<option value="Term-3">Term-3</option>
-											<option value="Term-4">Term-4</option>
-										</select>
-									</div>
-									<?php
-										$year = date('Y'); 
-										$nextYear = $year + 1;
-										$currentAcademicYear = $year . "-" . $nextYear;
-
-										$nextNextYear = $nextYear + 1;
-										$nextAcademicYear = $nextYear . "-" . $nextNextYear;
-									?>
-
-									<div class="form-group col-md-3">
-										<label for="academic_year">Academic Year</label>
-										
+							<h2 class="mt-4">Academic Year Details</h2>
+									
+							<?php
+								[$startYear, $endYear] = explode('-', $academicYear);
+								$nextAcademicYear = ($startYear + 1) . '-' . ($endYear + 1);
+								$academicStart = "$startYear-04-01";
+								$academicEnd   = "$endYear-03-31";
+							?>
+							<div class="row">
+								<div class="form-group col-md-4">
+									<label for="academic_year">Academic Year</label>
 										<select name="academic_year" id="academic_year" class="form-control">
-											<option value="<?php echo e($currentAcademicYear); ?>"><?php echo e($currentAcademicYear); ?></option>
+											<option value="<?php echo e($academicYear); ?>"><?php echo e($academicYear); ?></option>
 											<option value="<?php echo e($nextAcademicYear); ?>"><?php echo e($nextAcademicYear); ?></option>
 										</select>
-
-									</div>
-									<div class="form-group col-md-3">
-										<label for="term-start">Start Date <span class="text-danger">*</span></label>
-										<input class="form-control" type="date" id="term-start" name="term-start">
-									</div>
-									<div class="form-group col-md-3">
-										<label for="term-end">End Date <span class="text-danger">*</span></label>
-										<input class="form-control" type="date" id="term-end" name="term-end">
-									</div>
-									
+								</div>
+								<div class="form-group col-md-4">
+									<label>Start Date</label>
+									<input type="date" name="academic_year_start" id="academic_year_start" class="form-control"
+										value="<?php echo e($academicStart); ?>" readonly>
 								</div>
 
+								<div class="form-group col-md-4">
+									<label>End Date</label>
+									<input type="date" name="academic_year_end" id="academic_year_end" class="form-control"
+										value="<?php echo e($academicEnd); ?>" readonly>
+								</div>
+							</div>
+							<?php if($currentTerm): ?>
+							<h5 class="mt-4">Current Term</h5>
+								<div class="form-row">										
+									<div class="form-group col-md-4">
+										<label for="current-term">Term Name</label>
+										<input class="form-control" type="text" id="current-term" name="current-term" value="<?php echo e($currentTerm->term_name); ?>" readonly>
+									</div>
+									<div class="form-group col-md-4">
+										<label for="current-term-start">Start Date</label>
+										<input class="form-control" type="text" id="current-term-start" name="current-term-start" value="<?php echo e(\Carbon\Carbon::parse($currentTerm->term_start_date)->format('m/d/Y')); ?>" readonly>
+									</div>
+									<div class="form-group col-md-4">
+										<label for="current-term-end">End Date</label>
+										<input class="form-control" type="text" id="current-term-end" name="current-term-end" value="<?php echo e(\Carbon\Carbon::parse($currentTerm->term_end_date)->format('m/d/Y')); ?>" readonly>
+									</div>
+									
+								</div>								
 							<?php endif; ?>
+							
+							<h5 class="mt-4">Add Terms</h5>
+							<div id="terms-wrapper">
+								<div class="form-row term-row" data-index="1">									
+									<div class="form-group col-md-4">
+										<label>Term Name</label>
+										<input type="text" name="terms[0][term_name]" class="form-control term-name" value="Full-Term" readonly>
+									</div>
+									<div class="form-group col-md-4">
+										<label>Start Date</label>
+										<input type="date"
+											name="terms[0][start_date]"
+											class="form-control start-date"
+											value="<?php echo e($currentTerm
+												? \Carbon\Carbon::parse($currentTerm->term_end_date)->addDay()->format('Y-m-d')
+												: $academicStart); ?>"
+											readonly>
+
+
+									</div>
+
+									<div class="form-group col-md-4">
+										<label>End Date</label>
+										<input type="date" name="terms[0][end_date]" class="form-control end-date"
+											max="<?php echo e($academicEnd); ?>">
+									</div>										
+								</div>
+							</div>
 
 							
 
-							<h5 class="mt-4">School Admin Details</h5>					
+							<h2 class="mt-4">School Admin Details</h2>					
 							<div class="form-row">
 								<div class="form-group col-md-4">
 									<label for="principalName">HM/Principal <span class="text-danger">*</span></label>
@@ -489,7 +479,7 @@ if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>"  id="principalEmail" name="principalEmail" value="<?php echo e(old('principalEmail') ?? $schoolData->p_email ?? ''); ?>">
+unset($__errorArgs, $__bag); ?>"  id="principalEmail" name="principalEmail" value="<?php echo e(old('principalEmail') ?? $schoolData->p_email ?? ''); ?>" required>
 									<?php $__errorArgs = ['principalEmail'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -684,188 +674,160 @@ unset($__errorArgs, $__bag); ?>
             });
         }
     });
-</script>
+		
+	const maxTerms = 4;
+	let baseTermIndex = getBaseTermIndex();
 
+	function getBaseTermIndex() {
+		const currentTermInput = document.getElementById('current-term');
+		if (!currentTermInput) return 0;
 
-
-<script>
-	const termSelect = document.getElementById('term-select');
-	const termDetails = document.getElementById('term-details');
-
-	function generateForm(term) {
-		let content = '';
-
-		if (term === '1') {
-			content = `
-			<div class="form-row">
-				<div class="form-group col-md-4">
-					<label for="full-term">Term Name</label>
-					<input class="form-control" type="text" id="full-term" name="full-term" value="Full Term" readonly>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="start-date">Start Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="start-date" name="start-date" required>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="end-date">End Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="end-date" name="end-date" required>
-				</div>
-				
-			</div>
-			`;
-		} else if (term === '2') {
-			content = `
-			<div class="form-row">
-				<div class="form-group col-md-4">
-					<label for="term-1">Term Name</label>
-					<input class="form-control" type="text" id="term-1" name="term-1" value="Term-1" readonly>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="start-date-1">Start Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="start-date-1" name="start-date-1" required>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="end-date-1">End Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="end-date-1" name="end-date-1" required>
-				</div>
-				
-			</div>
-			<div class="form-row">
-				<div class="form-group col-md-4">
-					<label for="term-2">Term Name</label>
-					<input class="form-control" type="text" id="term-2" name="term-2" value="Term-2" readonly>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="start-date-2">Start Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="start-date-2" name="start-date-2" required>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="end-date-2">End Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="end-date-2" name="end-date-2" required>
-				</div>
-				
-			</div>
-			`;
-		} else if (term === '3') {
-			content = `
-			<div class="form-row">
-				<div class="form-group col-md-4">
-					<label for="term-1">Term Name</label>
-					<input class="form-control" type="text" id="term-1" name="term-1" value="Term-1" readonly>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="start-date-1">Start Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="start-date-1" name="start-date-1" required>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="end-date-1">End Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="end-date-1" name="end-date-1" required>
-				</div>
-				
-			</div>
-			<div class="form-row">
-				<div class="form-group col-md-4">
-					<label for="term-2">Term Name</label>
-					<input class="form-control" type="text" id="term-2" name="term-2" value="Term-2" readonly>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="start-date-2">Start Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="start-date-2" name="start-date-2" required>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="end-date-2">End Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="end-date-2" name="end-date-2" required>
-				</div>
-				
-			</div>
-			<div class="form-row">
-				<div class="form-group col-md-4">
-					<label for="term-3">Term Name</label>
-					<input class="form-control" type="text" id="term-3" name="term-3" value="Term-3" readonly>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="start-date-3">Start Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="start-date-3" name="start-date-3" required>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="end-date-3">End Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="end-date-3" name="end-date-3" required>
-				</div>
-				
-			</div>
-			`;
-		}else if (term === '4') {
-			content = `
-			<div class="form-row">
-				<div class="form-group col-md-4">
-					<label for="term-1">Term Name</label>
-					<input class="form-control" type="text" id="term-1" name="term-1" value="Term-1" readonly>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="start-date-1">Start Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="start-date-1" name="start-date-1" required>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="end-date-1">End Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="end-date-1" name="end-date-1" required>
-				</div>
-				
-			</div>
-			<div class="form-row">
-				<div class="form-group col-md-4">
-					<label for="term-2">Term Name</label>
-					<input class="form-control" type="text" id="term-2" name="term-2" value="Term-2" readonly>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="start-date-2">Start Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="start-date-2" name="start-date-2" required>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="end-date-2">End Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="end-date-2" name="end-date-2" required>
-				</div>
-				
-			</div>
-			<div class="form-row">
-				<div class="form-group col-md-4">
-					<label for="term-3">Term Name</label>
-					<input class="form-control" type="text" id="term-3" name="term-3" value="Term-3" readonly>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="start-date-3">Start Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="start-date-3" name="start-date-3" required>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="end-date-3">End Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="end-date-3" name="end-date-3" required>
-				</div>
-				
-			</div>
-			<div class="form-row">
-				<div class="form-group col-md-4">
-					<label for="term-4">Term Name</label>
-					<input class="form-control" type="text" id="term-4" name="term-4" value="Term-4" readonly>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="start-date-4">Start Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="start-date-4" name="start-date-4" required>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="end-date-4">End Date <span class="text-danger">*</span></label>
-					<input class="form-control" type="date" id="end-date-4" name="end-date-4" required>
-				</div>
-				
-			</div>
-			`;
-		}
-
-		termDetails.innerHTML = content;
+		const match = currentTermInput.value.match(/Term-(\d+)/);
+		return match ? parseInt(match[1]) : 0;
 	}
 
-	termSelect.addEventListener('change', (e) => {
-		generateForm(e.target.value);
+	function isSameDate(d1, d2) {
+		return d1.getTime() === d2.getTime();
+	}
+
+	function getAcademicDates() {
+		const [startYear, endYear] = document.getElementById('academic_year').value.split('-');
+		return {
+			start: new Date(`${startYear}-04-01`),
+			end: new Date(`${endYear}-03-31`)
+		};
+	}
+
+
+	document.getElementById('academic_year').addEventListener('change', function () {
+		const year = this.value.split('-');
+		const startYear = year[0];
+		const endYear = year[1];
+
+		const academicStart = `${startYear}-04-01`;
+		const academicEnd = `${endYear}-03-31`;
+
+		resetTerms(academicStart, academicEnd);
 	});
-	generateForm(termSelect.value);
+
+	function resetTerms(academicStart, academicEnd) {
+		const wrapper = document.getElementById('terms-wrapper');
+
+		baseTermIndex = 0;
+		wrapper.querySelectorAll('.term-row').forEach((row, index) => {
+			if (index > 0) row.remove();
+		});
+
+		const firstRow = wrapper.querySelector('.term-row');
+
+		document.getElementById('academic_year_start').value = academicStart;
+		document.getElementById('academic_year_end').value = academicEnd;
+
+		firstRow.querySelector('.start-date').removeAttribute('readonly');
+		firstRow.querySelector('.start-date').value = academicStart;
+
+		const endDateInput = firstRow.querySelector('.end-date');
+		endDateInput.value = '';
+		endDateInput.setAttribute('max', academicEnd);
+
+		firstRow.querySelector('.term-name').value = 'Full-Term';
+	}
+
+
+	document.addEventListener('change', function (e) {
+		if (!e.target.classList.contains('end-date')) return;
+
+		const row = e.target.closest('.term-row');
+		const index = parseInt(row.dataset.index);
+		const startDate = new Date(row.querySelector('.start-date').value);
+		const endDateInput = e.target;
+
+		if (!endDateInput.value) return;
+
+		const endDate = new Date(endDateInput.value);
+
+		if (endDate < startDate) {
+			Swal.fire({
+				icon: 'info',
+				title: 'Invalid Date',
+				text: 'End date cannot be earlier than the start date.',
+				allowOutsideClick: false
+			});
+
+			endDateInput.value = '';
+			row.querySelector('.term-name').value =
+				isSameDate(startDate, getAcademicDates().start)
+					? 'Full-Term'
+					: 'Full-Term';
+
+			removeNextRows(index);
+			return;
+		}
+
+		const { start: academicStart, end: academicEnd } = getAcademicDates();
+
+		removeNextRows(index);
+
+		if (isSameDate(startDate, academicStart) && isSameDate(endDate, academicEnd)) {
+			row.querySelector('.term-name').value = 'Full-Term';
+			return;
+		}
+
+		if (isSameDate(startDate, academicStart)) {
+			row.querySelector('.term-name').value = `Term-${index}`;
+		} else {
+			row.querySelector('.term-name').value = `Term-${baseTermIndex + index}`;
+		}
+
+		if (index >= maxTerms || endDate >= academicEnd) return;
+
+		createNextRow(index, endDate, academicEnd);
+	});
+
+	const wrapper = document.getElementById('terms-wrapper');
+	function createNextRow(index, endDate, academicEnd) {
+		const nextIndex = index + 1;
+		const nextStart = new Date(endDate);
+		nextStart.setDate(nextStart.getDate() + 1);
+
+		
+		const academicYear = document.getElementById('academic_year').value;
+
+		const row = document.createElement('div');
+		row.className = 'form-row term-row';
+		row.dataset.index = nextIndex;
+
+		row.innerHTML = `
+			<div class="form-group col-md-4">
+				<label>Term Name</label>
+				<input type="text" name="terms[${nextIndex}][term_name]" class="form-control term-name" readonly>
+			</div>
+			<div class="form-group col-md-4">
+				<label>Start Date</label>
+				<input type="date" name="terms[${nextIndex}][start_date]" class="form-control start-date" value="${formatDate(nextStart)}" readonly>
+			</div>
+			<div class="form-group col-md-4">
+				<label>End Date</label>
+				<input type="date" name="terms[${nextIndex}][end_date]" class="form-control end-date" max="${formatDate(academicEnd)}">
+			</div>
+			
+		`;
+		wrapper.appendChild(row);
+		row.querySelector('.term-name').value = `Term-${baseTermIndex + nextIndex}`;
+
+	}
+
+	function removeNextRows(index) {
+		document.querySelectorAll('.term-row').forEach(row => {
+			if (parseInt(row.dataset.index) > index) row.remove();
+		});
+	}
+
+	function formatDate(date) {
+		return date.toISOString().split('T')[0];
+	}
+
 </script>
+
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/school/profile/index.blade.php ENDPATH**/ ?>

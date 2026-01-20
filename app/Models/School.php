@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\SchoolTrainer;
 use App\Models\ScustomClass;
+use App\Models\SchoolReference;
 
 class School extends Model
 {
@@ -40,4 +41,9 @@ class School extends Model
         return $this->belongsToMany(Sport::class, 'school_do_sports', 'school_id', 'sports_id');
     }
     
+    public function admin() {
+
+        return $this->hasOneThrough(User::class,  SchoolReference::class,'school_id','id','id','school_user_id');
+    }
+
 }

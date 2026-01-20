@@ -91,25 +91,60 @@ class SchoolRecordController extends Controller
 			->count();
 			
 			
-			#echo "<pre>";
-			#print_r($studentscount);
-			#die('---change the detail----');
+		
+			/*
+			
+			//Test1- For Fitness
+			
+			$resultTESTING = DB::table('SeniorTestResults')
+			->join('students','students.id', '=', 'SeniorTestResults.StudentID')
+			->join('class','class.id', '=', 'students.class_id')
+			->join('term_masters','term_masters.school_id', '=', 'SeniorTestResults.SchoolID')
+			->select('LEVEL', DB::raw('COUNT(*) as total'))
+			->where('SeniorTestResults.SchoolID', $schoolId)
+			->whereBetween('class.id', [4, 12])
+			//->where('TermId', 7)
+			->whereDate('term_start_date', '<=', now())
+			->whereDate('term_end_date', '>=', now())
+			//->where('class.id', 3)
+			->whereRaw("LEVEL REGEXP '^L[1-7]+$'")
+			->whereIn('TestTypeID', [19, 20, 21, 22, 23])
+			->groupBy('LEVEL')
+			->orderByRaw("CAST(SUBSTRING(LEVEL, 2) AS UNSIGNED)")
+			->get();
 			
 			
 			
+			*/
 			
+			/*echo "<pre>";
+			print_r($resultTESTING);
+			die('----change the detail---');*/
+			
+					
 	
 			$result = DB::table('SeniorTestResults')
+			->join('students','students.id', '=', 'SeniorTestResults.StudentID')
+			->join('class','class.id', '=', 'students.class_id')
+			->join('term_masters','term_masters.school_id', '=', 'SeniorTestResults.SchoolID')
 			->select('LEVEL', DB::raw('COUNT(*) as total'))
-			->where('SchoolID', $schoolId)
+			->where('SeniorTestResults.SchoolID', $schoolId)
+			->whereDate('term_start_date', '<=', now())
+			->whereDate('term_end_date', '>=', now())
 			->groupBy('LEVEL');
 			
 			
 			$resultLevel = (clone $result)
-			->whereRaw("LEVEL REGEXP '^L[1-7]+$'")
+			->whereBetween('class.id', [4, 12])
+			->whereRaw("LEVEL REGEXP '^L[0-8]+$'")
 			->whereIn('TestTypeID', [19, 20, 21, 22, 23])
 			->orderByRaw("CAST(SUBSTRING(LEVEL, 2) AS UNSIGNED)")
 			->get();
+			
+			
+			#echo "<pre>";
+			#print_r($resultLevel);
+			#die('---change the detail bhawani pilani---');
 			
 				
 			$graph1levels = [];
@@ -127,18 +162,41 @@ class SchoolRecordController extends Controller
 				$percentages[] = $percentage;
 			}
 			
-			#echo "<pre>";
-			#print_r($graph1levels);
-			#print_r($percentages);
-			#die('---');
 			
-			
-			
-		
 			$resulthealth = (clone $result)
+			->whereBetween('class.id', [1, 23])
+			//->where('class.id', 14)
 			->whereIn('LEVEL', ['UW', 'N', 'OW', 'OB'])
 			->orderByRaw("FIELD(LEVEL, 'UW', 'N', 'OW', 'OB')")
 			->get();
+			
+			
+			
+			
+					
+			
+			//Test2- For health
+			
+			/*$resultHealthTESTING = DB::table('SeniorTestResults')
+			->join('students','students.id', '=', 'SeniorTestResults.StudentID')
+			->join('class','class.id', '=', 'students.class_id')
+			->join('term_masters','term_masters.school_id', '=', 'SeniorTestResults.SchoolID')
+			->select('LEVEL', DB::raw('COUNT(*) as total'))
+			->where('SeniorTestResults.SchoolID', $schoolId)
+			//->whereBetween('class.id', [4, 12])
+			->where('TermId', 7)
+			//->whereDate('term_start_date', '<=', now())
+			//->whereDate('term_end_date', '>=', now())
+			->where('students.class_id', 1)
+			->whereIn('LEVEL', ['UW', 'N', 'OW', 'OB'])
+			->groupBy('LEVEL')
+			->orderByRaw("FIELD(LEVEL, 'UW', 'N', 'OW', 'OB')")
+			->get();*/
+			
+			
+			/*echo "<pre>";
+			print_r($resultHealthTESTING);
+			die('---change the detail bhawani pilani---');*/
 			
 			
 			
@@ -150,17 +208,14 @@ class SchoolRecordController extends Controller
 			{
 				$healthLevels[] = $rowH->LEVEL;
 
-				$percentageHlt = $studentscount > 0
-				? (int) round(($rowH->total / $studentscount) * 100)
-				: 0;
+				#$percentageHlt = $studentscount > 0 ? (int) round(($rowH->total / $studentscount) * 100): 0;
+				$percentageHlt = (int) round($rowH->total);
 
 				$healthPercentages[] = $percentageHlt;
 			}
 
 		
-		
-		
-		
+	
 			//die('--you are not a teacher. teacher can only access--');
 		}
 		else
@@ -182,11 +237,13 @@ class SchoolRecordController extends Controller
 	
 
 		$resultRRR = DB::table('SeniorTestResults')
-		->select(
-		'LEVEL',
-		DB::raw('COUNT(StudentID) AS Total_Student')
-		)
-		->whereRaw("LEVEL REGEXP '^L[1-7]+$'")
+		->join('students','students.id', '=', 'SeniorTestResults.StudentID')
+		->join('class','class.id', '=', 'students.class_id')
+		->join('term_masters','term_masters.school_id', '=', 'SeniorTestResults.SchoolID')
+		->select('LEVEL', DB::raw('COUNT(StudentID) AS Total_Student'))
+		->whereDate('term_start_date', '<=', now())
+		->whereDate('term_end_date', '>=', now())
+		->whereRaw("LEVEL REGEXP '^L[0-8]+$'")
 		->groupBy('LEVEL')
 		->orderByRaw("CAST(SUBSTRING(LEVEL, 2) AS UNSIGNED)")
 		->get();
@@ -197,10 +254,12 @@ class SchoolRecordController extends Controller
 		
 
 		$resultRRRHealth = DB::table('SeniorTestResults')
-		->select(
-		'LEVEL',
-		DB::raw('COUNT(StudentID) AS Total_Student')
-		)
+		->join('students','students.id', '=', 'SeniorTestResults.StudentID')
+		->join('class','class.id', '=', 'students.class_id')
+		->join('term_masters','term_masters.school_id', '=', 'SeniorTestResults.SchoolID')
+		->select('LEVEL', DB::raw('COUNT(StudentID) AS Total_Student'))
+		->whereDate('term_start_date', '<=', now())
+		->whereDate('term_end_date', '>=', now())
 		->whereIn('LEVEL', ['UW', 'N', 'OW', 'OB'])
 		->groupBy('LEVEL')
 		->orderByRaw("FIELD(LEVEL, 'UW', 'N', 'OW', 'OB')")
@@ -267,9 +326,9 @@ class SchoolRecordController extends Controller
 			
 		
 		
-		#echo "<pre>";
-		#print_r($chartSeries);
-		#die('---change the detail---');
+
+	
+	
 		
 		
 		// -------------------------------------
@@ -277,20 +336,27 @@ class SchoolRecordController extends Controller
 		// -------------------------------------
 		$data = DB::table('SeniorTestResults as str')
 			->join('skill_reports as sr', 'sr.id', '=', 'str.TestTypeID')
-			->select(
-				'sr.skill_name',
-				'str.level',
-				DB::raw('COUNT(*) as total')
-			)
+			->join('students','students.id', '=', 'str.StudentID')
+			->join('class','class.id', '=', 'students.class_id')
+			->join('term_masters','term_masters.school_id', '=', 'str.SchoolID')
+			->select('sr.skill_name','str.level',DB::raw('COUNT(*) as total'))
 			->where('str.SchoolID', $schoolId)
+			->whereBetween('class.id', [4, 12])
+			->whereDate('term_start_date', '<=', now())
+			->whereDate('term_end_date', '>=', now())
 			->whereIn('str.TestTypeID', [19, 20, 21, 22, 23])
 			->whereNotNull('str.level')
 			->whereNotIn('str.level', ['', 'N.A.'])
-			->whereRaw("str.level REGEXP '^L[1-7]+$'")
+			->whereRaw("str.level REGEXP '^L[0-8]+$'")
 			->groupBy('sr.skill_name', 'str.level')
 			->orderBy('sr.skill_name')
 			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
 			->get();
+			
+			
+			#echo "<pre>";
+			#print_r($data);
+			#die('---change the detail---');
 
 
 		// -------------------------------------
@@ -331,13 +397,16 @@ class SchoolRecordController extends Controller
 		// 6. Define colors per level
 		// -------------------------------------
 		$levelColors = [
-			'L1' => '#ff4d5a',
-			'L2' => '#ffb366',
-			'L3' => '#ffd87d',
-			'L4' => '#7ecad9',
-			'L5' => '#a6d96a',
-			'L6' => '#7bc043',
-			'L7' => '#0a8f3d',
+			'L0' => '#01160a',
+			'L1' => '#fe4a5d',
+			'L2' => '#ffaa62',
+			'L3' => '#ffd26e',
+			'L4' => '#74c4d6',
+			'L5' => '#a3d55f',
+			'L6' => '#6bc04b',
+			'L7' => '#00953b',
+			'L8' => '#01160a',
+			
 		];
 
 
@@ -371,9 +440,6 @@ class SchoolRecordController extends Controller
 			'chartSeries' => $chartSeries
 		]);
 		exit;*/
-
-		
-		
 		
 
     	return view('school.graph-dashboard', compact('title', 'letnenlevels', 'letnentotals', 'ranked_schoolsFitness', 'healthLevels', 'healthTotals', 'healthRankData', 'categories', 'chartSeries')); 
@@ -656,6 +722,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		$board_list  = Board::orderBy('boardname', 'asc')->get(); 
         $regions     = Region::orderBy('name', 'asc')->get(); 
         $states      = State::orderBy('name','asc')->get();
+		$districts = DB::table('districts')->get();
     	$userId  = Auth::user()->id;
 
     	$schoolData = DB::table('school_reference')
@@ -702,34 +769,19 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			}
 
 
-			$query = DB::table('term_masters')
-				->select(
-					'term_name',
-					'academic_year',
-					'term_start_date',
-					'term_end_date'
-				)
+			$today = Carbon::today()->toDateString();
+
+			$currentTerm = DB::table('term_masters')
+				->select('id', 'term_name', 'academic_year', 'term_start_date', 'term_end_date')
 				->where('school_id', $schoolData->id)
 				->where('is_active', '1')
 				->where('academic_year', $academicYear)
-				->orderBy('term_end_date', 'DESC')
-				->limit(2);
+				->whereDate('term_start_date', '<=', $today)
+				->whereDate('term_end_date', '>=', $today)
+				->first();
+				
 
-			$termsDetail= $query->get();
-
-			$currentTerm = $query->orderBy('term_end_date', 'ASC')->first();
-
-			
-			$activeTerm = false;
-
-			if ($currentTerm && isset($currentTerm->term_end_date)) {
-				$termEndDate = Carbon::parse($currentTerm->term_end_date);
-				$today = Carbon::today();
-
-				$activeTerm = $termEndDate->greaterThanOrEqualTo($today);
-			}
-
-		return view('school.profile.index', compact('title','board_list','regions','states', 'schoolData','termsDetail','activeTerm','currentTerm'));
+		return view('school.profile.index', compact('title','board_list','regions','states', 'districts', 'schoolData', 'academicYear', 'currentTerm'));
     }
 
 

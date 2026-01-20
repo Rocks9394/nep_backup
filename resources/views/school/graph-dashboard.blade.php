@@ -115,27 +115,6 @@ h5.card-title {
 </div>
 
 
-
-
-
-<?php
-
-#echo "<pre>";
-#print_r($chartSeries);
-#die('----here we not make any bound----');
-//$categories = ['Ajay', 'Bhawani', 'Suresh', 'Vinod', 'Govind', 'Rameshwar', 'Nameesh', 'Abhineet', 'Bhawani'];
-
-
-
-
-#$letnentotals = [10,20,30,40, 50, 60, 70, 80, 90];
-#echo "<pre>";
-#print_r($letnentotals);
-#die('----here we not make any bound----');
-
-?>
-
-
   <script>
     Highcharts.chart('container', {
     chart: {
@@ -148,22 +127,40 @@ h5.card-title {
         //categories: ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7']
 		categories: @json($letnenlevels)
     },
-    yAxis: [{
-        title: {
-            text: 'Total Student'
-        }
-    }, {
-        title: {
-            text: 'Overall Average (Bell Curve)',
-            opposite: true
-        }
-    }],
+    yAxis: 
+	[
+		{
+			visible: false   // 👈 this kills labels, ticks, gridlines — everything
+		}, 
+		{
+			title: 
+			{
+				text: 'Overall Average (Bell Curve)'
+				
+			},
+			opposite: true,
+			labels: {
+				enabled: false   // 👈 THIS is the missing piece
+			}
+		}
+	],
     series: [{
         name: 'Total Student',
         type: 'column',
         //data: [10000, 20, 5, 50, 80, 25, 150],
-		data: @json($letnentotals),
-        color: '#7cb5ec'
+		//data: @json($letnentotals),
+		data: [
+				{ y: 	 @json($letnentotals)[0], color: '#01160a' }, // L0 🔴
+				{ y:	 @json($letnentotals)[1], color: '#fe4a5d' },
+				{ y:	 @json($letnentotals)[2], color: '#ffaa62' },
+				{ y:	 @json($letnentotals)[3], color: '#ffd26e' },
+				{ y:	 @json($letnentotals)[4], color: '#74c4d6' },
+				{ y:	 @json($letnentotals)[5], color: '#a3d55f' },
+				{ y:	 @json($letnentotals)[6], color: '#6bc04b' },
+				{ y:	 @json($letnentotals)[7], color: '#00953b' },
+				{ y:     @json($letnentotals)[8], color: '#01160a' }  // L8 🔴
+			  ],
+			color: '#7cb5ec'
     }, {
         name: 'Overall Average (Bell Curve)',
         type: 'line',
@@ -192,21 +189,35 @@ h5.card-title {
         //categories: ['UW', 'N', 'OW', 'OB']
 		categories: @json($healthLevels)
     },
-    yAxis: [{
-        title: {
-            text: 'Total Student'
-        }
-    }, {
-        title: {
-            text: 'Overall Average (Bell Curve)',
-            opposite: true
-        }
-    }],
+    yAxis: 
+	[
+		{
+			visible: false   // 👈 this kills labels, ticks, gridlines — everything
+		}, 
+		{
+			title: 
+			{
+				text: 'Overall Average (Bell Curve)'
+			},
+			opposite: true,
+			labels: 
+			{
+				enabled: false   // 👈 THIS is the missing piece
+			}
+		}
+	],
     series: [{
         name: 'Total Student',
         type: 'column',
         //data: [30000, 40000, 35000, 45000 ],
-		data: @json($healthTotals), 
+		//data: @json($healthTotals), 
+		data: 
+		[
+			{ y: 	 @json($healthTotals)[0], color: '#a3d55f' }, // L0 🔴
+			{ y:	 @json($healthTotals)[1], color: '#00953b' },
+			{ y:	 @json($healthTotals)[2], color: '#ffaa62' },
+			{ y:	 @json($healthTotals)[3], color: '#fe4a5d' },
+	    ],
         color: '#7cb5ec'
     }, {
         name: 'Overall Average (Bell Curve)',

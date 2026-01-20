@@ -196,7 +196,7 @@
 						<!-- href="<?php echo e(route('activity.gallary')); ?>?p=2" -->
 						<div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4" id="activity_gallary">
 							<a  href="javascript:void(0);"  class="box" ><div>
-							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/age-report.svg')); ?>"></div><span>Activity Gallary</span></a>
+							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/age-report.svg')); ?>"></div><span>Activity Gallery</span></a>
 						</div>
 					<?php endif; ?>
 
