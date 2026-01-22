@@ -62,8 +62,7 @@ class GenerateClassSectionReportJob implements ShouldQueue
         $batch = Bus::batch($jobs)
             ->name("generate_report_card")
             ->then(function (Batch $batch) use ($schoolId, $classId, $section, $report_batch_id) {               
-                MergeClassSectionPdfJob::dispatch($schoolId, $classId, $section, $report_batch_id);
-                // MergeClassSectionPdfJob::dispatch($schoolId, $classId, $section, $report_batch_id)->onQueue('report_merge');
+                MergeClassSectionPdfJob::dispatch($schoolId, $classId, $section, $report_batch_id)->onQueue('report_merge');
             })
             ->catch(function (Batch $batch, Throwable $e) {
                 Log::error("Batch failed", [
@@ -71,6 +70,7 @@ class GenerateClassSectionReportJob implements ShouldQueue
                     'error' => $e->getMessage()
                 ]);
             })
+            ->onQueue('report_generation')
             ->dispatch();
 
         return response()->json(['batch_id' => $batch->id]);

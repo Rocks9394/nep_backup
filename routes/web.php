@@ -363,12 +363,6 @@ Route::prefix('school')->group(function(){
 	
 	/* On Development Phase  */
 	Route::get('fitness-report-test', [ReportController::class, 'FitnessReports'])->name('fitness.report.test')->middleware('module_access:fitness.report');
-	Route::get('report/download/{batchId}', [ReportController::class, 'requestDownload'])->name('report.download.permanent');
-	Route::get('report/download/{batchId}/signed', [ReportController::class, 'downloadSigned'])->name('report.download.signed');
-	Route::get('higherclass/summary', [ReportController::class, 'HigherClassTestSummary'])->name('higherclasstestsummary');
-	Route::get('lowerclass/summary', [ReportController::class, 'LowerClassTestSummary'])->name('lowerclasstestsummary');
-	Route::get('reports/{id}', [ReportController::class, 'ViewFitnessReport'])->name('reports.view');
-
 
 
 	Route::get('reports-cbse/{id}', [SchoolRecordController::class, 'ViewCbseReport'])->name('reports.cbse');

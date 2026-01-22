@@ -33,7 +33,6 @@ use ZipArchive;
 use Illuminate\Support\Facades\Storage;
 use PDF;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
-
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ImportStudentProfile;
 use App\Exports\ExportImproperData;
@@ -56,6 +55,7 @@ use App\Exports\SchoolUserCredentials;
 use App\Exports\TrainerCredentials;
 use App\Models\DashboardModule;
 use App\Services\DataTableListService;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SchoolRecordController extends Controller
 {
@@ -117,9 +117,7 @@ class SchoolRecordController extends Controller
 			
 			*/
 			
-			/*echo "<pre>";
-			print_r($resultTESTING);
-			die('----change the detail---');*/
+			/**/
 			
 					
 	
@@ -137,7 +135,7 @@ class SchoolRecordController extends Controller
 			$resultLevel = (clone $result)
 			->whereBetween('class.id', [4, 12])
 			->whereRaw("LEVEL REGEXP '^L[0-8]+$'")
-			->whereIn('TestTypeID', [19, 20, 21, 22, 23])
+			->whereIn('TestTypeID', [16, 17, 19, 20, 21, 22, 23])
 			->orderByRaw("CAST(SUBSTRING(LEVEL, 2) AS UNSIGNED)")
 			->get();
 			
@@ -344,7 +342,7 @@ class SchoolRecordController extends Controller
 			->whereBetween('class.id', [4, 12])
 			->whereDate('term_start_date', '<=', now())
 			->whereDate('term_end_date', '>=', now())
-			->whereIn('str.TestTypeID', [19, 20, 21, 22, 23])
+			->whereIn('str.TestTypeID', [16, 17, 19, 20, 21, 22, 23])
 			->whereNotNull('str.level')
 			->whereNotIn('str.level', ['', 'N.A.'])
 			->whereRaw("str.level REGEXP '^L[0-8]+$'")

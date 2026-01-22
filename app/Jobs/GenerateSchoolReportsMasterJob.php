@@ -60,7 +60,7 @@ class GenerateSchoolReportsMasterJob implements ShouldQueue
                     $sectionId,
                     $studentIds,
                     $this->report_batch
-                );
+                )->onQueue('report_generation');
             }
         }
 

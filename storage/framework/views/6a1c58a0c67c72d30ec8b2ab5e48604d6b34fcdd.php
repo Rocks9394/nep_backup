@@ -452,8 +452,8 @@
 
                                                                     <tr>
                                                                         <td style="padding: 4px 4px 4px 6px; font-weight: 500; color:#000; text-align: center;">---</td>
-                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;"><?php echo e($value[1]['score'] ?? '---'); ?></td>
-                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;"><?php echo e($value[1]['Level'] ?? '---'); ?></td>
+                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;">---</td>
+                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;">---</td>
 
                                                                     </tr>
                                                                 </table>
@@ -861,34 +861,26 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid #0A87CD; font-size: 12px; border-collapse: collapse; color:#fff;">
+                                        <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid #0A87CD; font-size: 14px; border-collapse: collapse; color:#fff; text-align:left;">
                                             <tr style="background-color: #0A87CD;">
-                                                <td style="padding: 5px 10px; font-weight: bold; color:#fff; font-size: 14px;" colspan="8">BMI Benchmarks for <?php echo e($age); ?> years <?php echo e($gender); ?></td>
+                                                <td style="padding: 5px 10px; font-weight: bold; color:#fff; font-size: 16px;" colspan="8">BMI Benchmarks for <?php echo e($age); ?> years <?php echo e($gender); ?></td>
                                             </tr>
-                                            <tr style="font-weight: bold; background-color: #fecd0a; font-size: 12px; color: #000; text-align: center;">
-                                                <th style="padding: 4px; width: 12%;">UW</th>
-                                                <th style="padding: 4px; width: 17%;">N</th>
-                                                <th style="padding: 4px; width: 17%;">OW</th>
-                                                <th style="padding: 4px; width: 17%; border-right: 1px solid transparent;">OB</th>
-                                                <th style="padding: 4px;"></th>
+                                            <tr style="font-weight: bold; background-color: #fecd0a; font-size: 12px; color: #000;  text-align:center;">
+                                                <td style="padding: 5px 10px;">UW</td>
+                                                <td style="padding: 5px 10px;">N</td>
+                                                <td style="padding: 5px 10px;">OW</td>
+                                                <td style="padding: 5px 10px;">OB</td>
                                             </tr>
-
-
-
-                                            <tr style="text-align: center; ">
-
+                                            
+                                            
                                             <?php if(is_array($getBmiBenchmark) && count($getBmiBenchmark) > 0): ?>
-                                            <tr>
+                                            <tr style="text-align:center;">
                                                 <td style="padding: 5px 10px; color: #000;"><?php echo e($getBmiBenchmark['UW'] ?? 'N/A'); ?></td>
                                                 <td style="padding: 5px 10px; color: #000;"><?php echo e($getBmiBenchmark['N'] ?? 'N/A'); ?></td>
                                                 <td style="padding: 5px 10px; color: #000;"><?php echo e($getBmiBenchmark['OW'] ?? 'N/A'); ?></td>
                                                 <td style="padding: 5px 10px; color: #000;"><?php echo e($getBmiBenchmark['OB'] ?? 'N/A'); ?></td>
                                             </tr>
                                             <?php endif; ?>
-
-                                            </tr>
-
-
                                         </table>
                                     </td>
                                 </tr>

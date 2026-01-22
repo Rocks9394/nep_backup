@@ -244,7 +244,7 @@
     </table>
 
 <!-- Page 2 -->
-    <table border="0" cellpadding="0" cellspacing="0" style="page-break-before: always;">
+    <table border="0" cellpadding="0" cellspacing="0" style="width:100%; page-break-before: always;">
         <tr>
             <td>
                 <!-- Inner page Header Area (Page 2) -->
@@ -280,15 +280,15 @@
         <tr>
             <td>
                  <!-- Inner page Content (Page 2) -->
-                <table border="0" cellpadding="0" cellspacing="0">
+                <table width="100%" border="0" cellpadding="0" cellspacing="0">
                     <tr>
                         <td>
                             <table cellpadding="0" cellspacing="0" style="width: 94%; border: 0; border-collapse: collapse; margin: auto;">
                                 <tr>
                                     <td style="border-bottom: 3px solid #E60A00;">
                                         <div style="align-items: center; color: #fff; font-size: 18px; font-weight: 600; overflow:hidden; height: 32px;">
-                                            <div style="float:left; padding: 1px 0px 3px 10px; background: #E60A00; margin-bottom: 0px;">Physical Fitness Assessment for {{ $studentsData->class }}-{{ $studentsData->section }}</div>
-                                            <div style="text-align:right; float:left;"><img src="{{ public_path('assets/reports/heading-band-corder.jpg')}}" alt="" style="width: 39px; position:relative; top:0px;"></div>
+                                            <div style="float:left; padding: 1px 0px 3px 10px; background: #E60A00; margin-bottom: 0px;">Physical Fitness Assessment for {{ $studentsData->class }}-{{ $studentsData->section }}</div>                                            
+                                            <div style="float:left; transform: skew(26deg,0deg); display:inline-block; width: 20px; height: 32px; background: #E60A00; position: relative; right: -10px;"></div>
                                         </div>
                                     </td>
                                 </tr>
@@ -405,7 +405,7 @@
                                                     <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border-top: 1px solid transparent; border-left: 1px solid #00A923; border-right: 1px solid #00A923; border-bottom: 1px solid #00A923; font-size: 13px; border-collapse: collapse; color:#333;">
                                                         <tr>
                                                             <td style="border-top: 1px solid #00A923; background-color: #00A923; padding: 0px 4px 2px 4px; padding: 0px 10px 3px 10px; color: #fff; text-align: center; width: 100px; font-weight: bold;">Recommendation</td>
-                                                            <td style="padding:0px 4px 2px 8px; font-size:13px;">Sports Fit. Keep it up!</td>
+                                                            <td style="padding:0px 4px 2px 8px; font-size:13px;">{{ $value[0]['recommendation'] ?? '---'}}</td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -798,24 +798,24 @@
                                             </tr>
                                             <tr style="font-weight: bold; background-color: #fecd0a; font-size: 12px; color: #000;">
                                                 <td style="padding: 4px;"></td>
-                                                <td style="padding: 4px;">L1 (Very Low)</td>
-                                                <td style="padding: 4px;">L2 (Low)</td>
-                                                <td style="padding: 4px;">L3 (Developing)</td>
-                                                <td style="padding: 4px;">L4 (Moderate)</td>
-                                                <td style="padding: 4px;">L5 (Good)</td>
-                                                <td style="padding: 4px;">L6 (High)</td>
-                                                <td style="padding: 4px;">L7 (Excellent)</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">L1 (Very Low)</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">L2 (Low)</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">L3 (Developing)</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">L4 (Moderate)</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">L5 (Good)</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">L6 (High)</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">L7 (Excellent)</td>
                                             </tr>
                                             <tr style="background-color: #fff6d1; font-weight: 500; color:#333;">
-                                                <td style="padding: 4px;"></td>
-                                                <td style="padding: 4px;">
+                                                <td style="padding: 4px; border:1px solid #0A87CD;"></td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">
                                                     < 20 %ile</td>
-                                                <td style="padding: 4px;">≥ 20 %ile</td>
-                                                <td style="padding: 4px;">≥ 40 %ile</td>
-                                                <td style="padding: 4px;">≥ 60 %ile</td>
-                                                <td style="padding: 4px;">≥ 70 %ile</td>
-                                                <td style="padding: 4px;">≥ 80 %ile</td>
-                                                <td style="padding: 4px;">≥ 90 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 20 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 40 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 60 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 70 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 80 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 90 %ile</td>
                                             </tr>                                            
                                             @forelse($getFitnessBenchmark as $key => $skillname)
                                             <tr>
