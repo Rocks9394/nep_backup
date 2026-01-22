@@ -2,7 +2,19 @@
 @section('title', 'Goforfit | ' . $title)
 @section('content')
 
-
+<style>
+    .select-terms{
+        height: 35px;
+        margin-left: 10px;
+    }
+    .term-select{
+        border-color: var(--org-color);
+        height: 100%;
+        padding: 2px;
+        border-radius:5px;
+        color: var(--org-color);
+    }
+</style>
 @if (session('warning') || isset($warning))
     <script>
         Swal.fire({
@@ -86,6 +98,19 @@
                         </div>
                     </div>
                     <div class="col-auto">
+                        <div class="select-terms">
+                            <select name="term" id="term" class="term-select">
+                                @foreach($terms as $term)
+                                    <option value="{{ $term->id }}"
+                                        {{ $selectedTerm == $term->id ? 'selected' : '' }}>
+                                        {{ $term->term_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-auto">
                         <div class="btn-group toggle-btns" role="group" aria-label="Test Status Toggle">
                             <button type="button" class="btn btn-outline-primary btn-sm" id="btn-all" data-value="all">All</button>
                             <button type="button" class="btn btn-outline-primary btn-sm active" id="btn-remaining" data-value="remaining">Incomplete</button>
@@ -161,6 +186,51 @@
 
 </div>
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const termSelect = document.getElementById('term');
+        let previousValue = termSelect.value;
+
+        termSelect.addEventListener('change', function () {
+            const selectedValue = this.value;
+            const termText = termSelect.options[termSelect.selectedIndex].text;
+            Swal.fire({
+                icon: 'warning',
+                title: 'Confirmation!',
+                html: `Would you like to proceed with the test for <b>${termText}</b>?`,
+                showCancelButton: true,
+                allowOutsideClick: false,
+                confirmButtonText: 'Yes, proceed it',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    saveTerm(selectedValue);
+                    previousValue = selectedValue;
+
+                    Swal.fire({
+                        icon: 'success',
+                        html: `You are going to take test for <b>${termText}</b>?`,
+                        showConfirmButton: true,
+                        allowOutsideClick: false,
+                    });
+                } else {
+                    termSelect.value = previousValue;
+                }
+            });
+        });
+
+        function saveTerm(termId) {
+            fetch("{{ route('save.term.session') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({ term_id: termId })
+            });
+        }
+    });
+
+
     document.addEventListener('DOMContentLoaded', function () {
         const buttons = document.querySelectorAll('[data-value]');
         const testStatusKey = "testStatus";

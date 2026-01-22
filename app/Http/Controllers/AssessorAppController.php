@@ -107,8 +107,43 @@ class AssessorAppController extends Controller
 		if (!$isPureChrome && $isUnsupportedBrowser){
 			return view('assessor.alltests', compact('title', 'juniorData', 'cbseData', 'juniorData1', 'seniorData'))->with('warning', 'Some features may not work properly!');
 		}
+
+		if(Session::get('SelectSchoolId')){	
+			$SchoolId = Session::get('SelectSchoolId');			
+		}else{			
+			$SchoolTrainers = DB::table('school_trainers')
+			->join('schools','schools.id','=','school_trainers.school_id')
+			->select('schools.school_name','schools.id','schools.logo')
+			->where('school_trainers.trainer_id',$userId)->where('school_trainers.status', 1)->get();
+			$SchoolId = $SchoolTrainers[0]->id;		  	
+		}
+
+		$year = date('Y');
+		$month = date('m');
+		$day = date('d');
+		$today = Carbon::today()->toDateString();
+		if ($month < 4 || ($month == 3 && $day <= 31)) {
+			$academicYear = ($year - 1) . '-' . $year;
+		}
+
+		$terms = TermMaster::where('school_id', $SchoolId)
+            ->where('is_active', 1)
+            ->where('academic_year', $academicYear)
+			->get();
+
+		$currentTerm = DB::table('term_masters')
+			->select('id', 'term_name', 'academic_year', 'term_start_date', 'term_end_date')
+			->where('school_id', $SchoolId)
+			->where('is_active', '1')
+			->where('academic_year', $academicYear)
+			->whereDate('term_start_date', '<=', $today)
+			->whereDate('term_end_date', '>=', $today)
+			->first();
+
+			$selectedTerm = session('term_id', $currentTerm->id);
+		
 	
-		return view('assessor.alltests', compact('title', 'juniorData', 'cbseData', 'juniorData1', 'seniorData'));
+		return view('assessor.alltests', compact('title', 'juniorData', 'cbseData', 'juniorData1', 'seniorData', 'terms', 'selectedTerm'));
 		
 	}
 	
@@ -203,6 +238,8 @@ class AssessorAppController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
+			'custom_classes.nomenclature',
+			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -233,7 +270,9 @@ class AssessorAppController extends Controller
 			->groupBy(
 			'custom_classes.id',
 			'custom_classes.class_id',
-			'custom_classes.section',
+			'custom_classes.section',			
+			'custom_classes.nomenclature',
+			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -262,6 +301,8 @@ class AssessorAppController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
+			'custom_classes.nomenclature',
+			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 

@@ -32,12 +32,15 @@ trait ReportHelperTrait
 
 
     public function getTermId($schoolId) {
-
-        return TermMaster::where('school_id', $schoolId)
+        if (session()->has('term_id')) {
+            return session('term_id');
+        }else{
+            return TermMaster::where('school_id', $schoolId)
             ->where('is_active', 1)
             ->whereDate('term_start_date', '<=', today())
             ->whereDate('term_end_date', '>=', today())
             ->value('id');
+        }
     }
 
 

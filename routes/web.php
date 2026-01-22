@@ -428,7 +428,10 @@ Route::post('view-trainer',[App\Http\Controllers\ViewTrainerController::class, '
 
 Route::get('customlogin', [App\Http\Controllers\Auth\LoginController::class, 'showCustomLoginForm'])->name('customlogin');
 
-
+Route::post('/save-term-session', function (Illuminate\Http\Request $request) {
+    session(['term_id' => $request->term_id]);
+    return response()->json(['success' => true]);
+})->name('save.term.session');
 
 
 
