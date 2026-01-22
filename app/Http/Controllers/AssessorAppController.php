@@ -1539,6 +1539,25 @@ class AssessorAppController extends Controller
 		
 		$TermMasterId = $this->getTermId($schoolId);
 
+		$year = date('Y');
+		$month = date('m');
+		$day = date('d');
+		$today = Carbon::today()->toDateString();
+		if ($month < 4 || ($month == 3 && $day <= 31)) {
+			$academicYear = ($year - 1) . '-' . $year;
+		}
+
+		$terms = TermMaster::where('school_id', $schoolId)
+            ->where('is_active', 1)
+            ->where('academic_year', $academicYear)
+			->get();
+			
+		$filteredTerms = $terms->map(function($term) {
+			$term->name = $term->term_name;
+			return $term;
+		});
+
+
 		$ajaxUrl = route('trainer.higherclass.status');
 			
 
@@ -1572,6 +1591,13 @@ class AssessorAppController extends Controller
 
             $start = $request->input('start', 0);
             $length = $request->input('length', 100);
+
+			if ($request->input('term')) {
+		        $selectedTerm = $request->input('term');
+		        if (!empty($selectedTerm)) {
+					$TermMasterId = $selectedTerm;
+		        }
+		    }
 		
             $query = DB::table('students as s')
 		        ->leftJoin('SeniorTestResultsSummary as r', function ($join) use ($TermMasterId) {
@@ -1699,12 +1725,8 @@ class AssessorAppController extends Controller
         }
 
        	$title = 'Fitness Test Status (Class 4 to 12)';
-        return view('reports.fitnessTestStatus', compact('title','classList','ajaxUrl'));
+        return view('reports.fitnessTestStatus', compact('title','classList','ajaxUrl', 'filteredTerms','TermMasterId'));
     }
-
-
-
-
 
 	public function TestStatusLowerClass(Request $request){
 
@@ -1729,6 +1751,24 @@ class AssessorAppController extends Controller
 	    }
 
 		$TermMasterId = $this->getTermId($schoolId);
+
+		$year = date('Y');
+		$month = date('m');
+		$day = date('d');
+		$today = Carbon::today()->toDateString();
+		if ($month < 4 || ($month == 3 && $day <= 31)) {
+			$academicYear = ($year - 1) . '-' . $year;
+		}
+
+		$terms = TermMaster::where('school_id', $schoolId)
+            ->where('is_active', 1)
+            ->where('academic_year', $academicYear)
+			->get();
+			
+		$filteredTerms = $terms->map(function($term) {
+			$term->name = $term->term_name;
+			return $term;
+		});
 
 		$ajaxUrl = route('trainer.lowerclass.status');
 
@@ -1762,6 +1802,13 @@ class AssessorAppController extends Controller
 	        $start  = $request->input('start', 0);
 	        $length = $request->input('length', 100);
 	        $search  = $request->input('search.value');
+
+			if ($request->input('term')) {
+		        $selectedTerm = $request->input('term');
+		        if (!empty($selectedTerm)) {
+		            $TermMasterId = $selectedTerm;
+		        }
+		    }
 
 
 	        $query = DB::table('students as s')
@@ -1936,7 +1983,7 @@ class AssessorAppController extends Controller
 	    }
 
 	    $title = 'Fitness Test Status (Upto Class-3)';
-	    return view('reports.TestStatusLowerClass', compact('title', 'classList', 'ajaxUrl'));
+	    return view('reports.TestStatusLowerClass', compact('title', 'classList', 'ajaxUrl','filteredTerms','TermMasterId'));
 	}
 
 

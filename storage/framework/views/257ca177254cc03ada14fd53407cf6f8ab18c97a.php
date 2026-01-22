@@ -1,8 +1,8 @@
-@extends('layouts.filldart-app')
-@section('title', $title)
-@section('content')
 
-@push('style-css')
+<?php $__env->startSection('title', $title); ?>
+<?php $__env->startSection('content'); ?>
+
+<?php $__env->startPush('style-css'); ?>
 
 
 
@@ -25,7 +25,7 @@
 
 
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
 
 <div class="container-fluid">
@@ -41,7 +41,7 @@
                             </span>
                         </a>
                     
-                        <h1 class="ml-md-4 mb-0">{{$title}}</h1>
+                        <h1 class="ml-md-4 mb-0"><?php echo e($title); ?></h1>
                     </div>
                 </div>
             </div>
@@ -99,10 +99,10 @@
     </div>
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
 
-@push('page-script')
+<?php $__env->startPush('page-script'); ?>
 
 <!-- Keep only these DataTables scripts (remove all others) -->
 <!-- <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -147,7 +147,7 @@ $(document).ready(function() {
         // dom: '<"top d-flex justify-content-between align-items-center"fB>rt<"bottom d-flex justify-content-between"i><"clear">',        
         dom: '<"top"f><"filter-right"B>rt<"bottom"i><"clear">',        
         ajax: {
-            url: '{{ $ajaxUrl }}',
+            url: '<?php echo e($ajaxUrl); ?>',
             type: 'GET',
             data: function(d) {
                 d.class = $('#filter_class').val();
@@ -231,7 +231,7 @@ $(document).ready(function() {
 
 
             /* Class Drop-Down List */
-            var classList = @json($classList);
+            var classList = <?php echo json_encode($classList, 15, 512) ?>;
             const $dropdown = $('<select class="form-control" id="filter_class"></select>');
             classList.forEach(option => {
                 const section = option.section ? ` - ${option.section}` : '';
@@ -246,8 +246,8 @@ $(document).ready(function() {
             });
             
             /* === Terms Filter === */
-            var terms = @json($filteredTerms);
-            var selectedTermId = @json($TermMasterId);
+            var terms = <?php echo json_encode($filteredTerms, 15, 512) ?>;
+            var selectedTermId = <?php echo json_encode($TermMasterId, 15, 512) ?>;
             const $termDropdown = $('<select class="form-control" id="filter_term"></select>');
             terms.forEach(option => {
                 const displayText = option.name;
@@ -438,5 +438,7 @@ $(document).ready(function() {
 
 </script>
 
-@endpush
+<?php $__env->stopPush(); ?>
 
+
+<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/reports/TestStatusLowerClass.blade.php ENDPATH**/ ?>
