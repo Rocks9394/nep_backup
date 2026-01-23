@@ -769,24 +769,21 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 			$today = Carbon::today()->toDateString();
 
-			$currentTerm = DB::table('term_masters')
+			$terms = DB::table('term_masters')
 				->select('id', 'term_name', 'academic_year', 'term_start_date', 'term_end_date')
 				->where('school_id', $schoolData->id)
 				->where('is_active', '1')
 				->where('academic_year', $academicYear)
-				->whereDate('term_start_date', '<=', $today)
-				->whereDate('term_end_date', '>=', $today)
-				->first();
+				->get();
 				
 
-		return view('school.profile.index', compact('title','board_list','regions','states', 'districts', 'schoolData', 'academicYear', 'currentTerm'));
+		return view('school.profile.index', compact('title','board_list','regions','states', 'districts', 'schoolData', 'academicYear', 'terms'));
     }
 
 
     /* updated code */
     public function updateProfile(Request $request, $id) {
 		
-
 		$request->validate([
 			'region' => 'nullable',
 			'state' => 'nullable',
@@ -802,7 +799,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			'school_address' => 'required|string',
 			
 			'principalName' => 'required|string',
-			'principalEmail' => 'nullable|email',
+			'principalEmail' => 'required|email',
 			'schoolAdminDesignation' => 'required',
 
 			'gender' => 'required',
@@ -818,123 +815,44 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			'school_logo.max' => 'School logo size must be less than 1MB'
 		]);
 		
-		$termsData = $request->validate([
-			'full-term' => 'nullable|string|max:255',
-			'start-date' => 'nullable|date',
-			'end-date' => 'nullable|date',
+	
+		$academicYear = $request->input('academic_year');
+		$termsInput   = $request->input('terms', []);
 
-			'term-1' => 'nullable|string|max:255',
-			'start-date-1' => 'nullable|date',
-			'end-date-1' => 'nullable|date',
+		foreach ($termsInput as $termData) {
 
-			'term-2' => 'nullable|string|max:255',
-			'start-date-2' => 'nullable|date',
-			'end-date-2' => 'nullable|date',
+			if (empty($termData['end_date'])) {
+				continue;
+			}
 
-			'term-3' => 'nullable|string|max:255',
-			'start-date-3' => 'nullable|date',
-			'end-date-3' => 'nullable|date',
+			$termName  = $termData['term_name'];
+			$startDate = $termData['start_date'];
+			$endDate   = $termData['end_date'];
 
-			'term-4' => 'nullable|string|max:255',
-			'start-date-4' => 'nullable|date',
-			'end-date-4' => 'nullable|date',
-		]);
-		
-		if ($request->has('academic_year')) {
-			$academicYear = $request->academic_year;
-		} else {
-			$year = date('Y');
-			$academicYear = $year . '-' . ($year + 1);
-		}
-		
-		// Preparing terms data for insertion
-		$termsToInsert = [];
-		
-		if ($request->input('term')!=null && $request->input('term-start')!=null && $request->input('term-end')!=null) {
-			$termsToInsert[] = [
-				'school_id' => $id,
-				'term_name' => $request->input('term'),
-				'term_start_date' => $request->input('term-start'),
-				'term_end_date' => $request->input('term-end'),
-				'academic_year' => $academicYear,
-				'is_active' => 1,
-				'camp_type' => 1,
-				'created_at' => now(),
-				'updated_at' => now(),
-			];
+			$term = TermMaster::where('academic_year', $academicYear)
+				->where('school_id', $id)
+				->where('term_name', $termName)
+				->where('term_start_date', $startDate)
+				->first();
+
+			if ($term) {
+				$term->term_end_date = $endDate;
+				$term->save();
+			} else {
+				TermMaster::create([
+					'school_id'		  => $id,
+					'term_name'       => $termName,
+					'camp_type'		  => '1',
+					'academic_year'   => $academicYear,
+					'term_start_date' => $startDate,
+					'term_end_date'   => $endDate,
+					'is_active'		  => '1',
+
+				]);
+			}
 		}
 		
-		if ($request->input('full-term')!=null && $request->input('start-date')!=null && $request->input('end-date')!=null) {
-			$termsToInsert[] = [
-				'school_id' => $id,
-				'term_name' => $request->input('full-term'),
-				'term_start_date' => $request->input('start-date'),
-				'term_end_date' => $request->input('end-date'),
-				'academic_year' => $academicYear,
-				'is_active' => 1,
-				'camp_type' => 1,
-				'created_at' => now(),
-				'updated_at' => now(),
-			];
-		}
 
-		if ($request->input('term-1')!=null && $request->input('start-date-1')!=null && $request->input('end-date-1')!=null) {
-			$termsToInsert[] = [
-				'school_id' => $id,
-				'term_name' => $request->input('term-1'),
-				'term_start_date' => $request->input('start-date-1'),
-				'term_end_date' => $request->input('end-date-1'),
-				'academic_year' => $academicYear,
-				'is_active' => 1,
-				'camp_type' => 1,
-				'created_at' => now(),
-				'updated_at' => now(),
-			];
-		}
-		if ($request->input('term-2')!=null && $request->input('start-date-2')!=null && $request->input('end-date-2')!=null) {
-			$termsToInsert[] = [
-				'school_id' => $id,
-				'term_name' => $request->input('term-2'),
-				'term_start_date' => $request->input('start-date-2'),
-				'term_end_date' => $request->input('end-date-2'),
-				'academic_year' => $academicYear,
-				'is_active' => 1,
-				'camp_type' => 1,
-				'created_at' => now(),
-				'updated_at' => now(),
-			];
-		}
-		if ($request->input('term-3')!=null && $request->input('start-date-3')!=null && $request->input('end-date-3')!=null) {
-			$termsToInsert[] = [
-				'school_id' => $id,
-				'term_name' => $request->input('term-3'),
-				'term_start_date' => $request->input('start-date-3'),
-				'term_end_date' => $request->input('end-date-3'),
-				'academic_year' => $academicYear,
-				'is_active' => 1,
-				'camp_type' => 1,
-				'created_at' => now(),
-				'updated_at' => now(),
-			];
-		}
-		if ($request->input('term-4')!=null && $request->input('start-date-4')!=null && $request->input('end-date-4')!=null) {
-			$termsToInsert[] = [
-				'school_id' => $id,
-				'term_name' => $request->input('term-4'),
-				'term_start_date' => $request->input('start-date-4'),
-				'term_end_date' => $request->input('end-date-4'),
-				'academic_year' => $academicYear,
-				'is_active' => 1,
-				'camp_type' => 1,
-				'created_at' => now(),
-				'updated_at' => now(),
-			];
-		}
-
-		if (!empty($termsToInsert)) {
-			DB::table('term_masters')->insert($termsToInsert);
-		}
-    	
 
         DB::table('schools')->where('id', $id)->update([
             // 'school_name'     => $request->school_name,

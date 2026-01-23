@@ -375,87 +375,57 @@ unset($__errorArgs, $__bag); ?>
 								$nextAcademicYear = ($startYear + 1) . '-' . ($endYear + 1);
 								$academicStart = "$startYear-04-01";
 								$academicEnd   = "$endYear-03-31";
-								$lastTermEndDate = $terms->last()
-								? \Carbon\Carbon::parse($terms->last()->term_end_date)->addDay()->format('Y-m-d')
-								: $academicStart;
+
+								$lastTermEndDate = isset($terms) && count($terms)
+									? \Carbon\Carbon::parse($terms->last()->term_end_date)->addDay()->format('Y-m-d')
+									: $academicStart;
 							?>
+
 							<div class="row">
 								<div class="form-group col-md-4">
-									<label for="academic_year">Academic Year</label>
-										<select name="academic_year" id="academic_year" class="form-control">
-											<option value="<?php echo e($academicYear); ?>"><?php echo e($academicYear); ?></option>
-											<option value="<?php echo e($nextAcademicYear); ?>"><?php echo e($nextAcademicYear); ?></option>
-										</select>
+									<label>Academic Year</label>
+									<select id="academic_year" name="academic_year" class="form-control">
+										<option value="<?php echo e($academicYear); ?>"><?php echo e($academicYear); ?></option>
+										<option value="<?php echo e($nextAcademicYear); ?>"><?php echo e($nextAcademicYear); ?></option>
+									</select>
 								</div>
+
 								<div class="form-group col-md-4">
 									<label>Start Date</label>
-									<input type="date" name="academic_year_start" id="academic_year_start" class="form-control"
-										value="<?php echo e($academicStart); ?>">
+									<input type="date" name="academic_year_start" id="academic_year_start" class="form-control" value="<?php echo e($academicStart); ?>">
 								</div>
 
 								<div class="form-group col-md-4">
 									<label>End Date</label>
-									<input type="date" name="academic_year_end" id="academic_year_end" class="form-control"
-										value="<?php echo e($academicEnd); ?>">
+									<input type="date" name="academic_year_end" id="academic_year_end" class="form-control" value="<?php echo e($academicEnd); ?>">
 								</div>
 							</div>
-							<?php if($terms->count()): ?>
-								<h5 class="mt-4">Terms Details</h5>
 
-								<?php $__currentLoopData = $terms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-									<div class="form-row">
-										<div class="form-group col-md-4">
-											<label>Term Name</label>
-											<input
-												class="form-control"
-												type="text"
-												name="existing_terms[<?php echo e($index); ?>][term_name]"
-												value="<?php echo e($term->term_name); ?>"
-												readonly
-											>
-										</div>
+							<h5 class="mt-4 current-year-terms">Terms Details</h5>
 
-										<div class="form-group col-md-4">
-											<label>Start Date</label>
-											<input
-												class="form-control"
-												type="text"
-												name="existing_terms[<?php echo e($index); ?>][start_date]"
-												value="<?php echo e(\Carbon\Carbon::parse($term->term_start_date)->format('m/d/Y')); ?>"
-												readonly
-											>
-										</div>
-
-										<div class="form-group col-md-4">
-											<label>End Date</label>
-											<input
-												class="form-control"
-												type="text"
-												name="existing_terms[<?php echo e($index); ?>][end_date]"
-												value="<?php echo e(\Carbon\Carbon::parse($term->term_end_date)->format('m/d/Y')); ?>"
-												readonly
-											>
-										</div>
-									</div>
-								<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-							<?php endif; ?>
-
-							<div id="terms-wrapper">
-								<div class="form-row term-row" data-index="1">									
+							<div id="existing-terms" class="current-year-terms">
+							<?php $__currentLoopData = $terms ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+								<div class="form-row existing-term-row" data-last="<?php echo e($loop->last); ?>">
 									<div class="form-group col-md-4">
 										<label>Term Name</label>
-										<input type="text" name="terms[0][term_name]" class="form-control term-name" value="Full-Term" readonly>
+										<input type="text" name="terms[0][term_name]" class="form-control" value="<?php echo e($term->term_name); ?>" readonly>
 									</div>
 									<div class="form-group col-md-4">
 										<label>Start Date</label>
-										<input type="date" name="terms[0][start_date]" class="form-control start-date" value="<?php echo e($lastTermEndDate); ?>">
+										<input type="date" name="terms[0][start_date]" class="form-control" value="<?php echo e(\Carbon\Carbon::parse($term->term_start_date)->format('Y-m-d')); ?>" readonly>
+
 									</div>
 									<div class="form-group col-md-4">
 										<label>End Date</label>
-										<input type="date" name="terms[0][end_date]" class="form-control end-date" value="<?php echo e($academicEnd); ?>" max="<?php echo e($academicEnd); ?>">
-									</div>										
+										<input type="date" name="terms[0][end_date]" class="form-control existing-end-date" 
+											value="<?php echo e(\Carbon\Carbon::parse($term->term_end_date)->format('Y-m-d')); ?>"
+											<?php echo e(!$loop->last ? 'readonly' : ''); ?>>
+									</div>
 								</div>
+							<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 							</div>
+							<div id="terms-wrapper"></div>
+
 
 							
 
@@ -621,7 +591,7 @@ unset($__errorArgs, $__bag); ?>
 
 							<!-- Submit Buttons -->
 							<div class="d-flex justify-content-end mt-5">
-								<a type="button" class="btn btn-secondary mr-2" href="#a" onclick="history.back()">Cancel</a>
+								<a type="button" class="btn btn-secondary mr-2" href="<?php echo e(route('filldart.dashboard')); ?>">Cancel</a>
 								<button type="submit" class="btn btn-primary">Update Profile</button>
 							</div>
 						</form>
@@ -688,158 +658,202 @@ unset($__errorArgs, $__bag); ?>
             });
         }
     });
-		
+	
+
 	const maxTerms = 4;
-	let baseTermIndex = getBaseTermIndex();
-
-	function getBaseTermIndex() {
-		const currentTermInput = document.getElementById('current-term');
-		if (!currentTermInput) return 0;
-
-		const match = currentTermInput.value.match(/Term-(\d+)/);
-		return match ? parseInt(match[1]) : 0;
-	}
-
-	function isSameDate(d1, d2) {
-		return d1.getTime() === d2.getTime();
-	}
+	const wrapper = document.getElementById('terms-wrapper');
+	const academicYearSelect = document.getElementById('academic_year');
 
 	function getAcademicDates() {
-		const [startYear, endYear] = document.getElementById('academic_year').value.split('-');
+		const [s, e] = academicYearSelect.value.split('-');
 		return {
-			start: new Date(`${startYear}-04-01`),
-			end: new Date(`${endYear}-03-31`)
+			start: new Date(`${s}-04-01`),
+			end: new Date(`${e}-03-31`)
 		};
-	}
-
-
-	document.getElementById('academic_year').addEventListener('change', function () {
-		const year = this.value.split('-');
-		const startYear = year[0];
-		const endYear = year[1];
-
-		const academicStart = `${startYear}-04-01`;
-		const academicEnd = `${endYear}-03-31`;
-
-		resetTerms(academicStart, academicEnd);
-	});
-
-	function resetTerms(academicStart, academicEnd) {
-		const wrapper = document.getElementById('terms-wrapper');
-
-		baseTermIndex = 0;
-		wrapper.querySelectorAll('.term-row').forEach((row, index) => {
-			if (index > 0) row.remove();
-		});
-
-		const firstRow = wrapper.querySelector('.term-row');
-
-		document.getElementById('academic_year_start').value = academicStart;
-		document.getElementById('academic_year_end').value = academicEnd;
-;
-		firstRow.querySelector('.start-date').value = academicStart;
-		firstRow.querySelector('.end-date').value = academicEnd;
-
-		endDateInput.setAttribute('max', academicEnd);
-
-		firstRow.querySelector('.term-name').value = 'Full-Term';
-	}
-
-
-	document.addEventListener('change', function (e) {
-		if (!e.target.classList.contains('end-date')) return;
-
-		const row = e.target.closest('.term-row');
-		const index = parseInt(row.dataset.index);
-		const startDate = new Date(row.querySelector('.start-date').value);
-		const endDateInput = e.target;
-
-		if (!endDateInput.value) return;
-
-		const endDate = new Date(endDateInput.value);
-
-		if (endDate < startDate) {
-			Swal.fire({
-				icon: 'info',
-				title: 'Invalid Date',
-				text: 'End date cannot be earlier than the start date.',
-				allowOutsideClick: false
-			});
-
-			endDateInput.value = '';
-			row.querySelector('.term-name').value =
-				isSameDate(startDate, getAcademicDates().start)
-					? 'Full-Term'
-					: 'Full-Term';
-
-			removeNextRows(index);
-			return;
-		}
-
-		const { start: academicStart, end: academicEnd } = getAcademicDates();
-
-		removeNextRows(index);
-
-		if (isSameDate(startDate, academicStart) && isSameDate(endDate, academicEnd)) {
-			row.querySelector('.term-name').value = 'Full-Term';
-			return;
-		}
-
-		if (isSameDate(startDate, academicStart)) {
-			row.querySelector('.term-name').value = `Term-${index}`;
-		} else {
-			row.querySelector('.term-name').value = `Term-${baseTermIndex + index}`;
-		}
-
-		if (index >= maxTerms || endDate >= academicEnd) return;
-
-		createNextRow(index, endDate, academicEnd);
-	});
-
-	const wrapper = document.getElementById('terms-wrapper');
-	function createNextRow(index, endDate, academicEnd) {
-		const nextIndex = index + 1;
-		const nextStart = new Date(endDate);
-		nextStart.setDate(nextStart.getDate() + 1);
-
-		
-		const academicYear = document.getElementById('academic_year').value;
-
-		const row = document.createElement('div');
-		row.className = 'form-row term-row';
-		row.dataset.index = nextIndex;
-
-		row.innerHTML = `
-			<div class="form-group col-md-4">
-				<label>Term Name</label>
-				<input type="text" name="terms[${nextIndex}][term_name]" class="form-control term-name" readonly>
-			</div>
-			<div class="form-group col-md-4">
-				<label>Start Date</label>
-				<input type="date" name="terms[${nextIndex}][start_date]" class="form-control start-date" value="${formatDate(nextStart)}" readonly>
-			</div>
-			<div class="form-group col-md-4">
-				<label>End Date</label>
-				<input type="date" name="terms[${nextIndex}][end_date]" class="form-control end-date" max="${formatDate(academicEnd)}">
-			</div>
-			
-		`;
-		wrapper.appendChild(row);
-		row.querySelector('.term-name').value = `Term-${baseTermIndex + nextIndex}`;
-
-	}
-
-	function removeNextRows(index) {
-		document.querySelectorAll('.term-row').forEach(row => {
-			if (parseInt(row.dataset.index) > index) row.remove();
-		});
 	}
 
 	function formatDate(date) {
 		return date.toISOString().split('T')[0];
 	}
 
-</script>
+	function clearNewTerms() {
+		wrapper.innerHTML = '';
+	}
 
+	function hideExistingTerms(hide) {
+		document.querySelectorAll('.current-year-terms').forEach(el => {
+			el.style.display = hide ? 'none' : 'block';
+		});
+	}
+
+	function createTermRow(index, startDate, editableStart, editableEnd) {
+		const { end } = getAcademicDates();
+		const row = document.createElement('div');
+		row.className = 'form-row term-row';
+		row.dataset.index = index;
+
+		row.innerHTML = `
+			<div class="form-group col-md-4">
+				<label>Term Name</label>
+				<input type="text" class="form-control term-name"
+					name="terms[${index}][term_name]" readonly>
+			</div>
+			<div class="form-group col-md-4">
+				<label>Start Date</label>
+				<input type="date" class="form-control start-date"
+					name="terms[${index}][start_date]"
+					value="${formatDate(startDate)}"
+					${editableStart ? '' : 'readonly'}>
+			</div>
+			<div class="form-group col-md-4">
+				<label>End Date</label>
+				<input type="date" class="form-control end-date"
+					name="terms[${index}][end_date]"
+					max="${formatDate(end)}"
+					${editableEnd ? '' : 'readonly'}>
+			</div>
+		`;
+		wrapper.appendChild(row);
+	}
+
+	function updateTermName(row) {
+		const index = row.dataset.index;
+		const start = new Date(row.querySelector('.start-date').value);
+		const endInput = row.querySelector('.end-date');
+		const nextTermNumber = baseTermIndex + 1;
+		if (!endInput.value) return;
+
+		const end = new Date(endInput.value);
+		const { start: acadStart, end: acadEnd } = getAcademicDates();
+
+		row.querySelector('.term-name').value =
+			start.getTime() === acadStart.getTime() && end.getTime() === acadEnd.getTime()
+				? 'Full-Term'
+				: `Term-${index}`;
+	}
+
+	document.addEventListener('change', function (e) {
+		if (!e.target.classList.contains('existing-end-date')) return;
+
+		const endInput = e.target;
+		const row = endInput.closest('.existing-term-row');
+		const startDate = new Date(row.querySelector('input[type="date"]').value);
+		const endDate = new Date(endInput.value);
+		const { end: academicEnd } = getAcademicDates();
+
+		if (endDate < startDate) {
+			Swal.fire({
+				icon: 'info',
+				title: 'Oops!',
+				text: "Term End date can't be less than start date",
+				allowOutsideClick: false,
+				confirmButtonText: 'OK'
+			});
+			endInput.value = formatDate(startDate);
+			return;
+		}
+
+		if (endDate > academicEnd) {
+			Swal.fire({
+				icon: 'info',
+				title: 'Oops!',
+				text: "Term End date can't be greater than Academic Year end date",
+				allowOutsideClick: false,
+				confirmButtonText: 'OK'
+			});
+			endInput.value = formatDate(academicEnd);
+			return;
+		}
+
+		clearNewTerms();
+
+		if (endDate.getTime() >= academicEnd.getTime()) return;
+
+		const nextStart = new Date(endDate);
+		nextStart.setDate(nextStart.getDate() + 1);
+		createTermRow(1, nextStart, true, true);
+	});
+
+	wrapper.addEventListener('change', function (e) {
+		if (!e.target.classList.contains('end-date')) return;
+
+		const row = e.target.closest('.term-row');
+		const index = parseInt(row.dataset.index);
+		const startDate = new Date(row.querySelector('.start-date').value);
+		const endDate = new Date(e.target.value);
+		const { end: academicEnd } = getAcademicDates();
+
+		if (endDate < startDate) {
+			Swal.fire({
+				icon: 'info',
+				title: 'Oops!',
+				text: "Term End date can't be less than start date",
+				allowOutsideClick: false,
+				confirmButtonText: 'OK'
+			});
+			e.target.value = '';
+			return;
+		}
+
+		if (endDate > academicEnd) {
+			Swal.fire({
+				icon: 'info',
+				title: 'Oops!',
+				text: "Term End date can't be greater than Academic Year end date",
+				allowOutsideClick: false,
+				confirmButtonText: 'OK'
+			});
+			e.target.value = '';
+			return;
+		}
+
+		updateTermName(row);
+
+		document.querySelectorAll('.term-row').forEach(r => {
+			if (parseInt(r.dataset.index) > index) r.remove();
+		});
+
+		if (index >= maxTerms || endDate.getTime() === academicEnd.getTime()) return;
+
+		const nextStart = new Date(endDate);
+		nextStart.setDate(nextStart.getDate() + 1);
+		createTermRow(index + 1, nextStart, false, true);
+	});
+
+	academicYearSelect.addEventListener('change', function () {
+		clearNewTerms();
+
+		if (this.value === "<?php echo e($academicYear); ?>") {
+			hideExistingTerms(false);
+
+			<?php if(count($terms ?? [])): ?>
+			const lastEnd = new Date("<?php echo e(\Carbon\Carbon::parse($terms->last()->term_end_date)->format('Y-m-d')); ?>");
+			const { end } = getAcademicDates();
+
+			if (lastEnd < end) {
+				const nextStart = new Date(lastEnd);
+				nextStart.setDate(nextStart.getDate() + 1);
+				createTermRow(1, nextStart, true, true);
+			}
+			<?php endif; ?>
+		} else {
+			hideExistingTerms(true);
+			const { start } = getAcademicDates();
+			createTermRow(1, start, true, true);
+		}
+	});
+
+	<?php if(count($terms ?? [])): ?>
+		const lastEnd = new Date("<?php echo e(\Carbon\Carbon::parse($terms->last()->term_end_date)->format('Y-m-d')); ?>");
+		const { end } = getAcademicDates();
+
+		if (lastEnd < end) {
+			const nextStart = new Date(lastEnd);
+			nextStart.setDate(nextStart.getDate() + 1);
+			createTermRow(1, nextStart, true, true);
+		}
+	<?php endif; ?>
+	
+</script>
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/school/profile/index.blade.php ENDPATH**/ ?>
