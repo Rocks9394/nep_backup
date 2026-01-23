@@ -176,9 +176,9 @@ class FillDartController extends Controller
 		    default:
 		        break;
 		}
-		
-		session()->forget('term_id');
 
+		// session()->forget('term_id');
+		
 		return view('fill-darts.dashboard', compact('title','SchoolTrainers','SchoolName', 'hasSchools'));
 	}
 

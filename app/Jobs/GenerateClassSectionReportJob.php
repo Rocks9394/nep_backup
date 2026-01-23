@@ -44,14 +44,17 @@ class GenerateClassSectionReportJob implements ShouldQueue
     public function handle() {
 
         $jobs = [];
-        foreach ($this->studentIds as $studentId) {
-            $jobs[] = new \App\Jobs\GenerateStudentReportJob(
-                $this->schoolId,
-                $this->classId,
-                $this->section,
-                (int) $studentId,
-                $this->report_batch,
-            );
+
+        foreach (array_chunk($this->studentIds, 100) as $chunk) {
+            foreach ($chunk as $studentId) {
+                $jobs[] = new GenerateStudentReportJob(
+                    $this->schoolId,
+                    $this->classId,
+                    $this->section,
+                    (int) $studentId,
+                    $this->report_batch
+                );
+            }
         }
 
         $schoolId = $this->schoolId;
@@ -59,10 +62,10 @@ class GenerateClassSectionReportJob implements ShouldQueue
         $section = $this->section;
         $report_batch_id =  $this->report_batch;
 
-        $batch = Bus::batch($jobs)
+        Bus::batch($jobs)
             ->name("generate_report_card")
             ->then(function (Batch $batch) use ($schoolId, $classId, $section, $report_batch_id) {               
-                MergeClassSectionPdfJob::dispatch($schoolId, $classId, $section, $report_batch_id)->onQueue('report_merge');
+                MergeClassSectionPdfJob::dispatch($schoolId, $classId, $section, $report_batch_id)->onQueue('report_generation');
             })
             ->catch(function (Batch $batch, Throwable $e) {
                 Log::error("Batch failed", [
@@ -73,6 +76,6 @@ class GenerateClassSectionReportJob implements ShouldQueue
             ->onQueue('report_generation')
             ->dispatch();
 
-        return response()->json(['batch_id' => $batch->id]);
+        // return response()->json(['batch_id' => $batch->id]);
     }
 }

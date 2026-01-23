@@ -46,4 +46,9 @@ class School extends Model
         return $this->hasOneThrough(User::class,  SchoolReference::class,'school_id','id','id','school_user_id');
     }
 
+    public function getTerms($value='')
+    {
+        return $this->hasMany(TermMaster::class);
+    }
+
 }

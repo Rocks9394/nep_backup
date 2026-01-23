@@ -144,7 +144,7 @@ class AssessorAppController extends Controller
 		
 	
 		return view('assessor.alltests', compact('title', 'juniorData', 'cbseData', 'juniorData1', 'seniorData', 'terms', 'selectedTerm'));
-		
+	
 	}
 	
     public function locomotorSkills($TestcategoryId, $reportId, $SeniorBMI = false) {
@@ -238,8 +238,6 @@ class AssessorAppController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
-			'custom_classes.nomenclature',
-			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -270,9 +268,7 @@ class AssessorAppController extends Controller
 			->groupBy(
 			'custom_classes.id',
 			'custom_classes.class_id',
-			'custom_classes.section',			
-			'custom_classes.nomenclature',
-			'class.name',
+			'custom_classes.section',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -301,8 +297,6 @@ class AssessorAppController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
-			'custom_classes.nomenclature',
-			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 

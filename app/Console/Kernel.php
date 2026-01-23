@@ -24,7 +24,19 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+
+       /* $schedule->call(function () {
+            \Log::info('Scheduler is working');
+        })->everyMinute();*/
+            
         // $schedule->command('inspire')->hourly();
+
+        $schedule->command('reports:cleanup')
+         ->dailyAt('01:00')
+        ->withoutOverlapping(3600) 
+        ->onOneServer()
+        ->runInBackground()
+        ->appendOutputTo(storage_path('logs/scheduler.log'));
     }
 
     /**

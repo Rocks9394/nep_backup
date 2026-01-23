@@ -61,11 +61,15 @@ class ReportController extends Controller {
 
 	public function FitnessReports(Request $request, DataTableListService $dataTable) {
 
+
 		$title  = 'Assessment Report';
 		$userId = Auth::user()->id;
 		$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
-		$school = School::find($schoolId);
+		//$school = School::find($schoolId);
 		
+		$school = School::with('getTerms')->where('id',$schoolId)->first();
+
+		$TermMasterId = $request->input('school-terms');
 
 
 		$studentsQuery = DB::table('schools')
@@ -73,7 +77,6 @@ class ReportController extends Controller {
 		->where('students.status', 'active')
 		->join('students', 'students.school_id', '=' , 'schools.id')
 		->leftJoin('report_requests', 'report_requests.student_id', '=', 'students.id')
-
 		->leftJoin('class', 'students.class_id', '=', 'class.id')
     	->leftJoin('custom_classes', 'students.custom_class_id', '=', 'custom_classes.id')
     	->leftJoin('SeniorTestResultsSummary as senior', function ($join) {
@@ -84,6 +87,7 @@ class ReportController extends Controller {
             $join->on('students.id', '=', 'lower.student_id')
                  ->on('students.school_id', '=', 'lower.school_id');
         })
+
 		->select(
 			'schools.id as schools_id',
 			'schools.school_code as school_code',
@@ -107,9 +111,7 @@ class ReportController extends Controller {
 	                ELSE class.name
 	            END AS display_classname
 	        "),
-
 			'custom_classes.section',
-			
 		);
 	
 	    $statusCase = "
@@ -156,7 +158,13 @@ class ReportController extends Controller {
 		        END
 		END";
 
-	    $studentsQuery->addSelect(DB::raw("$statusCase AS test_status"));
+	    $studentsQuery->addSelect(DB::raw("$statusCase AS test_status"))
+
+	    ->addSelect([
+		    'senior.term_id as term_id',
+		    'lower.term_id as term_id',
+		]);
+
 	    
 		$filters = [
 
@@ -186,9 +194,20 @@ class ReportController extends Controller {
 			    } elseif ($value === 'incomplete') {
 			        $studentsQuery->having('test_status', '=', 'Incomplete');
 			    }
-	        }
+	        },
+
+			'school-terms' => function ($q, $value) {
+	            if (!empty($value)) {
+	                $q->where(function ($sub) use ($value) {
+	                    $sub->where('senior.term_id', $value)
+	                        ->orWhere('lower.term_id', $value);
+	                });
+	            }
+	        },
+
         ];
 
+       
 
         // echo "<pre>"; print_r($studentsQuery->get());exit();
 
@@ -220,6 +239,7 @@ class ReportController extends Controller {
                 $url = route('reports.view.test', $encryptedId);
                 return '<a href="' . $url . '" class="btn-link mr-1" target="_blank">View</a>';
             })
+
             ->addCustomColumn('testStatus', function ($row) {
                 $status = $row->test_status ?? 'Incomplete';
                 if ($status === 'Completed') {
@@ -227,9 +247,20 @@ class ReportController extends Controller {
                 }
                 return '<span class="badge text-light p-2 btn-primary" style="font-size:14px;">Incomplete</span>';
             })
+
+            ->addCustomColumn('downloadReport', function ($row) {
+                $encryptedId = Crypt::encryptString($row->id);
+                $url = route('download.fitness.reports', $encryptedId);
+
+                return '<a type="button" href="' . $url . '" class="btn btn-primary btn-sm text-light w-40"	>
+                <i class="fa-solid fa-download"></i> </a>';
+            })
            
             ->render($request);
 	    }
+
+
+
 
 	    return view('reports.fitnessreports',compact('title'));	
 	}
@@ -286,6 +317,53 @@ class ReportController extends Controller {
 	}
 
 
+	public function downloadFitnessReport($id = null){
+
+		if($id){
+			$studentId = Crypt::decryptString($id);
+		}else{
+			$studentId = Auth::guard('sstudent')->user()->id;
+		}
+        
+        $studentsData = $this->getStudentData($studentId);
+        if (!$studentsData) return null;
+
+        $TermMasterId = $this->getTermId($studentsData->schools_id);
+
+        $dob = \Carbon\Carbon::parse($studentsData->dob);
+        $studentAge = $dob->age;
+        $studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
+        $ageGender = $studentAge . strtolower(substr($studentsData->gender,0,1));
+
+        $reportData = $this->getReportData($studentId);
+        $mappedReport = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
+        $groupedReport = $mappedReport->groupBy('Category');
+        $getBmiBenchmark = $this->getBmiBenchmark($ageGender);
+
+        if (in_array($studentsData->class_id, [4,5,6,7,8,9,10,11,12])) {
+
+            [$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport );
+
+            $pdf = Pdf::loadView('reports.fitness.senior-report', compact(
+                'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
+            ));
+        } else {
+
+            [$orderedReportData, $FmsReportData, $getFitnessBenchmark] = $this->getJuniorReportData( $classId = null,
+                $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId // <-- pass TermMasterId
+            );
+
+            $pdf = Pdf::loadView('reports.fitness.junior-report', compact(
+                'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
+            ));
+        }
+
+		$filename = 'Fitness_Report_Cards-'.date('d-m-Y_H-i-s').'.pdf';
+		return $pdf->download($filename);
+
+    }
+
+
 	/**
 	 * 
 	 * Handling Report Card Generation.
@@ -318,8 +396,6 @@ class ReportController extends Controller {
 			    'status' => 'pending',
 			]);
 
-
-
             foreach ($studentIds as $studentId) {            	
 			    ReportRequest::updateOrCreate(
 			        ['student_id' => $studentId],
@@ -332,11 +408,10 @@ class ReportController extends Controller {
 			    );
 			}			
 
-	
             GenerateSchoolReportsMasterJob::dispatch($schoolId, $studentIds, $report_batch->id)->onQueue('report_generation');
             return response()->json([
                 'status' => 'queued',
-                'message' => 'You will receive a notification with a download link once the report card generated.'
+                'message' => 'Your report card request has been submitted and is being processed. Please return to this page later. Once the report is ready, it will appear under Available Downloads.'
             ]);
 
         } catch (\Throwable $e) {
@@ -350,17 +425,14 @@ class ReportController extends Controller {
 	}
 
 
-
 	public function CheckReportAvailablity() {
 
 		$userId = Auth::id();
         $schoolId = DB::table('school_reference')->where('school_user_id', $userId)->where('status', 1)->value('school_id');
 	    $reports = DB::table('report_batches')
 	    	->where('school_id', $schoolId)
-	    	->select('total_students','completed_students','status','download_path','created_at')
+	    	->select('total_students','completed_students','status','download_path','created_at','expires_at')->orderBy('created_at','desc')
 	    	->get();
-
-	    // echo "<pre>"; print_r($reports);exit();
 
 	    if ($reports->isEmpty()) {
 	        return response()->json([
@@ -369,7 +441,6 @@ class ReportController extends Controller {
 	    }
 
 	    $html = view('reports.modals.available-report-cards', compact('reports'))->render();
-
 	    return response()->json(['html' => $html]);
 	}
 
@@ -408,16 +479,22 @@ class ReportController extends Controller {
             abort(403, 'Unauthorized access to this report');
         }
 
-        $zipPath = $batch->final_zip_path;        
+        if ($batch->expires_at && now()->greaterThan($batch->expires_at)) {
+	        abort(410, 'This report has expired and is no longer available.');
+	    }
 
-        if (! file_exists($zipPath)) {
-            abort(404, 'Report file not found.');
-        }
+        $relativePath = $batch->final_zip_path;
+        $disk = Storage::disk('reports');
 
-        return response()->download($zipPath, basename($zipPath));
+        if (! $relativePath || ! $disk->exists($relativePath)) {
+	        abort(404, 'Report file not found.');
+	    }
+
+        $generatedAt = $batch->generated_at ? \Carbon\Carbon::parse($batch->generated_at) : \Carbon\Carbon::parse($batch->created_at);
+	    $downloadFileName = sprintf('Fitness_Report_Cards_%s.zip', $generatedAt->format('d-m-Y_H-i-s'));
+
+        return $disk->download($relativePath, $downloadFileName);
     }
-
-
 
 
 	/**

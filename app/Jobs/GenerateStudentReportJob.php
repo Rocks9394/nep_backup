@@ -8,12 +8,13 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Traits\ReportHelperTrait;
 
 use App\Jobs\MergeClassSectionPdfJob;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class GenerateStudentReportJob implements ShouldQueue
 {
@@ -28,8 +29,8 @@ class GenerateStudentReportJob implements ShouldQueue
 
     public $report_batch;
 
-    public function __construct(int $schoolId, int $classId, string $sectionId, int $studentId, $report_batch)
-    {
+    public function __construct(int $schoolId, int $classId, string $sectionId, int $studentId, $report_batch) {
+
         $this->schoolId = $schoolId;
         $this->classId = $classId;
         $this->sectionId = $sectionId;
@@ -43,28 +44,44 @@ class GenerateStudentReportJob implements ShouldQueue
         ini_set('memory_limit', '512M');
         set_time_limit(600);
 
-        $tmpDir = storage_path("app/reports/{$this->schoolId}/batch_{$this->report_batch}/class_{$this->classId}/section_{$this->sectionId}");
-        if (!is_dir($tmpDir)) mkdir($tmpDir, 0755, true);
+        $relativePath = "{$this->schoolId}/batch_{$this->report_batch}/class_{$this->classId}/section_{$this->sectionId}";
+        $disk = Storage::disk('reports');
+        if (!$disk->exists($relativePath)) {
+            $disk->makeDirectory($relativePath);
+        }
+        $tmpDir = $disk->path($relativePath);
 
         try {
 
             $pdfFile = $this->generateStudentPdfById($this->studentId, $tmpDir);
+            
+            if (!$pdfFile || !file_exists($pdfFile)) {
+                throw new \Exception("PDF generation failed for student {$this->studentId}");
+            }
 
-             \App\Models\ReportRequest::where('student_id', $this->studentId)
+            \App\Models\ReportRequest::where('student_id', $this->studentId)
             ->update([
                 'status' => 'generated',
-                'file_path' => $pdfFile,
+                'file_path' => $relativePath . '/' . basename($pdfFile),
                 'generated_at' => now(),
             ]);
             
 
         } catch (\Throwable $e) {
+
+            \App\Models\ReportBatch::where('id', $this->report_batch)
+            ->update([
+                'status' => 'failed',
+            ]);
+
+
             Log::error("GenerateStudentReportJob failed", [
                 'student' => $this->studentId,
-                'err' => $e->getMessage()
+                'err' => $e->getMessage(),
+                'batch_id' => $this->report_batch
             ]);
             throw $e;
-        }
+        } 
     }
 
     protected function generateStudentPdfById($studentId, $batchDir){
@@ -93,7 +110,7 @@ class GenerateStudentReportJob implements ShouldQueue
             ));
         } else {
             [$orderedReportData, $FmsReportData, $getFitnessBenchmark] = $this->getJuniorReportData($classId = null,
-                $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId // <-- pass TermMasterId
+                $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId 
             );
             $pdf = Pdf::loadView('reports.fitness.junior-report', compact(
                 'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'

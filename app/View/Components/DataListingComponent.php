@@ -8,7 +8,7 @@ use DB;
 use Session;
 use App\Models\School;
 use App\Models\Sclass;
-
+use Illuminate\Support\Facades\Cache;
 
 class DataListingComponent extends Component
 {
@@ -24,8 +24,12 @@ class DataListingComponent extends Component
     public $enableSkillNameFilter;
     public $enableClassSectionFilter;
     public $enableStatusFilter;
+    public $enableSchoolTermsFilter;
+
     public $classes;
     public $skillIds;
+    public $schoolTerms;
+
     public $statuses;
     public $pageLength;
     public $enableLengthMenu;
@@ -46,11 +50,15 @@ class DataListingComponent extends Component
         $exportButtons = [], 
         $classes = [],
         $skillIds = [],
+        $schoolTerms = [],
+
         $enableClassFilter = false, 
         $enableOnlyClassFilter = false,
         $enableSkillNameFilter = false,
         $enableClassSectionFilter = false, 
         $enableStatusFilter = false,
+        $enableSchoolTermsFilter = null,
+
         $statusModeFlag = 0,
         $enableExportButtons = false,
         $enableLengthMenu = true,
@@ -74,6 +82,9 @@ class DataListingComponent extends Component
         $this->enableOnlyClassFilter = filter_var($enableOnlyClassFilter, FILTER_VALIDATE_BOOLEAN);
         $this->enableSkillNameFilter = filter_var($enableSkillNameFilter, FILTER_VALIDATE_BOOLEAN);
         $this->enableClassSectionFilter = filter_var($enableClassSectionFilter, FILTER_VALIDATE_BOOLEAN);
+
+         $this->enableSchoolTermsFilter = filter_var($enableSchoolTermsFilter, FILTER_VALIDATE_BOOLEAN);
+
         $this->enableExportButtons = filter_var($enableExportButtons, FILTER_VALIDATE_BOOLEAN);
         $this->enableLengthMenu = filter_var($enableLengthMenu, FILTER_VALIDATE_BOOLEAN); 
         $this->pageLength = (int)$pageLength;
@@ -86,7 +97,8 @@ class DataListingComponent extends Component
  
         $this->classes = $this->SchoolClassList();
         $this->skillIds = $this->SkillIds();
-        
+        $this->schoolTerms = $this->getSchoolTerms();
+
         $defaultButtons = $this->enableExportButtons ? [ ['type' => 'excelHtml5', 'text' => 'Excel']] : [];
         $this->exportButtons = array_merge($defaultButtons, $exportButtons ?? []);
 
@@ -185,6 +197,46 @@ class DataListingComponent extends Component
         ];
     }
 
+    protected function getSchoolTerms() {
+
+        $creatorId = Auth::id();
+        if(Auth::user()->role_id == 4){
+            $schoolId = DB::table('school_reference')->where('school_user_id', $creatorId)->where('status', 1)->value('school_id');
+        }else{
+
+            if(Session::get('SelectSchoolId')) {   
+                $schoolId = Session::get('SelectSchoolId');
+                
+            }else {
+                
+                $schoolId = DB::table('school_trainers')
+                ->join('schools','schools.id','=','school_trainers.school_id')
+                ->select('schools.school_name','schools.id','schools.logo')
+                ->where('school_trainers.trainer_id',$creatorId)->where('school_trainers.status', 1)->value('trainer_id');
+            }
+        }
+
+        $cacheKey = "school_terms_{$schoolId}";
+
+        return Cache::remember($cacheKey, now()->addHours(6), function () use ($schoolId) {
+
+            $school = School::find($schoolId);
+            $school_terms = $school->getTerms
+            ->where('is_active', 1)
+            ->map(function ($term) {
+                return [
+                    'term_id'        => $term->id,
+                    'school_id' => $term->school_id,
+                    'term_name' => $term->term_name,
+                ];
+            })->values()->toArray();
+
+            return $school_terms;
+        });
+
+      
+
+    }
 
     public function render() {
 

@@ -230,17 +230,17 @@
 								<div class="form-group col-md-4">
 									<label>Start Date</label>
 									<input type="date" name="academic_year_start" id="academic_year_start" class="form-control"
-										value="{{ $academicStart }}">
+										value="{{ $academicStart }}" readonly>
 								</div>
 
 								<div class="form-group col-md-4">
 									<label>End Date</label>
 									<input type="date" name="academic_year_end" id="academic_year_end" class="form-control"
-										value="{{ $academicEnd }}">
+										value="{{ $academicEnd }}" readonly>
 								</div>
 							</div>
 							@if($currentTerm)
-							<h5 class="mt-4">Term Name</h5>
+							<h5 class="mt-4">Current Term</h5>
 								<div class="form-row">										
 									<div class="form-group col-md-4">
 										<label for="current-term">Term Name</label>

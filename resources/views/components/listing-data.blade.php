@@ -60,6 +60,8 @@ $(function () {
     const enableSkillNameFilter = @json($enableSkillNameFilter ?? false);
     const enableStatusFilter = @json($enableStatusFilter ?? false);
     const enableClassSectionFilter = @json($enableClassSectionFilter ?? false);
+    const enableSchoolTermsFilter = @json($enableSchoolTermsFilter ?? false);
+
     const enableLengthMenu = @json($enableLengthMenu ?? true);
     const pageLength = @json($pageLength ?? 100);
 
@@ -188,6 +190,32 @@ $(function () {
         initComplete: function () {
 
             $('#{{ $id }}_filter input').attr('placeholder', "{{ $searchPlaceholder }}");
+
+            if(enableSchoolTermsFilter){
+
+                const TermList = @json($schoolTerms ?? []);
+
+                console.log('TermList', TermList)
+                const $dropdown = $('<select class="form-select form-select-sm ms-2" id="filter-school-terms" style="font-size: 13px;color: #2c2d78;"></select>');               
+
+                TermList.forEach(option => {
+                    const displayText = option.term_name;
+                    const value = option.term_id;
+                    const isSelected = (selectedClass == option.term_id);
+                    $dropdown.append(new Option(displayText, value, false, isSelected));
+                });
+
+                const $schoolTermFilter = $('<div class="pull-right"></div>').append($dropdown);
+                $schoolTermFilter.appendTo(`${tableId}_wrapper .top`).next('.dt-length').addClass("pull-right");
+
+                if (selectedClass) {
+                    setTimeout(() => {
+                        $dropdown.trigger('change');
+                        // console.log('Triggered filter for pre-selected class:', selectedClass);
+                    }, 100);
+                } 
+
+            }
 
             if (enableClassFilter) {
                 const classList = @json($classes ?? []);

@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class TermMaster extends Model
 {
     use HasFactory;
+
+    public function SchoolTerms(){
+
+        return $this->belongsTo(School::class);
+    }
 }

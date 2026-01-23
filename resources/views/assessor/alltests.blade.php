@@ -103,7 +103,7 @@
                                 @foreach($terms as $term)
                                     <option value="{{ $term->id }}"
                                         {{ $selectedTerm == $term->id ? 'selected' : '' }}>
-                                        {{ $term->term_name }}
+                                        {{ $term->academic_year }}  {{ $term->term_name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -196,10 +196,10 @@
             Swal.fire({
                 icon: 'warning',
                 title: 'Confirmation!',
-                html: `Would you like to proceed with the test for <b>${termText}</b>?`,
+                html: `Would you like to proceed with the test for <strong>${termText}</strog>?`,
                 showCancelButton: true,
                 allowOutsideClick: false,
-                confirmButtonText: 'Yes, proceed it',
+                confirmButtonText: 'Yes, proceed.',
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -208,7 +208,7 @@
 
                     Swal.fire({
                         icon: 'success',
-                        html: `You are going to take test for <b>${termText}</b>?`,
+                        html: `You are going to take test for <strong>${termText}</strong>.`,
                         showConfirmButton: true,
                         allowOutsideClick: false,
                     });

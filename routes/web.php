@@ -267,8 +267,19 @@ Route::get('getactive-test', [App\Http\Controllers\PEActivityController::class, 
  * */
 Route::get('skills-report', [ReportController::class,'index'])->name('skill-report');
 Route::post('generate-reportcards', [ReportController::class, 'queueBulkReportCards'])->name('generate.reportcards');
-Route::get('/fitness-report/available', [ReportController::class, 'CheckReportAvailablity'])->name('fitness.report.available');
+
+/* Download Generated Report Cards */
+
+Route::get('report/download/{batchId}', [ReportController::class, 'requestDownload'])->name('report.download.permanent');
+Route::get('report/download/{batchId}/signed', [ReportController::class, 'downloadSigned'])->name('report.download.signed');
+
+
 Route::get('reports/{id}', [ReportController::class, 'ViewFitnessReport'])->name('reports.view.test');
+Route::get('reports/{id}/download', [ReportController::class, 'downloadFitnessReport'])->name('download.fitness.reports');
+Route::get('/fitness-report/available', [ReportController::class, 'CheckReportAvailablity'])->name('fitness.report.available');
+
+
+
 
 
 /**
@@ -428,6 +439,7 @@ Route::post('view-trainer',[App\Http\Controllers\ViewTrainerController::class, '
 
 Route::get('customlogin', [App\Http\Controllers\Auth\LoginController::class, 'showCustomLoginForm'])->name('customlogin');
 
+// save term in session 
 Route::post('/save-term-session', function (Illuminate\Http\Request $request) {
     session(['term_id' => $request->term_id]);
     return response()->json(['success' => true]);

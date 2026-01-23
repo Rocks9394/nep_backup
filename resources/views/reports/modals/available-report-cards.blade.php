@@ -12,6 +12,7 @@
             <th>Reports Generated</th>
             <th>Current Status</th>
             <th>Action</th>
+            <th>Expires At</th>
         </tr>
     </thead>
     <tbody>
@@ -19,9 +20,9 @@
 
     @foreach($reports as $report)
         <tr>
-            <td>{{ $report->created_at }}</td>
+            <td>{{ \Carbon\Carbon::parse($report->created_at)->format('d-m-Y h:i A') }}</td>
             <td>{{ $report->total_students }}</td>
-            <td>{{ $report->completed_students }}</td>
+            <td>{{ $report->completed_students }} / {{ $report->total_students }}</td>
             <td>
                 @if($report->status === 'completed')
                     <span class="badge bg-success" style="color:#ffffff;">Completed</span>
@@ -45,6 +46,33 @@
                     </button>
                 @endif
             </td>
+
+            <td>
+                @if($report->expires_at)
+                    @php
+                        $expiresAt = \Carbon\Carbon::parse($report->expires_at);
+                    @endphp
+
+                    @if(now()->lessThan($expiresAt))
+                        <span class="text-success">
+                            Available until:
+                            <strong>{{ $expiresAt->format('d M Y') }}</strong>
+                        </span>
+                        <br>
+                        <small class="text-muted">
+                            Expires in {{ now()->diffInDays($expiresAt) }} day(s)
+                        </small>
+                    @else
+                        <span class="text-danger">
+                            Download expired on {{ $expiresAt->format('d M Y') }}
+                        </span>
+                    @endif
+                @else
+                    <span class="text-muted">Not Ready</span>
+                @endif
+            </td>
+
+
         </tr>
     @endforeach
     </tbody>

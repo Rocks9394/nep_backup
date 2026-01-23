@@ -12,6 +12,7 @@ use setasign\Fpdi\Fpdi;
 use App\Notifications\ReportReadyNotification;
 use App\Models\School;
 use ZipArchive;
+use Illuminate\Support\Facades\Storage;
 
 class MergeClassSectionPdfJob implements ShouldQueue
 {
@@ -33,18 +34,41 @@ class MergeClassSectionPdfJob implements ShouldQueue
     }
 
 
-    public function handle() {
+    public function handle()  {
 
-        $path = storage_path("app/reports/{$this->schoolId}/batch_{$this->report_batch_id}/class_{$this->classId}/section_{$this->sectionId}");
-        $output = storage_path("app/reports/{$this->schoolId}/batch_{$this->report_batch_id}/class_{$this->classId}/section_{$this->sectionId}.pdf");
-        
+        $disk = Storage::disk('reports');
+
+        $baseRelativePath = "{$this->schoolId}/batch_{$this->report_batch_id}/class_{$this->classId}/section_{$this->sectionId}";
+        $mergedPdfRelativePath = "{$this->schoolId}/batch_{$this->report_batch_id}/class_{$this->classId}/section_{$this->sectionId}.pdf";
+
+        if (!$disk->exists($baseRelativePath)) {
+            Log::warning('Merge skipped, directory not found', ['path' => $baseRelativePath]);
+            return;
+        }
+
+        // FPDI needs absolute paths
+        $baseAbsolutePath = $disk->path($baseRelativePath);
+        $mergedPdfAbsolutePath = $disk->path($mergedPdfRelativePath);
+
         $pdf = new Fpdi();
 
-        $files = glob("$path/student_*.pdf");
-        sort($files);
+        // Get student PDFs (relative paths)
+        $files = collect($disk->files($baseRelativePath))
+            ->filter(fn ($file) => str_starts_with(basename($file), 'student_'))
+            ->sort()
+            ->values();
 
-        foreach ($files as $file) {
-            $pageCount = $pdf->setSourceFile($file);
+        if ($files->isEmpty()) {
+            Log::warning('No student PDFs found', ['path' => $baseRelativePath]);
+            return;
+        }
+
+        foreach ($files as $relativeFile) {
+
+            $absoluteFile = $disk->path($relativeFile);
+
+            $pageCount = $pdf->setSourceFile($absoluteFile);
+
             for ($page = 1; $page <= $pageCount; $page++) {
                 $tplIdx = $pdf->importPage($page);
                 $pdf->AddPage();
@@ -52,15 +76,21 @@ class MergeClassSectionPdfJob implements ShouldQueue
             }
         }
 
-        $pdf->Output($output, 'F');       
-        foreach ($files as $file) @unlink($file);
-        @rmdir($path);
+        // Save merged PDF
+        $pdf->Output($mergedPdfAbsolutePath, 'F');
 
-        $batch = \App\Models\ReportBatch::where('id', $this->report_batch_id)->latest()->first();
+        // Cleanup student PDFs + directory
+        foreach ($files as $file) {
+            $disk->delete($file);
+        }
 
+        $disk->deleteDirectory($baseRelativePath);
+
+        // Update batch progress
+        $batch = \App\Models\ReportBatch::find($this->report_batch_id);
         if ($batch) {
-            $batch->increment('completed_students', count($files));
-            $this->CheckAndSendNotification($batch);
+            $batch->increment('completed_students', $files->count());
+            $this->checkAndSendNotification($batch);
         }
     }
 
@@ -69,57 +99,66 @@ class MergeClassSectionPdfJob implements ShouldQueue
 
         if ($batch->completed_students >= $batch->total_students) {
             $batch->update(['status' => 'completed']);
-
-            $batchFolder = storage_path("app/reports/{$this->schoolId}/batch_{$this->report_batch_id}");
-            $finalPath = $this->createZipAndDownload($batchFolder);
+            
+            $batchFolderRelative = "{$this->schoolId}/batch_{$this->report_batch_id}";
+            $zipRelativePath = $this->createZipAndDownload($batchFolderRelative);
 
             $downloadUrl = route('report.download.permanent', [
-                'batchId'  => $this->report_batch_id,
+                'batchId' => $this->report_batch_id,
             ]);
 
             $batch->update([
-                'final_zip_path' => $finalPath,
+                'final_zip_path' => $zipRelativePath, 
                 'download_path'  => $downloadUrl,
+                'expires_at' => now()->addDays(7),
             ]);
 
-            $school = \App\Models\School::find($this->schoolId);
 
+          /*  $school = \App\Models\School::find($this->schoolId);
             if ($school && $school->admin) {
                 $school->admin->notify(new ReportReadyNotification($this->schoolId, $this->classId, null, $downloadUrl));
                 // Log::info("Final notification sent", ['school_id' => $this->schoolId]);
-            }
+            }*/
         }
     }
     
 
-    private function createZipAndDownload($batchFolder) {
-      
+
+    private function createZipAndDownload(string $batchFolderRelative) {
+
+        $disk = Storage::disk('reports');
+
         $zipFileName = "Report_{$this->report_batch_id}_{$this->schoolId}_" . now()->format('Ymd_His') . ".zip";
-        $zipFilePath = "{$batchFolder}/{$zipFileName}";
+        $zipRelativePath = "{$batchFolderRelative}/{$zipFileName}";
+        $zipAbsolutePath = $disk->path($zipRelativePath);
+
         $zip = new \ZipArchive();
 
-        if ($zip->open($zipFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
-
-            $files = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($batchFolder, \RecursiveDirectoryIterator::SKIP_DOTS),
-                \RecursiveIteratorIterator::SELF_FIRST
-            );
-
-            foreach ($files as $file) {
-                if ($file->isFile() && pathinfo($file, PATHINFO_EXTENSION) === 'pdf') {
-                    $filePath = $file->getRealPath();
-                    $relativePath = substr($filePath, strlen($batchFolder) + 1);
-                    $zip->addFile($filePath, $relativePath);
-                }
-            }
-
-            $zip->close();
-            $this->deleteAllExceptZip($batchFolder, $zipFileName);
-            return $zipFilePath;
+        if ($zip->open($zipAbsolutePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            return null;
         }
 
-        // Log::error("Failed to create ZIP file", ['path' => $zipFilePath]);
-        return null;
+        foreach ($disk->allFiles($batchFolderRelative) as $file) {
+            if (pathinfo($file, PATHINFO_EXTENSION) === 'pdf') {
+                $zip->addFile(
+                    $disk->path($file),
+                    str_replace($batchFolderRelative . '/', '', $file)
+                );
+            }
+        }
+
+        $zip->close();
+        foreach ($disk->directories($batchFolderRelative) as $dir) {
+            $disk->deleteDirectory($dir);
+        }
+
+        foreach ($disk->files($batchFolderRelative) as $file) {
+            if (!str_ends_with($file, $zipFileName)) {
+                $disk->delete($file);
+            }
+        }
+
+        return $zipRelativePath; 
     }
 
     private function deleteAllExceptZip($directory, $zipFileName) {

@@ -1,6 +1,6 @@
 @extends('layouts.filldart-app') @section('title', $title) @section('content')
 
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 <div class="container">
 	<div class="t-mrg2 mb-5 pb-5">
 
@@ -24,8 +24,13 @@
 		        <ul class="mb-0 mt-1">
 		            <li> Reports can only be generated for students who have <strong>completed all fitness tests</strong>.</li>
 		            <li> If a student’s report is <strong>already requested</strong> or <strong>currently being processed</strong>, the checkbox will be disabled until it’s complete.</li>
-		            <li> Students with <strong>incomplete test data</strong> are not eligible for report generation. Please wait until all tests are completed for that student.</li>
-		            <li>Generated reports are retained for <strong>7 days</strong> only. After 7 days, they will be permanently deleted from the system. Please download and store your reports before they expire.				  
+
+		            <li>
+					  Students with <strong>incomplete test data</strong> will be skipped during bulk report card generation.
+					  Please complete all tests or download the report manually.
+					</li>
+
+ 	            	<li>Generated reports are retained for <strong>7 days</strong> only. After 7 days, they will be permanently deleted from the system. Please download and store your reports before they expire.				  
 					</li>
 		        </ul>
 		    </div>
@@ -36,7 +41,7 @@
 
             <x-data-listing-component
                 id="student-skill-reports-table"
-                :headers="['Class','Section','Roll No.','Student Name', 'Admission No.','Gender','Birth Date','Test Status','Report']"
+                :headers="['Class','Section','Roll No.','Student Name', 'Admission No.','Gender','Birth Date','Test Status','Report','Download']"
                 :columns="[
 			        ['data' => 'display_classname', 'name' => 'display_classname', 'orderable' => true],
 			        ['data' => 'section_id',        'name' => 'section_id',        'orderable' => true],
@@ -46,7 +51,8 @@
 			        ['data' => 'gender',            'name' => 'gender',            'orderable' => true],
 			        ['data' => 'dob',               'name' => 'students.dob',      'orderable' => false],
 			        ['data' => 'testStatus',        'name' => 'test_status',       'orderable' => false],
-			        ['data' => 'viewReport',        'name' => 'id',                'orderable' => false]
+			        ['data' => 'viewReport',        'name' => 'id',                'orderable' => false],
+			        ['data' => 'downloadReport',    'name' => 'id', 			   'orderable' => false]
 			    ]"
 			
                 ajax-url="{{ route('fitness.report.test') }}"
@@ -56,6 +62,7 @@
        			:pageLength="100"                
                 :enable-class-filter="false"
                 :enable-class-section-filter="true"
+                :enable-school-terms-filter="true"
                 {{-- :selectedClass="1" --}}
                 :enable-status-filter="true"
                 searchPlaceholder="Students Name | Admission"

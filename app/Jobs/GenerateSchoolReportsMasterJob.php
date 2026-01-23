@@ -33,9 +33,10 @@ class GenerateSchoolReportsMasterJob implements ShouldQueue
 
 
     public function handle() {
-
         
-        $students = DB::table('students')->where('school_id', $this->schoolId)->where('status', 'active')
+        $students = DB::table('students')
+            ->where('school_id', $this->schoolId)
+            ->where('status', 'active')
             ->select('id', 'class_id', 'section_id')
             ->when(!empty($this->studentIds), fn($q) => $q->whereIn('id', $this->studentIds))
             ->get();
@@ -64,7 +65,8 @@ class GenerateSchoolReportsMasterJob implements ShouldQueue
             }
         }
 
-        \App\Models\ReportBatch::where('id', $this->report_batch)->update([
+        \App\Models\ReportBatch::where('id', $this->report_batch)
+        ->update([
             'total_students' => count($students),
             'status' => 'in_progress',
         ]);
