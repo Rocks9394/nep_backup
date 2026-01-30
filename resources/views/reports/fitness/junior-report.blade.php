@@ -12,52 +12,19 @@
         rel="stylesheet">
     <style>
         *,
-        body {
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: "Roboto Condensed", sans-serif;
-            font-optical-sizing: auto;
-            background-color: #fff;
-        }
-
-        page[size="A4"] {
-            width: 21cm;
-            height: 29.7cm;
-            margin: 0;
-            padding: 0;
-        }
-
-        .act-tbl {
-            width: 100%;
-        }
-
-        .act-tbl td {
-            border-bottom: 1px solid #0A87CD;
-        }
-
-        .page-3 td {
-            margin: 0;
-            padding: 2px 4px;
-            white-space: normal;
-            white-space: normal;
-            /* collapses leading spaces/newlines */
-        }
-
-        .cell {
-            line-height: 12px;
-        }
-
-        .cell tr {
-            border-bottom: 1px solid #e5e5e5;
-        }
+        body { margin: 0; padding: 0; }
+        body { font-family: "Roboto Condensed", sans-serif; font-optical-sizing: auto; background-color: #fff; }
+        page[size="A4"] { width: 21cm; height: 29.7cm; margin: 0; padding: 0; }
+        .act-tbl { width: 100%; }
+        .act-tbl td {  border-bottom: 1px solid #0A87CD; }
+        .page-3 td {margin: 0;  padding: 2px 4px; white-space: normal; white-space: normal;}
+        .cell { line-height: 12px; }
+        .cell tr { border-bottom: 1px solid #e5e5e5;}
     </style>
 </head>
 
 <body>
-    <!-- Cover Page -->
+    <!-- Page 1 : Cover Page -->
     <table cellpadding="0" cellspacing="0"
         style="width: 21cm; border-collapse: collapse; margin-left: auto; margin-right: auto; font-family: Roboto Condensed, sans-serif; font-size: 12px; border: 0px; background-color: #fff;">
         <tr>
@@ -302,18 +269,6 @@
                                                     </table>
                                                 </td>
                                             </tr>
-
-                                            <!-- <tr>
-                                                <td style="height:30px;"></td>
-                                            </tr>
-                                            <tr>
-                                                <td style="text-align:right; padding: 0px 0px 0px 46px; ">
-                                                    <div style="float:right; text-align:center;">
-                                                    <p style="margin-bottom:0px; color:#666; font-size:10px;">powered by</p>
-                                                    <img src="{{ public_path('assets/reports/fitness365-logo-web.png') }}" alt="fitness365 logo" style="height:28px;">
-                                                    </div>
-                                                </td>
-                                            </tr> -->
                                         </table>
                                     </td>
 
@@ -326,10 +281,10 @@
         </tr>
     </table>
 
-
-    <!-- Page 2 -->
-
+    <!-- Page 2 : Fitness Test-->
+    @if(!in_array($studentsData->class_id, [14, 18, 22, 23]))
     <table table border="0" cellpadding="0" cellspacing="0" style="width:100%; page-break-before: always;">
+        <!-- Header section -->
         <tr>
             <td>
                 <!-- Inner page Header Area (Page 2) -->
@@ -374,10 +329,13 @@
                 </table>
             </td>
         </tr>
+        <tr> <td style="height: 8px;"></td> </tr>
+       
         <tr>
             <td>
                 <!-- Inner page Content (Page 2) -->
-                <table border="0" cellpadding="0" cellspacing="0">
+                <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+                    
                     <tr>
                         <td>
                             <table border="0" cellpadding="0" cellspacing="0"
@@ -388,7 +346,7 @@
                                             style="align-items: center; color: #fff; font-size: 18px; font-weight: 600; overflow:hidden; height: 32px;">
                                             <div
                                                 style="float:left; padding: 1px 0px 3px 10px; background: #E60A00; margin-bottom: 0px;">
-                                                Physical Fitness Assessment for Age 5-8 (Class 1-3)</div>
+                                                Physical Fitness Assessment for {{ $studentsData->display_classname }}-{{ $studentsData->section }}</div>
                                             <div style="text-align:right; float:left;"><img
                                                     src="{{ public_path('assets/reports/heading-band-corder.jpg') }}"
                                                     alt="" style="width: 39px; position:relative; top:0px;">
@@ -397,25 +355,22 @@
 
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td style="height: 5px;"></td>
-                                </tr>
+                               
+                                <tr> <td style="height: 5px;"></td> </tr>
 
+                               
                                 @foreach ($orderedReportData as $key => $value)
                                     @php
 
-                                        $displayKey = str_contains($key, 'Body Composition')
+                                        $displayKey = str_contains($key, 'Body Composition') 
                                             ? str_replace('Body Composition (BMI)', 'BMI (Body Mass Index)', $key)
                                             : $key;
                                     @endphp
-                                    <tr>
-                                        <td style="height: 10px;"></td>
-                                    </tr>
+
+                                    <tr> <td style="height: 8px;"></td> </tr>
 
                                     <tr>
-                                        <td
-                                            style="padding: 6px 10px 6px 0px; color:#000; font-size: 16px; font-weight: 600;">
-                                            {{ $displayKey }}</td>
+                                        <td style="padding: 6px 8px 6px 0px; color:#000; font-size: 16px; font-weight: 600;"> {{ $displayKey }}</td>
                                     </tr>
 
                                     @if ($key === 'Body Composition (BMI)')
@@ -427,28 +382,23 @@
                                                         <td style="vertical-align: top;">
                                                             <table border="0" cellpadding="0" cellspacing="0"
                                                                 style="width: 100%;">
-                                                                <tr style="font-size: 13px; line-height: 1.25rem;">
+                                                                <tr style="font-size: 13px; line-height: 0.8rem;">
                                                                     <td
                                                                         style="border-top: 1px solid #0A87CD; border-left: 1px solid #0A87CD; border-right: 1px solid #0A87CD; border-bottom: 0px solid transparent; border-collapse: collapse; padding:5px 15px; vertical-align: middle;">
                                                                         <ul style="margin-left: 15px;">
                                                                             <li>Height recorded in cm and mm</li>
-                                                                            <li>Weight will be recorded in kilogram (kg)
-                                                                                and grams(gms)</li>
+                                                                            <li>Weight will be recorded in kilogram (kg) and grams(gms)</li>
                                                                         </ul>
                                                                     </td>
-                                                                    <td
-                                                                        style="border-top: 1px solid #0A87CD; border-right: 1px solid #0A87CD; border-bottom: 0px solid transparent; border-collapse: collapse; padding:5px 15px; vertical-align: top; padding-bottom:10px;">
+                                                                    <td style="border-top: 1px solid #0A87CD; border-right: 1px solid #0A87CD; border-bottom: 0px solid transparent; border-collapse: collapse; padding:5px 15px; vertical-align: top; padding-bottom:10px;">
                                                                         <table border="0" cellpadding="0"
                                                                             cellspacing="0">
                                                                             <tr>
                                                                                 <td>Body Mass Index =</td>
                                                                                 <td style="padding:0 10px;">
-                                                                                    <p
-                                                                                        style="border-bottom: 1px solid #c5c5c5; padding-bottom: 2px; margin:0;">
+                                                                                    <p style="border-bottom: 1px solid #c5c5c5; padding-bottom: 2px; margin:0;">
                                                                                         Weight (in kg)</p>
-                                                                                    <p
-                                                                                        style="padding-top: 0px; margin:0;">
-                                                                                        Height (in m)2</p>
+                                                                                    <p  style="padding-top: 0px; margin:0;"> Height (in m)2</p>
                                                                                 </td>
                                                                             </tr>
                                                                         </table>
@@ -467,13 +417,13 @@
                                                                                     style="width: 25%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
                                                                                     Date</td>
                                                                                 <td
-                                                                                    style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
+                                                                                    style="width: 20%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
                                                                                     Weight</td>
                                                                                 <td
-                                                                                    style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
+                                                                                    style="width: 20%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
                                                                                     Height</td>
                                                                                 <td
-                                                                                    style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
+                                                                                    style="width: 36%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
                                                                                     BMI</td>
                                                                                 <td
                                                                                     style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">
@@ -482,8 +432,8 @@
 
                                                                             <tr>
                                                                                 <td
-                                                                                    style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center;">
-                                                                                    {{ $value[0]['created_at'] ?? '---' }}
+                                                                                    style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center; width:40%">
+                                                                                    {{ $value[0]['created_at'] ?? '---' }} 
                                                                                 </td>
                                                                                 <td
                                                                                     style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">
@@ -690,8 +640,9 @@
 
                                         </tr>
                                     @endif
-                                @endforeach
 
+                                @endforeach
+                               
                                 <tr>
                                     <td style="height: 15px;"></td>
                                 </tr>
@@ -701,11 +652,10 @@
                                             style="width: 100%; border: 1px solid #0A87CD; font-size: 12px; border-collapse: collapse; color:#000;">
                                             <tr style="background-color: #0A87CD;">
                                                 <td style="padding: 5px 10px; font-weight: bold; color:#fff; font-size: 14px;"
-                                                    colspan="8">Fitness Benchmarks for {{ $age }} years
-                                                    {{ $gender }}</td>
+                                                    colspan="8">Fitness Benchmarks for {{ $age }} years  {{ $gender }}</td>
                                             </tr>
-                                            <tr
-                                                style="font-weight: bold; background-color: #fecd0a; font-size: 12px; color: #000;">
+
+                                            <tr style="font-weight: bold; background-color: #fecd0a; font-size: 12px; color: #000;">
                                                 <td style="padding: 4px;"></td>
                                                 <td style="padding: 4px; border:1px solid #0A87CD;">L1 (Very Low)</td>
                                                 <td style="padding: 4px; border:1px solid #0A87CD;">L2 (Low)</td>
@@ -716,16 +666,16 @@
                                                 <td style="padding: 4px; border:1px solid #0A87CD;">L6 (High)</td>
                                                 <td style="padding: 4px; border:1px solid #0A87CD;">L7 (Excellent)</td>
                                             </tr>
+
                                             <tr style="background-color: #fff6d1; font-weight: 500; color:#333;">
                                                 <td style="padding: 4px; border:1px solid #0A87CD;"></td>
-                                                <td style="padding: 4px; border:1px solid #0A87CD;">
-                                                    < 20 %ile</td>
-                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 20 %ile</td>
-                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 40 %ile</td>
-                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 60 %ile</td>
-                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 70 %ile</td>
-                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 80 %ile</td>
-                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 90 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">&lt; 20 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">&ge; 20 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">&ge; 40 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">&ge; 60 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">&ge; 70 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">&ge; 80 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">&ge; 90 %ile</td>
                                             </tr>
                                             @forelse($getFitnessBenchmark as $key => $skillname)
                                                 <tr>
@@ -807,10 +757,9 @@
                 </table>
             </td>
         </tr>
-        <tr>
-            <td style="height: 8px;"></td>
-        </tr>
+      
         <!-- Inner page Footer Area (Page 2) -->
+        <tr> <td style="height: 25px;"></td></tr>
         <tr>
             <td>
                 <table cellpadding="0" cellspacing="0" style="width:100%;">
@@ -831,10 +780,8 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div
-                                            style="padding: 6px 0; text-align: right; font-weight: 400; font-size: 13px; color:#666;">
-                                            <span style="margin-left: 60px;">Physical Health and Fitness
-                                                Assessment</span></div>
+                                        <div  style="padding: 6px 0; text-align: right; font-weight: 400; font-size: 13px; color:#666;">
+                                            <span style="margin-left: 60px;">Physical Health and Fitness Assessment</span></div>
                                     </td>
                                 </tr>
                                 <tr>
@@ -844,9 +791,7 @@
                         </td>
                         <td style="width: 94px;">
                             <div style="float: right; position: relative; width: 80px;">
-                                <!-- <span style="position: absolute; right: 50%; top:50%; transform: translate(-50%, 0); color: #000; z-index: 5; display: inline-block; padding: 6px 0 0 20px; font-size: 13px; font-weight: 600;">3</span> -->
-                                <img src="{{ public_path('assets/reports/footer-bg2.png') }}" alt=""
-                                    style="width: inherit;">
+                                <img src="{{ public_path('assets/reports/footer-bg2.png') }}" alt="" style="width: inherit;">
                             </div>
                         </td>
                     </tr>
@@ -854,9 +799,15 @@
             </td>
         </tr>
     </table>
-    <!-- Page 3 -->
 
-    <table border="0" cellpadding="0" cellspacing="0" style="page-break-before: always; width: 100%;">
+    @else
+         @include('reports.fitness.primary-report') 
+    @endif
+
+    <!-- Page 3 : FMS Test -->
+    <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; page-break-before: always;">
+
+        <!-- Page 3.A (header section conatinng Logos) -->
         <tr>
             <td>
                 <!-- Inner page Header Area (Page 3) -->
@@ -885,14 +836,10 @@
                                     </td>
                                     <td rowspan="2"
                                         style="position: relative; vertical-align: top; width: auto; text-align: right;">
-                                        <div
-                                            style="position: absolute; top: 30px; right:30px; display: flex; align-items: center; z-index: 1; width: 90px; overflow: hidden;">
-                                            <img src="{{ public_path('assets/reports/seqfast-logo.png') }}"
-                                                alt="" style="width: inherit;">
+                                        <div style="position: absolute; top: 30px; right:30px; display: flex; align-items: center; z-index: 1; width: 90px; overflow: hidden;">
+                                            <img src="{{ public_path('assets/reports/seqfast-logo.png') }}" alt="" style="width: inherit;">
                                         </div>
-                                        <img src="{{ public_path('assets/reports/inner-header-bg.png') }}"
-                                            alt=""
-                                            style="width: 450px; height:auto; position: relative; right:0px; top:0;">
+                                        <img src="{{ public_path('assets/reports/inner-header-bg.png') }}" alt="" style="width: 450px; height:auto; position: relative; right:0px; top:0;">
                                     </td>
                                 </tr>
                             </table>
@@ -901,459 +848,169 @@
                 </table>
             </td>
         </tr>
-        <!-- Inner page Content (Page 3) -->
+
+        <!--Page 3.B Inner page Content-->
         <tr>
             <td>
-                <table border="0" cellpadding="0" cellspacing="0"
-                    style="width: 94%; border: 0; border-collapse: collapse; margin: auto;">
+                <table border="0" cellpadding="0" cellspacing="0" style="width: 94%; border: 0; border-collapse: collapse; margin: auto;">
                     <tr>
                         <td style="border-bottom: 3px solid #E60A00;">
-                            <div
-                                style="align-items: center; color: #fff; font-size: 18px; font-weight: 600; overflow:hidden; height: 32px;">
-                                <div
-                                    style="float:left; padding: 1px 0px 3px 10px; background: #E60A00; margin-bottom: 0px;">
-                                    Developmental Skills for Age 5-8 (Class 1-3)</div>
-                                <div style="text-align:right; float:left;"><img
-                                        src="{{ public_path('assets/reports/heading-band-corder.jpg') }}"
-                                        alt="" style="width: 39px; position:relative; top:0px;"></div>
+                            <div style="align-items: center; color: #fff; font-size: 18px; font-weight: 600; overflow:hidden; height: 32px;">
+                                <div style="float:left; padding: 1px 0px 3px 10px; background: #E60A00; margin-bottom: 0px;">
+                                    Developmental Skills for {{ $studentsData->class }}-{{ $studentsData->section }}</div>
+                                <div style="text-align:right; float:left;"><img src="{{ public_path('assets/reports/heading-band-corder.jpg') }}" alt="" style="width: 39px; position:relative; top:0px;"></div>
                             </div>
-
                         </td>
                     </tr>
+
+
+                    @foreach($FmsReportData  as $key => $reportData)
+                    <tr> <td style="height: 20px;"></td> </tr>                    
                     <tr>
-                        <td style="height: 10px;"></td>
+                        <td style="padding: 1px 10px 3px 10px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;">{{ $key }}</td>
                     </tr>
-                    <tr>
-                        <td
-                            style="padding: 1px 10px 3px 10px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;">
-                            Locomotive Skills</td>
-                    </tr>
+
                     <tr>
                         <td>
-                            <table border="0" cellpadding="0" cellspacing="0"
-                                style="width: 100%; border: 0; border-collapse: collapse;">
+
+                            <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; border: 0; border-collapse: collapse;">
                                 <tr>
                                     <td style="vertical-align: top;">
                                         <table border="0" cellpadding="0" cellspacing="0"
                                             style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
+                                            
                                             <tr style="background-color: #fecd0a;">
-                                                <td style="font-weight: 500; width: 30%; background-color:#fecd0a; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; border: 1px solid orange;"
-                                                    rowspan="2">Skills</td>
+
+                                                <td 
+                                                style="font-weight: 500; width: 27%; background-color:#fecd0a; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; border: 1px solid orange;"
+                                                >Skills</td>
                                                 <td
                                                     style="font-weight: 500; width: 12%; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold; border: 1px solid orange;">
                                                     Current Term</td>
                                                 <td
                                                     style="font-weight: 500; width: 14%; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold; border: 1px solid orange;">
                                                     Previous Term</td>
-                                                <td style="font-weight: 500; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; border: 1px solid orange;"
-                                                    rowspan="2">Recommendation</td>
+                                                <td style="font-weight: 500; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; border: 1px solid orange;">Recommendation</td>
                                             </tr>
+                                           
+                                            @foreach($reportData as $data)
                                             <tr>
-                                                <td
-                                                    style="font-weight: 500; background-color:#ffe167; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; border: 1px solid orange;">
-                                                    Outcome</td>
-                                                <td
-                                                    style="font-weight: 500; background-color: #ffe167; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; border: 1px solid orange;">
-                                                    Outcome</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
-                                                    Running</td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
-                                                    Accomplished</td>
+                                                <td style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
+                                                    {{ $data['Test_Name'] ?? '' }}</td>
+
+                                                @if(!empty($data['count']))
+                                                <td style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
+                                                    <img src="{{ asset('public/assets/imgs/' . $data['count'] . 'smiles.png') }}" style="height: 20px;">                                                               
+                                                </td>
+                                                @else
+                                                <td style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;" data-id="{{$data['count']}}">NA     
+                                                </td>
+                                                @endif                                        
                                                 <td style="padding: 1px 4px 2px 6px; border: 1px solid orange;"></td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
-                                                    Maintain form and endurance through sport-specific sprinting drills.
+                                                <td style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
+                                                    {{ $data['recommendation'] ?? '' }}
                                                 </td>
                                             </tr>
-                                            <tr>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
-                                                    Hopping</td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
-                                                    Developing</td>
-                                                <td style="padding: 1px 4px 2px 6px; border: 1px solid orange;"></td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
-                                                    Hop over lines or cones and play hopscotch to improve balance.</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
-                                                    Skipping</td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
-                                                    Emerging</td>
-                                                <td style="padding: 1px 4px 2px 6px; border: 1px solid orange;"></td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
-                                                    Learn the step-hop pattern slowly with music or rhythm claps.</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
-                                                    Dodging</td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
-                                                    Developing</td>
-                                                <td style="padding: 1px 4px 2px 6px; border: 1px solid orange;"></td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
-                                                    Maintain form and endurance through sport-specific sprinting drills.
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
-                                                    Jumping & Landing</td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
-                                                    Developing</td>
-                                                <td style="padding: 1px 4px 2px 6px; border: 1px solid orange;"></td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
-                                                    Jump over low hurdles or lines and land with bent knees.</td>
-                                            </tr>
-
-                                        </table>
-                                    </td>
-                                </tr>
-
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="height: 10px;"></td>
-                    </tr>
-                    <tr>
-                        <td
-                            style="padding: 1px 10px 3px 10px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;">
-                            Object Control Skills</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table border="0" cellpadding="0" cellspacing="0"
-                                style="width: 100%; border: 0; border-collapse: collapse;">
-                                <tr>
-                                    <td style="vertical-align: top;">
-                                        <table border="1" cellpadding="0" cellspacing="0"
-                                            style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
-                                            <tr style="background-color: #fecd0a;">
-                                                <td style="font-weight: 500; width: 30%; background-color:#fecd0a; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000;"
-                                                    rowspan="2">Skills</td>
-                                                <td
-                                                    style="font-weight: 500; width: 12%; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
-                                                    Current Term</td>
-                                                <td
-                                                    style="font-weight: 500; width: 14%; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
-                                                    Previous Term</td>
-                                                <td style="font-weight: 500; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000;"
-                                                    rowspan="2">Recommendation</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="font-weight: 500; background-color:#ffe167; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center;">
-                                                    Outcome</td>
-                                                <td
-                                                    style="font-weight: 500; background-color: #ffe167; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center;">
-                                                    Outcome</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
-                                                    Catching & Receiving Bounce Ball</td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
-                                                    Acquired</td>
-                                                <td style="padding: 1px 4px 2px 6px; border: 1px solid orange;"></td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
-                                                    Catch balls of different heights and speeds with consistency.</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
-                                                    Catching Small Ball with Two Hands</td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
-                                                    Developing</td>
-                                                <td style="padding: 1px 4px 2px 6px; border: 1px solid orange;"></td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
-                                                    Practice toss and catch with a partner or against a wall.</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
-                                                    Under Arm Throw</td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
-                                                    Accomplished</td>
-                                                <td style="padding: 1px 4px 2px 6px; border: 1px solid orange;"></td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
-                                                    Integrate throws with movement or different weighted objects.</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
-                                                    Over Arm Throw</td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
-                                                    Accomplished</td>
-                                                <td style="padding: 1px 4px 2px 6px; border: 1px solid orange;"></td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
-                                                    Apply overarm throws in sport-like drills such as cricket or
-                                                    baseball.</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
-                                                    Striking Drop & Hit Forward</td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
-                                                    Emerging</td>
-                                                <td style="padding: 1px 4px 2px 6px; border: 1px solid orange;"></td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
-                                                    Drop and tap balloons or soft balls using hand or paddle.</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
-                                                    Dribbling with Hands</td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
-                                                    Developing</td>
-                                                <td style="padding: 1px 4px 2px 6px; border: 1px solid orange;"></td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
-                                                    Dribble in zigzag paths while switching hands.</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
-                                                    Dribbling with Feet</td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
-                                                    Acquired</td>
-                                                <td style="padding: 1px 4px 2px 6px; border: 1px solid orange;"></td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
-                                                    Dribble faster and lower, maintaining control during movement.</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
-                                                    Kicking Stationary Ball</td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
-                                                    Emerging</td>
-                                                <td style="padding: 1px 4px 2px 6px; border: 1px solid orange;"></td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
-                                                    Practice gentle kicks using the inside of the foot.</td>
-                                            </tr>
+                                            @endforeach                                    
                                         </table>
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
-                    <tr>
-                        <td style="height: 10px;"></td>
-                    </tr>
-                    <tr>
-                        <td
-                            style="padding: 2px 10px; font-size: 20px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;">
-                            Body Management Skills</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table border="0" cellpadding="0" cellspacing="0"
-                                style="width: 100%; border: 0; border-collapse: collapse;">
-                                <tr>
-                                    <td style="vertical-align: top;">
-                                        <table border="0" cellpadding="0" cellspacing="0"
-                                            style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
-                                            <tr style="background-color: #fecd0a;">
-                                                <td style="font-weight: 500; width: 30%; background-color:#fecd0a; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000;"
-                                                    rowspan="2">Skills</td>
-                                                <td
-                                                    style="font-weight: 500; width: 12%; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
-                                                    Current Term</td>
-                                                <td
-                                                    style="font-weight: 500; width: 14%; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
-                                                    Previous Term</td>
-                                                <td style="font-weight: 500; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000;"
-                                                    rowspan="2">Recommendation</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="font-weight: 500; background-color:#ffe167; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center;">
-                                                    Outcome</td>
-                                                <td
-                                                    style="font-weight: 500; background-color: #ffe167; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center;">
-                                                    Outcome</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
-                                                    One-Foot Balance</td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
-                                                    Developing</td>
-                                                <td style="padding: 1px 4px 2px 6px; border: 1px solid orange;"></td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
-                                                    Balance on soft surfaces or cushions and try with eyes closed.</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;">
-                                                    Beam Walk</td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
-                                                    Acquired</td>
-                                                <td style="padding: 1px 4px 2px 6px; border: 1px solid orange;"></td>
-                                                <td
-                                                    style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
-                                                    Include turns and steps while maintaining balance.</td>
-                                            </tr>
 
-                                        </table>
-                                    </td>
+                    @endforeach
 
-                                </tr>
-                                <tr>
-                                    <td style="height: 15px;"></td>
-                                </tr>
-
-                            </table>
-                        </td>
-                    </tr>
+                    <tr> <td style="height: 15px;"></td> </tr>
                     <tr>
-                        <td
-                            style="padding: 1px 10px 3px 10px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;">
-                            Developmental Stages for 8 year Boy</td>
+                        <td style="padding: 1px 10px 3px 10px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;">
+                            Developmental Stages for {{ $age }} Years {{ $gender }}</td>
                     </tr>
+
                     <tr>
                         <td style="vertical-align: top;">
-                            <table border="0" cellpadding="0" cellspacing="0"
-                                style="width:100%; border-collapse:collapse; font-size:13px; color:#333;">
-                                <tr>
-                                    <td
-                                        style="border:1px solid #0A87CD; padding:3px 4px; text-align:left; width:110px;">
-                                        <img src="{{ public_path('assets/imgs/1smiles.png') }}" style="height:20px;">
-                                    </td>
-                                    <td
-                                        style="border:1px solid #0A87CD; padding:3px 4px; font-weight:500; color:#000;">
-                                        Emerging
-                                    </td>
-                                    <td style="border:1px solid #0A87CD; padding:3px 4px; text-align:left;">
-                                        Taking first steps with willingness to try and improve!
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="border:1px solid #0A87CD; padding:3px 4px;">
-                                        <img src="{{ public_path('assets/imgs/2smiles.png') }}" style="height:20px;">
-                                    </td>
-                                    <td
-                                        style="border:1px solid #0A87CD; padding:3px 4px; font-weight:500; color:#000;">
-                                        Developing
-                                    </td>
-                                    <td style="border:1px solid #0A87CD; padding:3px 4px;">
-                                        Making great progress with noticeable improvement and effort!
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="border:1px solid #0A87CD; padding:3px 4px;">
-                                        <img src="{{ public_path('assets/imgs/3smiles.png') }}" style="height:20px;">
-                                    </td>
-                                    <td
-                                        style="border:1px solid #0A87CD; padding:3px 4px; font-weight:500; color:#000;">
-                                        Acquired
-                                    </td>
-                                    <td style="border:1px solid #0A87CD; padding:3px 4px;">
-                                        Confidently performing skills with consistency and joy!
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="border:1px solid #0A87CD; padding:3px 4px;">
-                                        <img src="{{ public_path('assets/imgs/4smiles.png') }}" style="height:20px;">
-                                    </td>
-                                    <td
-                                        style="border:1px solid #0A87CD; padding:3px 4px; font-weight:500; color:#000;">
-                                        Accomplished
-                                    </td>
-                                    <td style="border:1px solid #0A87CD; padding:3px 4px;">
-                                        Masterful execution with precision, and adaptability!
-                                    </td>
-                                </tr>
-                            </table>
-
+                           @include('reports.fitness.templates.fms-benchmark')
                         </td>
-
                     </tr>
-                </table>
+
+                    <tr>
+                        <td style="vertical-align:top;">
+                            @switch($studentsData->class_id)
+                                @case(18)
+                                    @include('reports.fitness.templates.posture')
+                                    @break
+                                @case(14)
+                                    @include('reports.fitness.templates.olympics-paralympics') 
+                                    @break
+                                @case(22)
+                                @case(23)
+                                    @include('reports.fitness.templates.daily-routine-table')
+                                    @break
+                            @endswitch                                   
+                        </td>
+                    </tr> 
+                 </table> 
             </td>
         </tr>
-        <!-- Inner page Footer Area (Page 3) -->
+        
+        <!-- Inner page Footer Area (Page 3) --> 
+
+        @if(!in_array($studentsData->class_id, [22, 23]))
         <tr>
             <td>
                 <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
                     <tr>
-                        <td style="height: 50px;"></td>
+                        <td style="height: 30px;"></td>
+                        <td style="height: 30px;"></td>
                     </tr>
                     <tr>
-                        <td style="width:94px;">
-                            <div style="float: left; position: relative; width: 80px;">
-                                <span
-                                    style="position: absolute; left: 50%; top:50%; transform: translate(-50%, 0); color: #fff; z-index: 1; display: inline-block; padding: 6px 0 0 0px; font-size: 13px; font-weight: 600;">2</span>
-                                <img src="{{ public_path('assets/reports/footer-bg.png') }}" alt=""
-                                    style="width: inherit;">
-                            </div>
-                        </td>
                         <td style="text-align: right;">
                             <table cellpadding="0" cellspacing="0" style="border: 0px; width: 100%;">
                                 <tr>
-                                    <td style="height: 44px;"></td>
-                                    <td style="height: 44px;"></td>
+                                    <td style="height: 20px;"></td>
+                                    <td style="height: 20px;"></td>
                                 </tr>
                                 <tr>
-                                    <td style="font-weight: 400; font-size: 13px; color:#666;">
+                                    <td style="text-align:left; padding: 0px 0px 0px 30px;">
+                                        <div style="float:left; text-align:center; position:relative;">
+                                            <p style="color:#666; font-size:10px; position:absolute; top:-17px; width:100%; text-align:center;">powered  by</p>
+                                            <img src="{{ asset('public/assets/reports/fitness365-logo-web.png')}}" alt="fitness365 logo" style="height:28px;">
+                                        </div> 
+                                    </td>
+
+                                    <td style="font-weight: 400; font-size: 13px; color:#666; text-align:right;">
                                         Physical Health and Fitness Assessment
                                     </td>
-                                    <td style="text-align:right; padding: 0px 30px 0px 0px;">
-                                        <div style="float:right; text-align:center; position:relative;">
-                                            <p
-                                                style="color:#666; font-size:10px; position:absolute; top:-17px; width:100%; text-align:center;">
-                                                powered by</p>
-                                            <img src="{{ public_path('assets/reports/fitness365-logo-web.png') }}"
-                                                alt="fitness365 logo" style="height:28px;">
-                                        </div>
-                                    </td>
+                                    
                                 </tr>
 
                             </table>
                         </td>
+
+                        <td style="width:74px;">
+                            <div style="float: right; position: relative; width: 60px;">
+                                <span style="position: absolute; left: 50%; top:50%; transform: translate(-50%, 0); color: #fff; z-index: 1; display: inline-block; padding: 2px 20px 0 0px; font-size: 13px; font-weight: 600;"></span>
+                                <img src="{{ asset('public/assets/reports/footer-bg2.png')}}" alt="" style="width: inherit;">
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td style="height: 15px;"></td>
                     </tr>
                 </table>
             </td>
         </tr>
+        @endif
     </table>
+
     <!-- Page 4 -->
-    <table border="0" cellpadding="0" cellspacing="0" style="page-break-before: always; width: 100%;">
+    <table border="0" cellpadding="0" cellspacing="0" style=" width: 100%;  page-break-before: always;" >
+
         <tr>
             <td>
                 <!-- Inner page Header Area (Page 2) -->
-                <table border="1" cellpadding="0" cellspacing="0"
-                    style="width: 100%; border-collapse: collapse; font-family: Roboto Condensed, sans-serif; font-size: 12px; border:0px solid transparent;">
+                <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border-collapse: collapse; font-family: Roboto Condensed, sans-serif; font-size: 12px; border:0px solid transparent;">
                     <tr>
                         <td style="vertical-align: top; height: 100px;">
                             <table cellpadding="0" cellspacing="0" style="width: 100%; border:0;">
@@ -1393,6 +1050,8 @@
                 </table>
             </td>
         </tr>
+
+
         <!-- Inner page Header Area (Page 4) -->
         <tr>
 
@@ -1404,82 +1063,57 @@
                     <!-- Inner page Content (Page 4) -->
                     <tr>
                         <td>
-                            <table cellpadding="0" cellspacing="0"
-                                style="width: 94%; border: 0; border-collapse: collapse; margin: auto; color: #333; font-size: 12px;">
+                            <table cellpadding="0" cellspacing="0" style="width: 94%; border: 0; border-collapse: collapse; margin: auto; color: #333; font-size: 12px;">
+                                
                                 <tr>
-                                    <td
-                                        style="border: 1px solid #00A923; padding: 5px 10px 8px 10px; background:#F2FFF5;">
-                                        <h3 style="color: #00A923; margin-bottom: 0px; font-size: 18px;">WHO Guidelines
-                                            on Physical Activity and Sedentary Behaviour 2020</h3>
-                                        <h4 style="color: #000; margin-bottom: 3px 10px; font-size: 16px">Age
-                                            Appropriate Fitness Protocols and Guidelines for age 5-18 years</h4>
-                                        <p style="line-height: 14px;">At least an average of 60 minutes per day of
-                                            moderate-to-vigorous intensity physical activity, across the week; most of
-                                            this physical activity should be aerobic.</p>
-                                        <p style="line-height: 14px;">Vigorous-intensity aerobic activities, as well as
-                                            those that strengthen muscle and bone should be incorporated at least 3 days
-                                            a week.</p>
+                                    <td style="border: 1px solid #00A923; padding: 5px 10px 8px 10px; background:#F2FFF5; ">
+                                        <h3 style="color: #00A923; margin-bottom: 6px; font-size: 18px;">WHO Guidelines on Physical Activity and Sedentary Behaviour 2020</h3>
+                                        <h4 style="color: #000; font-size: 16px">Age Appropriate Fitness Protocols and Guidelines for age 3-18</h4>
+                                        <p style="line-height: 1.0rem;">At least an average of 60 minutes per day of moderate-to-vigorous intensity physical activity, across the week; most of this physical activity should be aerobic.</p>
+                                        <p style="line-height: 1.0rem;">Vigorous-intensity aerobic activities, as well as those that strengthen muscle and bone should be incorporated at least 3 days a week.</p>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td style="height: 15px;"></td>
-                                </tr>
+
+                                <tr> <td style="height: 10px;"></td> </tr>
 
                                 <tr>
                                     <td>
-                                        <table cellpadding="0" cellspacing="0"
-                                            style="width: 100%; border: 0; border-collapse: collapse;">
+                                        <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0; border-collapse: collapse;">
+                                            
                                             <tr>
                                                 <td colspan="2">
-                                                    <h3 style="color: #000; font-size: 16px; margin-bottom: 3px 10px;">
-                                                        Recommends the following activities for improving Fundamental
-                                                        Movement Skills for ages 5-8 years (Class 1-3)</h3>
-                                                    <p>The focus is on the development of key Fundamental Movement
-                                                        Skills which are required for life. Fit India recommends the
-                                                        following activities for improvement of fitness for the 5-8 age
-                                                        groups:</p>
+                                                    <h3 style="color: #000; font-size: 16px; margin-bottom: 5px;">The following activities are recommended for improving Fundamental Movement Skills for ages 3-8 years.</h3>
+                                                    <p>The focus is on the development of key Fundamental Movement Skills which are required for life. Fit India recommends the following activities for improvement of fitness for the 3-8 age groups:</p>
                                                 </td>
                                             </tr>
-                                            <tr>
-                                                <td style="height: 6px;"></td>
-                                            </tr>
+
+                                            <tr> <td style="height: 6px;"></td> </tr>
+
                                             <tr>
                                                 <td>
-                                                    <h4 style="color: #000; margin-bottom: 3px 10px; font-size: 14px;">
-                                                        1. Locomotor Skills</h4>
-                                                    <p style="padding-left:14px; padding-right:14px;">Walking, Running,
-                                                        Leaping/Jumping, Hopping/Skipping/Galloping,
-                                                        Sliding/Crawling/Rolling/rotating</p>
+                                                    <h4 style="color: #000; margin-bottom: 5px; font-size: 14px;">1. Locomotor Skills</h4>
+                                                    <p>Walking, Running, Leaping/Jumping, Hopping/Skipping/Galloping, Sliding/Crawling/Rolling/rotating</p>
                                                 </td>
                                                 <td>
-                                                    <h4 style="color: #000; margin-bottom: 3px 10px; font-size: 14px;">
-                                                        2. Manipulative Skills</h4>
-                                                    <p style="padding-left:14px; padding-right:14px;">Throwing,
-                                                        Catching, Bouncing/Dribbling, Trapping, Kicking with Hand/with
-                                                        leg, Volleying, Striking etc.</p>
+                                                    <h4 style="color: #000; margin-bottom: 5px; font-size: 14px;">2. Manipulative Skills</h4>
+                                                    <p>Throwing, Catching, Bouncing/Dribbling, Trapping, Kicking with Hand/with leg, Volleying, Striking etc.</p>
                                                 </td>
 
                                             </tr>
-                                            <tr>
-                                                <td style="height: 10px;"></td>
-                                            </tr>
+
+                                            <tr> <td style="height: 6px;"></td> </tr>
                                             <tr>
                                                 <td colspan="2">
-                                                    <h4 style="color: #000; margin-bottom: 3px 10px; font-size: 14px;">
-                                                        3. Body Management/Non-locomotor Skills</h4>
-                                                    <p style="padding-left:14px; padding-right:14px;">Curling,
-                                                        Stretching, Twisting / Turning / Spinning, Pushing / Pulling,
-                                                        Rocking, Swinging / Pivoting, Balancing / Counter Balancing,
-                                                        Counter-tension etc.</p>
+                                                    <h4 style="color: #000; margin-bottom: 5px; font-size: 14px;">3. Body Management/Non-locomotor Skills</h4>
+                                                    <p>Curling, Stretching, Twisting / Turning / Spinning, Pushing / Pulling, Rocking, Swinging / Pivoting, Balancing / Counter Balancing, Counter-tension etc.</p>
                                                 </td>
                                             </tr>
                                         </table>
                                     </td>
 
                                 </tr>
-                                <tr>
-                                    <td style="height: 10px;"></td>
-                                </tr>
+                                <tr> <td style="height: 8px;"></td>  </tr>
+                                @if(!in_array($studentsData->class_id, [14, 18, 22, 23]))
                                 <tr>
                                     <td>
                                         <table cellpadding="0" cellspacing="0"
@@ -1510,10 +1144,8 @@
                                         </table>
                                     </td>
                                 </tr>
-
-                                <tr>
-                                    <td style="height: 20px;"></td>
-                                </tr>
+                                 @endif
+                                <tr> <td style="height: 10px;"></td>  </tr>
 
                                 <tr>
                                     <td>
@@ -1919,35 +1551,44 @@
         <tr>
             <td style="height: 20px;"></td>
         </tr>
+
         <tr>
             <td>
-                <table border="1" cellpadding="0" cellspacing="0"
-                    style="width: 94%; border: 1px solid #F28F0C; font-size: 14px; border-collapse: collapse; color:#333; margin:auto;">
+                <table border="1" cellpadding="0" cellspacing="0" style="width: 94%; border: 1px solid #F28F0C; font-size: 14px; border-collapse: collapse; color:#333; margin:auto;">
                     <tr>
-                        <td
-                            style="font-weight: 600; padding: 10px 15px; font-size: 14px; color: #000; height:80px; vertical-align:top;">
-                            PE Teacher's Observations and Comments (if any)</td>
-                        <td
-                            style="font-weight: 600; padding: 10px 15px; font-size: 14px; color: #000; text-align:center; height:80px; vertical-align:bottom; border-left:1px solid orange;">
-                            Teacher's Signature</td>
+                        <td style="padding: 10px 15px; font-size: 14px; color: #000; height:80px; vertical-align:top;">
+                            <h4 style="font-weight: 600;">PE Teacher's Observations and Comments (if any)</h4>                                              
+                            <p style="padding-top:5px; font-size:13px;">
+                                <!-- Area for Report Summary -->
+                            </p>                                                
+                        </td>
                     </tr>
+                    
                 </table>
             </td>
         </tr>
+
         <tr>
             <td>
                 <table border="0" cellpadding="0" cellspacing="0"
                     style="width: 100%; font-size: 14px; border-collapse: collapse; color:#000;">
                     <tr>
                         <td style="border: 1px solid transparent; width:50%;">
-                            <div
-                                style="padding: 10px 0px; height: 63px; background-color: #fff; border-right: 3px solid #fff;">
+                            <div style="padding: 10px 0px; height: 63px; background-color: #fff; border-right: 3px solid #fff;">
+                                <div style="margin: 10px 0 0 0; text-align:center;">
+                                    <img src="{{ asset('/public/assets/imgs/rashmi_stamp.jpg')}}" alt="" style="height: 70px;">
+                                </div>
                             </div>
-                            <p style="text-align: center; font-weight: 600;">Parent's Signature</p>
+                             <p style="text-align: center; font-weight: 600;">Issued by</p>
                         </td>
+
                         <td style="border: 1px solid transparent; width:50%;">
-                            <div
-                                style="padding: 10px 0px; height: 63px; background-color: #fff; border-left: 3px solid #fff;">
+                            <div style="padding: 10px 0px; height: 63px; background-color: #fff; border-left: 3px solid #fff;">
+                                @if($studentsData->signature)
+                                    <div style="margin: 10px 0 0 0; text-align:center;">
+                                        <img src="{{ public_path('/assets/uploads/signatures/' . $studentsData->signature) }}" alt="" style="height: 70px;">
+                                    </div>
+                                @endif
                             </div>
                             <p style="text-align: center; font-weight: 600;">Signature of Principal with Stamp</p>
                         </td>
@@ -1955,6 +1596,7 @@
                 </table>
             </td>
         </tr>
+
         <tr>
             <td style="height:14px;"></td>
         </tr>
@@ -1971,7 +1613,9 @@
                 </table>
             </td>
         </tr>
+
     </table>
+    
 
 </body>
 

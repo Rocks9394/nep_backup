@@ -21,7 +21,7 @@
 </head>
 
 <body>
- <!-- Cover Page -->
+  <!-- Page 1 : Cover Page -->
   @php  $GetSchoolLogo = Helper::GetSchoolLogo();  @endphp
     <table cellpadding="0" cellspacing="0" style="width: 21cm; border-collapse: collapse; margin-left: auto; margin-right: auto; font-family: Roboto Condensed, sans-serif; font-size: 12px; border: 0px; background-color: #fff;">
         <tr>
@@ -243,7 +243,7 @@
         </tr>
     </table>
 
-<!-- Page 2 -->
+    <!-- Page 2 : Fitness Test-->
     <table border="0" cellpadding="0" cellspacing="0" style="width:100%; page-break-before: always;">
         <tr>
             <td>
@@ -284,29 +284,26 @@
                     <tr>
                         <td>
                             <table cellpadding="0" cellspacing="0" style="width: 94%; border: 0; border-collapse: collapse; margin: auto;">
+                            
                                 <tr>
                                     <td style="border-bottom: 3px solid #E60A00;">
-                                        <div style="align-items: center; color: #fff; font-size: 18px; font-weight: 600; overflow:hidden; height: 32px;">
-                                            <div style="float:left; padding: 1px 0px 3px 10px; background: #E60A00; margin-bottom: 0px;">Physical Fitness Assessment for {{ $studentsData->class }}-{{ $studentsData->section }}</div>                                            
-                                            <div style="float:left; transform: skew(26deg,0deg); display:inline-block; width: 20px; height: 32px; background: #E60A00; position: relative; right: -10px;"></div>
+                                         <div style="align-items: center; color: #fff; font-size: 18px; font-weight: 600; overflow:hidden; height: 32px;">
+                                            <div style="float:left; padding: 1px 10px 3px 10px; background: #E60A00; margin-bottom: 0px;">Physical Fitness Assessment for {{ $studentsData->class }}-{{ $studentsData->section }}</div>
+
+                                            <div style="float:left; transform: skew(25deg,0deg); display:inline-block; width: 20px; height: 32px; background: #E60A00; position: relative; right: 10px;"></div>
                                         </div>
                                     </td>
-                                </tr>
-                                <tr>
-                                    <td style="height: 10px;"></td>
-                                </tr>
-
+                                </tr>                               
+                                <tr> <td style="height: 8px;"></td> </tr>
                                 @foreach($orderedReportData as $key => $value)
-
+                                <tr> <td style="height: 8px;"></td> </tr>
                                 @php
 
                                     $displayKey = str_contains($key, 'Body Composition')  
                                         ? str_replace('Body Composition (BMI)', 'BMI (Body Mass Index)', $key) 
                                         : $key;
                                 @endphp
-                                <tr>
-                                    <td style="height: 10px;"></td>
-                                </tr>
+                              
                                 
                                 <tr>
                                     <td style="padding: 6px 10px 6px 0px; color:#000; font-size: 16px; font-weight: 600;">{{ $displayKey }}</td>
@@ -345,9 +342,9 @@
                                                                     <tr style="background-color: #fecd0a;">
                                                                         <td style="width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Current Term</td>
                                                                         <td style="width: 25%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
-                                                                        <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Weight</td>
-                                                                        <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Height</td>
-                                                                        <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">BMI</td>
+                                                                        <td style="width: 20%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Weight</td>
+                                                                        <td style="width: 20%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Height</td>
+                                                                        <td style="width: 36%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">BMI</td>
                                                                         <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Level</td>
                                                                     </tr>
 
@@ -400,6 +397,7 @@
 
                                                 </td>
                                             </tr>
+                                            {{--
                                             <tr>
                                                 <td>
                                                     <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border-top: 1px solid transparent; border-left: 1px solid #00A923; border-right: 1px solid #00A923; border-bottom: 1px solid #00A923; font-size: 13px; border-collapse: collapse; color:#333;">
@@ -410,7 +408,7 @@
                                                     </table>
                                                 </td>
                                             </tr>
-
+                                            --}}
                                         </table>
                                     </td>
                                 </tr>
@@ -490,34 +488,33 @@
                 </table>
             </td>
         </tr>
-        <tr>
-            <td style="height: 50px;"></td>
-        </tr>
+
         <!-- Inner page Footer Area (Page 2) -->
-       <tr>
+        <tr> <td style="height: 25px;"></td></tr>
+        <tr> <td style="height: 25px;"></td></tr>
+        <tr> <td style="height: 25px;"></td></tr>
+        <tr>
             <td>
                 <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+                    <tr> <td style="height: 30px;"></td></tr>
                     <tr>
-                        <td style="width:94px;">
-                            <div style="float: left; position: relative; width: 80px;">
-                                <span style="position: absolute; left: 50%; top:50%; transform: translate(-50%, 0); color: #fff; z-index: 1; display: inline-block; padding: 6px 0 0 0px; font-size: 13px; font-weight: 600;">2</span>
-                                <img src="{{ public_path('assets/reports/footer-bg.png')}}" alt="" style="width: inherit;">
+                        <td style="width:74px;">
+                            <div style="float: left; position: relative; width: 60px;">
+                                <span style="position: absolute; left: 50%; top:50%; transform: translate(-50%, 0); color: #fff; z-index: 1; display: inline-block; padding: 2px 0 0 20px; font-size: 13px; font-weight: 600;"></span>
+                                <img src="{{ asset('public/assets/reports/footer-bg.png')}}" alt="" style="width: inherit;">
                             </div>
                         </td>
+
                         <td style="text-align: right;">
-                            <table cellpadding="0" cellspacing="0" style="border: 0px; width: 100%;">
+                            <table cellpadding="0" cellspacing="0" style="border: 0px; width: 100%;">                                
                                 <tr>
-                                    <td style="height: 44px;"></td>
-                                    <td style="height: 44px;"></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: 400; font-size: 13px; color:#666;">
+                                    <td style="font-weight: 400; font-size: 13px; color:#666; text-align:left;">
                                         Physical Health and Fitness Assessment
                                     </td>
                                     <td style="text-align:right; padding: 0px 30px 0px 0px;">
                                         <div style="float:right; text-align:center; position:relative;">
-                                            <p style="color:#666; font-size:10px; position:absolute; top:-17px; width:100%; text-align:center;">powered by</p>
-                                            <img src="{{ public_path('assets/reports/fitness365-logo-web.png')}}" alt="fitness365 logo" style="height:28px;">
+                                            <p style="color:#666; font-size:10px; position:absolute; top:-17px; width:100%; text-align:center;">powered  by</p>
+                                            <img src="{{ asset('public/assets/reports/fitness365-logo-web.png')}}" alt="fitness365 logo" style="height:28px;">
                                         </div> 
                                     </td>
                                 </tr>
@@ -525,13 +522,17 @@
                             </table>
                         </td>
                     </tr>
+                    
                 </table>
             </td>
         </tr>
+
     </table>
 
-<!-- Page 3 -->
-    <table border="0" cellpadding="0" cellspacing="0">
+    <!-- Page 3 : FMS Test -->
+
+
+    <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; ">
         <tr>
             <td>
                 <!-- Inner page Header Area (Page 3) -->
@@ -806,17 +807,17 @@
                                                 <td style="padding: 4px; border:1px solid #0A87CD;">L6 (High)</td>
                                                 <td style="padding: 4px; border:1px solid #0A87CD;">L7 (Excellent)</td>
                                             </tr>
+
                                             <tr style="background-color: #fff6d1; font-weight: 500; color:#333;">
                                                 <td style="padding: 4px; border:1px solid #0A87CD;"></td>
-                                                <td style="padding: 4px; border:1px solid #0A87CD;">
-                                                    < 20 %ile</td>
-                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 20 %ile</td>
-                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 40 %ile</td>
-                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 60 %ile</td>
-                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 70 %ile</td>
-                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 80 %ile</td>
-                                                <td style="padding: 4px; border:1px solid #0A87CD;">≥ 90 %ile</td>
-                                            </tr>                                            
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">&lt; 20 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">&ge; 20 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">&ge; 40 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">&ge; 60 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">&ge; 70 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">&ge; 80 %ile</td>
+                                                <td style="padding: 4px; border:1px solid #0A87CD;">&ge; 90 %ile</td>
+                                            </tr>                                                                                 
                                             @forelse($getFitnessBenchmark as $key => $skillname)
                                             <tr>
                                                 <td style="padding: 2px; font-weight: bold; color: #000; border:1px solid #0A87CD;">
@@ -924,8 +925,9 @@
         </tr>
     </table>
 
+
     <!-- Page 4 -->
-    <table border="0" cellpadding="0" cellspacing="0" style="page-break-before: always;">
+    <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; page-break-before: always;">
         <tr>
             <td>
                 <!-- Inner page Header Area (Page 4) -->
@@ -1048,9 +1050,7 @@
                                             </td>
                                         </tr>
 
-                                        <tr>
-                                            <td style="height: 15px;"></td>
-                                        </tr>
+                                        
 
                                         <tr>
                                             <td>
@@ -1410,11 +1410,16 @@
         </tr>
         <tr>
             <td>
-                <table border="0" cellpadding="0" cellspacing="0" style="width: 94%; border: 1px solid #F28F0C; font-size: 14px; border-collapse: collapse; color:#333; margin:auto;">
+                <table border="1" cellpadding="0" cellspacing="0" style="width: 94%; border: 1px solid #F28F0C; font-size: 14px; border-collapse: collapse; color:#333; margin:auto;">
                     <tr>
-                        <td style="font-weight: 600; padding: 10px 15px; font-size: 14px; color: #000; height:70px; vertical-align:top;">PE Teacher's Observations and Comments (if any)</td>
-                        <td style="font-weight: 600; padding: 10px 15px; font-size: 14px; color: #000; text-align:center; height:70px; vertical-align:bottom; border-left:1px solid orange;">Teacher's Signature</td>
-                    </tr>                      
+                        <td style="padding: 10px 15px; font-size: 14px; color: #000; height:80px; vertical-align:top;">
+                            <h4 style="font-weight: 600;">PE Teacher's Observations and Comments (if any)</h4>                                              
+                            <p style="padding-top:5px; font-size:13px;">
+                                <!-- Area for Report Summary -->
+                            </p>                                                
+                        </td>
+                    </tr>
+                    
                 </table>
             </td>
         </tr>
@@ -1427,7 +1432,13 @@
                                  <p style="text-align: center; font-weight: 600;">Parent's Signature</p>
                         </td>
                         <td style="border: 1px solid transparent; width:50%;">
-                            <div style="padding: 10px 0px; height: 60px; background-color: #fff; border-left: 3px solid #fff;"></div>
+                            <div style="padding: 10px 0px; height: 60px; background-color: #fff; border-left: 3px solid #fff;">
+                                @if($studentsData->signature)
+                                    <div style="margin: 10px 0 0 0; text-align:center;">
+                                        <img src="{{ public_path('/assets/uploads/signatures/' . $studentsData->signature) }}" alt="" style="height: 70px;">
+                                    </div>
+                                @endif
+                            </div>
                                 <p style="text-align: center; font-weight: 600;">Signature of Principal with Stamp</p>
                         </td>
                     </tr>

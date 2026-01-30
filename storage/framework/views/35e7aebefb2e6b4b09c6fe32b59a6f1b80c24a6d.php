@@ -720,7 +720,6 @@ unset($__errorArgs, $__bag); ?>
 		const index = row.dataset.index;
 		const start = new Date(row.querySelector('.start-date').value);
 		const endInput = row.querySelector('.end-date');
-		const nextTermNumber = baseTermIndex + 1;
 		if (!endInput.value) return;
 
 		const end = new Date(endInput.value);

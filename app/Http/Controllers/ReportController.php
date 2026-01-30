@@ -29,10 +29,11 @@ use App\Jobs\GenerateSchoolReportsMasterJob;
 
 use App\Models\ReportBatch;
 use App\Models\ReportRequest;
-
+use App\Models\TermMaster;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Storage;
 
+use Illuminate\Support\Facades\Cache;
 use App\Services\ClassSectionService;
 
 class ReportController extends Controller {
@@ -48,232 +49,130 @@ class ReportController extends Controller {
         $this->lowerClass = [1, 2, 3];
     }
 	
-	private function notEmpty($column) {
-		
-	    return "COALESCE(NULLIF(TRIM(REPLACE(REPLACE(REPLACE($column, '---', ''), '--', ''), 'N/A', '')), ''), '') <> ''";
-	}
-
-
-
 	/**
 	 * Fitness Test Reports Module
 	 * */
 
 	public function FitnessReports(Request $request, DataTableListService $dataTable) {
 
+		$title   = 'Assessment Report';
+	    $userId  = Auth::id();
+	    $schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
 
-		$title  = 'Assessment Report';
-		$userId = Auth::user()->id;
-		$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
-		//$school = School::find($schoolId);
-		
-		$school = School::with('getTerms')->where('id',$schoolId)->first();
-
-		$TermMasterId = $request->input('school-terms');
-
-
-		$studentsQuery = DB::table('schools')
-		->where('students.school_code', $school->school_code)
-		->where('students.status', 'active')
-		->join('students', 'students.school_id', '=' , 'schools.id')
-		->leftJoin('report_requests', 'report_requests.student_id', '=', 'students.id')
-		->leftJoin('class', 'students.class_id', '=', 'class.id')
-    	->leftJoin('custom_classes', 'students.custom_class_id', '=', 'custom_classes.id')
-    	->leftJoin('SeniorTestResultsSummary as senior', function ($join) {
-            $join->on('students.id', '=', 'senior.student_id')
-                 ->on('students.school_id', '=', 'senior.school_id');
-        })
-        ->leftJoin('LowerTestResultsSummary as lower', function ($join) {
-            $join->on('students.id', '=', 'lower.student_id')
-                 ->on('students.school_id', '=', 'lower.school_id');
-        })
-
-		->select(
-			'schools.id as schools_id',
-			'schools.school_code as school_code',
-			'students.id',
-			'students.student_uid as admissionnumber',
-			'students.student_name as student_name',
-			'students.gender',
-			'students.class_id',
-			'students.section_id',
-			'students.custom_class_id',
-			'students.dob',
-			'students.email_id',
-			'students.rollno',
-			'students.status',
-			'report_requests.status as report_status',
-			
-			DB::raw("
-	            CASE 
-	                WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-	                THEN custom_classes.nomenclature
-	                ELSE class.name
-	            END AS display_classname
-	        "),
-			'custom_classes.section',
+	   
+        $cacheKey = "school_current_term_{$schoolId}";
+        $terms = Cache::remember($cacheKey,  60, function () use ($schoolId) {
+		        return TermMaster::where('school_id', $schoolId)
+		            ->where('is_active', 1)
+		            ->get(['id', 'school_id', 'term_name', 'term_start_date', 'term_end_date']);
+		    }
 		);
-	
-	    $statusCase = "
-		CASE 
-		    WHEN students.class_id IN (" . implode(',', $this->higherClasses) . ") THEN 
-		        CASE 
-		            WHEN 
-		                " . $this->notEmpty('senior.sit_and_reach') . " AND
-		                " . $this->notEmpty('senior.run_600m') . " AND
-		                " . $this->notEmpty('senior.pushups') . " AND
-		                " . $this->notEmpty('senior.dash_50m') . " AND
-		                " . $this->notEmpty('senior.curlup') . " AND
-		                " . $this->notEmpty('senior.bmi') . " AND
-		                " . $this->notEmpty('senior.height') . " AND
-		                " . $this->notEmpty('senior.weight') . "
-		            THEN 'Completed'
-		            ELSE 'Incomplete'
-		        END
-		    ELSE 
-		        CASE 
-		            WHEN 
-		                " . $this->notEmpty('lower.running') . " AND
-		                " . $this->notEmpty('lower.hopping') . " AND
-		                " . $this->notEmpty('lower.jumping_landing') . " AND
-		                " . $this->notEmpty('lower.skipping') . " AND
-		                " . $this->notEmpty('lower.dodging') . " AND
-		                " . $this->notEmpty('lower.one_foot_balance') . " AND
-		                " . $this->notEmpty('lower.beam_walk') . " AND
-		                " . $this->notEmpty('lower.catching_receiving_bounce') . " AND
-		                " . $this->notEmpty('lower.catching_small_ball') . " AND
-		                " . $this->notEmpty('lower.under_arm_throw') . " AND
-		                " . $this->notEmpty('lower.over_arm_throw') . " AND
-		                " . $this->notEmpty('lower.striking_drop_hit') . " AND
-		                " . $this->notEmpty('lower.dribbling_hands') . " AND
-		                " . $this->notEmpty('lower.dribbling_feet') . " AND
-		                " . $this->notEmpty('lower.kicking_ball') . " AND
-		                " . $this->notEmpty('lower.flamingo_balance') . " AND
-		                " . $this->notEmpty('lower.plate_tapping') . " AND
-		                " . $this->notEmpty('lower.bmi') . " AND
-		                " . $this->notEmpty('lower.height') . " AND
-		                " . $this->notEmpty('lower.weight') . "
-		            THEN 'Completed'
-		            ELSE 'Incomplete'
-		        END
-		END";
 
-	    $studentsQuery->addSelect(DB::raw("$statusCase AS test_status"))
-
-	    ->addSelect([
-		    'senior.term_id as term_id',
-		    'lower.term_id as term_id',
-		]);
-
+		$current_term_id = collect($terms)
+	    ->first(function ($term) {
+	        return today()->between(
+	            \Carbon\Carbon::parse($term->term_start_date),
+	            \Carbon\Carbon::parse($term->term_end_date)
+	        );
+	    })['id'] ?? null;
 	    
-		$filters = [
 
-			'class' => function ($studentsQuery, $value) {
-                 $studentsQuery->where('students.class_id', $value);
+	    if (!$request->ajax()) {	    	
+	        return view('reports.fitnessreports', compact('title','current_term_id'));
+	    }
+
+	    $term_id = $request->input('school-terms');
+	    if(empty($term_id)){
+	    	$term_id = $current_term_id;
+	    }
+
+	    /* Use DB-View (fitness_report_view) */
+	    $query = DB::table('fitness_report_view')->where('school_id', $schoolId)->where('term_id', $term_id);
+	    $filters = [
+
+			'class' => function ($query, $value) {
+                 $query->where('class_id', $value);
             },
 
-            'section' => function ($studentsQuery, $value) {
-                 $studentsQuery->where('students.section_id', $value);
+            'section' => function ($query, $value) {
+                 $query->where('section_id', $value);
             },
 
-            'class-section' => function ($studentsQuery, $value) {
+            'class-section' => function ($query, $value) {
                 list($class_id, $section_id) = array_pad(explode('-', $value), 2, null);
 
                 if (!empty($class_id)) {
-                    $studentsQuery->where('students.class_id', $class_id);
+                    $query->where('class_id', $class_id);
                 }
 
                 if (!empty($section_id)) {
-                    $studentsQuery->where('students.section_id', $section_id);
+                    $query->where('section_id', $section_id);
                 }
             },
 
-            'status' => function ($studentsQuery, $value) {            	
+            'status' => function ($query, $value) {            	
 	           if ($value === 'complete') {
-			        $studentsQuery->having('test_status', '=', 'Completed');
-			    } elseif ($value === 'incomplete') {
-			        $studentsQuery->having('test_status', '=', 'Incomplete');
+			        $query->having('test_status', '=', 'Completed');
+			    } elseif ($value === 'pending') {
+			        $query->having('test_status', '=', 'Ongoing');
+			    } elseif ($value === 'yet_to_start') {
+			        $query->having('test_status', '=', 'Yet to Start');
 			    }
 	        },
-
-			'school-terms' => function ($q, $value) {
-	            if (!empty($value)) {
-	                $q->where(function ($sub) use ($value) {
-	                    $sub->where('senior.term_id', $value)
-	                        ->orWhere('lower.term_id', $value);
-	                });
-	            }
-	        },
-
         ];
 
-       
 
-        // echo "<pre>"; print_r($studentsQuery->get());exit();
+        return $dataTable->setQuery($query)->setFilters($filters)
+        ->setSearchableColumns(['student_name', 'admission_number'])
+		    ->setSortableColumns([
+		    'display_classname' => 'class_order',
+		    'section_id'        => 'section',
+		    'rollno'            => DB::raw('CAST(rollno AS UNSIGNED)'),
+		])
 
-		if ($request->ajax()) {
+		->setSortableColumns([
+	    	'display_classname' =>'display_classname',
+	        'section_id'        => 'section',
+	        'rollno'            => 'rollno',
+	        'student_name'      => 'student_name',
+	        'admission_number'   => 'admission_number',
+	        'gender'            => 'gender',
+	    ])
 
-		    return $dataTable
-	        ->setQuery($studentsQuery)
-	        ->setFilters($filters)
-	        ->setSearchableColumns(['student_name', 'student_uid'])
+        ->addCustomColumn('testStatus', function ($row) {
+            $color = match ($row->test_status) {
+                'Completed'    => 'bg-success text-light',
+                'Ongoing'      => 'bg-warning text-light',
+                'Yet to Start' => 'bg-secondary text-light',
+                default        => 'bg-secondary text-light',
+            };
 
-	        ->setSortableColumns([
-            	'display_classname' => DB::raw("
-                    CASE 
-                        WHEN custom_classes.nomenclature IS NOT NULL 
-                             AND custom_classes.nomenclature <> '' 
-                        THEN custom_classes.nomenclature
-                        ELSE class.name
-                    END
-                "),
-                'section_id'        => 'custom_classes.section',
-                'rollno'            => DB::raw('CAST(students.rollno AS UNSIGNED)'),
-                'student_name'      => 'students.student_name',
-                'admissionnumber'   => 'students.student_uid',
-                'gender'            => 'students.gender',
-            ])
+            return "<span class='badge {$color} p-2'>{$row->test_status}</span>";
+        })
 
-			->addCustomColumn('viewReport', function ($row) {
-                $encryptedId = Crypt::encryptString($row->id);
-                $url = route('reports.view.test', $encryptedId);
-                return '<a href="' . $url . '" class="btn-link mr-1" target="_blank">View</a>';
-            })
+        ->addCustomColumn('viewReport', function ($row) {
+            $id  = Crypt::encryptString($row->student_id);
+            $url = route('reports.view.test', ['id' => $id, 'term_id' => $row->term_id]);
+            return "<a href='{$url}' target='_blank'>View</a>";
+        })
 
-            ->addCustomColumn('testStatus', function ($row) {
-                $status = $row->test_status ?? 'Incomplete';
-                if ($status === 'Completed') {
-                    return '<span class="badge bg-success text-light p-2" style="font-size:14px;" >Completed</span>';
-                }
-                return '<span class="badge text-light p-2 btn-primary" style="font-size:14px;">Incomplete</span>';
-            })
-
-            ->addCustomColumn('downloadReport', function ($row) {
-                $encryptedId = Crypt::encryptString($row->id);
-                $url = route('download.fitness.reports', $encryptedId);
-
-                return '<a type="button" href="' . $url . '" class="btn btn-primary btn-sm text-light w-40"	>
-                <i class="fa-solid fa-download"></i> </a>';
-            })
-           
-            ->render($request);
-	    }
-
-
-
-
-	    return view('reports.fitnessreports',compact('title'));	
+        ->addCustomColumn('downloadReport', function ($row) {
+            $id  = Crypt::encryptString($row->student_id);
+            $url = route('download.fitness.reports', ['id' => $id, 'term_id' => $row->term_id]);
+            return "<a href='{$url}' class='btn btn-sm btn-primary'>  <i class='fa-solid fa-download'></i> </a>";
+        })
+        ->render($request);
 	}
 
 
 	/**
 	 * View Individual Reports
 	 * */
-    public function ViewFitnessReport($id)	 {
+    public function ViewFitnessReport($id, $term_id) {
 
  	    $studentId = Crypt::decryptString($id);
 	    $studentsData = $this->getStudentData($studentId);
-	    $TermMasterId = $this->getTermId($studentsData->schools_id);
+	    $TermMasterId = $term_id;  //$this->getTermId($studentsData->schools_id);
 
 	    $dob          = Carbon::parse($studentsData->dob);
 	    $studentAge   = $dob->age;
@@ -289,10 +188,11 @@ class ReportController extends Controller {
 	    if (in_array($studentsData->class_id, $this->higherClasses)) {
 
 			[$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport);
-	       
-/*	        return view('assessor.reports.senior-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
-	        ));
-*/
+				       
+			/*
+			return view('assessor.reports.senior-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
+				        ));
+			*/
 
 	        $pdf = PDF::loadView('reports.fitness.senior-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
 	        ));
@@ -303,10 +203,13 @@ class ReportController extends Controller {
 	    } else {
 
 	    	[$orderedReportData, $FmsReportData, $getFitnessBenchmark] =
-            $this->getJuniorReportData($classId = null,  $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId);
-	        
-/* return view('assessor.reports.junior-report', compact('studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'));
-*/
+            $this->getJuniorReportData($studentsData->class_id, $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId);
+
+
+        
+				        
+			/* return view('assessor.reports.junior-report', compact('studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'));
+			*/
 	        $pdf = Pdf::loadView('reports.fitness.junior-report', compact(
                 'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
             ));
@@ -317,7 +220,7 @@ class ReportController extends Controller {
 	}
 
 
-	public function downloadFitnessReport($id = null){
+	public function downloadFitnessReport($id = null, $term_id = null){
 
 		if($id){
 			$studentId = Crypt::decryptString($id);
@@ -328,7 +231,7 @@ class ReportController extends Controller {
         $studentsData = $this->getStudentData($studentId);
         if (!$studentsData) return null;
 
-        $TermMasterId = $this->getTermId($studentsData->schools_id);
+        $TermMasterId = $term_id; //$this->getTermId($studentsData->schools_id);
 
         $dob = \Carbon\Carbon::parse($studentsData->dob);
         $studentAge = $dob->age;
@@ -349,7 +252,7 @@ class ReportController extends Controller {
             ));
         } else {
 
-            [$orderedReportData, $FmsReportData, $getFitnessBenchmark] = $this->getJuniorReportData( $classId = null,
+            [$orderedReportData, $FmsReportData, $getFitnessBenchmark] = $this->getJuniorReportData( $studentsData->class_id,
                 $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId // <-- pass TermMasterId
             );
 

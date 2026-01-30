@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Models\Usermeta;
 use App\Models\Region;
 use App\Models\SchoolTrainer;
+use Illuminate\Support\Facades\Hash;
 use Artisan;
 use DataTables;
 use Carbon\Carbon;
@@ -843,11 +844,14 @@ class ViewTrainerController extends Controller
 			]);
 
 			list($stateId, $stateName) = explode('|', $request->state);
+			$dob = $request->post('dob');
+        	$password = str_replace('-', '', $dob);
 		
 			$users         = User::find($id);
 			$users->name   = $request->name;
 			$users->phone  = $request->phone;
 			$users->email  = $request->email;
+			$users->password  = Hash::make($password);
 			$users->gender = $request->gender;
 			$users->save();
 			

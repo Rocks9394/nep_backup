@@ -193,7 +193,8 @@ class DataListingComponent extends Component
         return [
             ['value' => 'all', 'label' => 'All'],
             ['value' => 'complete', 'label' => 'Complete'],
-            ['value' => 'incomplete', 'label' => 'Incomplete'],
+            ['value' => 'pending', 'label' => 'Ongoing'],
+            ['value' => 'yet_to_start', 'label' => 'Yet To Start'],
         ];
     }
 
@@ -217,25 +218,18 @@ class DataListingComponent extends Component
         }
 
         $cacheKey = "school_terms_{$schoolId}";
-
         return Cache::remember($cacheKey, now()->addHours(6), function () use ($schoolId) {
-
-            $school = School::find($schoolId);
-            $school_terms = $school->getTerms
+            return School::find($schoolId)
+            ->getTerms()      
             ->where('is_active', 1)
-            ->map(function ($term) {
-                return [
-                    'term_id'        => $term->id,
-                    'school_id' => $term->school_id,
-                    'term_name' => $term->term_name,
-                ];
-            })->values()->toArray();
-
-            return $school_terms;
+            ->get()         
+            ->map(fn ($term) => [
+                'term_id'   => $term->id,
+                'school_id' => $term->school_id,
+                'term_name' => $term->term_name,
+            ])
+            ->values()->toArray();
         });
-
-      
-
     }
 
     public function render() {

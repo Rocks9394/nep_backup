@@ -712,7 +712,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
     }
 
 
-	// 23-09 school profile update function 
+// 23-Jan-2026 school profile update function 
 
 	public function viewProfile(){
 
@@ -781,7 +781,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
     }
 
 
-    /* updated code */
+    /* 23-Jan-2026 updated code */
     public function updateProfile(Request $request, $id) {
 		
 		$request->validate([
@@ -815,6 +815,14 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			'school_logo.max' => 'School logo size must be less than 1MB'
 		]);
 		
+
+		if (isset($request->state) && !empty($request->state)) {
+			list($stateId, $stateName) = explode('|', $request->state);
+		} else {
+			$stateId = $stateName = null;
+		}
+
+		$districts = DB::table('districts')->where('id', $request->district)->value('name');
 	
 		$academicYear = $request->input('academic_year');
 		$termsInput   = $request->input('terms', []);
@@ -862,8 +870,8 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
             'address'         => $request->school_address,
 
             'region'          => $request->region,
-            'state'           => $request->state,
-            'district'        => $request->district,
+            'state'           => $stateName,
+            'district'        => $districts,
             'city'            => $request->city,
 
             'school_principal'=> $request->principalName,

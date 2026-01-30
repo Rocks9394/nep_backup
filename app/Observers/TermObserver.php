@@ -16,6 +16,8 @@ class TermObserver
     public function created(TermMaster $termMaster)
     {
         Cache::forget("school_terms_{$termMaster->school_id}");
+        Cache::forget("school_current_term_{$termMaster->school_id}");
+
     }
 
     /**
@@ -27,6 +29,7 @@ class TermObserver
     public function updated(TermMaster $termMaster)
     {
         Cache::forget("school_terms_{$termMaster->school_id}");
+        Cache::forget("school_current_term_{$termMaster->school_id}");
     }
 
     /**
@@ -38,6 +41,7 @@ class TermObserver
     public function deleted(TermMaster $termMaster)
     {
         Cache::forget("school_terms_{$termMaster->school_id}");
+        Cache::forget("school_current_term_{$termMaster->school_id}");
     }
 
     /**

@@ -274,8 +274,8 @@ Route::get('report/download/{batchId}', [ReportController::class, 'requestDownlo
 Route::get('report/download/{batchId}/signed', [ReportController::class, 'downloadSigned'])->name('report.download.signed');
 
 
-Route::get('reports/{id}', [ReportController::class, 'ViewFitnessReport'])->name('reports.view.test');
-Route::get('reports/{id}/download', [ReportController::class, 'downloadFitnessReport'])->name('download.fitness.reports');
+Route::get('reports/{id}/{term_id}', [ReportController::class, 'ViewFitnessReport'])->name('reports.view.test');
+Route::get('reports/{id}/{term_id}/download', [ReportController::class, 'downloadFitnessReport'])->name('download.fitness.reports');
 Route::get('/fitness-report/available', [ReportController::class, 'CheckReportAvailablity'])->name('fitness.report.available');
 
 
@@ -421,6 +421,17 @@ Route::prefix('school')->group(function(){
 	// login as student routes 
 	Route::post('login-as-student', [SchoolRecordController::class, 'loginAsStudent'])->name('school.loginAsStudent');
     Route::post('leave-student', [SchoolRecordController::class, 'leaveStudent'])->name('school.leaveStudent');
+
+	
+	// for uploading test score via excel 
+
+	Route::get('/upload-test-data', [AssessorAppController::class, 'uploadTestData'])->name('upload.test.data');
+	Route::get('/sample-score', [AssessorAppController::class, 'testScoreSample'])->name('test.sample');
+	Route::post('/test-templete', [AssessorAppController::class, 'downloadTestTemplete'])->name('test.templete');
+	Route::post('/import-test-data', [AssessorAppController::class, 'importTestData'])->name('import.test.data');
+
+	Route::get('download-test-file/{logId}', [AssessorAppController::class, 'downloadTestUploadedFile'])->name('download.testuploadedfile');
+	Route::get('uploaded-error-file/{logId}', [AssessorAppController::class, 'downloadTestErrorFile'])->name('download.testerrorfile');
 
 	
 });

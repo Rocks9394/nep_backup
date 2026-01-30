@@ -103,7 +103,7 @@
                                 @foreach($terms as $term)
                                     <option value="{{ $term->id }}"
                                         {{ $selectedTerm == $term->id ? 'selected' : '' }}>
-                                        {{ $term->academic_year }}  {{ $term->term_name }}
+                                        {{ $term->academic_year }} | {{ $term->term_name }}
                                     </option>
                                 @endforeach
                             </select>

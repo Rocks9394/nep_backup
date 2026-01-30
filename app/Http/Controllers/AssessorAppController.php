@@ -20,6 +20,16 @@ use Session;
 use PDF;
 use Dompdf\Dompdf;
 use App\Models\TermMaster;
+use App\Services\DataTableListService;
+use App\Exports\TestScoreTemplete;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ExportTestImproperData;
+use App\Rules\ExcelTestHeaderValidation;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use App\Imports\ImportFMSTestData;
+use App\Imports\ImportFitnessTestData;
+use App\Models\TestImportLog;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Sstudent;
 use App\Models\SkillReportSkillTypeTermTypeMapping;
 use App\Models\SeniorTestResult;
@@ -42,7 +52,7 @@ class AssessorAppController extends Controller
 	        }
 
 	        return $next($request);
-	    })->except(['TestStatusHigherClass','TestStatusLowerClass','ViewFitnessReport']);
+	    })->except(['TestStatusHigherClass','TestStatusLowerClass','ViewFitnessReport','uploadTestData','testScoreSample','downloadTestTemplete','importTestData','downloadTestUploadedFile','downloadTestErrorFile']);
 	}
 	
 	public function index(Request $request)
@@ -144,7 +154,7 @@ class AssessorAppController extends Controller
 		
 	
 		return view('assessor.alltests', compact('title', 'juniorData', 'cbseData', 'juniorData1', 'seniorData', 'terms', 'selectedTerm'));
-
+	
 	}
 	
     public function locomotorSkills($TestcategoryId, $reportId, $SeniorBMI = false) {
@@ -238,8 +248,6 @@ class AssessorAppController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
-			'custom_classes.nomenclature',
-			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -270,9 +278,7 @@ class AssessorAppController extends Controller
 			->groupBy(
 			'custom_classes.id',
 			'custom_classes.class_id',
-			'custom_classes.section',			
-			'custom_classes.nomenclature',
-			'class.name',
+			'custom_classes.section',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -301,8 +307,6 @@ class AssessorAppController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
-			'custom_classes.nomenclature',
-			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -449,6 +453,7 @@ class AssessorAppController extends Controller
 		}
 	
 	}
+	
 
    
     function SubmitFMSType(Request $request) {
@@ -2231,11 +2236,553 @@ class AssessorAppController extends Controller
 	    return "Junior + Senior sync completed successfully. {$count} summary records updated.";
 	}
 
+	
+	public function uploadTestData(Request $request, DataTableListService $dataTable){
+
+		$title = "Upload Test Data";
+		$userId = Auth::id();
+		
+		$SchoolId = Session::get('SelectSchoolId') ?? DB::table('school_reference')
+		->where('school_user_id',$userId)
+		->where('status', 1)
+		->value('school_id');
+
+		$skillIds = DB::table('skill_reports')->get();
+
+		$junior = [10, 11, 12, 2, 6, 3];
+		$senior = [8, 9, 5, 4, 15, 3];
+
+		$juniorData = DB::table('TestCategoryMaster')
+			->join('TestTypeMaster', 'TestTypeMaster.TestCategoryID', '=', 'TestCategoryMaster.TestCategoryID')
+			->join('skill_reports', 'skill_reports.TestTypeMasterID', '=', 'TestTypeMaster.TestTypeID')
+			->whereIn('TestTypeMaster.TestsApplicable', [1,2])
+			->whereIn('TestCategoryMaster.TestCategoryID', $junior)
+			->select([
+				'TestCategoryMaster.TestCategoryID',
+				'TestCategoryMaster.TestCategoryName',
+				'TestCategoryMaster.TestCategoryImage',
+				'TestTypeMaster.TestTypeID',
+				'TestTypeMaster.TestTypeName',
+				'skill_reports.id as SkillReportID',
+				'skill_reports.skill_name',
+				'skill_reports.TestTypeMasterID'
+			]);
+
+		$seniorData = DB::table('TestCategoryMaster')
+			->join('TestTypeMaster', 'TestTypeMaster.TestCategoryID', '=', 'TestCategoryMaster.TestCategoryID')
+			->join('skill_reports', 'skill_reports.TestTypeMasterID', '=', 'TestTypeMaster.TestTypeID')
+			->where('TestTypeMaster.TestsApplicable', 2)
+			->whereIn('TestCategoryMaster.TestCategoryID', $senior)
+			->select([
+				'TestCategoryMaster.TestCategoryID',
+				'TestCategoryMaster.TestCategoryName',
+				'TestCategoryMaster.TestCategoryImage',
+				'TestTypeMaster.TestTypeID',
+				'TestTypeMaster.TestTypeName',
+				'skill_reports.id as SkillReportID',
+				'skill_reports.skill_name',
+				'skill_reports.TestTypeMasterID'
+			]);
+			
+		
+		$dataQuery = $juniorData->union($seniorData);
+		$orderCategories = array_merge($junior, $senior);
+
+		$combinedDataQuery = DB::query()
+			->fromSub($dataQuery, 'combined')
+			->orderByRaw('FIELD(TestCategoryID, ' . implode(',', $orderCategories) . ')')->orderBy('SkillReportID');
+
+		$filters = [
+			'skills' => function ($combinedDataQuery, $value) {
+				$combinedDataQuery->where('SkillReportID', $value);
+			},
+		];
 
 
+		$juniorClasses = [1,2,3];
+		$seniorclasses = [4,5,6,7,8,9,10,11,12];
 
+		if ($request->ajax()) {
+			return $dataTable
+				->setQuery($combinedDataQuery)
+				->setFilters($filters)
+				->setSearchableColumns(['skill_name'])
+				->setSortableColumns(['skill_name' => 'skill_name'])
+				->enableDefaultOrdering (false)
+				->addCustomColumn('downloadTemplate', function ($row) {
+					$id = $row->SkillReportID;
+					return '<a type="button" href="javascript:void(0);" class="btn btn-primary btn-sm text-light w-40 download-template" 
+								data-id="' . $id . '">
+								<i class="fa-solid fa-download"></i> Template</a>';
+				})
+				->addCustomColumn('downloadSample', function ($row) {
+					$id = $row->SkillReportID;
+					return '<a type="button" href="javascript:void(0);" class="btn btn-success btn-sm text-light w-40 download-sample" 
+								data-id="' . $id . '">
+								<i class="fa-solid fa-download"></i> Sample</a>';
+				})
+				->addCustomColumn('classType', function ($row) use ($junior, $senior, $juniorClasses, $seniorclasses) {
 
+					
+					if ($row->TestCategoryID == 3) {
 
+						$allClasses = array_merge($juniorClasses, $seniorclasses);
+						$badges = '';
+						foreach ($allClasses as $class) {
+							$badges .= '<span class="badge p-2 m-1"
+								style="border: 1px solid #6c757d; font-size: 13px; font-weight: 500;"> Class-'
+								. $class .
+							'</span>';
+						}
+						return $badges;
+					}
+
+					if (in_array($row->TestCategoryID, $junior)) {
+						$classIds = DB::table('class_fitness_tests')
+							->join('class', 'class.id', '=', 'class_fitness_tests.class_id')
+							->where('class_fitness_tests.skill_id', $row->SkillReportID)
+							->pluck('class.name')
+							->unique()
+							->sort()
+							->values()
+							->toArray();
+
+						if (empty($classIds)) {
+							return '';
+						}
+
+						$badges = '';
+						foreach ($classIds as $class) {
+							$badges .= '<span class="badge p-2 m-1"
+								style="border: 1px solid #6c757d; font-size: 13px; font-weight: 500;">' . $class .'</span>';
+						}
+
+						return $badges;
+					}
+					if (in_array($row->TestCategoryID, $senior)) {
+						$badges = '';
+						foreach ($seniorclasses as $class) {
+							$badges .= '<span class="badge p-2 m-1"
+								style="border: 1px solid #6c757d; font-size: 13px; font-weight: 500;"> Class-'
+								. $class .
+							'</span>';
+						}
+						return $badges;
+					}
+
+					return '';
+				})
+
+			->render($request);
+		}
+
+		$logs = TestImportLog::with('user')
+        ->where('user_id', Auth::id())->where('is_active', 'active')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+		return view('assessor.upload-test-data', compact('title', 'skillIds', 'SchoolId', 'logs'));
+	}
+
+	public function testScoreSample(Request $request) {
+		$skillId = $request->skillId;
+        $fileName = 'Test_Sample_' . $skillId . '.xlsx';
+		$filePath = public_path('downloads/SampleTemplates/' . $fileName);
+
+		if (!file_exists($filePath)) {
+			return response()->json([
+				'message' => 'Sample file not found for this skill.'
+			], 404);
+		}
+
+		$headers = [
+			'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+		];
+
+		return response()->download($filePath, $fileName, $headers);
+    }
+
+	private function getClassesBySkill(int $skillId): array{
+		
+        if ($skillId >= 1 && $skillId <= 17) {
+			return DB::table('class_fitness_tests')
+			->where('skill_id', $skillId)
+			->pluck('class_id')
+			->unique()
+			->values()
+			->toArray();
+        }
+
+        if ($skillId === 18) {
+            return range(1, 12);
+        }
+
+        return range(4, 12);
+    }
+
+	public function downloadTestTemplete(Request $request){
+		
+        try {
+            set_time_limit(0);
+            ini_set('memory_limit', '1024M');
+
+            $skillIds = $request->input('skillIds', []);
+            $schoolId = $request->schoolId;
+            $status   = $request->status;
+
+            if (empty($skillIds)) {
+                return response()->json(['error' => 'No skills selected'], 400);
+            }
+
+            $schoolCode = DB::table('schools')
+                ->where('id', $schoolId)
+                ->value('school_code');
+
+            if (!$schoolCode) {
+                return response()->json(['error' => 'Invalid school'], 404);
+            }
+
+            $timestamp = date('d_Hi');
+
+            $skills = DB::table('skill_reports')
+                ->whereIn('id', $skillIds)
+                ->pluck('skill_name', 'id');
+
+            if (count($skillIds) === 1) {
+
+                $skillId  = $skillIds[0];
+                $classIds = $this->getClassesBySkill($skillId);
+
+                $studentIds = DB::table('students')
+                    ->where('school_code', $schoolCode)
+                    ->whereIn('class_id', $classIds)
+                    ->where('status', 'active')
+                    ->pluck('id')
+                    ->toArray();
+
+                $skillName = $skills[$skillId] ?? 'Unknown Skill';
+                $skillName = str_replace('600 meter run/walk', '600 meter run', $skillName);
+
+                $export = new TestScoreTemplete(
+                    $studentIds,
+                    $skillName,
+                    $skillId,
+                    $schoolId,
+                    $status
+                );
+
+                $fileName = "{$schoolCode}_{$skillName}_{$timestamp}_test_score.xlsx";
+
+                return Excel::download($export, $fileName);
+            }
+
+            $zipFileName = "skill_templates_{$timestamp}.zip";
+            $zipPath = storage_path("app/{$zipFileName}");
+
+            $zip = new ZipArchive();
+            $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+            $studentCache = [];
+            $tempFiles = [];
+
+            foreach ($skillIds as $skillId) {
+
+                $classIds = $this->getClassesBySkill($skillId);
+                $classKey = implode('-', $classIds);
+
+                if (!isset($studentCache[$classKey])) {
+                    $studentCache[$classKey] = DB::table('students')
+                        ->where('school_code', $schoolCode)
+                        ->whereIn('class_id', $classIds)
+                        ->where('status', 'active')
+                        ->pluck('id')
+                        ->toArray();
+                }
+
+                $studentIds = $studentCache[$classKey];
+
+                $skillName = $skills[$skillId] ?? 'Unknown Skill';
+                $skillName = str_replace('600 meter run/walk', '600 meter run', $skillName);
+
+                $export = new TestScoreTemplete(
+                    $studentIds,
+                    $skillName,
+                    $skillId,
+                    $schoolId,
+                    $status
+                );
+
+                $tempFileName = uniqid('skill_', true) . '.xlsx';
+
+                Excel::store(
+                    $export,
+                    $tempFileName,
+                    'local',
+                    ExcelExcel::XLSX
+                );
+
+                $fullPath = storage_path("app/{$tempFileName}");
+                $tempFiles[] = $fullPath;
+
+                $zip->addFile(
+                    $fullPath,
+                    "{$schoolCode}_{$skillName}_{$timestamp}_test_score.xlsx"
+                );
+            }
+
+            $zip->close();
+
+            foreach ($tempFiles as $file) {
+                if (file_exists($file)) {
+                    unlink($file);
+                }
+            }
+
+            return response()
+                ->download($zipPath)
+                ->deleteFileAfterSend(true);
+
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+	
+	public function importTestData(Request $request){
+
+		$userId = Auth::user()->id;
+
+		$schoolId = DB::table('school_reference')
+			->where('school_user_id', $userId)
+			->where('status', 1)
+			->value('school_id');
+
+		$schoolCode = DB::table('schools')
+			->where('id', $schoolId)
+			->value('school_code');
+			
+		// DB::table('test_import_status')->updateOrInsert(
+	    //     ['school_id' => $schoolId],
+	    //     ['status' => DB::raw('status')]
+	    // );
+
+	    // $statusRow = DB::table('test_import_status')->where('school_id', $schoolId)->first();
+
+	    // if ($statusRow->status === 'processing') {
+	    //     $lastUpdated = Carbon::parse($statusRow->updated_at);
+	    //     if ($lastUpdated->diffInMinutes(now()) <= 5) {
+	    //     	return response()->json([
+		// 	    	'error' => 'error',
+		// 	        'icon' => 'info',
+		// 	        'title' => 'Import in Progress',
+		// 	        'summary' => 'An import is already in progress. Please wait before uploading again.'
+		// 	    ]);
+	    //     }
+
+	    //     DB::table('test_import_status')->where('school_id', $schoolId)->update(['status' => 'idle']);
+	    // }
+
+	    // DB::table('test_import_status')->where('school_id', $schoolId)->update([
+	    //     'status' => 'processing',
+	    //     'updated_at' => now()
+	    // ]);
+
+		try {
+			$validator = Validator::make($request->all(), [
+				'test_score' => [
+					'required',
+					'file',
+					'mimes:xls,xlsx',
+					'max:3000',
+					new ExcelTestHeaderValidation,
+					function ($attribute, $value, $fail) use ($schoolCode) {
+						$originalName = $value->getClientOriginalName();
+
+						if (!str_starts_with($originalName, $schoolCode)) {
+							$fail("Invalid file name. The file must start with your school code");
+						}
+
+						if (!preg_match('/_test_score\.xlsx$/', $originalName)) {
+							$fail('Invalid file name. The file name must end with "_test_score.xlsx".');
+						}
+					}
+				],
+			]);
+
+			if ($validator->fails()) {
+				$errorContent = '<ul style="list-style-type:none">';
+				$dynamicTitle = 'Validation Error';
+
+				foreach ($validator->errors()->all() as $error) {
+					$errorContent .= "<li>{$error}</li>";
+
+					if (str_contains($error, 'file name')) {
+						$dynamicTitle = 'Filename Mismatch';
+					} elseif (str_contains($error, 'headers')) {
+						$dynamicTitle = 'Template Format Error';
+					} elseif (str_contains($error, 'size')) {
+						$dynamicTitle = 'File Too Large';
+					}
+				}
+
+				$errorContent .= '</ul>';
+
+				return response()->json([
+					'error' => true,
+					'icon' => 'error',
+					'title' => $dynamicTitle,
+					'summary' => $errorContent
+				]);
+			}
+
+			$file = $request->file('test_score');
+			$action = $request->post('event', 'preview');
+
+			$spreadsheet = IOFactory::load($file->getPathname());
+			$sheet = $spreadsheet->getActiveSheet();
+
+			$skillId = (int) trim($sheet->getCell('A1')->getValue());
+			if (!$skillId) {
+				return response()->json([
+					'error' => true,
+					'icon' => 'error',
+					'title' => 'Invalid Template',
+					'summary' => 'Skill ID is missing or invalid in the uploaded file.'
+				]);
+			}
+
+			$highestRow = $sheet->getHighestRow();
+			$studentIds = [];
+
+			for ($row = 4; $row <= $highestRow; $row++) {
+				$studentId = trim($sheet->getCell('A' . $row)->getValue());
+				if ($studentId !== '') {
+					$studentIds[] = $studentId;
+				}
+			}
+
+			$studentIds = array_unique($studentIds);
+			$totalStudents = count($studentIds);
+
+			$termMasterId = TermMaster::where('school_id', $schoolId)
+				->where('is_active', 1)
+				->whereDate('term_start_date', '<=', today())
+				->whereDate('term_end_date', '>=', today())
+				->value('id');
+
+			if ($action === 'preview') {
+				return response()->json([
+					'step' => 'preview',
+					'total_students' => $totalStudents
+				]);
+			}
+
+			if ($skillId >= 1 && $skillId <= 15) {
+				$existingCount = DB::table('skillreport_skilltype_termtype_mapping')
+					->where('school_id', $schoolId)
+					->where('skill_report_id', $skillId)
+					->where('term_master_id', $termMasterId)
+					->whereIn('student_id', $studentIds)
+					->distinct('student_id')
+					->count();
+			} else {
+				$existingCount = DB::table('SeniorTestResults')
+					->where('SchoolID', $schoolId)
+					->where('TestTypeID', $skillId)
+					->where('TermId', $termMasterId)
+					->whereIn('StudentID', $studentIds)
+					->count();
+			}
+
+			if ($action === 'import' && $existingCount > 0) {
+				return response()->json([
+					'step' => 'confirm_override',
+					'total_students' => $totalStudents,
+					'existing_students' => $existingCount
+				]);
+			}
+
+			$filename = $file->getClientOriginalName();
+			$storedPath = $file->storeAs('import_tests', $filename);
+			
+
+			$log = TestImportLog::create([
+				'school_id' => $schoolId,
+				'user_id' => $userId,
+				'file_path' => $storedPath,
+				'skill_report_id' => $skillId,
+				'status' => 'queued',
+				'message' => 'Test data has been queued. Please wait for completion.',
+				'is_active' => 'active',
+				'started_at' => now(),
+			]);
+
+			if ($action) {
+				$importData = ($skillId >= 1 && $skillId <= 15)
+				? new ImportFMSTestData($schoolId, $action, $userId, $skillId, $log->id)
+				: new ImportFitnessTestData($schoolId, $action, $userId, $skillId, $log->id);
+				
+				Excel::import($importData, $file);
+
+				return response()->json([
+					'icon' => 'success',
+					'title' => 'Import Queued',
+					'summary' => 'Test score import queued successfully. Check View History for the upload status.'
+				]);
+			}
+
+		} catch (\Throwable $e) {
+			
+			return response()->json([
+				'error' => true,
+				'icon' => 'error',
+				'title' => 'Error',
+				'summary' => 'Import failed. Please try again later. ' . $e->getMessage(),
+			]);
+		} finally {
+	        DB::table('test_import_status')->where('school_id', $schoolId)->update(['status' => 'idle', 'updated_at' => now()]);
+	    }
+	}
+	    
+	public function downloadTestUploadedFile($logId) {
+
+        $log = TestImportLog::findOrFail($logId);
+	    $filePath = $log->file_path; 
+
+	    if (!$filePath || !Storage::disk('azure')->exists($filePath)) {
+	        abort(404, 'File not found.');
+	    }
+
+	    return Storage::disk('azure')->download( $filePath, basename($filePath),
+	        ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+	    );
+    }
+
+	public function downloadTestErrorFile($logId) {
+
+	    $log = TestImportLog::findOrFail($logId);
+	    $filePath = $log->error_file; 
+		$skillId = $log->skill_report_id;
+
+		$skillName = DB::table('skill_reports')
+					->where('id', $skillId)
+					->value('skill_name');
+		if ($skillName == '600 meter run/walk') {
+			$skillName = '600 meter run';
+		}
+
+	    $fileName = pathinfo($filePath, PATHINFO_FILENAME);
+
+	    if (!$filePath || !Storage::disk('local')->exists($filePath)) {
+	        abort(404, 'File not found.');
+	    }
+	    $jsonData = json_decode(Storage::disk('local')->get($filePath), true);
+
+	    if (!is_array($jsonData)) {
+	        abort(500, 'Invalid JSON data.');
+	    }
+
+	    return Excel::download(new ExportTestImproperData($jsonData, $skillId, $skillName), $fileName . '.xlsx');
+	}
 
 
 }
