@@ -141,7 +141,8 @@ class StudentDashboardController extends Controller
             'class_fitness_tests.test_type_id',
             'skill_reports.skill_name',
             'class_fitness_tests.class_id',
-            'skill_reports.id'
+            'skill_reports.id',
+            'skill_reports.icons',
         )
         ->get();
 
