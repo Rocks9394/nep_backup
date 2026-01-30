@@ -84,15 +84,14 @@ class StudentDashboardController extends Controller
 
         $SchoolId = $studentData->school_id;
         $classId = $studentData->class_id;
-        // dd($SchoolId);
+
+        $TermMasterId =  $this->getTermId($SchoolId);
 
         $bmiRecord = DB::table('SeniorTestResults as str')
-        ->join('term_masters as tm', 'tm.id', '=', 'str.TermId')
         ->select('str.height', 'str.weight', 'str.score', 'str.level')
         ->where('str.TestTypeID', 18)
         ->where('str.StudentID', $studentId)
-        ->whereDate('tm.term_start_date', '<=', today())
-		->whereDate('tm.term_end_date', '>=', today())
+        ->where('str.TermId', $TermMasterId)
         ->orderBy('str.ResultId', 'desc')
         ->limit(1)
         ->first();
@@ -125,25 +124,25 @@ class StudentDashboardController extends Controller
 
         $fmsTestData = DB::table('TestTypeMaster')
         ->join('skill_reports', 'skill_reports.TestTypeMasterID', '=', 'TestTypeMaster.TestTypeID')
-        ->leftJoin('skillreport_skilltype_termtype_mapping as sst', function($join) use ($studentId) {
+        ->join('skillreport_skilltype_termtype_mapping as sst', function ($join) use ($studentId, $TermMasterId) {
             $join->on('sst.skill_report_id', '=', 'skill_reports.id')
-            ->where('sst.student_id', '=', $studentId);
+                ->where('sst.student_id', $studentId)
+                ->where('sst.term_master_id', $TermMasterId);
         })
         ->select(
             'TestTypeMaster.TestTypeID',
             'skill_reports.skill_name',
             'skill_reports.icons',
-            'skill_reports.id as skill_report_id',
             DB::raw('COUNT(sst.id) as score')
         )
         ->whereIn('TestTypeMaster.TestTypeID', $fmsApplicable)
         ->groupBy(
             'TestTypeMaster.TestTypeID',
             'skill_reports.skill_name',
-            'skill_reports.id',
-            'skill_reports.icons',
+            'skill_reports.icons'
         )
         ->get();
+
 
         // dd($fmsTestData);
 
@@ -164,19 +163,10 @@ class StudentDashboardController extends Controller
             }
         }
 
-        $path = public_path("assets/css/student_dashboard_style");
-
-		if (!file_exists($path)) {
-			mkdir($path, 0777, true);
-		}
-        // $studentId = 6968;
-
         $fitnessTest = DB::table('SeniorTestResults as str')
             ->join('skill_reports', 'skill_reports.id', '=', 'str.TestTypeID')
-            ->join('term_masters as tm', 'tm.id', '=', 'str.TermId')
             ->where('str.StudentID', $studentId)
-            ->whereDate('tm.term_start_date', '<=', today())
-            ->whereDate('tm.term_end_date', '>=', today())
+            ->where('str.TermId', $TermMasterId)
             ->whereNotIn('str.TestTypeID', [18])
             ->get();
 
@@ -214,7 +204,32 @@ class StudentDashboardController extends Controller
 
         $getFitnessBenchmark = $this->getBenchmark($studentAge, $categoty, $categories_id2);
 
+
+        $year = date('Y');
+		$month = date('m');
+		$day = date('d');
+		$today = Carbon::today()->toDateString();
+		if ($month < 4 || ($month == 3 && $day <= 31)) {
+			$academicYear = ($year - 1) . '-' . $year;
+		}
+
+		$terms = TermMaster::where('school_id', $SchoolId)
+            ->where('is_active', 1)
+            ->where('academic_year', $academicYear)
+			->get();
+
+		$currentTerm = DB::table('term_masters')
+			->select('id', 'term_name', 'academic_year', 'term_start_date', 'term_end_date')
+			->where('school_id', $SchoolId)
+			->where('is_active', '1')
+			->where('academic_year', $academicYear)
+			->whereDate('term_start_date', '<=', $today)
+			->whereDate('term_end_date', '>=', $today)
+			->first();
+
+			$selectedTerm = session('term_id', $currentTerm->id);
+
         
-        return view('parent.testDashboard', compact('title', 'getBmiBenchmark', 'studentData', 'studentAge', 'getFitnessBenchmark', 'bmiRecord','class','classId','fmsTestData','fitnessTest'));
+        return view('parent.student-dashboard', compact('title', 'getBmiBenchmark', 'studentData', 'studentAge', 'getFitnessBenchmark', 'bmiRecord','class','classId','fmsTestData','fitnessTest', 'terms', 'selectedTerm'));
     }
 }

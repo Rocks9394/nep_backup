@@ -184,7 +184,7 @@ class AssessorAppController extends Controller
 		
 		$CategoryName = DB::table('TestCategoryMaster')->where('TestCategoryID',$TestcategoryId)->value('TestCategoryName');
 			
-		$testType = DB::table('TestTypeMaster')->where('TestCategoryID',$TestcategoryId)->where('TestsApplicable',2)->get();
+		$testType = DB::table('TestTypeMaster')->where('TestCategoryID',$TestcategoryId)->where('TestsApplicable',2)->where('TestTypeID', '!=', 1014)->get();
 		#$testType = DB::table('TestTypeMaster')->where('TestCategoryID',$TestcategoryId)->get();
 
 		$title = $CategoryName ?? 'Test';
@@ -384,7 +384,15 @@ class AssessorAppController extends Controller
 			$title = $skillReport->skill_name;
 			return view('assessor.plate-tapping', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 			
-		}		
+		}
+		//hand wall toss
+		elseif($skillReport->skill_name == 'Alternative Hand Wall Toss Test')
+		{
+			$classes = $additionalClasses;
+			$title = $skillReport->skill_name;
+			return view('assessor.hand-toss', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
+			
+		}			
 		//flexed/Bent Arm hang
 		elseif($skillReport->skill_name == 'Flexed/Bent Arm Hang')
 		{
@@ -407,14 +415,6 @@ class AssessorAppController extends Controller
 			$classes = $additionalClasses;
 			$title = $skillReport->skill_name;
 			return view('assessor.vertical-jump', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
-			
-		}
-		//hand wall toss
-		elseif($skillReport->skill_name == 'Alternative Hand Wall Toss Test')
-		{
-			$classes = $additionalClasses;
-			$title = $skillReport->skill_name;
-			return view('assessor.hand-toss', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 			
 		}
 		elseif($skillReport->skill_name == 'Push Ups')

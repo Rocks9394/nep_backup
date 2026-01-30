@@ -141,6 +141,17 @@
     .lazy-image.loaded {
         opacity: 1;
     }
+    .select-terms{
+        height: 35px;
+        margin-left: 10px;
+    }
+    .term-select{
+        border-color: var(--org-color);
+        height: 100%;
+        padding: 2px;
+        border-radius:5px;
+        color: var(--org-color);
+    }
 </style>
 
     <?php
@@ -151,7 +162,8 @@
 
 <div class="all-chaptr-cards">
     <div class="container">
-        <div class="col p-0 mt-2">
+        <div class="row">
+            <div class="col p-0 mt-2">
                 <div class="heading-rw mt-3 mt-md-1 mb-0 p-0">
                     <a href="<?php echo e(route('student.dashboard')); ?>" class="back-button">
                         <span class="arrow">
@@ -161,8 +173,21 @@
                         </span>
                     </a>                
                     <h1 class="ml-md-4 mb-0">Back to home</h1>
+                </div>            
+            </div>
+            <div class="col-auto mt-2">
+                <div class="select-terms">
+                    <select name="term" id="term" class="term-select">
+                        <?php $__currentLoopData = $terms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($term->id); ?>"
+                                <?php echo e($selectedTerm == $term->id ? 'selected' : ''); ?>>
+                                <?php echo e($term->academic_year); ?> | <?php echo e($term->term_name); ?>
+
+                            </option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </select>
                 </div>
-            
+            </div>
         </div>
 
         <div class="row mt-3">
@@ -800,6 +825,35 @@
             modal.style.display = "none";
         }
     });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const termSelect = document.getElementById('term');
+
+        termSelect.addEventListener('change', function () {
+            const selectedValue = this.value;
+            saveTerm(selectedValue);
+        });
+
+        function saveTerm(termId) {
+            fetch("<?php echo e(route('save.term.session')); ?>", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "<?php echo e(csrf_token()); ?>"
+                },
+                body: JSON.stringify({ term_id: termId })
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to save term');
+                }
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error saving term:', error);
+            });
+        }
+    });
+
 </script>
 
 
