@@ -146,8 +146,7 @@
     <?php
         $BmiClassess = ['1','2','3','4','5','6','7','8','9','10','11','12'];
         $juniorClassess = ['1','2','3',];
-        $siniorClassess = ['4','5','6','7','8','9','10','11','12'];
-
+        $seniorClassess = ['4','5','6','7','8','9','10','11','12'];
     ?>
 
 <div class="all-chaptr-cards">
@@ -272,42 +271,46 @@
 
             <div class="row no-gutters">
 
-                <?php if(in_array((string) $classId, $juniorClassess)): ?>   
-                <h2 class="test-heading text-center mt-2 mb-3">FMS Development Tests</h2>
+                <?php if(count($fmsTestData) > 0): ?>
+                    <h2 class="test-heading text-center mt-2 mb-3">FMS Development Tests</h2>
+
                     <?php $__currentLoopData = $fmsTestData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $test): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="col-12 col-md-6 col-lg-6 col-xl-4">
                             <div class="test-box">
                                 <div class="tests left-text">
-                                    <img src="<?php echo e(asset('public/icons/BatteryOfTests/' . $test->icons)); ?>" alt="logo" class="img-fluid img lazy-image" loading="lazy" />
+                                    <img src="<?php echo e(asset('public/icons/BatteryOfTests/' . $test->icons)); ?>" 
+                                        alt="logo" class="img-fluid img lazy-image" loading="lazy" />
+
                                     <div class="left-text w-100">
                                         <h4><?php echo e($test->skill_name); ?></h4>
-                                        <div class="score-bar w-100" id="scoreBar">
+
+                                        <div class="score-bar w-100">
                                             <div class="segment"></div>
                                             <div class="segment"></div>
                                             <div class="segment"></div>
                                             <div class="segment"></div>
                                             <div class="segment"></div>
                                         </div>
+
                                         <div class="score-outcome d-flex justify-content-between align-items-center">
-                                            <div class="score-label" id="scoreLabel"><?php echo e($test->score); ?></div>                           
+                                            <div class="score-label"><?php echo e($test->score); ?></div>                           
                                             <div class="outcome"><?php echo e($test->outcome); ?></div>                           
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?> 
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 <?php else: ?>
-                    <?php if(!in_array((string) $classId, $siniorClassess)): ?>
-                        <h2 class="test-heading text-center">You have not given FMS tests yet</h2>
-                    <?php endif; ?>
+                    <h2 class="test-heading text-center">You have not given FMS tests yet</h2>
                 <?php endif; ?>
+
     
             </div>
             <div class="clearfix"></div>
             <div class="row no-gutters">
 
-                <?php if(in_array((string) $classId, $juniorClassess) || in_array((string) $classId, $siniorClassess)): ?>  
+                <?php if(in_array((string) $classId, $juniorClassess) || in_array((string) $classId, $seniorClassess)): ?>  
                 <h2 class="test-heading text-center mt-2 mb-3">Fitness Tests</h2>
                     <?php $__currentLoopData = $fitnessTest; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $test): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?> 
                         <div class="col-12 col-md-6 col-lg-6 col-xl-4">
@@ -448,8 +451,10 @@
 
     // google gague for bmi 
 
-    google.charts.load('current', {'packages':['gauge']});
-    google.charts.setOnLoadCallback(drawChart);
+    if (document.getElementById('bmi_gauge')) {
+        google.charts.load('current', {'packages':['gauge']});
+        google.charts.setOnLoadCallback(drawChart);
+    }
 
     function drawChart() {
         const bmi = <?php echo e($bmiRecord->score ?? 0); ?>;
@@ -621,7 +626,11 @@
 
     // for overall fitness 
 
-    let fitnessTest = <?php echo json_encode($fitnessTest, 15, 512) ?>;
+    let fitnessTest = <?php echo json_encode($fitnessTest ?? [], 15, 512) ?>;
+    if (!fitnessTest.length) {
+        console.warn('Fitness test data not available for this class');
+    }
+
     const levelMap = {
         'L0': 0,
         'L1': 1,
@@ -647,10 +656,14 @@
     const overallPercentile = ((avgScore) / maxScore) * 100;
 
     // Display the initial structure
-    document.getElementById('overallFitness').innerHTML = `
-    <h4>Overall Fitness Level</h4>
-    <span>0 %ile</span>
-    `;
+    const overallFitnessEl = document.getElementById('overallFitness');
+    if (overallFitnessEl) {
+        overallFitnessEl.innerHTML = `
+            <h4>Overall Fitness Level</h4>
+            <span>0 %ile</span>
+        `;
+    }
+
 
 
     let start = 0;
@@ -672,8 +685,13 @@
 
 
     // Load Google Charts
-    google.charts.load('current', {'packages':['corechart']});
-    google.charts.setOnLoadCallback(drawOverallFitness);
+    // google.charts.load('current', {'packages':['corechart']});
+    // google.charts.setOnLoadCallback(drawOverallFitness);
+
+    if (document.getElementById('donut_single')) {
+        google.charts.load('current', { packages: ['corechart'] });
+        google.charts.setOnLoadCallback(drawOverallFitness);
+    }
 
     function drawOverallFitness() {
         var targetValue = parseFloat(overallPercentile.toFixed(2));
@@ -718,19 +736,20 @@
         }, 50);
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
-        const images = document.querySelectorAll('.lazy-image');
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.lazy-image').forEach(img => {
 
-        images.forEach(img => {
-            if (img.complete) {
-                img.classList.add('loaded');
+            const showImage = () => img.classList.add('loaded');
+
+            if (img.complete && img.naturalHeight !== 0) {
+                showImage();
+            } else {
+                img.addEventListener('load', showImage);
+                img.addEventListener('error', showImage);
             }
-
-            img.addEventListener('load', () => {
-                img.classList.add('loaded');
-            });
         });
     });
+
 
 
 

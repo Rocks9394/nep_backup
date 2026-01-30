@@ -118,33 +118,34 @@ class StudentDashboardController extends Controller
 		->orderBy('custom_classes.orders', 'ASC')
 		->get();
 
-        $fmsTestData = DB::table('class_fitness_tests')
-        ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'class_fitness_tests.test_type_id')
+        $fmsApplicable = DB::table('class_fitness_tests')
+            ->where('class_id', $classId)
+            ->pluck('test_type_id')
+            ->toArray();
+
+        $fmsTestData = DB::table('TestTypeMaster')
         ->join('skill_reports', 'skill_reports.TestTypeMasterID', '=', 'TestTypeMaster.TestTypeID')
         ->leftJoin('skillreport_skilltype_termtype_mapping as sst', function($join) use ($studentId) {
             $join->on('sst.skill_report_id', '=', 'skill_reports.id')
             ->where('sst.student_id', '=', $studentId);
         })
-        ->join('term_masters as tm', 'tm.id', '=', 'sst.term_master_id')
         ->select(
-            'class_fitness_tests.test_type_id',
+            'TestTypeMaster.TestTypeID',
             'skill_reports.skill_name',
             'skill_reports.icons',
-            'class_fitness_tests.class_id',
             'skill_reports.id as skill_report_id',
             DB::raw('COUNT(sst.id) as score')
         )
-        ->where('class_fitness_tests.class_id', $classId)        
-        ->whereDate('tm.term_start_date', '<=', today())
-		->whereDate('tm.term_end_date', '>=', today())
+        ->whereIn('TestTypeMaster.TestTypeID', $fmsApplicable)
         ->groupBy(
-            'class_fitness_tests.test_type_id',
+            'TestTypeMaster.TestTypeID',
             'skill_reports.skill_name',
-            'class_fitness_tests.class_id',
             'skill_reports.id',
             'skill_reports.icons',
         )
         ->get();
+
+        // dd($fmsTestData);
 
         
         foreach ($fmsTestData as $item) {
