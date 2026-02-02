@@ -27,8 +27,6 @@ class FitnessService
         $studentAge = $dob->age;
         $gender = strtolower($student->gender) === 'male' ? 'Boys' : 'Girls';
 
-
-
         try {
             $result = DB::selectOne("
                 SELECT get_fitness_level(:skill_report_id, :age, :gender, :score, :criteria) AS level
