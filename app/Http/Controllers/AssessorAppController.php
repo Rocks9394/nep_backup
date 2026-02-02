@@ -200,9 +200,8 @@ class AssessorAppController extends Controller
 	}
 
 
-    public function FMSTypes($TestTypeId, $SeniorBMI = false) {
-		
-
+	public function FMSTypes($TestTypeId, $SeniorBMI = false) {
+	
 		$skillReport = DB::table('skill_reports')->select('id','skill_name','TestTypeMasterID')->where('TestTypeMasterID',$TestTypeId)->first();
 		$skillTypes = DB::table('skill_types')->where('skill_report_id',$skillReport->id)->where('status', 1)->get();
 
@@ -225,7 +224,7 @@ class AssessorAppController extends Controller
 		
 
 		$primaryClass_id = DB::table('class_fitness_tests')->where('test_type_id', $TestTypeId) ->where('is_active', 'active')
-		    ->pluck('class_id')->toArray();
+			->pluck('class_id')->toArray();
 
 		$selectedClass = DB::table('custom_classes')
 			->join('class','class.id','=','custom_classes.class_id')			
@@ -233,10 +232,10 @@ class AssessorAppController extends Controller
 			->select('custom_classes.id','custom_classes.class_id','custom_classes.section',
 
 				DB::raw("CASE 
-	                WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-	                THEN custom_classes.nomenclature 
-	                ELSE class.name 
-	            END AS classname")
+					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
+					THEN custom_classes.nomenclature 
+					ELSE class.name 
+				END AS classname")
 
 				// 'class.name AS classname'
 			)
@@ -248,6 +247,8 @@ class AssessorAppController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
+			'custom_classes.nomenclature',
+			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -258,7 +259,7 @@ class AssessorAppController extends Controller
 
 
 
- 		$classes = DB::table('custom_classes')
+		$classes = DB::table('custom_classes')
 			->join('class','class.id','=','custom_classes.class_id')
 			->join('students','students.custom_class_id','=' ,'custom_classes.id')
 			->select('custom_classes.id','custom_classes.class_id','custom_classes.section',
@@ -279,6 +280,8 @@ class AssessorAppController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
+			'custom_classes.nomenclature',
+			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -293,10 +296,10 @@ class AssessorAppController extends Controller
 			->join('students','students.custom_class_id','=' ,'custom_classes.id')
 			->select('custom_classes.id','custom_classes.class_id','custom_classes.section',
 			DB::raw("CASE 
-                WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-                THEN custom_classes.nomenclature 
-                ELSE class.name 
-            END AS classname")
+				WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
+				THEN custom_classes.nomenclature 
+				ELSE class.name 
+			END AS classname")
 
 			// 'class.name AS classname'
 			)
@@ -307,6 +310,8 @@ class AssessorAppController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
+			'custom_classes.nomenclature',
+			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -358,7 +363,7 @@ class AssessorAppController extends Controller
 			return view('assessor.flamingo', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 			
 		}
-	    elseif($skillReport->skill_name == 'Plate Tapping')
+		elseif($skillReport->skill_name == 'Plate Tapping')
 		{
 			$title = $skillReport->skill_name;
 			return view('assessor.plate-tapping', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
@@ -372,7 +377,7 @@ class AssessorAppController extends Controller
 			return view('assessor.flamingo', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 			
 		}
-	    elseif($skillReport->skill_name == 'Plate Tapping' && $SeniorBMI == true)
+		elseif($skillReport->skill_name == 'Plate Tapping' && $SeniorBMI == true)
 		{
 			$classes = $additionalClasses;
 			$title = $skillReport->skill_name;
@@ -386,7 +391,7 @@ class AssessorAppController extends Controller
 			$title = $skillReport->skill_name;
 			return view('assessor.hand-toss', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 			
-		}		
+		}			
 		//flexed/Bent Arm hang
 		elseif($skillReport->skill_name == 'Flexed/Bent Arm Hang')
 		{
@@ -437,10 +442,10 @@ class AssessorAppController extends Controller
 		}
 		elseif($skillReport->skill_name == '50 mt. dash' || $skillReport->skill_name == '600 meter run/walk')
 		{
-			 
+			
 			$classes = $seniorclasses;
-			 
-			 
+			
+			
 			$title = $skillReport->skill_name;
 			return view('assessor.speed', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 			
