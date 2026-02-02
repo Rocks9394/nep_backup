@@ -371,13 +371,13 @@
 
         
         <div class="form-row download-report mb-4">
-            <div class="col-12 col-sm-6 col-lg-6 mb-3">
-                <a href="{{ route('student.report')}}" class="btn btn-primary btn-lg w-100" target="_blank">Download Report </a>
+            <div class="col-12 col-sm-4 col-lg-4 mb-3">
+                <a href="{{ route('reports.view.test')}}" class="btn btn-primary btn-lg w-100" target="_blank">View Report </a>
             </div>
-            <!-- <div class="col-12 col-sm-4 col-lg-4 mb-3">
-                <a class="btn btn-primary btn-lg w-100 notAvailable" target="_blank">Fitness History <i class="fa fa-angle-right"></i> </a>
-            </div> -->
-            <div class="col-12 col-sm-6 col-lg-6 mb-3">
+            <div class="col-12 col-sm-4 col-lg-4 mb-3">
+                <a href="{{ route('download.fitness.reports')}}" class="btn btn-primary btn-lg w-100">Download Report <i class="fa fa-angle-right"></i> </a>
+            </div>
+            <div class="col-12 col-sm-4 col-lg-4 mb-3">
                 <a href="" id="openFitnessModal" class="btn btn-primary btn-lg w-100" >National Benchmark </a>
             </div>
         </div>

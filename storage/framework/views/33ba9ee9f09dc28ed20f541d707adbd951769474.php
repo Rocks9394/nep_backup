@@ -1,6 +1,6 @@
-@extends('layouts.filldart-app')
-@section('title', $title)
-@section('content')
+
+<?php $__env->startSection('title', $title); ?>
+<?php $__env->startSection('content'); ?>
 
 <style>
 .dropdown.show [aria-expanded="true"] {
@@ -23,7 +23,18 @@
         
             <div class="col-12 col-md">
                 <div class="heading-rw mt-0 mt-md-1 mb-0 p-0">                
-                    <x:back-button title="{{$title}}" />
+                    <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.back-button','data' => ['title' => ''.e($title).'']]); ?>
+<?php $component->withName('back-button'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['title' => ''.e($title).'']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
                 </div>
             </div>
 
@@ -83,7 +94,7 @@ $(document).ready(function() {
         // lengthMenu: [[100, 200, 300, -1], [100, 200, 300 , "All"]],
         dom: `<"top"f><"filter-right"B>rt<"bottom"i><"clear">`,        
         ajax: {
-            url: '{{ $ajaxUrl }}',
+            url: '<?php echo e($ajaxUrl); ?>',
             type: 'GET',
             data: function(d) {
                 d.class = $('#filter_class').val();
@@ -144,7 +155,7 @@ $(document).ready(function() {
             $('.dt-search input[type="search"]').attr('placeholder', 'Search here...');
 
             /* === CLASS FILTER === */
-            var classList = @json($classList);
+            var classList = <?php echo json_encode($classList, 15, 512) ?>;
             const $dropdown = $('<select class="form-control" id="filter_class"></select>');
             classList.forEach(option => {
                 const section = option.section ? ` - ${option.section}` : '';
@@ -157,8 +168,8 @@ $(document).ready(function() {
 
 
             /* === Terms Filter === */
-            var terms = @json($filteredTerms);
-            var selectedTermId = @json($TermMasterId);
+            var terms = <?php echo json_encode($filteredTerms, 15, 512) ?>;
+            var selectedTermId = <?php echo json_encode($TermMasterId, 15, 512) ?>;
             const $termDropdown = $('<select class="form-control" id="filter_term"></select>');
             terms.forEach(option => {
                 const displayText = option.name;
@@ -306,4 +317,5 @@ $(document).ready(function() {
 
 
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/reports/fitnessTestStatus.blade.php ENDPATH**/ ?>

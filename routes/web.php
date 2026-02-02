@@ -274,8 +274,8 @@ Route::get('report/download/{batchId}', [ReportController::class, 'requestDownlo
 Route::get('report/download/{batchId}/signed', [ReportController::class, 'downloadSigned'])->name('report.download.signed');
 
 
-Route::get('reports/{id}/{term_id}', [ReportController::class, 'ViewFitnessReport'])->name('reports.view.test');
-Route::get('reports/{id}/{term_id}/download', [ReportController::class, 'downloadFitnessReport'])->name('download.fitness.reports');
+Route::get('reports/{id?}/{term_id?}', [ReportController::class, 'ViewFitnessReport'])->name('reports.view.test');
+Route::get('reports-download/{id?}/{term_id?}', [ReportController::class, 'downloadFitnessReport'])->name('download.fitness.reports');
 Route::get('/fitness-report/available', [ReportController::class, 'CheckReportAvailablity'])->name('fitness.report.available');
 
 

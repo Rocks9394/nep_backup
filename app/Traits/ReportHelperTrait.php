@@ -44,7 +44,7 @@ trait ReportHelperTrait
     }
 
 
-    public function getReportData($studentId) {
+    public function getReportData($studentId, $TermMasterId) {
 
         return DB::table('SeniorTestResults')
             ->join('skill_reports','skill_reports.id','=','SeniorTestResults.TestTypeId')
@@ -66,6 +66,7 @@ trait ReportHelperTrait
                 'TestTypeMaster.ScoreCriteria'
             )
             ->orderBy('SeniorTestResults.created_at', 'desc')
+            ->where('SeniorTestResults.TermId', $TermMasterId)
             ->where('StudentID', $studentId)
             ->get();
     }

@@ -44,7 +44,7 @@ class ReportController extends Controller {
 
     public function __construct() {	
    
-        $this->middleware('auth:web');
+        $this->middleware('auth:web')->except(['ViewFitnessReport', 'downloadFitnessReport']);
         $this->higherClasses = [4, 5, 6, 7, 8, 9, 10, 11, 12];
         $this->lowerClass = [1, 2, 3];
     }
@@ -179,7 +179,7 @@ class ReportController extends Controller {
 	    $ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
 
 	    // Fetch report + benchmarks
-	    $reportData    = $this->getReportData($studentId);
+	    $reportData = $this->getReportData($studentId, $TermMasterId);
 	    $mappedReport  = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
 	    $groupedReport = $mappedReport->groupBy('Category');
 		$getBmiBenchmark = $getBmiBenchmark =  $this->getBmiBenchmark($ageGender);
@@ -232,7 +232,7 @@ class ReportController extends Controller {
         $studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
         $ageGender = $studentAge . strtolower(substr($studentsData->gender,0,1));
 
-        $reportData = $this->getReportData($studentId);
+        $reportData = $this->getReportData($studentId, $TermMasterId);
         $mappedReport = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
         $groupedReport = $mappedReport->groupBy('Category');
         $getBmiBenchmark = $this->getBmiBenchmark($ageGender);
@@ -824,7 +824,7 @@ class ReportController extends Controller {
 	    $studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
 	    $ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
 		
-	    $reportData    = $this->getReportData($studentId,$TermMasterId);
+	    $reportData    = $this->getReportData($studentId, $TermMasterId);
 
 		
 		
