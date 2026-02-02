@@ -376,7 +376,7 @@ Route::prefix('school')->group(function(){
 	Route::get('fitness-report-test', [ReportController::class, 'FitnessReports'])->name('fitness.report.test')->middleware('module_access:fitness.report');
 
 
-	Route::get('reports-cbse/{id}', [SchoolRecordController::class, 'ViewCbseReport'])->name('reports.cbse');
+	Route::get('reports-cbse/{id}', [ReportController::class, 'ViewCbseReport'])->name('reports.cbse');
 
 
 

@@ -105,14 +105,14 @@ class GenerateStudentReportJob implements ShouldQueue
             [$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData(
                 $studentId, $studentAge, $studentGender, $groupedReport
             );
-            $pdf = Pdf::loadView('reports.fitness.senior-report', compact(
+            $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact(
                 'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
             ));
         } else {
             [$orderedReportData, $FmsReportData, $getFitnessBenchmark] = $this->getJuniorReportData($classId = null,
                 $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId 
             );
-            $pdf = Pdf::loadView('reports.fitness.junior-report', compact(
+            $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
                 'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
             ));
         }

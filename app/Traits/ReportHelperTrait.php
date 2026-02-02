@@ -341,6 +341,8 @@ trait ReportHelperTrait
     protected function getJuniorReportData($classId , $studentId, $studentAge, $studentGender, $groupedReportData, $TermMasterId)  {
         
         $junior1 = [2,6,3];    //TestCategoryMasterID
+
+
         $juniorData1 = DB::table('TestCategoryMaster')
             ->join('TestTypeMaster', 'TestTypeMaster.TestCategoryID','=', 'TestCategoryMaster.TestCategoryID')
             ->join('skill_reports', 'skill_reports.TestTypeMasterID','=', 'TestTypeMaster.TestTypeID')
@@ -348,6 +350,7 @@ trait ReportHelperTrait
             ->orderByRaw('FIELD(TestCategoryMaster.TestCategoryID, ' . implode(',', $junior1) . ')')
             ->select('TestCategoryMaster.TestCategoryID','TestCategoryMaster.TestCategoryName','skill_reports.skill_name')
             ->where('TestCategoryMaster.IsActive', 1)
+            ->where('TestTypeMaster.TestTypeID', '!=' ,1014)  // Exculding Test for junior: 'Alternative hand wall toss'
             ->get();
 
         $orderedReportData = collect();

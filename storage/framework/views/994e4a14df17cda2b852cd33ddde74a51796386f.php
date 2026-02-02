@@ -1,10 +1,10 @@
-@extends('layouts.filldart-app')
-@section('title', 'Goforfit | ' . $title)
-@section('content')
 
-@push('style-css')
-    <link href="{{ asset('public/assets/css/student_dashboard_style/main.css') }}" rel="stylesheet" />
-@endpush
+<?php $__env->startSection('title', 'Goforfit | ' . $title); ?>
+<?php $__env->startSection('content'); ?>
+
+<?php $__env->startPush('style-css'); ?>
+    <link href="<?php echo e(asset('public/assets/css/student_dashboard_style/main.css')); ?>" rel="stylesheet" />
+<?php $__env->stopPush(); ?>
 
 <style>
     .score-bar {
@@ -154,18 +154,18 @@
     }
 </style>
 
-    @php
+    <?php
         $BmiClassess = ['1','2','3','4','5','6','7','8','9','10','11','12'];
         $juniorClassess = ['1','2','3',];
         $seniorClassess = ['4','5','6','7','8','9','10','11','12'];
-    @endphp
+    ?>
 
 <div class="all-chaptr-cards">
     <div class="container">
         <div class="row">
             <div class="col p-0 mt-3">
                 <div class="heading-rw mt-3 mt-md-1 mb-0 p-0">
-                    <a href="{{ route('student.dashboard')}}" class="back-button">
+                    <a href="<?php echo e(route('student.dashboard')); ?>" class="back-button">
                         <span class="arrow">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="currentColor" viewBox="0 0 16 16">
                                 <path d="M8 3.293l6 6V14a1 1 0 0 1-1 1h-4v-4H7v4H3a1 1 0 0 1-1-1V9.293l6-6z"/>
@@ -178,12 +178,13 @@
             <div class="col-auto mt-3">
                 <div class="select-terms">
                     <select name="term" id="term" class="term-select">
-                        @foreach($terms as $term)
-                            <option value="{{ $term->id }}"
-                                {{ $selectedTerm == $term->id ? 'selected' : '' }}>
-                                {{ $term->academic_year }} | {{ $term->term_name }}
+                        <?php $__currentLoopData = $terms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($term->id); ?>"
+                                <?php echo e($selectedTerm == $term->id ? 'selected' : ''); ?>>
+                                <?php echo e($term->academic_year); ?> | <?php echo e($term->term_name); ?>
+
                             </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
             </div>
@@ -192,15 +193,15 @@
         <div class="row mt-3">
             <div class="col-12 col-md-12 col-lg-12 apst">
                 <div class="user-information backgroud-01 w-100">
-                <img src="{{ asset('resources/images/avtar.png') }}" class="d-inline-block align-top" height="35" alt="avtar">
+                <img src="<?php echo e(asset('resources/images/avtar.png')); ?>" class="d-inline-block align-top" height="35" alt="avtar">
                 <div class="left-text pl-3 w-50 user-u-info">
-                    <h2>{{ Auth::guard('sstudent')->user()->student_name }}</h2>
-                    <h3>{{$studentAge}} Years, {{$studentData->gender}}</h3>
+                    <h2><?php echo e(Auth::guard('sstudent')->user()->student_name); ?></h2>
+                    <h3><?php echo e($studentAge); ?> Years, <?php echo e($studentData->gender); ?></h3>
                 </div>
                 <div>
-                    <h2>{{$studentData->school_name}}</h2>
-                    <!-- <h2 class="lead">{{$studentData->school_name}}</h2> -->
-                    <p>{{$studentData->className}}-{{$studentData->section}}, Roll No: {{$studentData->rollno}}</p>
+                    <h2><?php echo e($studentData->school_name); ?></h2>
+                    <!-- <h2 class="lead"><?php echo e($studentData->school_name); ?></h2> -->
+                    <p><?php echo e($studentData->className); ?>-<?php echo e($studentData->section); ?>, Roll No: <?php echo e($studentData->rollno); ?></p>
                 </div>
                 </div>
             </div>
@@ -229,7 +230,7 @@
 
 
 
-        @if (in_array((string) $classId, $BmiClassess))        
+        <?php if(in_array((string) $classId, $BmiClassess)): ?>        
             <div class="row mt-4">
                 <div class="col-12 col-md-6 col-lg-4 col-xl-4 order-md-2 order-lg-1 apst">
                     <div class="fitness-box h-100">
@@ -245,19 +246,19 @@
                     <div class="fitness-box h-100 w-100">
                         <div class="weight_01 left-text">
                             <div class="center-img-weight">
-                                <img src="{{ asset('public/assets/imgs/height-icon.jpg') }}" alt="Height" class="img-fluid img lazy-image" loading="lazy" />
+                                <img src="<?php echo e(asset('public/assets/imgs/height-icon.jpg')); ?>" alt="Height" class="img-fluid img lazy-image" loading="lazy" />
                                 <div class="weight-input">
                                     <h4>Height</h4>
-                                    <span>{{ $bmiRecord->height ?? '---' }} cm</span>
+                                    <span><?php echo e($bmiRecord->height ?? '---'); ?> cm</span>
                                 </div>
                             </div>
                         </div>
                         <div class="weight_02 left-text">
                             <div class="center-img-weight">
-                                <img src="{{ asset('public/assets/imgs/weight-icon.png') }}" alt="weight" class="img-fluid img lazy-image" loading="lazy" />
+                                <img src="<?php echo e(asset('public/assets/imgs/weight-icon.png')); ?>" alt="weight" class="img-fluid img lazy-image" loading="lazy" />
                                 <div class="weight-input">
                                     <h4>Weight</h4>
-                                    <span>{{ $bmiRecord->weight ?? '---' }} kg</span>
+                                    <span><?php echo e($bmiRecord->weight ?? '---'); ?> kg</span>
                                 </div>
                             </div>
                             <div class="clearfix"></div>
@@ -270,7 +271,7 @@
                         <div class="meater left-text w-100">                                
                             <div class="left-text benchmark">
                                 <h4>BMI</h4>
-                                <span>{{$bmiRecord->score ?? '---' }} ({{$bmiRecord->level ?? '---' }})</span>
+                                <span><?php echo e($bmiRecord->score ?? '---'); ?> (<?php echo e($bmiRecord->level ?? '---'); ?>)</span>
                                 <a href="#" id="openModal">BMI Benchmark <i class="fa fa-angle-right"></i></a>
                             </div>
                             <div id="bmi_gauge"></div>
@@ -284,29 +285,29 @@
                     </div>
                 </div>
             </div>           
-        @endif
+        <?php endif; ?>
 
 
         
         <div class="clearfix"></div>
 
         <div class="my-3">
-             {{-- for FMS tests --}}
+             
 
             <div class="row no-gutters">
 
-                @if(count($fmsTestData) > 0)
+                <?php if(count($fmsTestData) > 0): ?>
                     <h2 class="test-heading text-center mt-2 mb-3">FMS Development Tests</h2>
 
-                    @foreach($fmsTestData as $test)
+                    <?php $__currentLoopData = $fmsTestData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $test): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="col-12 col-md-6 col-lg-6 col-xl-4">
                             <div class="test-box">
                                 <div class="tests left-text">
-                                    <img src="{{ asset('public/icons/BatteryOfTests/' . $test->icons) }}" 
+                                    <img src="<?php echo e(asset('public/icons/BatteryOfTests/' . $test->icons)); ?>" 
                                         alt="logo" class="img-fluid img lazy-image" loading="lazy" />
 
                                     <div class="left-text w-100">
-                                        <h4>{{ $test->skill_name }}</h4>
+                                        <h4><?php echo e($test->skill_name); ?></h4>
 
                                         <div class="score-bar w-100">
                                             <div class="segment"></div>
@@ -317,62 +318,62 @@
                                         </div>
 
                                         <div class="score-outcome d-flex justify-content-between align-items-center">
-                                            <div class="score-label">{{ $test->score }}</div>                           
-                                            <div class="outcome">{{ $test->outcome }}</div>                           
+                                            <div class="score-label"><?php echo e($test->score); ?></div>                           
+                                            <div class="outcome"><?php echo e($test->outcome); ?></div>                           
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    @endforeach
-                @else
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php else: ?>
                     <h2 class="test-heading text-center">You have not given FMS tests yet</h2>
-                @endif
+                <?php endif; ?>
 
     
             </div>
             <div class="clearfix"></div>
             <div class="row no-gutters">
 
-                @if (in_array((string) $classId, $juniorClassess) || in_array((string) $classId, $seniorClassess))  
+                <?php if(in_array((string) $classId, $juniorClassess) || in_array((string) $classId, $seniorClassess)): ?>  
                 <h2 class="test-heading text-center mt-2 mb-3">Fitness Tests</h2>
-                    @foreach($fitnessTest as $index => $test) 
+                    <?php $__currentLoopData = $fitnessTest; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $test): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?> 
                         <div class="col-12 col-md-6 col-lg-6 col-xl-4">
                             <div class="test-box">
                                 <div class="tests left-text">
-                                    <img src="{{ asset('public/icons/BatteryOfTests/' . $test->icons) }}" alt="logo" class="img-fluid img lazy-image" loading="lazy" />
+                                    <img src="<?php echo e(asset('public/icons/BatteryOfTests/' . $test->icons)); ?>" alt="logo" class="img-fluid img lazy-image" loading="lazy" />
                                     <div class="left-text w-100">
-                                        <h4>{{ $test->skill_name }}</h4>
+                                        <h4><?php echo e($test->skill_name); ?></h4>
                                         <div class="level-box">
                                             <div class="clearfix"></div>
                                             
-                                            <div class="level-bar" data-score="{{ $test->level }}">
-                                                @for ($i = 1; $i <= 7; $i++)
+                                            <div class="level-bar" data-score="<?php echo e($test->level); ?>">
+                                                <?php for($i = 1; $i <= 7; $i++): ?>
                                                     <div class="segment2"></div>
-                                                @endfor
+                                                <?php endfor; ?>
                                             </div>
 
 
                                             <div class="score-outcome d-flex justify-content-between align-items-center">
-                                                <div class="score-label" id="scoreLabel">Level {{ $test->level }}</div>                           
-                                                <div class="outcome">{{ $test->levelOutcome }}</div>                           
+                                                <div class="score-label" id="scoreLabel">Level <?php echo e($test->level); ?></div>                           
+                                                <div class="outcome"><?php echo e($test->levelOutcome); ?></div>                           
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    @endforeach  
-                @else
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>  
+                <?php else: ?>
                     <h2 class="test-heading text-center mb-4 mt-5 pt-3 pt-md-5 mb-md-5">You have not given any Fitness tests yet</h2>
-                @endif
+                <?php endif; ?>
             </div>
         </div>
 
         
         <div class="form-row download-report mb-4">
             <div class="col-12 col-sm-6 col-lg-6 mb-3">
-                <a href="{{ route('student.report')}}" class="btn btn-primary btn-lg w-100" target="_blank">Download Report </a>
+                <a href="<?php echo e(route('student.report')); ?>" class="btn btn-primary btn-lg w-100" target="_blank">Download Report </a>
             </div>
             <!-- <div class="col-12 col-sm-4 col-lg-4 mb-3">
                 <a class="btn btn-primary btn-lg w-100 notAvailable" target="_blank">Fitness History <i class="fa fa-angle-right"></i> </a>
@@ -382,7 +383,7 @@
             </div>
         </div>
 
-        {{-- code end here --}}
+        
     </div> 
 </div>
 
@@ -392,7 +393,7 @@
         <span class="close">&times;</span>
         <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; margin-top:30px; border: 0px; font-size: 14px; border-collapse: collapse; color:#333; text-align:left;">
             <tr style="background-color: #ccc;">
-                <td style="padding: 5px 10px; font-weight: bold; color:#000; font-size: 16px;" colspan="8">BMI Benchmarks for {{ $studentAge }} years {{ $studentData->gender }}</td>
+                <td style="padding: 5px 10px; font-weight: bold; color:#000; font-size: 16px;" colspan="8">BMI Benchmarks for <?php echo e($studentAge); ?> years <?php echo e($studentData->gender); ?></td>
             </tr>
             <tr style="font-weight: bold; text-align: center; background-color: #eee; font-size: 12px; color: #000;">
                 <td>UW</td>
@@ -401,14 +402,14 @@
                 <td>OB</td>
             </tr>
                     
-            @if(is_array($getBmiBenchmark) && count($getBmiBenchmark) > 0)
+            <?php if(is_array($getBmiBenchmark) && count($getBmiBenchmark) > 0): ?>
             <tr>
-                <td class="text-center" style="padding: 5px 10px; color: #000;">{{ $getBmiBenchmark['UW'] ?? 'N/A' }}</td>
-                <td class="text-center" style="padding: 5px 10px; color: #000;">{{ $getBmiBenchmark['N'] ?? 'N/A' }}</td>
-                <td class="text-center" style="padding: 5px 10px; color: #000;">{{ $getBmiBenchmark['OW'] ?? 'N/A' }}</td>
-                <td class="text-center" style="padding: 5px 10px; color: #000;">{{ $getBmiBenchmark['OB'] ?? 'N/A' }}</td>
+                <td class="text-center" style="padding: 5px 10px; color: #000;"><?php echo e($getBmiBenchmark['UW'] ?? 'N/A'); ?></td>
+                <td class="text-center" style="padding: 5px 10px; color: #000;"><?php echo e($getBmiBenchmark['N'] ?? 'N/A'); ?></td>
+                <td class="text-center" style="padding: 5px 10px; color: #000;"><?php echo e($getBmiBenchmark['OW'] ?? 'N/A'); ?></td>
+                <td class="text-center" style="padding: 5px 10px; color: #000;"><?php echo e($getBmiBenchmark['OB'] ?? 'N/A'); ?></td>
             </tr>
-            @endif
+            <?php endif; ?>
         </table>
     </div>
 </div>
@@ -423,7 +424,7 @@
                 <td>
                     <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid #0A87CD; font-size: 12px; border-collapse: collapse; color:#000;">
                         <tr style="background-color: #0A87CD;">
-                            <td style="padding: 5px 10px; font-weight: bold; color:#fff; font-size: 14px;" colspan="8">Fitness Benchmarks for {{ $studentAge }} years {{ $studentData->gender }}</td>
+                            <td style="padding: 5px 10px; font-weight: bold; color:#fff; font-size: 14px;" colspan="8">Fitness Benchmarks for <?php echo e($studentAge); ?> years <?php echo e($studentData->gender); ?></td>
                         </tr>
                         <tr style="font-weight: bold; background-color: #fecd0a; font-size: 12px; color: #000;">
                             <td style="padding: 4px;"></td>
@@ -446,21 +447,21 @@
                             <td style="padding: 4px;">≥ 90 %ile</td>
                         </tr>
                         
-                        @forelse($getFitnessBenchmark as $key => $skillname)
+                        <?php $__empty_1 = true; $__currentLoopData = $getFitnessBenchmark; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $skillname): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <tr>            
-                            <td style="padding: 4px; font-weight: bold; color: #000;">{{ $skillname->skill_name }}</td>
-                            @foreach($skillname->ranges as $level => $range)
-                                <td style="padding: 4px;">{{ $range }}</td>
-                            @endforeach
+                            <td style="padding: 4px; font-weight: bold; color: #000;"><?php echo e($skillname->skill_name); ?></td>
+                            <?php $__currentLoopData = $skillname->ranges; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $level => $range): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <td style="padding: 4px;"><?php echo e($range); ?></td>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tr>
-                        @empty
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                 <tr>                                                  
                                 <td style="padding: 4px;" colspan="8"> 
-                                    <p style="text-align:center;"> <span style="padding: 4px; font-weight: bold; color: #000;">Note : </span> No Fitness Benchmarks available for a {{ $studentAge }}-year-old {{ $studentData->gender }}.</p>
+                                    <p style="text-align:center;"> <span style="padding: 4px; font-weight: bold; color: #000;">Note : </span> No Fitness Benchmarks available for a <?php echo e($studentAge); ?>-year-old <?php echo e($studentData->gender); ?>.</p>
                                 </td>
                                 
                                 </tr>                                                 
-                        @endforelse       
+                        <?php endif; ?>       
 
                     </table>
                 </td>
@@ -481,8 +482,8 @@
     }
 
     function drawChart() {
-        const bmi = {{ $bmiRecord->score ?? 0 }};
-        const benchmark = @json($getBmiBenchmark);
+        const bmi = <?php echo e($bmiRecord->score ?? 0); ?>;
+        const benchmark = <?php echo json_encode($getBmiBenchmark, 15, 512) ?>;
 
         const extractNumbers = (text) => {
             const matches = text.match(/[\d.]+/g);
@@ -650,7 +651,7 @@
 
     // for overall fitness 
 
-    let fitnessTest = @json($fitnessTest ?? []);
+    let fitnessTest = <?php echo json_encode($fitnessTest ?? [], 15, 512) ?>;
     if (!fitnessTest.length) {
         console.warn('Fitness test data not available for this class');
     }
@@ -834,11 +835,11 @@
         });
 
         function saveTerm(termId) {
-            fetch("{{ route('save.term.session') }}", {
+            fetch("<?php echo e(route('save.term.session')); ?>", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    "X-CSRF-TOKEN": "<?php echo e(csrf_token()); ?>"
                 },
                 body: JSON.stringify({ term_id: termId })
             }).then(response => {
@@ -856,4 +857,5 @@
 </script>
 
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/parent/student-dashboard.blade.php ENDPATH**/ ?>

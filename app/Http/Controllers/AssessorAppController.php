@@ -248,8 +248,6 @@ class AssessorAppController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
-			'custom_classes.nomenclature',
-			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -281,8 +279,6 @@ class AssessorAppController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
-			'custom_classes.nomenclature',
-			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -311,8 +307,6 @@ class AssessorAppController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
-			'custom_classes.nomenclature',
-			'class.name',
 				DB::raw("CASE 
 					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
@@ -392,7 +386,7 @@ class AssessorAppController extends Controller
 			$title = $skillReport->skill_name;
 			return view('assessor.hand-toss', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 			
-		}			
+		}		
 		//flexed/Bent Arm hang
 		elseif($skillReport->skill_name == 'Flexed/Bent Arm Hang')
 		{
@@ -2262,6 +2256,7 @@ class AssessorAppController extends Controller
 			->join('TestTypeMaster', 'TestTypeMaster.TestCategoryID', '=', 'TestCategoryMaster.TestCategoryID')
 			->join('skill_reports', 'skill_reports.TestTypeMasterID', '=', 'TestTypeMaster.TestTypeID')
 			->whereIn('TestTypeMaster.TestsApplicable', [1,2])
+			->where('TestTypeMaster.TestTypeID', '!=', 1014)
 			->whereIn('TestCategoryMaster.TestCategoryID', $junior)
 			->select([
 				'TestCategoryMaster.TestCategoryID',

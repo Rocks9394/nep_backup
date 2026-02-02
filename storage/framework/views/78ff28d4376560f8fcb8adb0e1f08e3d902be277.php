@@ -24,81 +24,82 @@ table#students-sports-mapping-table th.dt-orderable-none .dt-column-order { disp
 
     
         <div class="datatable-toolbar d-flex justify-content-between align-items-center mb-3">
-            <div id="{{ $id }}-filters" class="d-flex align-items-center gap-2"></div>
+            <div id="<?php echo e($id); ?>-filters" class="d-flex align-items-center gap-2"></div>
         </div>
 
-        <table id="{{ $id }}" class="table table-bordered tbl-style w-100">
+        <table id="<?php echo e($id); ?>" class="table table-bordered tbl-style w-100">
             <thead>
                 <tr>
-                    <th style="width:40px;"><input type="checkbox" id="{{ $id }}-select-all" /></th>
-                    @foreach($headers as $header)
-                        <th>{{ $header }}</th>
-                    @endforeach
+                    <th style="width:40px;"><input type="checkbox" id="<?php echo e($id); ?>-select-all" /></th>
+                    <?php $__currentLoopData = $headers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $header): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <th><?php echo e($header); ?></th>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tr>
             </thead>
         </table>
     </div>
 
   
-    @isset($actionsInside)
-        <div data-filter-slot-for="#{{ $id }}" style="display:none;">
-            {{ $actionsInside }}
+    <?php if(isset($actionsInside)): ?>
+        <div data-filter-slot-for="#<?php echo e($id); ?>" style="display:none;">
+            <?php echo e($actionsInside); ?>
+
         </div>
-    @endisset
+    <?php endif; ?>
 
 </div>
 
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 $(function () {
-    const tableId = '#{{ $id }}';
-    const selectAllId = '#{{ $id }}-select-all';
+    const tableId = '#<?php echo e($id); ?>';
+    const selectAllId = '#<?php echo e($id); ?>-select-all';
     const selectedIds = new Set();
-    const enableClassFilter = @json($enableClassFilter ?? false);
-    const enableOnlyClassFilter = @json($enableOnlyClassFilter ?? false);
-    const enableSkillNameFilter = @json($enableSkillNameFilter ?? false);
-    const enableStatusFilter = @json($enableStatusFilter ?? false);
-    const enableClassSectionFilter = @json($enableClassSectionFilter ?? false);
-    const enableSchoolTermsFilter = @json($enableSchoolTermsFilter ?? false);
+    const enableClassFilter = <?php echo json_encode($enableClassFilter ?? false, 15, 512) ?>;
+    const enableOnlyClassFilter = <?php echo json_encode($enableOnlyClassFilter ?? false, 15, 512) ?>;
+    const enableSkillNameFilter = <?php echo json_encode($enableSkillNameFilter ?? false, 15, 512) ?>;
+    const enableStatusFilter = <?php echo json_encode($enableStatusFilter ?? false, 15, 512) ?>;
+    const enableClassSectionFilter = <?php echo json_encode($enableClassSectionFilter ?? false, 15, 512) ?>;
+    const enableSchoolTermsFilter = <?php echo json_encode($enableSchoolTermsFilter ?? false, 15, 512) ?>;
 
-    const enableLengthMenu = @json($enableLengthMenu ?? true);
-    const pageLength = @json($pageLength ?? 100);
+    const enableLengthMenu = <?php echo json_encode($enableLengthMenu ?? true, 15, 512) ?>;
+    const pageLength = <?php echo json_encode($pageLength ?? 100, 15, 512) ?>;
 
-    const selectedClass = @json($selectedClass ?? null); 
-    const selectedOnlyClass = @json($selectedOnlyClass ?? null); 
-    const selectedSkillName = @json($selectedSkillName ?? null); 
-    const selectedSection = @json($selectedSection ?? null);
-    const selectedStatus = @json($selectedStatus ?? null);
+    const selectedClass = <?php echo json_encode($selectedClass ?? null, 15, 512) ?>; 
+    const selectedOnlyClass = <?php echo json_encode($selectedOnlyClass ?? null, 15, 512) ?>; 
+    const selectedSkillName = <?php echo json_encode($selectedSkillName ?? null, 15, 512) ?>; 
+    const selectedSection = <?php echo json_encode($selectedSection ?? null, 15, 512) ?>;
+    const selectedStatus = <?php echo json_encode($selectedStatus ?? null, 15, 512) ?>;
     const buttonsConfig = [];
 
-    @foreach($exportButtons as $btn)
+    <?php $__currentLoopData = $exportButtons; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $btn): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-        @if(isset($btn['type']) && $btn['type'] !== 'custom')
+        <?php if(isset($btn['type']) && $btn['type'] !== 'custom'): ?>
             buttonsConfig.push({
-                extend: '{{ $btn['type'] }}',
-                text: '{{ $btn['text'] }}',
+                extend: '<?php echo e($btn['type']); ?>',
+                text: '<?php echo e($btn['text']); ?>',
                 exportOptions: {
                     columns: function (idx) {
                         return idx !== 0;
                     }
                 }
             });
-        @elseif(isset($btn['type']) && $btn['type'] === 'custom')
+        <?php elseif(isset($btn['type']) && $btn['type'] === 'custom'): ?>
             buttonsConfig.push({
-                text: '{{ $btn['text'] }}',
+                text: '<?php echo e($btn['text']); ?>',
                 action: function (e, dt, node, config) {
-                    if (typeof window['{{ $btn['action'] ?? '' }}'] === 'function') {   
+                    if (typeof window['<?php echo e($btn['action'] ?? ''); ?>'] === 'function') {   
 
-                        window['{{ $btn['action'] }}'](e, dt, node, config, Array.from(selectedIds));
+                        window['<?php echo e($btn['action']); ?>'](e, dt, node, config, Array.from(selectedIds));
                     } else {
-                        console.warn('Custom action not found: {{ $btn['action'] ?? '' }}');
+                        console.warn('Custom action not found: <?php echo e($btn['action'] ?? ''); ?>');
                     }
                 }
             });
-        @endif
+        <?php endif; ?>
 
-    @endforeach
+    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
     const columnsConfig = [
         {
@@ -111,7 +112,8 @@ $(function () {
             }
         },
 
-        ...{!! json_encode($columns) !!}
+        ...<?php echo json_encode($columns); ?>
+
     ];
 
     const buttonsConfigFinal = buttonsConfig.length > 0 ? [{
@@ -142,7 +144,7 @@ $(function () {
         serverSide: true,
         order: [],  
         ajax: {
-            url: "{{ $ajaxUrl }}",
+            url: "<?php echo e($ajaxUrl); ?>",
             data: function (d) {
                 d.selectedOnlyClass = $('#filter-only-class').val();
                 $('[id^="filter-"]').each(function () {
@@ -185,18 +187,18 @@ $(function () {
         columns: columnsConfig,
         buttons: buttonsConfigFinal,
         language: {
-            searchPlaceholder: "{{ $searchPlaceholder }}",
+            searchPlaceholder: "<?php echo e($searchPlaceholder); ?>",
             search: ""
         },
 
         initComplete: function () {
 
-            $('#{{ $id }}_filter input').attr('placeholder', "{{ $searchPlaceholder }}");
+            $('#<?php echo e($id); ?>_filter input').attr('placeholder', "<?php echo e($searchPlaceholder); ?>");
 
             if(enableSchoolTermsFilter){
 
 
-                const TermList = @json($schoolTerms ?? []);      
+                const TermList = <?php echo json_encode($schoolTerms ?? [], 15, 512) ?>;      
                 const $dropdown = $('<select class="form-select form-select-sm ms-2" id="filter-school-terms" style="font-size: 13px;color: #2c2d78;"></select>');               
 
                 TermList.forEach(option => {
@@ -220,7 +222,7 @@ $(function () {
             }
 
             if (enableClassFilter) {
-                const classList = @json($classes ?? []);
+                const classList = <?php echo json_encode($classes ?? [], 15, 512) ?>;
                 const $dropdown = $('<select class="form-select form-select-sm ms-2" id="filter-class-section" style="font-size: 13px;color: #2c2d78;"></select>');               
                 $dropdown.append(new Option('All Classes', ''));
 
@@ -246,7 +248,7 @@ $(function () {
 
             if (enableClassSectionFilter) {
 
-                const classList = @json($classes ?? []);
+                const classList = <?php echo json_encode($classes ?? [], 15, 512) ?>;
                 const $classDropdown = $('<select class="form-select form-select-sm ms-2" id="filter-class" style="font-size: 13px;color: #2c2d78;"></select>'); 
                 const $sectionDropdown = $('<select class="form-select form-select-sm ms-2" id="filter-section" style="font-size: 13px;color: #2c2d78;"></select>'); 
                 
@@ -300,7 +302,7 @@ $(function () {
 
             if(enableStatusFilter) {
 
-                const testStatus = @json($statuses ?? []);
+                const testStatus = <?php echo json_encode($statuses ?? [], 15, 512) ?>;
                 const $statusDropDown = $('<select class="form-control form-select-sm ms-2"" id="filter-status" style="font-size: 13px;color: #2c2d78;"></select>');
                 testStatus.forEach(option => {  
                     const isSelected = option.value === selectedStatus;                
@@ -408,5 +410,6 @@ $(function () {
 
 });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
 
+<?php /**PATH C:\xampp\htdocs\nep\resources\views/components/listing-data.blade.php ENDPATH**/ ?>

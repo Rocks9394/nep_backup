@@ -121,17 +121,11 @@ class ReportController extends Controller {
 	        },
         ];
 
-
         return $dataTable->setQuery($query)->setFilters($filters)
-        ->setSearchableColumns(['student_name', 'admission_number'])
-		    ->setSortableColumns([
-		    'display_classname' => 'class_order',
-		    'section_id'        => 'section',
-		    'rollno'            => DB::raw('CAST(rollno AS UNSIGNED)'),
-		])
 
+        ->setSearchableColumns(['student_name', 'admission_number'])
 		->setSortableColumns([
-	    	'display_classname' =>'display_classname',
+	    	'display_classname' =>'class_order',
 	        'section_id'        => 'section',
 	        'rollno'            => 'rollno',
 	        'student_name'      => 'student_name',
@@ -168,11 +162,16 @@ class ReportController extends Controller {
 	/**
 	 * View Individual Reports
 	 * */
-    public function ViewFitnessReport($id, $term_id) {
-
- 	    $studentId = Crypt::decryptString($id);
+    public function ViewFitnessReport($id=null, $term_id=null) {
+		
+		if($id){
+			$studentId = Crypt::decryptString($id);
+		}else{
+			$studentId = Auth::guard('sstudent')->user()->id;
+		}
 	    $studentsData = $this->getStudentData($studentId);
-	    $TermMasterId = $term_id;  //$this->getTermId($studentsData->schools_id);
+		
+	    $TermMasterId = $term_id ?: $this->getTermId($studentsData->schools_id);
 
 	    $dob          = Carbon::parse($studentsData->dob);
 	    $studentAge   = $dob->age;
@@ -188,13 +187,10 @@ class ReportController extends Controller {
 	    if (in_array($studentsData->class_id, $this->higherClasses)) {
 
 			[$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport);
-				       
-			/*
-			return view('assessor.reports.senior-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
-				        ));
-			*/
 
-	        $pdf = PDF::loadView('reports.fitness.senior-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
+			return view('reports.fitness.html.senior-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'));
+
+	        $pdf = PDF::loadView('reports.fitness.pdf.senior-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
 	        ));
 			$filename  = 'Reports.pdf';
 			return $pdf->stream($filename);
@@ -203,14 +199,12 @@ class ReportController extends Controller {
 	    } else {
 
 	    	[$orderedReportData, $FmsReportData, $getFitnessBenchmark] =
-            $this->getJuniorReportData($studentsData->class_id, $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId);
+            $this->getJuniorReportData($studentsData->class_id, $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId);	
 
+			return view('reports.fitness.html.junior-report', compact('studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'));
+			
 
-        
-				        
-			/* return view('assessor.reports.junior-report', compact('studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'));
-			*/
-	        $pdf = Pdf::loadView('reports.fitness.junior-report', compact(
+	        $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
                 'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
             ));
 
@@ -220,7 +214,7 @@ class ReportController extends Controller {
 	}
 
 
-	public function downloadFitnessReport($id = null, $term_id = null){
+	public function downloadFitnessReport($id = null, $term_id = null) {
 
 		if($id){
 			$studentId = Crypt::decryptString($id);
@@ -231,7 +225,7 @@ class ReportController extends Controller {
         $studentsData = $this->getStudentData($studentId);
         if (!$studentsData) return null;
 
-        $TermMasterId = $term_id; //$this->getTermId($studentsData->schools_id);
+        $TermMasterId = $term_id ?: $this->getTermId($studentsData->schools_id);
 
         $dob = \Carbon\Carbon::parse($studentsData->dob);
         $studentAge = $dob->age;
@@ -247,7 +241,7 @@ class ReportController extends Controller {
 
             [$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport );
 
-            $pdf = Pdf::loadView('reports.fitness.senior-report', compact(
+            $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact(
                 'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
             ));
         } else {
@@ -256,7 +250,7 @@ class ReportController extends Controller {
                 $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId // <-- pass TermMasterId
             );
 
-            $pdf = Pdf::loadView('reports.fitness.junior-report', compact(
+            $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
                 'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
             ));
         }
@@ -287,6 +281,7 @@ class ReportController extends Controller {
             }
 
             $studentIds = $request->input('student_ids', []);
+
             if (empty($studentIds)) {
                 return response()->json([
                     'status' => 'error',
@@ -816,6 +811,31 @@ class ReportController extends Controller {
 	    return view('reports.summary.lowerclass', compact('title', 'classList', 'ajaxUrl'));
 	}
 
+
+	// for cbse report card 
+	public function ViewCbseReport($id){
+
+		$studentId = $id;
+	    $studentsData = $this->getStudentData($studentId);
+	    $TermMasterId = $this->getTermId($studentsData->schools_id);
+		
+	    $dob          = Carbon::parse($studentsData->dob);
+	    $studentAge   = $dob->age;
+	    $studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
+	    $ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
+		
+	    $reportData    = $this->getReportData($studentId,$TermMasterId);
+
+		
+		
+	    $mappedReport  = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
+		
+	    $groupedReport = $mappedReport->groupBy('Category');
+		// echo"<pre>";print_r($groupedReport);exit();
+		$classes = [9,10,11,12];
+
+		return view('reports.fitness.html.cbse-report', compact('studentsData','groupedReport','classes'));
+	}
 
 
 }

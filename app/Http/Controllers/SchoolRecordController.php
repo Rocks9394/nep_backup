@@ -4417,7 +4417,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
         $user = Auth::guard($guard)->loginUsingId($schoolId);
 
-        session()->forget(['Auth_id', 'impersonate_guard', 'student_id', 'student_name', 'clsss', 'section', 'rollno']);
+        session()->forget(['Auth_id', 'impersonate_guard', 'student_id', 'student_name', 'clsss', 'section', 'rollno','term_id']);
         $request->session()->regenerate();
         $cookie = cookie(
             'my_cookie_dot',
@@ -4437,28 +4437,4 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
         ])->cookie($cookie);
     }
 
-	// for cbse report card 
-	public function ViewCbseReport($id){
-
-		$studentId = $id;
-	    $studentsData = $this->getStudentData($studentId);
-	    $TermMasterId = $this->getTermId($studentsData->schools_id);
-		
-	    $dob          = Carbon::parse($studentsData->dob);
-	    $studentAge   = $dob->age;
-	    $studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
-	    $ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
-		
-	    $reportData    = $this->getReportData($studentId,$TermMasterId);
-
-		
-		
-	    $mappedReport  = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
-		
-	    $groupedReport = $mappedReport->groupBy('Category');
-		// echo"<pre>";print_r($groupedReport);exit();
-		$classes = [9,10,11,12];
-
-		return view('assessor.reports.cbse-report', compact('studentsData','groupedReport','classes'));
-	}
 }
