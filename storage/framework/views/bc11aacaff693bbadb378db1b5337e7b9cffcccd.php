@@ -1,6 +1,6 @@
-@extends('layouts.filldart-app')
-@section('title', 'Goforfit | ' . $title)
-@section('content')
+
+<?php $__env->startSection('title', 'Goforfit | ' . $title); ?>
+<?php $__env->startSection('content'); ?>
 
     <style type="text/css">
         .activity-info .activity-pending .activity-img::before {
@@ -26,21 +26,22 @@
         }
     </style>
     <div class="all-chaptr-cards1">
-        @if ($errors->any())
+        <?php if($errors->any()): ?>
             <div class="alert alert-info">
                 <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
+                    <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li><?php echo e($error); ?></li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </ul>
             </div>
-        @endif
+        <?php endif; ?>
 
-        @if (session('success'))
+        <?php if(session('success')): ?>
             <div class="alert alert-info">
-                {{ session('success') }}
+                <?php echo e(session('success')); ?>
+
             </div>
-        @endif
+        <?php endif; ?>
 
 
         <!-- Success message -->
@@ -50,8 +51,8 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="heading-rw mt-0 mt-md-1 mb-0 p-0">
-                                @if (auth()->guard('sstudent')->check())
-                                    <a href="{{ route('student.dashboard') }}" class="back-button">
+                                <?php if(auth()->guard('sstudent')->check()): ?>
+                                    <a href="<?php echo e(route('student.dashboard')); ?>" class="back-button">
                                         <span class="arrow"><svg xmlns="http://www.w3.org/2000/svg" width="16"
                                                 height="16" fill="currentColor" class="bi bi-arrow-left-short"
                                                 viewBox="0 0 16 16">
@@ -59,8 +60,8 @@
                                                     d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5" />
                                             </svg></span>
                                     </a>
-                                @else
-                                    <a href="{{ route('filldart.dashboard') }}" class="back-button">
+                                <?php else: ?>
+                                    <a href="<?php echo e(route('filldart.dashboard')); ?>" class="back-button">
                                         <span class="arrow"><svg xmlns="http://www.w3.org/2000/svg" width="16"
                                                 height="16" fill="currentColor" class="bi bi-arrow-left-short"
                                                 viewBox="0 0 16 16">
@@ -68,37 +69,31 @@
                                                     d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5" />
                                             </svg></span>
                                     </a>
-                                @endif
+                                <?php endif; ?>
 
-                                <h1 class="ml-md-4 mb-0">{{ $title }}</h1>
+                                <h1 class="ml-md-4 mb-0"><?php echo e($title); ?></h1>
                             </div>
 
                         </div>
 
                         <div class="col-12">
                             <div class="from__bx">
-                                <input type="hidden" name="school_id" id="school_id" value="{{ $schoolId }}">
+                                <input type="hidden" name="school_id" id="school_id" value="<?php echo e($schoolId); ?>">
                                 <div class="form-row mt-1 mt-lg-3">
 
-                                    {{--
-									<select class="form-control mx-0 w-100 ml-3" name="by_class_id" id="by_class_id"  onchange="getStudentDetail(0, this.value, this.options[this.selectedIndex].getAttribute('data-class-section'))">
-										<option value="">Select Class</option>
-										@foreach ($classes as $key => $val)
-										<option value="{{ $val->id }}" data-class-section="{{ $val->classname.'-'.$val->section }}">{{ $val->classname.'-'.$val->section }}</option>
-										@endforeach
-									</select>
-									--}}
+                                    
 
                                     <div class="col-12 col-md-4 col-lg">
                                         <select class="form-control mx-0 w-100 mb-3" name="by_class_id" id="by_class_id"
                                             onchange="getActivitiesDetail()">
-                                            @foreach ($classes as $val)
-                                                <option value="{{ $val->id }}"
-                                                    data-class-section="{{ $val->classname . '-' . $val->section }}"
-                                                    {{ request()->get('sclass') == $val->id ? 'selected' : '' }}>
-                                                    {{ $val->classname . '-' . $val->section }}
+                                            <?php $__currentLoopData = $classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $val): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($val->id); ?>"
+                                                    data-class-section="<?php echo e($val->classname . '-' . $val->section); ?>"
+                                                    <?php echo e(request()->get('sclass') == $val->id ? 'selected' : ''); ?>>
+                                                    <?php echo e($val->classname . '-' . $val->section); ?>
+
                                                 </option>
-                                            @endforeach
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
                                     </div>
 
@@ -109,13 +104,14 @@
                                         <select class="form-control mx-0 w-100 mb-3" name="by_skillarea_id"
                                             id="by_skillarea_id" onchange="getActivitiesDetail()">
                                             <option value="">SkillArea</option>
-                                            @foreach ($skillareas as $val)
-                                                <option value="{{ $val->id }}"
-                                                    data-class-section="{{ $val->id }}"
-                                                    {{ request('by_skillarea_id') == $val->id ? 'selected' : '' }}>
-                                                    {{ $val->name }}
+                                            <?php $__currentLoopData = $skillareas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $val): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($val->id); ?>"
+                                                    data-class-section="<?php echo e($val->id); ?>"
+                                                    <?php echo e(request('by_skillarea_id') == $val->id ? 'selected' : ''); ?>>
+                                                    <?php echo e($val->name); ?>
+
                                                 </option>
-                                            @endforeach
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
 
                                     </div>
@@ -125,13 +121,14 @@
                                         <select class="form-control mx-0 w-100 mb-3" name="by_sportskill_id"
                                             id="by_sportskill_id" onchange="getActivitiesDetail()">
                                             <option value="">Skill/Sports</option>
-                                            @foreach ($sportskills as $val)
-                                                <option value="{{ $val->id }}"
-                                                    data-class-section="{{ $val->id }}"
-                                                    {{ request('by_sportskill_id') == $val->id ? 'selected' : '' }}>
-                                                    {{ $val->name }}
+                                            <?php $__currentLoopData = $sportskills; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $val): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($val->id); ?>"
+                                                    data-class-section="<?php echo e($val->id); ?>"
+                                                    <?php echo e(request('by_sportskill_id') == $val->id ? 'selected' : ''); ?>>
+                                                    <?php echo e($val->name); ?>
+
                                                 </option>
-                                            @endforeach
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
                                     </div>
 
@@ -139,10 +136,10 @@
                                         <select class="form-control mx-0 w-100 mb-3" name="by_technique_id"
                                             id="by_technique_id" onchange="getActivitiesDetail()">
                                             <option value="">Technique</option>
-                                            @foreach ($techniques as $key => $val)
-                                                <option value="{{ $val->id }}"
-                                                    data-class-section="{{ $val->id }}">{{ $val->name }}</option>
-                                            @endforeach
+                                            <?php $__currentLoopData = $techniques; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $val): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($val->id); ?>"
+                                                    data-class-section="<?php echo e($val->id); ?>"><?php echo e($val->name); ?></option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
 
                                     </div>
@@ -170,9 +167,10 @@
                     <div class="row">
                         <div class="col-12">
                             <form method="POST" class="row mt-2 pt-2" name="view-trainer-report" id=""
-                                action="{{ route('student.map.students') }}">
-                                {{ method_field('post') }}
-                                @csrf
+                                action="<?php echo e(route('student.map.students')); ?>">
+                                <?php echo e(method_field('post')); ?>
+
+                                <?php echo csrf_field(); ?>
                                 <div class="col-12">
 
                                     <div id="activity_from_div" class="sports-filtr overlay activity_cards activity-info">
@@ -311,7 +309,7 @@
             const clsSecName = jQuery('#by_class_id option:selected').data('class-section');
             submitLoader();
             jQuery.ajax({
-                url: "{{ route('fetch.students.according.to.class') }}",
+                url: "<?php echo e(route('fetch.students.according.to.class')); ?>",
                 data: {
                     "custom_class_id": class_id,
                     "school_id": school_id,
@@ -319,7 +317,7 @@
                     "sport_skill_id": sport_skill_id,
                     "technique_id": technique_id,
                     "status": status_filter,
-                    "_token": "{{ csrf_token() }}"
+                    "_token": "<?php echo e(csrf_token()); ?>"
                 },
                 type: 'GET',
                 success: function(response) {
@@ -406,11 +404,11 @@
             jQuery('.msg_info').show();
             var school_id = jQuery('#school_id').val();
             jQuery.ajax({
-                url: "{{ route('fetch.students.according.to.class') }}",
+                url: "<?php echo e(route('fetch.students.according.to.class')); ?>",
                 data: {
                     "custom_class_id": val,
                     "school_id": school_id,
-                    "_token": "{{ csrf_token() }}"
+                    "_token": "<?php echo e(csrf_token()); ?>"
                 },
                 type: 'GET',
                 success: function(response) {
@@ -522,10 +520,10 @@
                 'techniue-' + technique);
             //alert(item);
             jQuery.ajax({
-                url: "{{ route('lession.plan.details') }}",
+                url: "<?php echo e(route('lession.plan.details')); ?>",
                 data: {
                     "activiy_id": ActivityId,
-                    "_token": "{{ csrf_token() }}"
+                    "_token": "<?php echo e(csrf_token()); ?>"
                 },
                 type: 'GET',
                 success: function(response) {
@@ -700,7 +698,7 @@
       animation: animloader 1s linear infinite alternate;
     }
 
-    @keyframes animloader {
+    @keyframes  animloader {
       0% {
         transform: translate(0px, 0px) scaleX(1);
       }
@@ -727,7 +725,7 @@
       }
     }
 
-    @keyframes animloader1 {
+    @keyframes  animloader1 {
       0% {
         box-shadow: 0 -6px, -122.9px -8px;
       }
@@ -743,4 +741,6 @@
 
 
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/fill-darts/activity-according-class.blade.php ENDPATH**/ ?>

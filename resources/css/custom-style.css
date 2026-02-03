@@ -1054,6 +1054,14 @@ tbody {
     padding: 2px 10px;
     border-radius: 60px;
 }
+
+.active-pending > span {
+    display: inline-block;
+    background: #ff8000;
+    color: #fff;
+    padding: 2px 10px;
+    border-radius: 60px;
+}
 .activity_cards .card .img_overlay {
     content: "";
     position: absolute;
