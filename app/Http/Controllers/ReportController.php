@@ -147,7 +147,14 @@ class ReportController extends Controller {
         ->addCustomColumn('viewReport', function ($row) {
             $id  = Crypt::encryptString($row->student_id);
             $url = route('reports.view.test', ['id' => $id, 'term_id' => $row->term_id]);
-            return "<a href='{$url}' target='_blank'>View</a>";
+			$html = "<a href='{$url}' target='_blank'>View</a>";
+			
+			// for heal and activity record (cbse)
+			if ($row->school_id == 15 && ($row->class_id >= 9 && $row->class_id <= 12)) {
+				$cbsceUrl = route('reports.cbse', ['id' => $id]);
+				$html .= "<br><a href='{$cbsceUrl}'>CBSE</a>";
+			}
+            return $html;
         })
 
         ->addCustomColumn('downloadReport', function ($row) {
@@ -842,26 +849,80 @@ class ReportController extends Controller {
 	// for cbse report card 
 	public function ViewCbseReport($id){
 
-		$studentId = $id;
+		$studentId = Crypt::decryptString($id);
 	    $studentsData = $this->getStudentData($studentId);
-	    $TermMasterId = $this->getTermId($studentsData->schools_id);
-		
-	    $dob          = Carbon::parse($studentsData->dob);
+
+		$termIds = [$this->getTermId($studentsData->schools_id)];
+
+		$currentTermId  = $termIds[0] ?? null;
+		$previousTermId = $termIds[1] ?? null;
+       
+
+ 	    $dob          = Carbon::parse($studentsData->dob);
 	    $studentAge   = $dob->age;
 	    $studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
 	    $ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
-		
-	    $reportData    = $this->getReportData($studentId,$TermMasterId);
 
-		
-		
+	    // Fetch report + benchmarks
+	    $reportData = $this->getReportData($studentId, $termIds);
 	    $mappedReport  = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
+	    $groupedReport = $mappedReport->groupBy('Category')
+	    ->map(function ($items) use ($currentTermId, $previousTermId) {
+	        return $items
+	            ->filter(fn ($row) =>
+	                in_array((int) $row['TermId'], [$currentTermId, $previousTermId])
+	            )
+	            ->groupBy(fn ($row) =>
+	                (int) $row['TermId'] === (int) $currentTermId
+	                    ? 'Current_Term'
+	                    : 'Previous_Term'
+	            );
+	    });
 		
-	    $groupedReport = $mappedReport->groupBy('Category');
-		// echo"<pre>";print_r($groupedReport);exit();
 		$classes = [9,10,11,12];
 
 		return view('reports.fitness.html.cbse-report', compact('studentsData','groupedReport','classes'));
+	}
+
+	public function downloadCbseReport($id){
+
+		$studentId = Crypt::decryptString($id);
+	    $studentsData = $this->getStudentData($studentId);
+
+		$termIds = [$this->getTermId($studentsData->schools_id)];
+
+		$currentTermId  = $termIds[0] ?? null;
+		$previousTermId = $termIds[1] ?? null;
+       
+
+ 	    $dob          = Carbon::parse($studentsData->dob);
+	    $studentAge   = $dob->age;
+	    $studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
+	    $ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
+
+	    // Fetch report + benchmarks
+	    $reportData = $this->getReportData($studentId, $termIds);
+	    $mappedReport  = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
+	    $groupedReport = $mappedReport->groupBy('Category')
+	    ->map(function ($items) use ($currentTermId, $previousTermId) {
+	        return $items
+	            ->filter(fn ($row) =>
+	                in_array((int) $row['TermId'], [$currentTermId, $previousTermId])
+	            )
+	            ->groupBy(fn ($row) =>
+	                (int) $row['TermId'] === (int) $currentTermId
+	                    ? 'Current_Term'
+	                    : 'Previous_Term'
+	            );
+	    });
+		
+		$classes = [9,10,11,12];
+
+		$pdf = Pdf::loadView('reports.fitness.pdf.cbse-report', compact('studentsData','groupedReport','classes'));
+		$filename = 'CBSE_Report_Card'.'.pdf';
+		return $pdf->download($filename);
+
+		// return view('reports.fitness.html.cbse-report', compact('studentsData','groupedReport','classes'));
 	}
 
 

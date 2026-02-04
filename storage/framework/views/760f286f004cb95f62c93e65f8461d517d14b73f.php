@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Health and Activity Record</title>
 
     <style>
@@ -43,7 +42,7 @@
         .score{
             text-align: center;
         }
-        @page {
+        @page  {
             size: A4 landscape;
             margin: 0;
         }
@@ -54,7 +53,7 @@
 </head>
 
 <body class="text-center">
-    @php  $GetSchoolLogo = Helper::GetSchoolLogo();  @endphp
+    <?php  $GetSchoolLogo = Helper::GetSchoolLogo();  ?>
     <table cellpadding="0" cellspacing="0" style="width: 29.7cm; margin: 0 auto; background-color: #fff;">
 
         <!-- COVER PAGE -->
@@ -66,12 +65,12 @@
                     <!-- HEADER -->
                     <tr style="background-color: #0A87CD; height: 140px; position:relative; z-index:2;">
                         <td>
-                            <table cellpadding="0" cellspacing="0" style="width:100%; height:100%;">
+                            <table cellpadding="0" cellspacing="0" style="width:100%; height:15%;">
                                 <tr>
                                     <td style="width:180px;"></td>
 
                                     <td style="position: relative; width: 220px;">
-                                        <img src="{{ asset('/public/assets/reports/yellow-dot.png') }}"
+                                        <img src="<?php echo e(public_path('assets/reports/yellow-dot.png')); ?>"
                                             style="width: 50px;
                                                 position: absolute;
                                                 left: -50px;
@@ -79,9 +78,9 @@
 
                                         <!-- logo wrapper -->
                                         <div style="position:absolute; top:0;">
-                                            <img src="{{ asset('/public/assets/reports/logo-bg.jpg') }}"
+                                            <img src="<?php echo e(public_path('assets/reports/logo-bg.jpg')); ?>"
                                                 style="width: 200px; margin-top: -50px;">
-                                            <img src="{{ asset('/public/assets/reports/seqfast-logo.png') }}"
+                                            <img src="<?php echo e(public_path('assets/reports/seqfast-logo.png')); ?>"
                                                 style="
                                                     width: 167px;
                                                     position: absolute;
@@ -109,10 +108,10 @@
 
                     <tr>
                         <td style="position:relative; z-index:1;">
-                            <img src="{{ asset('public/assets/reports/report-cover-img.png') }}"
-                                style="width:85%;">
+                            <img src="<?php echo e(public_path('assets/reports/report-cover-img.png')); ?>"
+                                style="width:85%; height:60%;">
 
-                            <img src="{{ asset('public/assets/reports/report-graphic.png') }}"
+                            <img src="<?php echo e(public_path('assets/reports/report-graphic.png')); ?>"
                                 style="position:absolute; right:40px; top:25%; width:220px;">
                         </td>
                     </tr>
@@ -137,12 +136,12 @@
                                                 text-transform:uppercase;">
                                                 For Senior
                                             </span>
-                                            <img src="{{ asset('/public/assets/reports/aa-bg.png') }}"
+                                            <img src="<?php echo e(public_path('assets/reports/aa-bg.png')); ?>"
                                                 style="width:200px;">
                                         </div>
                                     </td>
                                     <td style="padding:30px;">
-                                        <img src="{{ asset('public/assets/uploads/logos/' . $GetSchoolLogo->logo) }}"
+                                        <img src="<?php echo e(public_path('assets/uploads/logos/' . $GetSchoolLogo->logo)); ?>"
                                             style="height:100px; object-fit:contain;">
 
                                         <div style="height:20px;"></div>
@@ -156,7 +155,7 @@
                                             position:relative;
                                             margin-left: -30px;">
                                             Personal Profile
-                                            <img src="{{ asset('/public/assets/reports/green-bg.jpg') }}" style="width:20px; position:absolute; right:-20px; top:100%;">
+                                            <img src="<?php echo e(public_path('assets/reports/green-bg.jpg')); ?>" style="width:20px; position:absolute; right:-20px; top:100%;">
                                         </div>
 
                                         <div style="height:20px;"></div>
@@ -167,7 +166,7 @@
                                                     <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px">
                                                         <tr>
                                                             <td style="padding: 0px 0px 2px 0px;"><span style="display: inline-block; margin-right: 5px;">Name</span></td>
-                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; font-size: 18px; padding: 2px 0px; text-transform:uppercase;">{{ $studentsData->student_name }}</td>
+                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; font-size: 18px; padding: 2px 0px; text-transform:uppercase;"><?php echo e($studentsData->student_name); ?></td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -177,7 +176,7 @@
                                                     <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px;">
                                                         <tr>
                                                             <td style="padding: 0px 0px 2px 0px;"><span style="display: inline-block; margin-right: 5px;">Class&nbsp;&&nbsp;Section</span></td>
-                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;"> {{ $studentsData->display_classname }}-{{ $studentsData->section }}</td>
+                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;"> <?php echo e($studentsData->display_classname); ?>-<?php echo e($studentsData->section); ?></td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -189,7 +188,7 @@
                                                     <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px">
                                                         <tr>
                                                             <td style="padding: 0px 0px 2px 0px;"><span style="display: inline-block; margin-right: 5px; margin-left: 0px;">Roll&nbsp;No.</span></td>
-                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;">{{ $studentsData->rollno ?? ''}}</td>
+                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;"><?php echo e($studentsData->rollno ?? ''); ?></td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -197,7 +196,7 @@
                                                     <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px">
                                                         <tr>
                                                             <td style="padding: 0px 0px 2px 0px;"><span style="display: inline-block; margin-right: 5px;">Registration&nbsp;No</span></td>
-                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;">{{ $studentsData->admissionnumber }}</td>
+                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;"><?php echo e($studentsData->admissionnumber); ?></td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -208,7 +207,7 @@
                                                         <tr>
                                                             <td style="padding: 0px 0px 2px 0px;"><span style="display: inline-block; margin-right: 5px;">DOB</span></td>
 
-                                                            @php
+                                                            <?php
                                                                 use Carbon\Carbon;
 
                                                                 $dob = Carbon::parse($studentsData->dob); 
@@ -221,8 +220,8 @@
                                                                 } else {
                                                                     $gender = 'Girl';
                                                                 }
-                                                            @endphp
-                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;"> {{ $formattedDob }} ({{ $age }} Years)</td>
+                                                            ?>
+                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;"> <?php echo e($formattedDob); ?> (<?php echo e($age); ?> Years)</td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -230,7 +229,7 @@
                                                     <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px">
                                                         <tr>
                                                             <td style="padding: 0px 0px 2px 0px;"><span style="display: inline-block; margin-right: 5px; margin-left: 5px;">Gender</span></td>
-                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;">{{ $gender }}</td>
+                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;"><?php echo e($gender); ?></td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -243,7 +242,7 @@
                                                     <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px">
                                                         <tr>
                                                             <td style="padding: 0px 0px 2px 0px;"><span style="display: inline-block; margin-right: 5px;">School</span></td>
-                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;">{{ $studentsData->school_name }}</td>
+                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;"><?php echo e($studentsData->school_name); ?></td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -253,7 +252,7 @@
                                                     <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px">
                                                         <tr>
                                                             <td style="padding: 0px 0px 2px 0px;"><span style="display: inline-block; margin-right: 5px;">Code</span></td>
-                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;">{{ $studentsData->school_code }}</td>
+                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;"><?php echo e($studentsData->school_code); ?></td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -261,7 +260,7 @@
                                                     <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px">
                                                         <tr>
                                                             <td style="padding: 0px 0px 2px 0px;">&nbsp;&nbsp;APAAR&nbsp;ID&nbsp;<span style="display: inline-block; margin-left: 0px; margin-right: 5px; font-size:11px;">(Optional)</span></td>
-                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;">{{ $studentsData->apaarId ?? ''}}</td>
+                                                            <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;"><?php echo e($studentsData->apaarId ?? ''); ?></td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -311,7 +310,7 @@
             <h3 class="text-center">HEALTH AND ACTIVITY RECORD</h3>
         </header>
 
-        @php
+        <?php
         
             $testMap = [
                 'BMI' => 'BMI',
@@ -327,9 +326,9 @@
                 'Alternative Hand Wall Toss Test' => 'Alternative Hand Wall Toss Test',
             ];
             $classList = [9,10,11,12];
-        @endphp
+        ?>
 
-        @php
+        <?php
             function getScore($groupedReport, $dbTestName) {
 
                 foreach ($groupedReport as $category) {
@@ -355,7 +354,7 @@
 
                 return '--';
             }
-        @endphp
+        ?>
 
 
         <div class="table-container m-3">
@@ -380,11 +379,11 @@
                         <td></td>
                         <td>BMI</td>
                         <td>Body Mass Index for specific Age and Gender</td>
-                        @foreach($classList as $class)
+                        <?php $__currentLoopData = $classList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <td>
-                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['BMI']) : '--' }}</p>
+                                <p class="score"><?php echo e($studentsData->class_id == $class ? getScore($groupedReport, $testMap['BMI']) : '--'); ?></p>
                             </td>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tr>
 
                     <tr>
@@ -392,11 +391,11 @@
                         <td>Core</td>
                         <td>Partial Curl up</td>
                         <td>Abdominal Muscular Endurance</td>
-                        @foreach($classList as $class)
+                        <?php $__currentLoopData = $classList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <td>
-                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Partial Curl up']) : '--' }}</p>
+                                <p class="score"><?php echo e($studentsData->class_id == $class ? getScore($groupedReport, $testMap['Partial Curl up']) : '--'); ?></p>
                             </td>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                     </tr>
 
@@ -404,11 +403,11 @@
                         <td>Upper Body</td>
                         <td>Flexed/Bent Arm Hang</td>
                         <td>Muscular Endurance / Functional Strength</td>
-                        @foreach($classList as $class)
+                        <?php $__currentLoopData = $classList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <td>
-                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Flexed/Bent Arm Hang']) : '--' }}</p>
+                                <p class="score"><?php echo e($studentsData->class_id == $class ? getScore($groupedReport, $testMap['Flexed/Bent Arm Hang']) : '--'); ?></p>
                             </td>                            
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tr>
 
                     <tr>
@@ -416,11 +415,11 @@
                         <td></td>
                         <td>Sit and Reach</td>
                         <td>Measures flexibility of lower back and hamstrings</td>
-                        @foreach($classList as $class)
+                        <?php $__currentLoopData = $classList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <td>
-                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Sit and Reach']) : '--' }}</p>
+                                <p class="score"><?php echo e($studentsData->class_id == $class ? getScore($groupedReport, $testMap['Sit and Reach']) : '--'); ?></p>
                             </td>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tr>
 
                     <tr>
@@ -428,11 +427,11 @@
                         <td></td>
                         <td>600 Mtr Run</td>
                         <td>Cardiovascular Fitness</td>
-                        @foreach($classList as $class)
+                        <?php $__currentLoopData = $classList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <td>
-                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['600 Mtr Run']) : '--' }}</p>
+                                <p class="score"><?php echo e($studentsData->class_id == $class ? getScore($groupedReport, $testMap['600 Mtr Run']) : '--'); ?></p>
                             </td>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tr>
 
                     <tr>
@@ -440,11 +439,11 @@
                         <td>Static Balance</td>
                         <td>Flamingo Balance Test</td>
                         <td>Ability to balance on a single leg</td>
-                        @foreach($classList as $class)
+                        <?php $__currentLoopData = $classList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <td>
-                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Flamingo Balance Test']) : '--' }}</p>
+                                <p class="score"><?php echo e($studentsData->class_id == $class ? getScore($groupedReport, $testMap['Flamingo Balance Test']) : '--'); ?></p>
                             </td>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tr>
 
                     <tr>
@@ -453,11 +452,11 @@
                         <td></td>
                         <td>Shuttle Run</td>
                         <td>Test of speed and agility</td>
-                        @foreach($classList as $class)
+                        <?php $__currentLoopData = $classList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <td>
-                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Shuttle Run']) : '--' }}</p>
+                                <p class="score"><?php echo e($studentsData->class_id == $class ? getScore($groupedReport, $testMap['Shuttle Run']) : '--'); ?></p>
                             </td>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tr>
 
                     <tr>
@@ -465,11 +464,11 @@
                         <td></td>
                         <td>Sprint / Dash</td>
                         <td>Determines acceleration and speed</td>
-                        @foreach($classList as $class)
+                        <?php $__currentLoopData = $classList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <td>
-                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Sprint / Dash']) : '--' }}</p>
+                                <p class="score"><?php echo e($studentsData->class_id == $class ? getScore($groupedReport, $testMap['Sprint / Dash']) : '--'); ?></p>
                             </td>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tr>
                     </tr>
 
@@ -478,11 +477,11 @@
                         <td></td>
                         <td>Standing Vertical Jump</td>
                         <td>Measures leg power</td>
-                        @foreach($classList as $class)
+                        <?php $__currentLoopData = $classList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <td>
-                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Standing Vertical Jump']) : '--' }}</p>
+                                <p class="score"><?php echo e($studentsData->class_id == $class ? getScore($groupedReport, $testMap['Standing Vertical Jump']) : '--'); ?></p>
                             </td>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tr>
 
                     <tr>
@@ -490,11 +489,11 @@
                         <td></td>
                         <td>Plate Tapping</td>
                         <td>Tests speed & coordination</td>
-                        @foreach($classList as $class)
+                        <?php $__currentLoopData = $classList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <td>
-                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Plate Tapping']) : '--' }}</p>
+                                <p class="score"><?php echo e($studentsData->class_id == $class ? getScore($groupedReport, $testMap['Plate Tapping']) : '--'); ?></p>
                             </td>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tr>
 
                     <tr>
@@ -502,11 +501,11 @@
                         <td></td>
                         <td>Alternative Hand Wall Toss Test</td>
                         <td>Measures hand–eye coordination</td>
-                         @foreach($classList as $class)
+                         <?php $__currentLoopData = $classList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <td>
-                                <p class="score">{{ $studentsData->class_id == $class ? getScore($groupedReport, $testMap['Alternative Hand Wall Toss Test']) : '--' }}</p>
+                                <p class="score"><?php echo e($studentsData->class_id == $class ? getScore($groupedReport, $testMap['Alternative Hand Wall Toss Test']) : '--'); ?></p>
                             </td>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tr>
                 </tbody>
             </table>
@@ -515,65 +514,8 @@
         <p class="mt-3">
             <strong>Note:</strong> Test details are available in the HPE manual on the CBSE website.
         </p>
-
     </div>
-
-    <button class="btn btn-primary mb-3" onclick="downloadPDF()">📄 Download Report</button>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <script>
-        async function downloadPDF() {
-    
-            Swal.fire({
-                title: 'Generating PDF...',
-                text: 'Please wait while the PDF is being generated.',
-                didOpen: () => {
-                    Swal.showLoading();
-                },
-                allowOutsideClick: false,
-            });
-
-            try {
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('landscape', 'pt', 'a4');
-                const element = document.getElementById("content-to-download");        
-                const canvas = await html2canvas(element, { scale: 4 });
-                const imgData = canvas.toDataURL('image/png');
-
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-
-                const imgWidth = canvas.width;
-                const imgHeight = canvas.height;
-                const scale = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
-                const finalWidth = imgWidth * scale;
-                const finalHeight = imgHeight * scale;
-                const marginX = (pageWidth - finalWidth) / 2;
-                const marginY = (pageHeight - finalHeight) / 2;
-        
-                pdf.addImage(imgData, 'PNG', marginX, marginY, finalWidth, finalHeight);       
-                pdf.save("Cbse_Health_Record.pdf");
-
-                Swal.close();                        
-                Swal.fire({
-                    icon: 'success',
-                    title: 'PDF Generated',
-                    text: 'The PDF has been successfully generated and downloaded.',
-                    allowOutsideClick: false,
-                });
-            } catch (error) {        
-                Swal.close();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Something went wrong while generating the PDF. Please try again.',
-                    allowOutsideClick: false,
-                });
-            }
-        }
-    </script>
 
 </body>
 </html>
+<?php /**PATH C:\xampp\htdocs\nep\resources\views/reports/fitness/pdf/cbse-report.blade.php ENDPATH**/ ?>

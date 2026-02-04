@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Health and Activity Record</title>
 
     <style>
@@ -66,12 +65,12 @@
                     <!-- HEADER -->
                     <tr style="background-color: #0A87CD; height: 140px; position:relative; z-index:2;">
                         <td>
-                            <table cellpadding="0" cellspacing="0" style="width:100%; height:100%;">
+                            <table cellpadding="0" cellspacing="0" style="width:100%; height:15%;">
                                 <tr>
                                     <td style="width:180px;"></td>
 
                                     <td style="position: relative; width: 220px;">
-                                        <img src="{{ asset('/public/assets/reports/yellow-dot.png') }}"
+                                        <img src="{{ public_path('assets/reports/yellow-dot.png') }}"
                                             style="width: 50px;
                                                 position: absolute;
                                                 left: -50px;
@@ -79,9 +78,9 @@
 
                                         <!-- logo wrapper -->
                                         <div style="position:absolute; top:0;">
-                                            <img src="{{ asset('/public/assets/reports/logo-bg.jpg') }}"
+                                            <img src="{{ public_path('assets/reports/logo-bg.jpg') }}"
                                                 style="width: 200px; margin-top: -50px;">
-                                            <img src="{{ asset('/public/assets/reports/seqfast-logo.png') }}"
+                                            <img src="{{ public_path('assets/reports/seqfast-logo.png') }}"
                                                 style="
                                                     width: 167px;
                                                     position: absolute;
@@ -109,10 +108,10 @@
 
                     <tr>
                         <td style="position:relative; z-index:1;">
-                            <img src="{{ asset('public/assets/reports/report-cover-img.png') }}"
-                                style="width:85%;">
+                            <img src="{{ public_path('assets/reports/report-cover-img.png') }}"
+                                style="width:85%; height:60%;">
 
-                            <img src="{{ asset('public/assets/reports/report-graphic.png') }}"
+                            <img src="{{ public_path('assets/reports/report-graphic.png') }}"
                                 style="position:absolute; right:40px; top:25%; width:220px;">
                         </td>
                     </tr>
@@ -137,12 +136,12 @@
                                                 text-transform:uppercase;">
                                                 For Senior
                                             </span>
-                                            <img src="{{ asset('/public/assets/reports/aa-bg.png') }}"
+                                            <img src="{{ public_path('assets/reports/aa-bg.png') }}"
                                                 style="width:200px;">
                                         </div>
                                     </td>
                                     <td style="padding:30px;">
-                                        <img src="{{ asset('public/assets/uploads/logos/' . $GetSchoolLogo->logo) }}"
+                                        <img src="{{ public_path('assets/uploads/logos/' . $GetSchoolLogo->logo) }}"
                                             style="height:100px; object-fit:contain;">
 
                                         <div style="height:20px;"></div>
@@ -156,7 +155,7 @@
                                             position:relative;
                                             margin-left: -30px;">
                                             Personal Profile
-                                            <img src="{{ asset('/public/assets/reports/green-bg.jpg') }}" style="width:20px; position:absolute; right:-20px; top:100%;">
+                                            <img src="{{ public_path('assets/reports/green-bg.jpg') }}" style="width:20px; position:absolute; right:-20px; top:100%;">
                                         </div>
 
                                         <div style="height:20px;"></div>
@@ -515,65 +514,7 @@
         <p class="mt-3">
             <strong>Note:</strong> Test details are available in the HPE manual on the CBSE website.
         </p>
-
     </div>
-
-    <button class="btn btn-primary mb-3" onclick="downloadPDF()">📄 Download Report</button>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <script>
-        async function downloadPDF() {
-    
-            Swal.fire({
-                title: 'Generating PDF...',
-                text: 'Please wait while the PDF is being generated.',
-                didOpen: () => {
-                    Swal.showLoading();
-                },
-                allowOutsideClick: false,
-            });
-
-            try {
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('landscape', 'pt', 'a4');
-                const element = document.getElementById("content-to-download");        
-                const canvas = await html2canvas(element, { scale: 4 });
-                const imgData = canvas.toDataURL('image/png');
-
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-
-                const imgWidth = canvas.width;
-                const imgHeight = canvas.height;
-                const scale = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
-                const finalWidth = imgWidth * scale;
-                const finalHeight = imgHeight * scale;
-                const marginX = (pageWidth - finalWidth) / 2;
-                const marginY = (pageHeight - finalHeight) / 2;
-        
-                pdf.addImage(imgData, 'PNG', marginX, marginY, finalWidth, finalHeight);       
-                pdf.save("Cbse_Health_Record.pdf");
-
-                Swal.close();                        
-                Swal.fire({
-                    icon: 'success',
-                    title: 'PDF Generated',
-                    text: 'The PDF has been successfully generated and downloaded.',
-                    allowOutsideClick: false,
-                });
-            } catch (error) {        
-                Swal.close();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Something went wrong while generating the PDF. Please try again.',
-                    allowOutsideClick: false,
-                });
-            }
-        }
-    </script>
 
 </body>
 </html>
