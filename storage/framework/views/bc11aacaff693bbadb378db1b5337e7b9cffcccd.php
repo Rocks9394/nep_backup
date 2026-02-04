@@ -240,8 +240,8 @@
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                     </div>
-                    <div class="img-act w-100" style="height:480px;">
-                        <img id="modal-image" src="" alt="Activity Image" class="img-fluid mb-3">
+                    <div class="img-act1 w-100" style="display: flex; justify-content: center; align-items: center;">
+                        <img id="modal-image" src="image.jpg" alt="Activity Image" style="height: 360px; max-width: 100%; max-height: 100%; object-fit: contain;">
                     </div>
 
                     <div class="description break-line" id="model-description-parent_id">
@@ -250,21 +250,21 @@
                     </div>
                     
                     <div class="break-line pt-3 pb-2 my-3" id="learning_outcomes_parent_id">
-                        <h3 class="card-title">Learning Outcomes</h3>
+                        <h3>Learning Outcomes</h3>
                         <p id="learning_outcomes_id" class="l-cum"></p>
                     </div>
                     <div class="break-line pt-3 pb-2 my-3" id="change_it_parent_id">
-                        <h4>Variation</h4>
+                        <h3>Variation</h3>
                         <p id="change_it_id"></p>
                     </div>
 
                     <div class="break-line pt-3 pb-2 my-3" id="coaching_parent_id">
-                        <h4>Coaching/Teaching Tips</h4>
+                        <h3>Coaching/Teaching Tips</h3>
                         <p id="coaching_id"></p>
                     </div>
 
                     <div class="break-line pt-3 pb-2 my-3" id="equipment_parent_id">
-                        <h4>Equipment</h4>
+                        <h3>Equipment</h3>
                         <p id="equipment_id"></p>
                     </div>
 
@@ -622,18 +622,13 @@
                                 .html('<span>Upcoming</span>');
                         }
 
-
-
-
-
-
                         var src = $("#youtubeurl_id").attr('src');
                         if (src && src.length > 0) {
-                            $(".img-act").hide();
+                            $(".img-act1").hide();
                             $(".act__video").show();
                         } else {
                             $(".act__video").hide();
-                            $(".img-act").show();
+                            $(".img-act1").show();
                         }
 
                     });

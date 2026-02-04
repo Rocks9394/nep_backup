@@ -276,76 +276,76 @@ class ImportFitnessTestData implements ToCollection, WithHeadingRow, WithChunkRe
 
             }
 
-            // echo"<pre>";print_r($this->insertData);exit();
 
             if (!empty($this->insertData)) {
                 if ($this->action === 'override') {
                     DB::table('SeniorTestResults')
-                    ->where('SchoolID', $this->school_id)
-                    ->where('TestTypeID', $this->skillId)
-                    ->where('TermId', $TermMasterId)
-                    ->whereIn('StudentID', $studentIds)
-                    ->delete();
+                        ->where('SchoolID', $this->school_id)
+                        ->where('TestTypeID', $this->skillId)
+                        ->where('TermId', $TermMasterId)
+                        ->whereIn('StudentID', $studentIds)
+                        ->delete();
                 }
-
+                
                 if ($this->action === 'skip') {
-                    $existingStudentIds =  DB::table('SeniorTestResults')
+                    $existingStudentIds = DB::table('SeniorTestResults')
                         ->where('SchoolID', $this->school_id)
                         ->where('TestTypeID', $this->skillId)
                         ->where('TermId', $TermMasterId)
                         ->pluck('StudentID')
                         ->toArray();
-                        
+
                     $this->insertData = array_values(array_filter(
                         $this->insertData,
                         fn ($row) => !in_array($row['StudentID'], $existingStudentIds)
-                    ));                    
-                    
+                    ));
                 }
 
                 if (!empty($this->insertData)) {
-                    DB::table('SeniorTestResults')
-                        ->insert($this->insertData);
-                }
-                $studentScoreMap = [];
-                foreach ($this->insertData as $row) {
-                    $studentScoreMap[$row['StudentID']] = [
-                        'score'  => $row['Score'],
-                        'height' => $row['height'] ?? null,
-                        'weight' => $row['weight'] ?? null,
-                        'class'  => $this->studentClasses[$row['StudentID']] ?? null,
-                    ];
-                }
-                foreach ($studentScoreMap as $studentId => $data) {
-                    $score  = $data['score'];
-                    $height = $data['height'];
-                    $weight = $data['weight'];
-                    $class  = $data['class'];
-                    $classNumber = (int) filter_var($class, FILTER_SANITIZE_NUMBER_INT);
-                    
-                    if ($this->skillId == 16 || $this->skillId == 17 || ($this->skillId == 18 && $classNumber < 4)) {
-                      $this->UpdateLowerTestStatus(
-                            $studentId,
-                            $TermMasterId,
-                            $this->skillId,
-                            $score,
-                            $this->school_id,
-                            $height,
-                            $weight
-                        );
-                    } else {
-                        $this->UpdateSeniorTestStatus(
-                            $studentId,
-                            $TermMasterId,
-                            $this->skillId,
-                            $score,
-                            $this->school_id,
-                            $height,
-                            $weight
-                        );
-                    }
-                }
+                    DB::table('SeniorTestResults')->insert($this->insertData);
 
+                    $studentScoreMap = [];
+                    foreach ($this->insertData as $row) {
+                        $studentScoreMap[$row['StudentID']] = [
+                            'score'  => $row['Score'],
+                            'height' => $row['height'] ?? null,
+                            'weight' => $row['weight'] ?? null,
+                            'class'  => $this->studentClasses[$row['StudentID']] ?? null,
+                        ];
+                    }
+                    foreach ($studentScoreMap as $studentId => $data) {
+                        $classNumber = (int) filter_var($data['class'], FILTER_SANITIZE_NUMBER_INT);
+
+                        if (
+                            $this->skillId == 16 ||
+                            $this->skillId == 17 ||
+                            ($this->skillId == 18 && $classNumber < 4)
+                        ) {
+                            $this->UpdateLowerTestStatus(
+                                $studentId,
+                                $TermMasterId,
+                                $this->skillId,
+                                $data['score'],
+                                $this->school_id,
+                                $data['height'],
+                                $data['weight']
+                            );
+                        } else {
+                            $this->UpdateSeniorTestStatus(
+                                $studentId,
+                                $TermMasterId,
+                                $this->skillId,
+                                $data['score'],
+                                $this->school_id,
+                                $data['height'],
+                                $data['weight']
+                            );
+                        }
+                    }
+
+                    $this->insertData = [];
+                    $this->studentClasses = [];
+                }
             }
 
             $this->updateImportLog($skillDetails->skill_name);
