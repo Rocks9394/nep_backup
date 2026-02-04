@@ -1054,7 +1054,6 @@ tbody {
     padding: 2px 10px;
     border-radius: 60px;
 }
-
 .active-pending > span {
     display: inline-block;
     background: #ff8000;
@@ -2056,12 +2055,9 @@ h3.modal-title {
     margin: 0 0 0 15px;
 }
 
-
 .img-act {
-    height: 480px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background: #fff;
+    margin: 0px !important;
     /* overflow: hidden; */
     border-radius: 12px;
     /* padding: 10px; */

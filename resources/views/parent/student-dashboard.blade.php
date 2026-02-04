@@ -372,10 +372,12 @@
         
         <div class="form-row download-report mb-4">
             <div class="col-12 col-sm-4 col-lg-4 mb-3">
+                <!-- <a href="#" class="btn btn-primary btn-lg w-100" onclick="availbleSoon();">View Report </a> -->
                 <a href="{{ route('reports.view.test')}}" class="btn btn-primary btn-lg w-100" target="_blank">View Report </a>
             </div>
             <div class="col-12 col-sm-4 col-lg-4 mb-3">
-                <a href="{{ route('download.fitness.reports')}}" class="btn btn-primary btn-lg w-100">Download Report <i class="fa fa-angle-right"></i> </a>
+                <!-- <a href="#" class="btn btn-primary btn-lg w-100" onclick="availbleSoon();">Download Report </a> -->
+                <a href="{{ route('download.fitness.reports')}}" class="btn btn-primary btn-lg w-100">Download Report </a>
             </div>
             <div class="col-12 col-sm-4 col-lg-4 mb-3">
                 <a href="" id="openFitnessModal" class="btn btn-primary btn-lg w-100" >National Benchmark </a>
@@ -473,6 +475,16 @@
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
 
+    function availbleSoon(){
+        Swal.fire({
+            title: 'Under Maintenance',
+            icon: 'info',
+            text: 'This feature will be available soon. Please try again later.',
+            allowOutsideClick: false
+        });
+
+        return;
+    }
     // google gague for bmi 
 
     if (document.getElementById('bmi_gauge')) {

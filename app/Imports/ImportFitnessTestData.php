@@ -278,6 +278,7 @@ class ImportFitnessTestData implements ToCollection, WithHeadingRow, WithChunkRe
 
 
             if (!empty($this->insertData)) {
+
                 if ($this->action === 'override') {
                     DB::table('SeniorTestResults')
                         ->where('SchoolID', $this->school_id)

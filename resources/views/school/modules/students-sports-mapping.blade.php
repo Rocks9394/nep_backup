@@ -31,7 +31,7 @@
                         'type' => 'custom', 'text' => 'Students Sport Mapping', 'action' => 'ExportStudentSportsMapping'
                     ]
                 ]"
-                :enable-class-filter="true"
+                :enable-class-filter="false"
             >
             </x-data-listing-component>
         </div>

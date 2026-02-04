@@ -2990,6 +2990,8 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		}
 
 		$school->sports()->sync($syncData);
+		
+		// echo"<pre>";print_r($school);exit();
 		return redirect()->back()->with('success', 'Sports Mapped successfully!');
 	}
 
@@ -4252,6 +4254,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	                's.class_id',
 	                'c.name as class',
 	                's.section_id',
+					'custom_classes.orders as class_order',
 	                's.rollno',
 	                DB::raw("CASE WHEN sp.name IS NULL THEN '---' ELSE sp.name END as sport_name"),
 	                DB::raw("CASE WHEN u.name IS NULL THEN '---' ELSE u.name END as submitted_by"),
@@ -4307,9 +4310,9 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 	        return $dataTable
             ->setQuery($query)
-            ->setColumns([
+            ->setSortableColumns([
 			    'student_name' => 's.student_name',
-			    // 'class' => 'display_classname',
+			    'class' => 'class_order',
 			    'section_id' => 's.section_id',
 			    'sport_name' => 'sp.name',
 			    'submitted_by' => 'u.name',

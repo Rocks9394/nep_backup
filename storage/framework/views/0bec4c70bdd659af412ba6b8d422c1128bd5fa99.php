@@ -88,9 +88,10 @@
 
 	const currentTermId = <?php echo e($current_term_id); ?>;
 
-	function generateFitnessReportCard(e, dt, node, config, selectedIds) {
+	function generateFitnessReportCard(e, dt, node, config, selectedIds, termIds) {
 		
-		if (!selectedIds || selectedIds.length === 0) {   		
+
+		if (!selectedIds || !termIds || selectedIds.length === 0) {   		
 
 		    Swal.fire({
 		        icon: 'info',
@@ -123,7 +124,8 @@
 		            contentType: "application/json",            
 		            data: JSON.stringify({
 		                _token: "<?php echo e(csrf_token()); ?>",
-		                student_ids: selectedIds
+		                student_ids: selectedIds,
+		                termIds : termIds,
 		            }), 
 			        
 			        success: function(data) {

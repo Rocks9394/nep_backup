@@ -248,7 +248,7 @@ Route::group(['prefix'=>'admin', 'as'=>'admin.', 'middleware'=>'auth:admin'], fu
 
 // 23-09 trainer profile update 
 Route::get('editprofile/{id}', [App\Http\Controllers\ViewTrainerController::class, 'trainerProfile'])->name('editprofile');
-Route::put('update-profile/{id}',[App\Http\Controllers\ViewTrainerController::class, 'trainerUpdate'])->name('update-profile');
+Route::post('update-profile/{id}',[App\Http\Controllers\ViewTrainerController::class, 'trainerUpdate'])->name('update-profile');
 
 Route::get('modify-trainer-record',[App\Http\Controllers\ViewTrainerController::class, 'modifyTrainerRecord'])->name('modify.trainer.record');
 Route::post('modify-trainer-record-submit',[App\Http\Controllers\ViewTrainerController::class, 'modifyTrainerRecordSubmit'])->name('modify.trainer.record.submit');
@@ -272,6 +272,7 @@ Route::post('generate-reportcards', [ReportController::class, 'queueBulkReportCa
 
 Route::get('report/download/{batchId}', [ReportController::class, 'requestDownload'])->name('report.download.permanent');
 Route::get('report/download/{batchId}/signed', [ReportController::class, 'downloadSigned'])->name('report.download.signed');
+
 
 
 Route::get('reports/{id?}/{term_id?}', [ReportController::class, 'ViewFitnessReport'])->name('reports.view.test');

@@ -140,12 +140,10 @@
 							<img class="img-fluid" alt="" src="{{asset('public/uploads/icons/manage-stds.svg') }}"></div><span> Create Viewer </span></a>
 						</div>
 
-						@if(Auth::user()->id==974)
 						<div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
 							<a href="{{ route('upload.test.data') }}" class="box"><div>
 							<img class="img-fluid" alt="" src="{{asset('public/uploads/icons/taketest.svg') }}"></div><span>Upload Test Data</span></a>
 						</div> 
-	                   @endif
 						
 
 

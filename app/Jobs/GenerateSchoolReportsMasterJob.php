@@ -21,14 +21,16 @@ class GenerateSchoolReportsMasterJob implements ShouldQueue
     public int $schoolId;
     public array $studentIds;
     public int $report_batch;
+    public int $termIds;
 
     public $timeout = 3600;
     public $tries = 3;
 
-    public function __construct(int $schoolId, array $studentIds = [], $report_batch) {
+    public function __construct(int $schoolId, array $studentIds = [], $report_batch, int $termIds) {
         $this->schoolId = $schoolId;
         $this->studentIds = $studentIds;
         $this->report_batch = $report_batch;
+        $this->termIds = $termIds;
     }
 
 
@@ -60,7 +62,8 @@ class GenerateSchoolReportsMasterJob implements ShouldQueue
                     $classId,
                     $sectionId,
                     $studentIds,
-                    $this->report_batch
+                    $this->report_batch,
+                    $this->termIds
                 )->onQueue('report_generation');
             }
         }

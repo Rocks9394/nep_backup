@@ -276,45 +276,26 @@
                                     </td>
                                 </tr>
 
-                                @foreach($orderedReportData as $key => $value)                                
-
-
+                                @foreach($orderedReportData as $key => $value)
                                 @php
-                                    $displayKey = str_contains($key, 'Body Composition')
-                                        ? str_replace('Body Composition (BMI)', 'BMI (Body Mass Index)', $key)
+                                    $displayKey = str_contains($key, 'Body Composition')  
+                                        ? str_replace('Body Composition (BMI)', 'BMI (Body Mass Index)', $key) 
                                         : $key;
 
-                                    $current   = $value['Current_Term'][0]  ?? null;
-                                    $previous  = $value['Previous_Term'][0] ?? null;
+                                    $score = $value[0]['score'] ?? null;
+                                    $level = $value[0]['Level'] ?? '---';
 
-                                    $currentScore = $current['score'] ?? '---';
-                                    $currentLevel = $current['Level'] ?? '---';
-
-                                    $previousScore = $previous['score'] ?? '---';
-                                    $previousLevel = $previous['Level'] ?? '---';
-
-                                    /* Special case: Flamingo Balance Test */
-                                    if ($key === 'Static Balance (Flamingo Balance Test)') {
-                                        if ($currentScore === '1000 times') {
-                                            $currentScore = '> 15 times (30s)';
-                                            $currentLevel = 'Disqualified';
-                                        }
-                                        if ($currentScore === '500 times') {
-                                            $currentScore = '> 26 times (60s)';
-                                            $currentLevel = 'Disqualified';
-                                        }
-
-                                        if ($previousScore === '1000 times') {
-                                            $previousScore = '> 15 times (30s)';
-                                            $previousLevel = 'Disqualified';
-                                        }
-                                        if ($previousScore === '500 times') {
-                                            $previousScore = '> 26 times (60s)';
-                                            $previousLevel = 'Disqualified';
-                                        }
+                                    if ($key === 'Static Balance (Flamingo Balance Test)' && $score == '1000 times') {
+                                        $score = '> 15 times (30s)';
+                                        $level = 'Disqualified';
                                     }
-                                @endphp
 
+                                    if ($key === 'Static Balance (Flamingo Balance Test)' && $score == '500 times') {
+                                        $score = '> 26 times (60s)';
+                                        $level = 'Disqualified';
+                                    }
+
+                                @endphp
 
                                 <tr><td style="height: 15px;"></td> </tr>
                                 <tr>
@@ -355,18 +336,30 @@
                                                                     <tr style="background-color: #fecd0a;">
                                                                         <td style="width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Current Term</td>
                                                                         <td style="width: 25%; padding: 4px 0px 4px 0px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
-                                                                        <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Weight (kg)</td>
-                                                                        <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Height (cm)</td>
+                                                                        <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Weight</td>
+                                                                        <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Height</td>
                                                                         <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">BMI</td>
                                                                         <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Level</td>
                                                                     </tr>
 
                                                                     <tr>
-                                                                        <td style="padding: 4px 0px 4px 0px; font-weight: 500; color:#000; text-align: center;">{{ $value['Current_Term'][0]['created_at'] ?? '---'}}</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> {{ $value['Current_Term'][0]['weight'] ?? '---'}}</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> {{ $value['Current_Term'][0]['height'] ?? '---'}}</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Current_Term'][0]['score'] ?? '---'}}</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Current_Term'][0]['Level'] ?? '---'}}</td>
+                                                                        <td style="padding: 4px 0px 4px 0px; font-weight: 500; color:#000; text-align: center;">{{ $value[0]['created_at'] ?? '---'}}</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">
+                                                                            @if(!empty($value[0]['weight']))
+                                                                                {{ $value[0]['weight'] }} kg
+                                                                            @else
+                                                                                ---
+                                                                            @endif
+                                                                        </td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">
+                                                                            @if(!empty($value[0]['height']))
+                                                                                {{ $value[0]['height'] }} cm
+                                                                            @else
+                                                                                ---
+                                                                            @endif
+                                                                        </td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value[0]['score'] ?? '---'}}</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value[0]['Level'] ?? '---'}}</td>
 
                                                                     </tr>
 
@@ -376,19 +369,19 @@
                                                                 <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
                                                                     <tr style="background-color: #fecd0a;">
                                                                         <td style="width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Previous Term</td>
-                                                                        <td style="width: 28%; padding: 4px 0px 4px 0px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
-                                                                        <td style="width: 25%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Weight (kg)</td>
-                                                                        <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Height (cm)</td>
+                                                                        <td style="width: 25%; padding: 4px 0px 4px 0px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
+                                                                        <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Weight</td>
+                                                                        <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Height</td>
                                                                         <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">BMI</td>
                                                                         <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Level</td>
                                                                     </tr>
 
                                                                     <tr>
-                                                                        <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center;">{{ $value['Previous_Term'][0]['created_at']  ?? '---'}}</td>
-                                                                        <td style="padding: 4px 0px 4px 0px;  text-align: center; border: 1px solid orange;">{{ $value['Previous_Term'][0]['weight'] ?? '---'}}</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> {{ $value['Previous_Term'][0]['height'] ?? '---'}} </td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> {{ $value['Previous_Term'][0]['score'] ?? '---'}} </td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Previous_Term'][0]['Level'] ?? '---'}}</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center;">---</td>
+                                                                        <td style="padding: 4px 0px 4px 0px;  text-align: center; border: 1px solid orange;">--- </td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> --- </td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> --- </td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">---</td>
 
                                                                     </tr>
 
@@ -424,9 +417,9 @@
                                                                     </tr>
 
                                                                     <tr>                
-                                                                        <td style="padding: 4px 4px 4px 6px; font-weight: 500; color:#000; text-align: center;">{{ $value['Current_Term'][0]['created_at'] ?? '---'}}</td>
-                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;">{{ $currentScore ?? '---'}}</td>
-                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;">{{ $currentLevel ?? '---'}}</td>
+                                                                        <td style="padding: 4px 4px 4px 6px; font-weight: 500; color:#000; text-align: center;">{{ $value[0]['created_at'] ?? '---'}}</td>
+                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;">{{ $score ?? '---'}}</td>
+                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;">{{ $level ?? '---'}}</td>
 
                                                                     </tr>
 
@@ -442,9 +435,9 @@
                                                                     </tr>
 
                                                                     <tr>
-                                                                        <td style="padding: 4px 4px 4px 6px; font-weight: 500; color:#000; text-align: center;">{{ $value['Previous_Term'][0]['created_at'] ?? '---'}}</td>
-                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;">{{ $previousScore ?? '---'}}</td>
-                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;">{{ $previousLevel ?? '---'}}</td>
+                                                                        <td style="padding: 4px 4px 4px 6px; font-weight: 500; color:#000; text-align: center;">---</td>
+                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;">---</td>
+                                                                        <td style="padding: 4px 4px 4px 6px; text-align: center;">---</td>
 
                                                                     </tr>
                                                                 </table>
@@ -459,7 +452,7 @@
                                                     <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border-top: 1px solid transparent; border-left: 1px solid #00A923; border-right: 1px solid #00A923; border-bottom: 1px solid #00A923; font-size: 14px; border-collapse: collapse; color:#333;">
                                                         <tr>
                                                             <td style="border-top: 1px solid #00A923; background-color: #00A923; padding: 3px 4px; padding: 5px 10px; color: #fff; text-align: center; width: 100px; font-weight: bold;">Recommendation</td>
-                                                            <td style="padding: 3px 4px;">{{ $value['Current_Term'][0]['recommendation'] ?? '---' }}</td>
+                                                            <td style="padding: 3px 4px;">{{ $value[0]['recommendation'] ?? '---'}}</td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -666,7 +659,7 @@
                                                 <td style="vertical-align: top;">
                                                     <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
                                                         <tr style="background-color: #fecd0a;">
-                                                            <td style="font-weight: 500; width: 27%; background-color:#fecd0a; padding: 3px 4px 3px 6px; border: 1px solid orange; color:#000;" rowspan="2">Skills</td>
+                                                            <td style="font-weight: 500; width: 30%; background-color:#fecd0a; padding: 3px 4px 3px 6px; border: 1px solid orange; color:#000;" rowspan="2">Skills</td>
                                                             <td style="font-weight: 500; width: 12%; padding: 3px 4px 3px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Current Term</td>
                                                             <td style="font-weight: 500; width: 14%; padding: 3px 4px 3px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Previous Term</td>
                                                             <td style="font-weight: 500; padding: 3px 4px 3px 6px; border: 1px solid orange; color:#000;" rowspan="2">Recommendation</td>
@@ -681,24 +674,16 @@
                                                         <tr>
                                                             <td style="padding: 3px 4px 3px 6px; font-weight: 500; color:#000;">{{ $data['Test_Name'] ?? '' }}</td>
 
-                                                            <td align="center">
-                                                                @if($data['current_count'] !== null && $data['current_count'] > 0)
-                                                                    <img src="{{ asset('public/assets/imgs/'.$data['current_count'].'smiles.png') }}" height="20" style="padding-left:5px; padding-right:5px;">
-                                                                @else
-                                                                    NA
-                                                                @endif
+                                                            @if(!empty($data['count']))
+                                                            <td style="padding: 3px 4px 3px 6px; text-align: center;">
+                                                                <img src="{{ asset('public/assets/imgs/' . $data['count'] . 'smiles.png') }}" style="height: 20px;">                                                               
                                                             </td>
-
-                                                            <td align="center">
-                                                                @if($data['previous_count'] !== null && $data['previous_count'] > 0)
-                                                                    <img src="{{ asset('public/assets/imgs/'.$data['previous_count'].'smiles.png') }}" height="20" style="padding-left:5px; padding-right:5px;">
-                                                                @else
-                                                                    NA
-                                                                @endif
+                                                            @else
+                                                            <td style="padding: 3px 4px 3px 6px; text-align: center;" data-id="{{$data['count']}}">NA     
                                                             </td>
-                                                     
+                                                            @endif
+                                                            <td style="padding: 3px 4px 3px 6px;"></td>
                                                             <td style="padding: 3px 4px 3px 6px; font-size: 12px;">{{ $data['recommendation'] ?? '' }}</td>
-
                                                         </tr>
                                                        
                                                         @endforeach

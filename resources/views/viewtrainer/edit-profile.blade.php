@@ -55,7 +55,7 @@
 					{{-- <form method="POST" action="{{ url('update-profile') }}/{{ Auth::user()->id }}">		 --}}
 					<form id="updateProfileForm">
 						@csrf
-						@method('PUT')
+						@method('POST')
 						
 						<div class="form-row">
 							<div class="form-group col-md-3">

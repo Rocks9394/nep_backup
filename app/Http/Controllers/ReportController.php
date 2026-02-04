@@ -169,47 +169,52 @@ class ReportController extends Controller {
 		}else{
 			$studentId = Auth::guard('sstudent')->user()->id;
 		}
-	    $studentsData = $this->getStudentData($studentId);
-		
-	    $TermMasterId = $term_id ?: $this->getTermId($studentsData->schools_id);
 
-	    $dob          = Carbon::parse($studentsData->dob);
+	    $studentsData = $this->getStudentData($studentId);
+
+	    if (!empty($term_id)) {
+	        $termIds = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $term_id);
+	    } else {
+	        $termIds = [$this->getTermId($studentsData->schools_id)];
+	    }
+
+	   
+	    $currentTermId  = $termIds[0] ?? null;
+		$previousTermId = $termIds[1] ?? null;
+       
+
+ 	    $dob          = Carbon::parse($studentsData->dob);
 	    $studentAge   = $dob->age;
 	    $studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
 	    $ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
 
 	    // Fetch report + benchmarks
-	    $reportData = $this->getReportData($studentId, $TermMasterId);
+	    $reportData = $this->getReportData($studentId, $termIds);
 	    $mappedReport  = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
-	    $groupedReport = $mappedReport->groupBy('Category');
+	    $groupedReport = $mappedReport->groupBy('Category')
+	    ->map(function ($items) use ($currentTermId, $previousTermId) {
+	        return $items
+	            ->filter(fn ($row) =>
+	                in_array((int) $row['TermId'], [$currentTermId, $previousTermId])
+	            )
+	            ->groupBy(fn ($row) =>
+	                (int) $row['TermId'] === (int) $currentTermId
+	                    ? 'Current_Term'
+	                    : 'Previous_Term'
+	            );
+	    });
+
 		$getBmiBenchmark = $getBmiBenchmark =  $this->getBmiBenchmark($ageGender);
 
 	    if (in_array($studentsData->class_id, $this->higherClasses)) {
 
 			[$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport);
-
 			return view('reports.fitness.html.senior-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'));
-
-	        $pdf = PDF::loadView('reports.fitness.pdf.senior-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
-	        ));
-			$filename  = 'Reports.pdf';
-			return $pdf->stream($filename);
-
-
 	    } else {
 
 	    	[$orderedReportData, $FmsReportData, $getFitnessBenchmark] =
-            $this->getJuniorReportData($studentsData->class_id, $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId);	
-
+            $this->getJuniorReportData($studentsData->class_id, $studentId, $studentAge, $studentGender, $groupedReport, $termIds);
 			return view('reports.fitness.html.junior-report', compact('studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'));
-			
-
-	        $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
-                'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
-            ));
-
-            $filename  = 'Reports.pdf';
-			return $pdf->stream($filename);
 	    }
 	}
 
@@ -225,7 +230,16 @@ class ReportController extends Controller {
         $studentsData = $this->getStudentData($studentId);
         if (!$studentsData) return null;
 
-        $TermMasterId = $term_id ?: $this->getTermId($studentsData->schools_id);
+      
+        if (!empty($term_id)) {
+	        $TermMasterId = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $term_id);
+	    } else {
+	        $TermMasterId = [$this->getTermId($studentsData->schools_id)];
+	    }
+
+	    $currentTermId  = $TermMasterId[0] ?? null;
+		$previousTermId = $TermMasterId[1] ?? null;
+
 
         $dob = \Carbon\Carbon::parse($studentsData->dob);
         $studentAge = $dob->age;
@@ -234,11 +248,22 @@ class ReportController extends Controller {
 
         $reportData = $this->getReportData($studentId, $TermMasterId);
         $mappedReport = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
-        $groupedReport = $mappedReport->groupBy('Category');
+        $groupedReport = $mappedReport->groupBy('Category')
+	    ->map(function ($items) use ($currentTermId, $previousTermId) {
+	        return $items
+	            ->filter(fn ($row) =>
+	                in_array((int) $row['TermId'], [$currentTermId, $previousTermId])
+	            )
+	            ->groupBy(fn ($row) =>
+	                (int) $row['TermId'] === (int) $currentTermId
+	                    ? 'Current_Term'
+	                    : 'Previous_Term'
+	            );
+	    });
+
         $getBmiBenchmark = $this->getBmiBenchmark($ageGender);
 
         if (in_array($studentsData->class_id, [4,5,6,7,8,9,10,11,12])) {
-
             [$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport );
 
             $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact(
@@ -247,7 +272,7 @@ class ReportController extends Controller {
         } else {
 
             [$orderedReportData, $FmsReportData, $getFitnessBenchmark] = $this->getJuniorReportData( $studentsData->class_id,
-                $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId // <-- pass TermMasterId
+                $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId 
             );
 
             $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
@@ -257,7 +282,6 @@ class ReportController extends Controller {
 
 		$filename = 'Fitness_Report_Cards-'.date('d-m-Y_H-i-s').'.pdf';
 		return $pdf->download($filename);
-
     }
 
 
@@ -281,6 +305,9 @@ class ReportController extends Controller {
             }
 
             $studentIds = $request->input('student_ids', []);
+            $termIds = $request->input('termIds', []);
+            $termId  = $termIds[0] ?? null;
+
 
             if (empty($studentIds)) {
                 return response()->json([
@@ -306,7 +333,7 @@ class ReportController extends Controller {
 			    );
 			}			
 
-            GenerateSchoolReportsMasterJob::dispatch($schoolId, $studentIds, $report_batch->id)->onQueue('report_generation');
+            GenerateSchoolReportsMasterJob::dispatch($schoolId, $studentIds, $report_batch->id, $termId)->onQueue('report_generation');
             return response()->json([
                 'status' => 'queued',
                 'message' => 'Your report card request has been submitted and is being processed. Please return to this page later. Once the report is ready, it will appear under Available Downloads.'
@@ -824,7 +851,7 @@ class ReportController extends Controller {
 	    $studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
 	    $ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
 		
-	    $reportData    = $this->getReportData($studentId, $TermMasterId);
+	    $reportData    = $this->getReportData($studentId,$TermMasterId);
 
 		
 		

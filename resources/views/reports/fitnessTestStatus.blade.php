@@ -19,8 +19,7 @@
 
 <div class="container-fluid">
     <div class="t-mrg2 mb-5 pb-5 px-4">
-        <div class="row">
-        
+        <div class="row">        
             <div class="col-12 col-md">
                 <div class="heading-rw mt-0 mt-md-1 mb-0 p-0">                
                     <x:back-button title="{{$title}}" />

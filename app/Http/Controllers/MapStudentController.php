@@ -228,18 +228,6 @@ class MapStudentController extends Controller
 		$schoolId = null;
 		
 
-		// $classeQuery = DB::table('custom_classes')
-		//  ->join('class','class.id','=','custom_classes.class_id')
-		//  ->select('custom_classes.id','class_id','section',
-		//  	DB::raw("CASE 
-	    //         WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-	    //         THEN custom_classes.nomenclature 
-	    //         ELSE class.name 
-	    //     END AS classname"),
-		//  	)
-		// ->where('custom_classes.status','1');
-
-
 		$classeQuery = DB::table('custom_classes')
 			->join('class','class.id','=','custom_classes.class_id')
 			->join('students','students.custom_class_id','=' ,'custom_classes.id')
@@ -249,7 +237,19 @@ class MapStudentController extends Controller
 	            THEN custom_classes.nomenclature 
 	            ELSE class.name 
 	        END AS classname"),
-		 	)		
+		 	)	
+			->groupBy(
+				'custom_classes.id',
+				'custom_classes.class_id',
+				'custom_classes.section',
+				'custom_classes.nomenclature',
+				'class.name',
+					DB::raw("CASE 
+						WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
+						THEN custom_classes.nomenclature 
+						ELSE class.name 
+					END")
+				)	
 			->where('students.status','active')
 			->where('custom_classes.status','1');
 
@@ -261,19 +261,8 @@ class MapStudentController extends Controller
 	    }
 		elseif($role_id == 4) {
 			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
-			$classeQuery->WhereIn('custom_classes.school_id', array($schoolId))
-			->groupBy(
-			'custom_classes.id',
-			'custom_classes.class_id',
-			'custom_classes.section',
-			'custom_classes.nomenclature',
-			'class.name',
-			DB::raw("CASE 
-				WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-				THEN custom_classes.nomenclature 
-				ELSE class.name 
-			END")
-			);
+			$classeQuery->WhereIn('custom_classes.school_id', array($schoolId));
+
 
 		} 
 		elseif($role_id == 3) {
@@ -282,20 +271,7 @@ class MapStudentController extends Controller
 			}else{			
 				$schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->pluck('school_id');
 			}
-			$classeQuery->WhereIn('custom_classes.school_id', array($schoolId))
-			->groupBy(
-			'custom_classes.id',
-			'custom_classes.class_id',
-			'custom_classes.section',
-			'custom_classes.nomenclature',
-			'class.name',
-			DB::raw("CASE 
-				WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-				THEN custom_classes.nomenclature 
-				ELSE class.name 
-			END")
-			);
-			
+			$classeQuery->WhereIn('custom_classes.school_id', array($schoolId));			
 		} 
 
 	    $classes = $classeQuery->orderBy('custom_classes.orders', 'ASC')->get();
@@ -311,10 +287,6 @@ class MapStudentController extends Controller
 
 	}
 
-
-
-
-	
 	/* Get Records Custom Classes */
 	function fetchactivityAccordingToClass(Request $request) {
 
@@ -374,7 +346,6 @@ class MapStudentController extends Controller
 				'techniques.id as techniqueId')
 			->where('activity_technique.class_id',$classId)
 			->where('activity.teach_id', 2)->where('activity.status', 1);
-
 
 			// Apply filters if provided
 	        if ($request->filled('skill_area_id')) {
@@ -490,7 +461,6 @@ class MapStudentController extends Controller
 			        $activity->final_image = asset('public/change-activities/default_activity_img.svg');
 			    }
 			}
-
 
 	        $doneActivities = DB::table('reports')
 			->where('reports.school_id',$request->school_id)

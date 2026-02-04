@@ -50,11 +50,13 @@ table#students-sports-mapping-table th.dt-orderable-none .dt-column-order { disp
 
 
 @push('scripts')
+<script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
 <script>
 $(function () {
     const tableId = '#{{ $id }}';
     const selectAllId = '#{{ $id }}-select-all';
     const selectedIds = new Set();
+    const termIds = new Set();
     const enableClassFilter = @json($enableClassFilter ?? false);
     const enableOnlyClassFilter = @json($enableOnlyClassFilter ?? false);
     const enableSkillNameFilter = @json($enableSkillNameFilter ?? false);
@@ -89,8 +91,8 @@ $(function () {
                 text: '{{ $btn['text'] }}',
                 action: function (e, dt, node, config) {
                     if (typeof window['{{ $btn['action'] ?? '' }}'] === 'function') {   
-
-                        window['{{ $btn['action'] }}'](e, dt, node, config, Array.from(selectedIds));
+                        console.log('pass')
+                        window['{{ $btn['action'] }}'](e, dt, node, config, Array.from(selectedIds), Array.from(termIds));
                     } else {
                         console.warn('Custom action not found: {{ $btn['action'] ?? '' }}');
                     }
@@ -107,7 +109,7 @@ $(function () {
                 const checked = selectedIds.has(data) ? 'checked' : '';
                 const isDisabled = ['Yet to Start','Ongoing','Incomplete'].includes(row.test_status);
                 const disabled = isDisabled ? 'disabled' : '';
-                return `<input type="checkbox" class="row-checkbox" id="${row.test_status}" value="${row.student_id}" ${checked} ${disabled}/>`;
+                return `<input type="checkbox" class="row-checkbox" data-term ="${row.term_id}" id="${row.test_status}" value="${row.student_id}" ${checked} ${disabled}/>`;
             }
         },
 
@@ -337,10 +339,13 @@ $(function () {
 
             this.checked = checked;
             const id = $(this).val();
+            const term_id = $(this).attr('data-term');
             if (checked) {
                 selectedIds.add(id);
+                termIds.add(term_id);
             } else {
                 selectedIds.delete(id);
+                termIds.delete(term_id);
             }
         });
     });
@@ -349,10 +354,13 @@ $(function () {
     // FIXED: Individual row checkbox handler
     $(tableId).on('change', '.row-checkbox', function () {
         const id = $(this).val();
+         const term_id = $(this).attr('data-term');
         if (this.checked) {
             selectedIds.add(id);
+            termIds.add(term_id);
         } else {
             selectedIds.delete(id);
+             termIds.delete(term_id);
             // Uncheck select-all when any checkbox is unchecked
             $(selectAllId).prop('checked', false);
         }

@@ -31,73 +31,6 @@ trait ReportHelperTrait
     }
 
 
-    public function getTermId($schoolId) {
-        if (session()->has('term_id')) {
-            return session('term_id');
-        }else{
-            return TermMaster::where('school_id', $schoolId)
-            ->where('is_active', 1)
-            ->whereDate('term_start_date', '<=', today())
-            ->whereDate('term_end_date', '>=', today())
-            ->value('id');
-        }
-    }
-
-
-    public function getReportData($studentId, $TermMasterId) {
-
-        return DB::table('SeniorTestResults')
-            ->join('skill_reports','skill_reports.id','=','SeniorTestResults.TestTypeId')
-            ->join('TestTypeMaster','TestTypeMaster.TestTypeId','=','skill_reports.TestTypeMasterID')
-            ->join('TestCategoryMaster','TestCategoryMaster.TestCategoryID','=','TestTypeMaster.TestCategoryID')
-            ->join('term_masters','term_masters.id','=', 'SeniorTestResults.TermId')
-            ->select(
-                'SeniorTestResults.TestTypeID',
-                'SeniorTestResults.TermId',
-                'SeniorTestResults.created_at',
-                'SeniorTestResults.Score',
-                'skill_reports.skill_name',
-                'skill_reports.TestTypeMasterID',
-                'SeniorTestResults.weight',
-                'SeniorTestResults.height',
-                'TestTypeMaster.TestCategoryID',
-                'TestTypeMaster.ScoreUnit',
-                'TestCategoryMaster.TestCategoryName',
-                'TestTypeMaster.ScoreCriteria'
-            )
-            ->orderBy('SeniorTestResults.created_at', 'desc')
-            ->where('SeniorTestResults.TermId', $TermMasterId)
-            ->where('StudentID', $studentId)
-            ->get();
-    }
-    /*
-    public function getReportData($studentId,$TermMasterId) {
-
-        return DB::table('SeniorTestResults')
-            ->join('skill_reports','skill_reports.id','=','SeniorTestResults.TestTypeId')
-            ->join('TestTypeMaster','TestTypeMaster.TestTypeId','=','skill_reports.TestTypeMasterID')
-            ->join('TestCategoryMaster','TestCategoryMaster.TestCategoryID','=','TestTypeMaster.TestCategoryID')
-            // ->join('term_masters','term_masters.id','=', 'SeniorTestResults.TermId')
-            ->select(
-                'SeniorTestResults.TestTypeID',
-                'SeniorTestResults.TermId',
-                'SeniorTestResults.created_at',
-                'SeniorTestResults.Score',
-                'skill_reports.skill_name',
-                'skill_reports.TestTypeMasterID',
-                'SeniorTestResults.weight',
-                'SeniorTestResults.height',
-                'TestTypeMaster.TestCategoryID',
-                'TestTypeMaster.ScoreUnit',
-                'TestCategoryMaster.TestCategoryName',
-                'TestTypeMaster.ScoreCriteria'
-            )
-            ->where('SeniorTestResults.TermId', $TermMasterId)
-            ->orderBy('SeniorTestResults.created_at', 'desc')
-            ->where('StudentID', $studentId)->get();
-    }*/
-
-
     public function mapReportData($reportData, $studentAge, $studentGender, $ageGender) {
 
         $bmibenchMark = DB::table('LP_BMI_List')->where('Age','=', $ageGender)->get()->groupBy(function ($row) {
@@ -107,8 +40,7 @@ trait ReportHelperTrait
         return $reportData->map(function ($item) use ($bmibenchMark, $studentAge, $studentGender, $ageGender) {
 
             $bmiBenchmarkRow = $bmibenchMark->get($ageGender)?->first();     
-            $getPerformance = $this->getPerformance($item, $studentAge, $studentGender, $bmiBenchmarkRow);              
-
+            $getPerformance = $this->getPerformance($item, $studentAge, $studentGender, $bmiBenchmarkRow);
             $normalizedScore = $this->formatValue($item->Score, $item->ScoreUnit);
 
             return [
@@ -124,6 +56,7 @@ trait ReportHelperTrait
             ];
         });
     }
+
 
     private function getPerformance($item, $studentAge, $studentGender, $bmiBenchmarkRow) {
 
@@ -310,6 +243,66 @@ trait ReportHelperTrait
         }
     }
 
+     public function getTermId($schoolId) {
+        if (session()->has('term_id')) {
+            return session('term_id');
+        }else{
+            return TermMaster::where('school_id', $schoolId)
+            ->where('is_active', 1)
+            ->whereDate('term_start_date', '<=', today())
+            ->whereDate('term_end_date', '>=', today())
+            ->value('id');
+        }
+    }
+
+
+    protected function getCurrentAndPreviousTermIds_bk(int $schoolId, int $selectedTermId): array {
+        $terms = TermMaster::where('school_id', $schoolId)
+            ->where('is_active', 1)
+            ->orderBy('term_start_date', 'desc')
+            ->get(['id']);
+
+        $selectedIndex = $terms->search(fn ($term) => $term->id == $selectedTermId);
+
+        if ($selectedIndex === false) {
+            return [$selectedTermId];
+        }
+
+        return array_filter([
+            $terms[$selectedIndex]->id ?? null,       // current
+            $terms[$selectedIndex + 1]->id ?? null    // previous
+        ]);
+    }
+
+
+    public function getReportData($studentId, $termIds) {
+
+        return DB::table('SeniorTestResults')
+            ->join('skill_reports','skill_reports.id','=','SeniorTestResults.TestTypeId')
+            ->join('TestTypeMaster','TestTypeMaster.TestTypeId','=','skill_reports.TestTypeMasterID')
+            ->join('TestCategoryMaster','TestCategoryMaster.TestCategoryID','=','TestTypeMaster.TestCategoryID')
+            ->join('term_masters','term_masters.id','=', 'SeniorTestResults.TermId')
+            ->select(
+                'SeniorTestResults.TestTypeID',
+                'SeniorTestResults.TermId',
+                'SeniorTestResults.created_at',
+                'SeniorTestResults.Score',
+                'skill_reports.skill_name',
+                'skill_reports.TestTypeMasterID',
+                'SeniorTestResults.weight',
+                'SeniorTestResults.height',
+                'TestTypeMaster.TestCategoryID',
+                'TestTypeMaster.ScoreUnit',
+                'TestCategoryMaster.TestCategoryName',
+                'TestTypeMaster.ScoreCriteria'
+            )
+            ->orderBy('SeniorTestResults.created_at', 'desc')
+            ->where('StudentID', $studentId)
+            ->whereIn('SeniorTestResults.TermId', $termIds)
+            ->get();
+    }
+
+
 
     protected function getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReportData) {
 
@@ -325,6 +318,7 @@ trait ReportHelperTrait
             ->get();
 
         $orderedReportData = collect();
+
         foreach ($seniorData as $cat) {
             $categoryName = $cat->TestCategoryName . " (" . $cat->skill_name . ")";
             $data = $groupedReportData->get($cat->TestCategoryName, collect());
@@ -337,117 +331,145 @@ trait ReportHelperTrait
         return [$orderedReportData, $fitnessBenchmark];
     }
 
-
-
-    protected function getJuniorReportData($classId , $studentId, $studentAge, $studentGender, $groupedReportData, $TermMasterId)  {
+    protected function getCurrentAndPreviousTermIds(int $schoolId, int $selectedTermId): array {
         
-        $junior1 = [2,6,3];    //TestCategoryMasterID
+        $terms = TermMaster::where('school_id', $schoolId)->where('is_active', 1)
+            ->orderBy('term_start_date', 'desc')->get(['id', 'term_start_date']);
+
+        $selectedIndex = $terms->search(fn ($term) => $term->id == $selectedTermId);
+
+        if ($selectedIndex === false) {
+            return [$selectedTermId];
+        }
+
+        $termIds = [$terms[$selectedIndex]->id];
+
+     
+        if (isset($terms[$selectedIndex + 1])) {
+            $termIds[] = $terms[$selectedIndex + 1]->id;
+        }
+
+        return $termIds;
+    }
+
+    
+    protected function getJuniorReportData(int $classId, int $studentId, int $studentAge,string $studentGender,$groupedReportData, array $termIds) {
+
+        [$currentTermId, $previousTermId] = $termIds + [null, null];
 
 
-        $juniorData1 = DB::table('TestCategoryMaster')
-            ->join('TestTypeMaster', 'TestTypeMaster.TestCategoryID','=', 'TestCategoryMaster.TestCategoryID')
-            ->join('skill_reports', 'skill_reports.TestTypeMasterID','=', 'TestTypeMaster.TestTypeID')
-            ->whereIn('TestCategoryMaster.TestCategoryID', $junior1)
-            ->orderByRaw('FIELD(TestCategoryMaster.TestCategoryID, ' . implode(',', $junior1) . ')')
-            ->select('TestCategoryMaster.TestCategoryID','TestCategoryMaster.TestCategoryName','skill_reports.skill_name')
-            ->where('TestCategoryMaster.IsActive', 1)
-            ->where('TestTypeMaster.TestTypeID', '!=' ,1014)  // Exculding Test for junior: 'Alternative hand wall toss'
-            ->get();
+        $juniorCategoryOrder = [2, 6, 3];
+        $juniorData = DB::table('TestCategoryMaster as tcm')
+            ->join('TestTypeMaster as ttm', 'ttm.TestCategoryID', '=', 'tcm.TestCategoryID')
+            ->join('skill_reports as sr', 'sr.TestTypeMasterID', '=', 'ttm.TestTypeID')
+            ->whereIn('tcm.TestCategoryID', $juniorCategoryOrder)
+            ->where('tcm.IsActive', 1)
+            ->where('ttm.TestTypeID', '!=', 1014)
+            ->orderByRaw( 'FIELD(tcm.TestCategoryID, ' . implode(',', $juniorCategoryOrder) . ')' )
+            ->select(
+                'tcm.TestCategoryName',
+                'sr.skill_name'
+            )->get();
 
         $orderedReportData = collect();
 
-        foreach ($juniorData1 as $cat) {
-            $categoryName = $cat->TestCategoryName . " (" . $cat->skill_name . ")";
-            $data = $groupedReportData->get($cat->TestCategoryName, collect());
-            $orderedReportData->put($categoryName, $data);
+        foreach ($juniorData as $row) {
+            $key = $row->TestCategoryName . ' (' . $row->skill_name . ')';
+            $orderedReportData->put(
+                $key,
+                $groupedReportData->get($row->TestCategoryName, collect())
+            );
         }
 
-        $junior = [10,12,11];
+
+        $fmsCategories = [10, 12, 11];
+
         $allSkills = DB::table('TestCategoryMaster as tcm')
             ->join('TestTypeMaster as ttm', 'ttm.TestCategoryID', '=', 'tcm.TestCategoryID')
             ->join('skill_reports as sr', 'sr.TestTypeMasterID', '=', 'ttm.TestTypeID')
-            ->join('class_fitness_tests as cft', 'sr.TestTypeMasterID','=', 'cft.test_type_id')
-            ->whereIn('tcm.TestCategoryID', $junior)->where('cft.class_id', $classId)->where('cft.is_active','active')
-            ->select('tcm.TestCategoryID', 'tcm.TestCategoryName', 'sr.skill_name', 'ttm.TestTypeID')
-            ->get()->groupBy('TestCategoryName');
-
-        // echo "<pre>"; print_r($allSkills);exit();
-
-
-
-        $fmsCategory = DB::table('skillreport_skilltype_termtype_mapping as sst')
-            ->join('skill_reports as sr', 'sr.id', '=', 'sst.skill_report_id')
-            ->join('skill_types as st', 'st.id', '=', 'sst.skill_type_id')
-            ->join('TestTypeMaster as ttm', 'ttm.TestTypeID', '=', 'sr.TestTypeMasterID')
-            ->join('TestCategoryMaster as tcm', 'tcm.TestCategoryID', '=', 'ttm.TestCategoryID')
-            ->where('sst.student_id', $studentId)
-            ->where('sst.term_master_id', $TermMasterId)
-            ->orderBy('sst.created_at', 'desc')
+            ->join('class_fitness_tests as cft', 'cft.test_type_id', '=', 'sr.TestTypeMasterID')
+            ->whereIn('tcm.TestCategoryID', $fmsCategories)
+            ->where('cft.class_id', $classId)
+            ->where('cft.is_active', 'active')
             ->select(
                 'tcm.TestCategoryName',
-                'sr.skill_name',
-                'sr.id as skill_report_id',
-                'sr.TestTypeMasterID',
-                DB::raw('COUNT(sr.skill_name) as skill_count')
+                'sr.skill_name'
             )
-            ->groupBy('tcm.TestCategoryName','sr.id','sr.skill_name','sr.TestTypeMasterID','sst.created_at')
             ->get()
             ->groupBy('TestCategoryName');
 
+        $fmsRaw = DB::table('skillreport_skilltype_termtype_mapping as sst')
+            ->join('skill_reports as sr', 'sr.id', '=', 'sst.skill_report_id')
+            ->join('TestTypeMaster as ttm', 'ttm.TestTypeID', '=', 'sr.TestTypeMasterID')
+            ->join('TestCategoryMaster as tcm', 'tcm.TestCategoryID', '=', 'ttm.TestCategoryID')
+            ->where('sst.student_id', $studentId)
+            ->whereIn('sst.term_master_id', array_filter([$currentTermId, $previousTermId]))
+            ->select(
+                'tcm.TestCategoryName',
+                'sr.skill_name',
+                'sst.term_master_id',
+                DB::raw('COUNT(*) as skill_count'),
+                DB::raw('MAX(sr.id) as skill_report_id')
+            )
+            ->groupBy(
+                'tcm.TestCategoryName',
+                'sr.skill_name',
+                'sst.term_master_id'
+            )
+            ->get()
+            ->groupBy(['TestCategoryName', 'skill_name']);
 
-            // echo "<pre>"; print_r($categoryName);exit();
-        $FmsReportData = collect($allSkills)->mapWithKeys(function ($skills, $categoryName) use ($fmsCategory) {
+        $FmsReportData = $allSkills->mapWithKeys(function ($skills, $categoryName) use ( $fmsRaw, $currentTermId, $previousTermId) {
 
+            $records = $skills->map(function ($skill) use ($fmsRaw,$categoryName, $currentTermId,$previousTermId ) {
 
-            $report = $skills->map(function ($skill) use ($fmsCategory, $categoryName) {
+                $rows = $fmsRaw[$categoryName][$skill->skill_name] ?? collect();
 
-                $studentSkill = $fmsCategory->get($categoryName, collect())->firstWhere('skill_name', $skill->skill_name);
+                $current = $rows->firstWhere('term_master_id', $currentTermId);
+                $previous = $rows->firstWhere('term_master_id', $previousTermId);
 
-                $count = $studentSkill->skill_count ?? 0;
+                $currentCount  = $current->skill_count ?? 0;
+                $previousCount = $previous->skill_count ?? 0;
 
-                if ($count == 1) {
-                    $outcome = 'Emerging';   //
-                } elseif ($count == 2) {
-                    $outcome = 'Developing';
-                } elseif ($count == 3) {
-                    $outcome = 'Acquired';
-                } elseif ($count >= 4) {
-                    $outcome = 'Accomplished';
-                } else {
-                    $outcome = 'N.A.';
-                }
+                $outcome = match (true) {
+                    $currentCount === 1 => 'Emerging',
+                    $currentCount === 2 => 'Developing',
+                    $currentCount === 3 => 'Acquired',
+                    $currentCount >= 4  => 'Accomplished',
+                    default             => 'N.A.',
+                };
 
                 $recommendation = null;
-                if ($studentSkill) {
+                if ($current?->skill_report_id) {
                     $recommendation = DB::table('fms_recommendations')
-                        ->where('skill_reports_id', $studentSkill->skill_report_id)
+                        ->where('skill_reports_id', $current->skill_report_id)
                         ->where('outcomes', $outcome)
                         ->value('recommendations');
                 }
 
-
                 return [
                     'Test_Name'      => $skill->skill_name,
-                    'recommendation' => $recommendation,
+                    'current_count'  => $currentCount,
+                    'previous_count' => $previousCount,
                     'outcome'        => $outcome,
-                    'count'         => $count,
+                    'recommendation' => $recommendation,
                 ];
             });
 
-            return [$categoryName => $report->toArray()];
+            return [$categoryName => $records->values()];
         });
 
-        $categories_id1 = [6,2];
-        $fitnessBenchmark = $this->getBenchmark($studentAge, $studentGender, $categories_id1);
-            
 
-          
-
-                
-         
-
-
-        return [$orderedReportData, $FmsReportData, $fitnessBenchmark];
+        $fitnessBenchmark = $this->getBenchmark( $studentAge,  $studentGender, [6, 2] );
+        return [
+            $orderedReportData,
+            $FmsReportData,
+            $fitnessBenchmark
+        ];
     }
+
+
+
+
     
 }

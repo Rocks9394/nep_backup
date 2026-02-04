@@ -827,7 +827,7 @@ class ViewTrainerController extends Controller
 	}
 	public function trainerUpdate(Request $request,$id)
 	{
-			//dd($request->all());
+		
 			$user_id = Auth::id();
 			$request->validate([
 				'name' => 'required|string|max:255',
@@ -876,6 +876,7 @@ class ViewTrainerController extends Controller
 			else
 				{
 					$usermetas = new Usermeta();
+					$usermetas->user_id 	  = $user_id; 
 					$usermetas->gender 		  = $request->gender;
 					$usermetas->qualification = $request->qualification;
 					$usermetas->experience 	  = $request->experience;

@@ -28,17 +28,19 @@ class GenerateClassSectionReportJob implements ShouldQueue
     public string $section;
     public array $studentIds;
     public int $report_batch;
+    public int $termIds;
     public $timeout = 1800;
     public $tries = 3;
 
     
-    public function __construct(int $schoolId, int $classId, string $section, array $studentIds, int $report_batch) {
+    public function __construct(int $schoolId, int $classId, string $section, array $studentIds, int $report_batch, int $termIds) {
 
         $this->schoolId = $schoolId;
         $this->classId = $classId;
         $this->section = $section;
         $this->studentIds = $studentIds;
         $this->report_batch = $report_batch;
+        $this->termIds = $termIds;
     }
 
     public function handle() {
@@ -52,7 +54,8 @@ class GenerateClassSectionReportJob implements ShouldQueue
                     $this->classId,
                     $this->section,
                     (int) $studentId,
-                    $this->report_batch
+                    $this->report_batch,
+                    $this->termIds
                 );
             }
         }
