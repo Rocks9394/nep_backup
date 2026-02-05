@@ -513,67 +513,10 @@
         </div>
 
         <p class="mt-3">
-            <strong>Note:</strong> Test details are available in the HPE manual on the CBSE website.
+            <strong>Note:</strong> Test details are available in the <a href="https://cbseacademic.nic.in/web_material/CurriculumMain21/Coscholastic/Health_and_Physical_Education(HPE)IX-XII.pdf" target="_blank">HPE manual</a> on the CBSE website.
         </p>
 
     </div>
-
-    <button class="btn btn-primary mb-3" onclick="downloadPDF()">📄 Download Report</button>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <script>
-        async function downloadPDF() {
-    
-            Swal.fire({
-                title: 'Generating PDF...',
-                text: 'Please wait while the PDF is being generated.',
-                didOpen: () => {
-                    Swal.showLoading();
-                },
-                allowOutsideClick: false,
-            });
-
-            try {
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('landscape', 'pt', 'a4');
-                const element = document.getElementById("content-to-download");        
-                const canvas = await html2canvas(element, { scale: 4 });
-                const imgData = canvas.toDataURL('image/png');
-
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-
-                const imgWidth = canvas.width;
-                const imgHeight = canvas.height;
-                const scale = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
-                const finalWidth = imgWidth * scale;
-                const finalHeight = imgHeight * scale;
-                const marginX = (pageWidth - finalWidth) / 2;
-                const marginY = (pageHeight - finalHeight) / 2;
-        
-                pdf.addImage(imgData, 'PNG', marginX, marginY, finalWidth, finalHeight);       
-                pdf.save("Cbse_Health_Record.pdf");
-
-                Swal.close();                        
-                Swal.fire({
-                    icon: 'success',
-                    title: 'PDF Generated',
-                    text: 'The PDF has been successfully generated and downloaded.',
-                    allowOutsideClick: false,
-                });
-            } catch (error) {        
-                Swal.close();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Something went wrong while generating the PDF. Please try again.',
-                    allowOutsideClick: false,
-                });
-            }
-        }
-    </script>
 
 </body>
 </html>

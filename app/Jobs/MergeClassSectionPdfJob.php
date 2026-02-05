@@ -13,10 +13,11 @@ use App\Notifications\ReportReadyNotification;
 use App\Models\School;
 use ZipArchive;
 use Illuminate\Support\Facades\Storage;
+use App\Traits\ReportHelperTrait;
 
 class MergeClassSectionPdfJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ReportHelperTrait;
 
     public int $schoolId;
     public int $classId;
@@ -33,13 +34,18 @@ class MergeClassSectionPdfJob implements ShouldQueue
         $this->report_batch_id = $report_batch_id;
     }
 
-
     public function handle()  {
 
         $disk = Storage::disk('reports');
 
-        $baseRelativePath = "{$this->schoolId}/batch_{$this->report_batch_id}/class_{$this->classId}/section_{$this->sectionId}";
-        $mergedPdfRelativePath = "{$this->schoolId}/batch_{$this->report_batch_id}/class_{$this->classId}/section_{$this->sectionId}.pdf";
+        $classFolder = $this->getClassFolderName($this->classId);
+
+
+        $baseRelativePath = "{$this->schoolId}/batch_{$this->report_batch_id}/{$classFolder}/section_{$this->sectionId}";
+        $mergedPdfRelativePath = "{$this->schoolId}/batch_{$this->report_batch_id}/{$classFolder}/section_{$this->sectionId}.pdf";
+
+        // $baseRelativePath = "{$this->schoolId}/batch_{$this->report_batch_id}/class_{$this->classId}/section_{$this->sectionId}";
+        // $mergedPdfRelativePath = "{$this->schoolId}/batch_{$this->report_batch_id}/class_{$this->classId}/section_{$this->sectionId}.pdf";
 
         if (!$disk->exists($baseRelativePath)) {
             Log::warning('Merge skipped, directory not found', ['path' => $baseRelativePath]);

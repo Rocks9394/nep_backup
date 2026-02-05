@@ -46,7 +46,7 @@
                     </div>
 
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
-                        <a href="{{ route('student.report')}}" class="box">
+                        <a href="{{ route('reports.view.test')}}" class="box" target="_blank">
                             <div data-toggle="tooltip" data-placement="top" title="Progress Report">
                                 <img class="img-fluid" alt="" src="{{ asset('public/uploads/icons/taketest.svg') }}">
                             </div>

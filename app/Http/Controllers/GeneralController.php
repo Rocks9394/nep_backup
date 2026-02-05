@@ -154,7 +154,7 @@ class GeneralController extends Controller
 		$schools = School::all();
 		$permission = [1,4,5,6,8];
 		//$role = DB::table('users')->select('users.role_id')->where('users.role_id',Auth::user()->id)->first();
-		$role = Auth::guard('admin')->user()->role_id;
+		$role = Auth::guard('admin')->user()->role_id ?? null;
 		//dd($role);
 	 if(in_array("$role",$permission) ){
 			

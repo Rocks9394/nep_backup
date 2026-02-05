@@ -66,22 +66,22 @@ input[type=checkbox] {
       <img src="{{ asset('resources/images/gofor-fit-logo.png') }}" height="40" class="d-inline-block align-top mb-2" alt="">
       <div class="card card-signin text-left" style="margin-top:15px;"> 
          <div class="card-body">
-		 
-@php
+            		 
+            @php
 
-  $user_type                = Cookie::get('user_type');
-  $student_id_cookie        = Cookie::get('student_id_cookie')?Cookie::get('student_id_cookie'):old('student_id');
-  $student_password_cookie  = Cookie::get('student_password_cookie');  
-  
-$decodedPwd = base64_decode(base64_decode($student_password_cookie));
-$plainPassword = substr($decodedPwd, 1, -1);
-  
-  
-  $student_remember_token   = Cookie::get('student_remember_token')?Cookie::get('student_remember_token'):old('remember');  
-  
+              $user_type                = Cookie::get('user_type');
+              $student_id_cookie        = Cookie::get('student_id_cookie')?Cookie::get('student_id_cookie'):old('student_id');
+              $student_password_cookie  = Cookie::get('student_password_cookie');  
+              
+            $decodedPwd = base64_decode(base64_decode($student_password_cookie));
+            $plainPassword = substr($decodedPwd, 1, -1);
+              
+              
+              $student_remember_token   = Cookie::get('student_remember_token')?Cookie::get('student_remember_token'):old('remember');  
+              
 
 
-@endphp
+            @endphp
 		 
 		 
 		 

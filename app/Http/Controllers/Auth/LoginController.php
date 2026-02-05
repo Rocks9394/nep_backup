@@ -31,50 +31,13 @@ class LoginController extends Controller
 
     use AuthenticatesUsers;
 
-    /**
-     * Where to redirect users after login.
-     *
-     * @var string
-     */
     protected $redirectTo = '/academics';
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
     }
 	
-	/*
-	public function login_bk(Request $request)
-    {  
-	
-
-        $this->validate($request, [
-            'email'   => 'required|email',
-            'password' => 'required|min:6',
-			'captcha' => 'required|captcha'
-        ]);
-
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->get('remember')))
-		{
-			
-		    $UserDetail = Auth::User();
-            
-            if($UserDetail->role_id == 3)
-                return redirect()->route('filldart.dashboard');
-            else
-            return redirect()->route('academics');
-            
-        }
-
-        return back()->with(['status' => 'success' , 'msg' => 'Invalid Credentials']);
-    }
-    */
-    
 	
 	public function showLoginForm() 
 	{
@@ -88,9 +51,11 @@ class LoginController extends Controller
       
     }
 
+    
+    public function login(Request $request)	{  
 
-    public function login(Request $request)
-	{  
+
+    	echo "string"; exit();
 	
         $data     = $request->all();
         $rules    = [];
@@ -291,8 +256,6 @@ class LoginController extends Controller
     }
 
 
-
-
     public function showCustomLoginForm() {
        return view('auth.customloginform');
     }
@@ -402,7 +365,7 @@ class LoginController extends Controller
 
     	return [
 	        'student_id.required' => 'The school ID field is required.',
-	        'dob.required' => 'The date of birth field is required.',
+	        'dob.required' => 'The password field is required.',
 	        'email.required' => 'The email field is required.',
 	        'email.email' => 'Please enter a valid email address.',
 	        'password.required' => 'The password field is required.',

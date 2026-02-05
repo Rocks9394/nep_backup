@@ -42,7 +42,8 @@ class StudentRecordController extends Controller
 		Session::put('SelectSchoolId',$stdInfo->school_id);
 		
 		$countFMS = DB::table('skillreport_skilltype_termtype_mapping as reportMapping')->where('student_id', $stdInfo->id)->count();
-	
+
+		session()->forget(['term_id']);
 		
 		$title = 'Dashboard';
 		return view('parent.index', compact('title', 'countFMS','stdInfo'));

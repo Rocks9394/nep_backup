@@ -414,15 +414,15 @@
                                                                 <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
                                                                     <tr style="background-color: #fecd0a;">
                                                                         <td style="width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Current Term</td>
-                                                                        <td style="width: 25%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
-                                                                        <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Score</td>
+                                                                        <td style="width: 22%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
+                                                                        <td style="width: 31%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Score</td>
                                                                         <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Level</td>
                                                                     </tr>
 
                                                                     <tr>
                                                                         <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Current_Term'][0]['created_at'] ?? '---'}}</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Current_Term'][0]['score'] ?? '---'}}</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Current_Term'][0]['Level'] ?? '---'}}</td>
+                                                                        <td style="text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Current_Term'][0]['score'] ?? '---'}}</td>
+                                                                        <td style="text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Current_Term'][0]['Level'] ?? '---'}}</td>
 
                                                                     </tr>
 
@@ -432,15 +432,15 @@
                                                                 <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
                                                                     <tr style="background-color: #fecd0a;">
                                                                         <td style="font-weight: 500; width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center;" rowspan="2">Previous Term</td>
-                                                                        <td style="font-weight: 500; width: 25%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
-                                                                        <td style="font-weight: 500; width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Score</td>
+                                                                        <td style="font-weight: 500; width: 22%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
+                                                                        <td style="font-weight: 500; width: 31%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Score</td>
                                                                         <td style="font-weight: 500; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Level</td>
                                                                     </tr>
 
                                                                     <tr>
                                                                         <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Previous_Term'][0]['created_at'] ?? '---'}}</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Previous_Term'][0]['score'] ?? ''}}</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Previous_Term'][0]['Level'] ?? '---'}}</td>
+                                                                        <td style="text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Previous_Term'][0]['score'] ?? ''}}</td>
+                                                                        <td style="text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Previous_Term'][0]['Level'] ?? '---'}}</td>
 
                                                                     </tr>
 

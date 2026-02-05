@@ -150,10 +150,10 @@ class ReportController extends Controller {
 			$html = "<a href='{$url}' target='_blank'>View</a>";
 			
 			// for heal and activity record (cbse)
-			if ($row->school_id == 15 && ($row->class_id >= 9 && $row->class_id <= 12)) {
-				$cbsceUrl = route('reports.cbse', ['id' => $id]);
-				$html .= "<br><a href='{$cbsceUrl}'>CBSE</a>";
-			}
+			// if ($row->school_id == 15 && ($row->class_id >= 9 && $row->class_id <= 12)) {
+			// 	$cbsceUrl = route('reports.cbse', ['id' => $id]);
+			// 	$html .= "<br><a href='{$cbsceUrl}' target='_blank'>HRA</a>";
+			// }
             return $html;
         })
 
@@ -182,9 +182,12 @@ class ReportController extends Controller {
 	    if (!empty($term_id)) {
 	        $termIds = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $term_id);
 	    } else {
-	        $termIds = [$this->getTermId($studentsData->schools_id)];
+			$selectedTermId = $this->getTermId($studentsData->schools_id);
+
+			$termIds = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $selectedTermId);
 	    }
 
+		// echo"<pre>";print_r($termIds);
 	   
 	    $currentTermId  = $termIds[0] ?? null;
 		$previousTermId = $termIds[1] ?? null;
@@ -241,7 +244,9 @@ class ReportController extends Controller {
         if (!empty($term_id)) {
 	        $TermMasterId = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $term_id);
 	    } else {
-	        $TermMasterId = [$this->getTermId($studentsData->schools_id)];
+	        $selectedTermId = $this->getTermId($studentsData->schools_id);
+
+			$TermMasterId = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $selectedTermId);
 	    }
 
 	    $currentTermId  = $TermMasterId[0] ?? null;
@@ -454,7 +459,7 @@ class ReportController extends Controller {
         	// $ajaxUrl = route('higherclass.status');
         }
 		
-        $ajaxUrl = route('higherclasstestsummary');
+        $ajaxUrl = route('trainer.higherclass.status');
 
         $school = School::find($schoolId);
 		$higherClass = $this->higherClasses;
@@ -464,7 +469,9 @@ class ReportController extends Controller {
 		        return in_array($class->class_id, $higherClass);
 		    })
 			->map(function ($class) {
-	        $originalClass = Sclass::where('id', $class->class_id) ->orderBy('orders')->first();
+	        $originalClass = Sclass::where('id', $class->class_id)
+	            ->orderBy('orders')
+	            ->first();
 
 	        $class->name = !empty($class->nomenclature)
 	            ? $class->nomenclature
@@ -490,7 +497,7 @@ class ReportController extends Controller {
 		        ->leftJoin('SeniorTestResultsSummary as r', 's.id', '=', 'r.student_id')
 		        ->leftJoin('class', 's.class_id', '=', 'class.id')
 				->leftJoin('custom_classes', 's.custom_class_id', '=', 'custom_classes.id')
-			        ->select( 's.id', 's.student_name', 's.rollno' ,'r.sit_and_reach', 'r.run_600m', 'r.pushups', 'r.dash_50m',  'r.curlup',  'r.bmi', 'r.height', 'r.weight', 's.class_id','s.section_id',
+			        ->select( 's.id', 's.dob', 's.student_name', 's.rollno' ,'r.sit_and_reach', 'r.run_600m', 'r.pushups', 'r.dash_50m',  'r.curlup',  'r.bmi', 'r.height', 'r.weight', 's.class_id','s.section_id',
 			             DB::raw("CASE 
 							WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 							THEN custom_classes.nomenclature 
@@ -556,6 +563,7 @@ class ReportController extends Controller {
 	            $sortableColumns = [
 	                'class_name'     => DB::raw("display_classname"),
 	                'student_name'   => 's.student_name',
+					'age'   		 => 's.dob',
 	                'sit_and_reach'  => 'r.sit_and_reach',
 	                'run_600m'       => 'r.run_600m',
 	                'pushups'        => 'r.pushups',
@@ -578,17 +586,18 @@ class ReportController extends Controller {
 	
 	        $flattenedList = $studentlist->map(function ($item) use ($role_id) {
 
-	        	if($role_id == 3){
-	        		$view_link = route('trainer.reports.view', ['id' => Crypt::encryptString($item->id)]);
-	        	}
+	        	$view_link = route('reports.view', ['id' => Crypt::encryptString($item->id)]);
 
-				if($role_id == 4 || $role_id == 2){
-					$view_link = route('reports.view', ['id' => Crypt::encryptString($item->id)]);
-	        	}
+				$age = \Carbon\Carbon::parse($item->dob)->age;
+				$isValid = $this->isValidAge($item->class_id, $age);
+
+				$studentAge = $isValid ? $age : $age;
 
 	            return [
 	                'id' => $item->id,
-	                'student_name' => $item->student_name,
+	                'student_name' => $item->student_name,					
+					'age'			=> $studentAge,
+					'invalid_age' => $isValid ? 0 : 1, 
 	           		'class_name' => $item->display_classname.'-'. $item->section,
 	           		'rollno' => $item->rollno ?? 'N.A.',
 	                'sit_and_reach' => $item->sit_and_reach ?? '---',
@@ -615,11 +624,12 @@ class ReportController extends Controller {
         return view('reports.summary.higherclass', compact('title','classList','ajaxUrl'));
     }
 
-    /**
+
+	/**
      * Lower Class Test Summary
      * */
-    public function LowerClassTestSummary(Request $request) {
 
+    public function LowerClassTestSummary(Request $request) {
 
 	    $userId  = Auth::user()->id;
 	    $role_id = Auth::user()->role_id;
@@ -642,7 +652,7 @@ class ReportController extends Controller {
 	       // $ajaxUrl = route('lowerclass.status');
 	    }
 
-	    $ajaxUrl = route('lowerclasstestsummary');
+	    $ajaxUrl = route('trainer.lowerclass.status');
 
 
 	    $school = School::find($schoolId);
@@ -686,6 +696,7 @@ class ReportController extends Controller {
 	            ->whereIn('class.id', $lowerClass)
 	            ->select(
 	                's.id',
+					's.dob',
 	                's.student_name','s.rollno',
 	                's.class_id',
 	                's.section_id',
@@ -775,7 +786,8 @@ class ReportController extends Controller {
 	            19 => 'r.plate_tapping',
 	            20 => 'r.bmi',
 	            21 => 'r.height',
-	            22 => 'r.weight'
+	            22 => 'r.weight',
+				23 => 's.dob'
 	        ];
 
 	        if ($request->has('order.0.column')) {
@@ -796,6 +808,7 @@ class ReportController extends Controller {
 
 	        $draw = intval($request->input('draw'));
 	        $studentlist = $query->skip($start)->take($length == -1 ? $recordsTotal : $length)->get();
+
 	        $flattenedList = $studentlist->map(function ($item) use ($role_id) {
 
 	           /* $view_link = $role_id == 3
@@ -803,10 +816,18 @@ class ReportController extends Controller {
 	                : route('reports.view', ['id' => Crypt::encryptString($item->id)]);*/
 
 	            $view_link = route('reports.view', ['id' => Crypt::encryptString($item->id)]);
+				
+				$age = \Carbon\Carbon::parse($item->dob)->age;
+
+				$isValid = $this->isValidAge($item->class_id, $age);
+
+				$studentAge = $isValid ? $age : $age;
 
 	            return [
 	                'id'            => $item->id,
 	                'student_name'  => $item->student_name,
+					'age'			=> $studentAge,
+					'invalid_age' => $isValid ? 0 : 1, 
 	                'class_name'    => $item->display_classname . '-' . $item->section,
 	                'rollno'        => $item->rollno ?? 'N.A.',
 	                'running'       => $item->running ?? '---',
@@ -847,6 +868,7 @@ class ReportController extends Controller {
 
 
 	// for cbse report card 
+	
 	public function ViewCbseReport($id){
 
 		$studentId = Crypt::decryptString($id);
@@ -925,5 +947,17 @@ class ReportController extends Controller {
 		// return view('reports.fitness.html.cbse-report', compact('studentsData','groupedReport','classes'));
 	}
 
+	private function isValidAge($class, $age){
 
+		$classDetails = DB::table('class')->where('id', $class)->first();
+
+		if (!$classDetails) {
+			return false; 
+		}
+
+		$minAge = $classDetails->min_age;
+		$maxAge = $classDetails->max_age;
+
+		return ($age >= $minAge && $age <= $maxAge);
+	}
 }

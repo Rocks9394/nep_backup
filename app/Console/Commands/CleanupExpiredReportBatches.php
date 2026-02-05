@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\ReportBatch;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class CleanupExpiredReportBatches extends Command
 {
@@ -35,5 +36,13 @@ class CleanupExpiredReportBatches extends Command
                 $batch->delete();
             }
         });
+
+        $report_requests = DB::table('report_requests')
+            ->where('created_at', '<', Carbon::now()->subDays($expiry_date))->delete();
+
+        $this->info("Data older than {$expiry_date} days removed successfully from report_requests table");
+        $this->info('Old reports cleanup completed successfully');
+        return Command::SUCCESS;
+
     }
 }

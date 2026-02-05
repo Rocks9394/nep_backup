@@ -325,8 +325,6 @@
                             </div>
                         </div>
                     @endforeach
-                @else
-                    <h2 class="test-heading text-center">You have not given FMS tests yet</h2>
                 @endif
 
     
@@ -334,7 +332,7 @@
             <div class="clearfix"></div>
             <div class="row no-gutters">
 
-                @if (in_array((string) $classId, $juniorClassess) || in_array((string) $classId, $seniorClassess))  
+                @if ((in_array((string) $classId, $juniorClassess) || in_array((string) $classId, $seniorClassess)) && $fitnessTest->isNotEmpty())
                 <h2 class="test-heading text-center mt-2 mb-3">Fitness Tests</h2>
                     @foreach($fitnessTest as $index => $test) 
                         <div class="col-12 col-md-6 col-lg-6 col-xl-4">
@@ -362,9 +360,7 @@
                                 </div>
                             </div>
                         </div>
-                    @endforeach  
-                @else
-                    <h2 class="test-heading text-center mb-4 mt-5 pt-3 pt-md-5 mb-md-5">You have not given any Fitness tests yet</h2>
+                    @endforeach 
                 @endif
             </div>
         </div>
@@ -663,9 +659,6 @@
     // for overall fitness 
 
     let fitnessTest = @json($fitnessTest ?? []);
-    if (!fitnessTest.length) {
-        console.warn('Fitness test data not available for this class');
-    }
 
     const levelMap = {
         'L0': 0,
@@ -693,31 +686,33 @@
 
     // Display the initial structure
     const overallFitnessEl = document.getElementById('overallFitness');
+
     if (overallFitnessEl) {
         overallFitnessEl.innerHTML = `
             <h4>Overall Fitness Level</h4>
             <span>0 %ile</span>
         `;
+
+        const spanElement = overallFitnessEl.querySelector('span');
+
+        if (spanElement) {
+            let start = 0;
+            const end = overallPercentile;
+            const duration = 2000;
+            const stepTime = 20;
+            const increment = end / (duration / stepTime);
+
+            const timer = setInterval(() => {
+                start += increment;
+                if (start >= end) {
+                    start = end;
+                    clearInterval(timer);
+                }
+                spanElement.textContent = `${start.toFixed(2)} %ile`;
+            }, stepTime);
+        }
     }
 
-
-
-    let start = 0;
-    const end = overallPercentile;
-    const duration = 2000; // 2 seconds
-    const stepTime = 20;   // update every 20ms
-    const increment = end / (duration / stepTime);
-
-    const spanElement = document.querySelector('#overallFitness span');
-
-    const timer = setInterval(() => {
-    start += increment;
-    if (start >= end) {
-        start = end;
-        clearInterval(timer);
-    }
-    spanElement.textContent = `${start.toFixed(2)} %ile`;
-    }, stepTime);
 
 
     // Load Google Charts
@@ -791,10 +786,16 @@
 
     // open bmi benchmark 
 
-    document.getElementById("openModal").addEventListener("click", function(e) {
+    const openModalBtn = document.getElementById("openModal");
+    const bmiModal = document.getElementById("bmiModal");
+
+    if (openModalBtn && bmiModal) {
+        openModalBtn.addEventListener("click", function (e) {
             e.preventDefault();
-            document.getElementById("bmiModal").style.display = "block";
-    });
+            bmiModal.style.display = "block";
+        });
+    }
+
     document.querySelector(".close").addEventListener("click", function() {
             document.getElementById("bmiModal").style.display = "none";
     });
@@ -812,11 +813,15 @@
     });
 
     // fitness benchmark modal 
+    const openFitnessModalBtn = document.getElementById("openFitnessModal");
+    const fitnessBenchmarkModal = document.getElementById("fitnessBenchmark");
 
-    document.getElementById("openFitnessModal").addEventListener("click", function(e) {
-        e.preventDefault();
-        document.getElementById("fitnessBenchmark").style.display = "block";
-    });
+    if (openFitnessModalBtn && fitnessBenchmarkModal) {
+        openFitnessModalBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            fitnessBenchmarkModal.style.display = "block";
+        });
+    }
     const closeButtons = document.querySelectorAll("#fitnessBenchmark .close");
 
     closeButtons.forEach(button => {

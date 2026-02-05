@@ -42,11 +42,13 @@ class GenerateStudentReportJob implements ShouldQueue
 
     public function handle() {
 
-
         ini_set('memory_limit', '512M');
         set_time_limit(600);
 
-        $relativePath = "{$this->schoolId}/batch_{$this->report_batch}/class_{$this->classId}/section_{$this->sectionId}";
+        $classFolder = $this->getClassFolderName($this->classId);
+        $relativePath = "{$this->schoolId}/batch_{$this->report_batch}/{$classFolder}/section_{$this->sectionId}";
+         // $relativePath = "{$this->schoolId}/batch_{$this->report_batch}/class_{$this->classId}/section_{$this->sectionId}";
+
         $disk = Storage::disk('reports');
         if (!$disk->exists($relativePath)) {
             $disk->makeDirectory($relativePath);

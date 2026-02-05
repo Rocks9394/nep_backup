@@ -14,12 +14,22 @@
 .dropdown .form-control.dropdown-toggle::after {
         right: 10px;
     }
-
+.dt-search input[type=search] {
+    width: 180px !important;
+    border: none;
+    font-size:13px;
+}
+.invalid-age {
+    background-color: #ffcccc !important;
+    color: #000;
+    font-weight: bold;
+}
 </style>
 
 <div class="container-fluid">
     <div class="t-mrg2 mb-5 pb-5 px-4">
-        <div class="row">        
+        <div class="row">
+        
             <div class="col-12 col-md">
                 <div class="heading-rw mt-0 mt-md-1 mb-0 p-0">                
                     <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
@@ -48,6 +58,7 @@
                                     <th scope="col" >Class</th>
                                     <th scope="col" >Roll No.</th>
                                     <th scope="col" >Students Name</th>
+                                    <th scope="col" >Age</th>
                                     <th scope="col" >Sit and Reach Test</th>
                                     <th scope="col" >600 meter run/walk</th>
                                     <th scope="col" >Push Ups</th>
@@ -89,16 +100,15 @@ $(document).ready(function() {
         processing: true,
         serverSide: true,
         searchable: true,
-        // pageLength: 100,
-        // lengthMenu: [[100, 200, 300, -1], [100, 200, 300 , "All"]],
-        dom: `<"top"f><"filter-right"B>rt<"bottom"i><"clear">`,        
+        pageLength: 100,
+        lengthMenu: [[100, 200, 300, -1], [100, 200, 300 , "All"]],
+        dom: `<"top"lf><"filter-right"B>rt<"bottom"ip><"clear">`,        
         ajax: {
             url: '<?php echo e($ajaxUrl); ?>',
             type: 'GET',
             data: function(d) {
                 d.class = $('#filter_class').val();
                 d.status = $('#filter_status').val();            
-                d.term = $('#filter_term').val();            
                 d.test = $('.filter_test:checked').map(function () {
                     return $(this).val();
                 }).get();
@@ -116,10 +126,14 @@ $(document).ready(function() {
                 Swal.close();
             }
         },
+
+        order: [ [1, 'asc'] ],
+
         columns: [
             { data: 'class_name', name : 'class_name'},
-            { data: 'rollno', name: 'rollno' },
-            { data: 'student_name', name: 'student_name' },
+            { data: 'rollno', name : 'rollno'},
+            { data: 'student_name', name: 'student_name' },            
+            { data: 'age', name: 'age' },
             { data: 'sit_and_reach', name: 'sit_and_reach' },
             { data: 'run_600m', name: 'run_600m' },
             { data: 'pushups', name: 'pushups' },
@@ -135,6 +149,14 @@ $(document).ready(function() {
                 }
             }
         ],
+
+        createdRow: function(row, data, dataIndex) {
+            if (data.invalid_age == 1) {
+                $(row).addClass('invalid-age');
+                $(row).find('a.btn-link').attr('data-invalid', 1);
+            }
+        },
+
         buttons: [{
             extend: 'collection',
             text: 'Export',
@@ -148,12 +170,11 @@ $(document).ready(function() {
                 },
             ],
         }],
-        order: [[0, 'asc']],
+       
 
         initComplete: function () {
-            $('.dt-search input[type="search"]').attr('placeholder', 'Search here...');
+            $('.dt-search input[type="search"]').attr('placeholder', 'Student | Roll No.');
 
-            /* === CLASS FILTER === */
             var classList = <?php echo json_encode($classList, 15, 512) ?>;
             const $dropdown = $('<select class="form-control" id="filter_class"></select>');
             classList.forEach(option => {
@@ -164,25 +185,6 @@ $(document).ready(function() {
             });
             $('<div class="pull-right"></div>').append($dropdown).appendTo("#FitnessTestStatus_wrapper .top").next('.dt-length').addClass("pull-right");
             $dropdown.on('change', function() { table.ajax.reload(); });
-
-
-            /* === Terms Filter === */
-            var terms = <?php echo json_encode($filteredTerms, 15, 512) ?>;
-            var selectedTermId = <?php echo json_encode($TermMasterId, 15, 512) ?>;
-            const $termDropdown = $('<select class="form-control" id="filter_term"></select>');
-            terms.forEach(option => {
-                const displayText = option.name;
-                const value = option.term_id ?? option.id;
-                const isSelected = value == selectedTermId;
-                $termDropdown.append(new Option(displayText, value, isSelected, isSelected));
-            });
-
-            $('<div class="pull-right"></div>')
-                .append($termDropdown)
-                .appendTo("#FitnessTestStatus_wrapper .top")
-                .next('.dt-length')
-                .addClass("pull-right");
-            $termDropdown.on('change', function() { table.ajax.reload(); });
 
             /* === STATUS FILTER === */
             var status = [
@@ -213,7 +215,7 @@ $(document).ready(function() {
                     <button class="form-control dropdown-toggle" type="button" data-toggle="dropdown" id="test_count_label">
                         All Tests <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu" style="padding:30px; max-height:200px; overflow:auto; min-width:200px;"></ul>
+                    <ul class="dropdown-menu" style="padding:10px; max-height:300px; overflow:auto; min-width:200px;"></ul>
                 </div>
             `);
 
@@ -291,19 +293,37 @@ $(document).ready(function() {
                 $(".filter_test").prop("checked", $(this).is(":checked"));
                 updateTestCount();
                 toggleColumns();
-                table.ajax.reload(); // ✅ only once
+                table.ajax.reload(); 
             });
 
             $(document).on("change", ".filter_test", debounce(function() {
                 updateTestCount();
                 toggleColumns();
-                table.ajax.reload(); // ✅ debounced
+                table.ajax.reload();
             }, 300));
         },
 
         language: {
             paginate: { first: "«", previous: "‹", next: "›", last: "»" },
         }
+    });
+
+    
+    $('#FitnessTestStatus').on('click', '.btn-link', function(e) {
+        e.preventDefault();
+        var isInvalid = $(this).attr('data-invalid');
+
+        if (isInvalid == 1) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Age',
+                text: 'The student\'s age does not meet the class-age requirements.',
+            });
+            return;
+        }
+
+        var url = $(this).attr('href');
+        window.open(url, '_blank');
     });
 
     function getTimestamp() {
@@ -317,4 +337,4 @@ $(document).ready(function() {
 
 
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/reports/fitnessTestStatus.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/reports/summary/higherclass.blade.php ENDPATH**/ ?>

@@ -108,8 +108,8 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('assessor-app-speed-record-submit',[App\Http\Controllers\AssessorAppController::class, 'SubmitSpeedRecord'])->name('speed.record.submit');
 
 	// to view reports on trainer 
-	Route::get('higherclass1/status', [AssessorAppController::class, 'TestStatusHigherClass'])->name('trainer.higherclass.status');
-	Route::get('lowerclass2/status', [AssessorAppController::class, 'TestStatusLowerClass'])->name('trainer.lowerclass.status');
+	Route::get('higherclass1/status', [ReportController::class, 'HigherClassTestSummary'])->name('trainer.higherclass.status');
+	Route::get('lowerclass2/status', [ReportController::class, 'LowerClassTestSummary'])->name('trainer.lowerclass.status');
 	Route::get('report/{id}', [AssessorAppController::class, 'ViewFitnessReport'])->name('trainer.reports.view');
 
 

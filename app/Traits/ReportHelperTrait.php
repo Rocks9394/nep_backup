@@ -8,6 +8,19 @@ use Illuminate\Support\Facades\DB;
 trait ReportHelperTrait
 {
 
+    protected function getClassFolderName(int $classId): string {
+
+        return match ($classId) {
+            14 => 'Class_Nursery',
+            18 => 'Class_Pre_Nursery',
+            22 => 'CLass_LKG',
+            23 => 'CLass_UKG',
+            default => 'Class_' . $classId,
+        };
+    }
+
+
+
     public function getStudentData($studentId) {
         
         return DB::table('students')

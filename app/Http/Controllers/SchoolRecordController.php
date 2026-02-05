@@ -982,31 +982,24 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		return $filename;
 	}
 
-	// end school profile update 
+    /**
+     * Updatiion of term filters.
+     * */
 
     public function viewSchoolDart(Request $request)	
 	{
-		
-
 		try {
 
 			$title   = 'View Dart';	
 			$SchoolUserId  =  \Auth::id();
 			$role_id =  \Auth::user()->role_id;
 			
-			#echo "<pre>";
-			#print_r('principal id-'.$SchoolUserId.'----change the detail----'.$role_id);
-			#die('-------');
 		
 			if ($role_id != 2 && $role_id != 4) {
 			    abort(403, 'Unauthorized access. Only school can access this section.');
 			}
 
 			$school_id = DB::table('school_reference')->where('school_user_id',$SchoolUserId)->where('status', 1)->value('school_id');
-
-
-			//echo "Temporarily Disable. We are working on it....";  exit();
-			
 
 			$school = School::find($school_id);
 			$trainerList = $school->getTrainers;//->where('status',1);
@@ -1020,185 +1013,27 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			    $originalClass =  Sclass::where('id', $class->class_id)->orderBy('orders')->first();
 			    $class->name = !empty($class->nomenclature) ? $class->nomenclature 	: ($originalClass ? $originalClass->name : null);
 			}
-			$classList = $classList->sortBy('orders')->values();
+			$classList = $classList->sortBy('orders')->values();	
 
+			$TermMasterId = $this->getTermId($school_id);
 
-			/*
-			$trainersData = DB::table('schools')
-		    ->select(
-		      'schools.id as schools_id',
-		      'school_trainers.trainer_id',
-		      'reports.student_id',
-		      'reports.submitted_by',
-		      'reports.level',
-		      'users.name',
-		      'reports.date',
-		      'reports.period',
-		      'reports.level',
-		      'skillareas.name as skillareas',
-		      'sports.name as sports',
-		      'techniques.name as techniques',
-		      'class.name as class',
-		      'activity.title as title',
-		      'activity.id as activity_id',
-		      'custom_classes.section as section',
-
-		       'reports.skill_area_id',
-		      'reports.skill_sports_id',
-		      'reports.technique_id',
-		      'reports.activity_id',
-		      'reports.custom_class_id',
-		      'reports.other_duty_activity_id'
-
-		    )
-
-		    ->join('school_trainers', 'school_trainers.school_id', '=', 'schools.id')
-		    ->join('users', 'users.id', '=', 'school_trainers.trainer_id')
-		    ->join('reports', 'reports.submitted_by', '=', 'school_trainers.trainer_id')
-		    ->join('class', 'class.id', '=', 'reports.class_id')
-		    ->join('custom_classes', 'custom_classes.id', '=', 'reports.custom_class_id')
-		    ->join('skillareas', 'skillareas.id', '=', 'reports.skill_area_id')
-		    ->join('sports', 'sports.id', '=', 'reports.skill_sports_id')
-		    ->join('techniques', 'techniques.id', '=', 'reports.technique_id')
-		    ->join('activity', 'activity.id', '=', 'reports.activity_id')
-		    ->where('reports.status', 1)
-		    ->where('schools.id', $school_id)
-
-		    ->orderBy('reports.period', 'ASC')
-		    ->orderBy('reports.date', 'DESC')
-		    ->orderBy('reports.custom_class_id', 'ASC')
-		    ->orderBy('custom_classes.orders', 'ASC')
-		    ->get()
-
-		    // Group by trainer_id first
-		    ->groupBy('submitted_by')
-		    ->map(function ($recordsByTrainer) {
-		        return $recordsByTrainer->groupBy('date')->map(function ($recordsByDate, $date) {
-		            return $recordsByDate->groupBy('skillareas')->map(function ($recordsBySkillarea, $skillarea) use ($date) {
-		                return $recordsBySkillarea->groupBy(function ($record) {
-		                    return $record->class . '-' . $record->section;
-		                })->map(function ($recordsByClassSection, $classSection) use ($date, $skillarea ){
-		                    return $recordsByClassSection->groupBy('period')->map(function ($recordsByPeriod, $period) use ($classSection, $date, $skillarea) {
-		                        
-		                    		$presentCount = $absentCount = 0;	  
-		                    		$checkstring = '';
-		                    		$data = [];
-		                    		$getRecords = [];
-		                    		foreach ($recordsByPeriod as $entry) {
-	                    				$checkstring = $entry->student_id;
-			                    		if(!in_array($checkstring, $data)){
-				                            if ($entry->level > 0) {
-				                                $presentCount++;
-				                            } else {
-				                                $absentCount++;
-				                            }
-				                            $data[] = $checkstring;
-				                            $getRecords[] = $entry;
-			                    		}
-				                    }
-		                        
-		                        return [
-		                            'class_section' => $classSection,
-		                            'period' => $period,
-		                            'present_count' => $presentCount,
-		                            'absent_count' => $absentCount,
-		                            'records' => collect($getRecords)
-		                        ];
-		                    })->sortBy('period');
-		                });
-		            });
-		        });
-		    })
-		    ->flatMap(function ($trainerGroups) {
-		        return $trainerGroups->flatMap(function ($dateGroups, $date) {
-		            return $dateGroups->flatMap(function ($skillareaGroups, $skillarea) {
-		                return $skillareaGroups->flatMap(function ($classSectionGroups, $classSection) {	            
-		                    return $classSectionGroups->map(function ($periodGroup, $period) use ($classSection) {
-		                        return [
-		                            'date' => $periodGroup['records']->first()->date,
-		                            'trainer_id' => $periodGroup['records']->first()->trainer_id,
-		                            'name' => $periodGroup['records']->first()->name,
-		                            'class_section' => $classSection,
-		                            'period' => $period,
-		                            'present_count' => $periodGroup['present_count'],
-		                            'absent_count' => $periodGroup['absent_count'],
-		                            'class' => $periodGroup['records']->first()->class,
-		                            'section' => $periodGroup['records']->first()->section,
-		                            'skillareas' => $periodGroup['records']->first()->skillareas,
-		                            'sports' => $periodGroup['records']->first()->sports,
-		                            'techniques' => $periodGroup['records']->first()->techniques,
-		                            'title' => $periodGroup['records']->first()->title,
-		                            'activity_id' => $periodGroup['records']->first()->activity_id,
-
-
-		                            'skill_area_id' => $periodGroup['records']->first()->skill_area_id,
-		                            'skill_sports_id' => $periodGroup['records']->first()->skill_sports_id,
-		                            'technique_id' => $periodGroup['records']->first()->technique_id,
-		                            'activity_id' => $periodGroup['records']->first()->activity_id,
-		                            'custom_class_id' => $periodGroup['records']->first()->custom_class_id,
-		                            'other_duty_activity_id' => $periodGroup['records']->first()->other_duty_activity_id,
-
-		                        ];
-		                    });
-		                });
-		            });
-		        });
-		    })->collect()->sortByDesc('date');
-				
-			
-
-			
-		
-		    if($request->ajax()){
-				return Datatables::of($trainersData)
-
-				->addIndexColumn()
-				->addColumn('title', function($row){
-						$html = '<a href="javascript:void(0)" onclick="modelContent('.$row['activity_id'].', \''.$row['skillareas'].'\', \''.$row['sports'].'\', \''.$row['techniques'].'\', \''.$row['class_section'].'\')">'.$row['title'].'</a>';
-					return $html;
-				})
-				
-				->addColumn('classandsec', function($row){
-					return $row['class_section'];
-				})
-				->addColumn('date', function($row){
-					$newDate = date("d-m-Y", strtotime($row['date']));
-		  			return $newDate;
-		  		})
-				->rawColumns(['title','classandsec','date'])
-				->toJson();
+			$year = date('Y');
+			$month = date('m');
+			$day = date('d');
+			$today = Carbon::today()->toDateString();
+			if ($month < 4 || ($month == 3 && $day <= 31)) {
+				$academicYear = ($year - 1) . '-' . $year;
 			}
 
-			return view('school.viewschooldart', compact('title','trainerList','classList','trainersData'));
-			*/
-
-	 	    /*
-	 		foreach($trainersData as $value){
-
-				ViewDart::updateOrCreate(
-				    [
-				        'school_id' => $school_id,
-				        'trainer_id' => $value['trainer_id'],
-				        'period' => $value['period'],
-				        'custm_cls_id' => $value['custom_class_id'],
-				        'skill_area_id' => $value['skill_area_id'],
-				        'skillsports_id' => $value['skill_sports_id'],
-				        'technique_id' => $value['technique_id'],
-				        'activity_id' => $value['activity_id'],
-				        'other_duties_id' => $value['other_duty_activity_id'],
-				        'date' => $value['date'],
-				    ],
-				    [
-				        'total_student' => $value['present_count'] + $value['absent_count'],
-				        'present' => $value['present_count'],
-				        'absent' => $value['absent_count'],
-				    ]
-				);
-			}
-			*/ 
-
-	 		// echo "<pre>"; print_r($trainersData);exit();
-			
+			$terms = TermMaster::where('school_id', $school_id)
+				->where('is_active', 1)
+				->where('academic_year', $academicYear)
+				->get();
+				
+			$filteredTerms = $terms->map(function($term) {
+				$term->name = $term->term_name;
+				return $term;
+			});
 			
 			$ViewDartQuery = DB::table('view_dart')
 		    ->select('users.name','view_dart.*'	)
@@ -1211,6 +1046,12 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	                $query->where('users.name', 'like', '%' . $searchValue . '%');
 	            });
 	        }
+
+			if ($request->input('term')) {
+		        $selectedTerm = $request->input('term');
+		        $ViewDartQuery->where('term_master_id',$selectedTerm);
+			}
+			
 
 	        if ($request->has('order')) {
 	            $columnIndex = $request->input('order.0.column');
@@ -1256,7 +1097,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	            ]);
 	        }
 
-	        return view('school.viewschooldart', compact('title','trainerList','classList'));
+	        return view('school.viewschooldart', compact('title','trainerList','classList','filteredTerms','TermMasterId'));
 			
 
  		} catch (\Exception $e) {
@@ -1266,103 +1107,6 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		}
  		
 
-    }
-
-    /**
-     * Date : 15-Jan-2025
-     * Modified code for accessing other duties inside the view dart module.
-     * */
-    public function viewSchoolDart_bkup(Request $request) {
-
-
-		try {
-
-
-			$title   = 'View Dart';	
-			$SchoolUserId  =  \Auth::id();
-			$role_id =  \Auth::user()->role_id;
-		
-			if($role_id != 4)
-			{
-				die('--you are not a school. school can only access--');
-			}
-
-			$school_id = DB::table('school_reference')->where('school_user_id',$SchoolUserId)->where('status', 1)->value('school_id');
-
-			$school = School::find($school_id);
-			$trainerList = $school->getTrainers->where('status',1);
-			foreach ($trainerList as $trainer) {
-			    $trainer->name = User::where('id', $trainer->trainer_id)->orderBy('name')->first()->name;
-			}
-
-			$classList = $school->getClasses;
-			foreach ($classList as $class) 	{			
-			   $class->name = Sclass::where('id', $class->class_id)->orderBy('name')->first()->name;
-			}
-
-			
-			$ViewDartQuery = DB::table('view_dart')
-		    ->select('users.name','view_dart.*'	)
-		    ->join('users', 'users.id', '=', 'view_dart.trainer_id')
-		    ->where('view_dart.school_id', '=' , $school_id);
-		    
-	        if ($request->has('search') && $request->search['value']) {
-	            $searchValue = $request->search['value'];
-	            $ViewDartQuery->where(function ($query) use ($searchValue) {
-	                $query->where('view_dart.name', 'like', '%' . $searchValue . '%');
-	            });
-	        }
-
-	        if ($request->has('order')) {
-	            $columnIndex = $request->input('order.0.column');
-	            $columnName = $request->input('columns.' . $columnIndex . '.data');
-	            $orderDirection = $request->input('order.0.dir');
-	            $ViewDartQuery->orderBy($columnName, $orderDirection);
-	        }
-
-	        $start = $request->input('start', 0);
-	        $length = $request->input('length', 100);
-	        if ($length != -1) {
-	            $ViewDartQuery->skip($start)->take($length);
-	        }       	
-
-	        $ViewDartData = $ViewDartQuery->get();
-	        $totalRecords = DB::table('view_dart')->where('view_dart.school_id', '=', $school_id)->count();
-	        $filteredRecords = $ViewDartQuery->count();
-	      
-
-	        $data = $ViewDartData->map(function($row) {
-	            return [
-	            	'name' => $row->name,
-	            	'date' => $row->date,
-	            	'period' => $row->period,
-	                'classandsec' => \App\Helpers\Helper::getClassAndSection($row->custm_cls_id) ?? '---',
-	                'skillareas' => \App\Helpers\Helper::getSkillArea($row->skill_area_id) ?? '---',
-	                'sports' => \App\Helpers\Helper::getSports($row->skillsports_id) ?? '---',
-	                'techniques' => \App\Helpers\Helper::getTechnique($row->technique_id) ?? '---',
-	                'title' => $this->getActivityTitle($row),
-	                'present_count' => $row->present ?? '---',
-	                'absent_count' => $row->absent ?? '---',
-	                'data' => $row    // original data
-	            ];
-	        });
-	        
-	        // Return the custom data in the response
-	        if ($request->ajax()) {
-	            return response()->json([
-	                'draw' => intval($request->draw),
-	                'recordsTotal' => $totalRecords,
-	                'recordsFiltered' => $totalRecords,
-	                'data' => $data
-	            ]);
-	        }
-			
-	 		return view('school.viewschooldart', compact('title','trainerList','classList'));
-
- 		} catch (\Exception $e) {
-			\Log::error('Error while Retrival of view-dart: ' . $e->getMessage());
-			return redirect()->back()->with('error', 'Form submission failed!');
-		}
     }
 
 
