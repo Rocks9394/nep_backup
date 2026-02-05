@@ -258,6 +258,8 @@ class FillDartController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
+			'custom_classes.nomenclature',
+			'class.name',
 			DB::raw("CASE 
 				WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 				THEN custom_classes.nomenclature 
@@ -347,7 +349,7 @@ class FillDartController extends Controller
 					->where('activity_technique.technique_id', $request->technique_id)
 					->where('activity_technique.is_active','1')
 					//->orderBy('techniques.name', 'ASC')
-					->groupBy('activity.id')
+					->groupBy('activity.id','activity.title')
 					->get();
 					
 					$act = '<option value="" >--select--</option>';

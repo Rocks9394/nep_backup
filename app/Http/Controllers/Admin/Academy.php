@@ -217,7 +217,7 @@ class Academy extends Controller
 			->where('school_do_sports.school_id', $school_id)
 			->where('school_do_sports.skill_id', $skillarea_id)
 			->orderBy('sports.name', 'ASC')
-			->groupBy('sports.id')
+			->groupBy('sports.id','sports.name')
 			->get(); 
 
 		}
@@ -230,7 +230,7 @@ class Academy extends Controller
 			->where('school_do_sports.school_id', $school_id)
 			//->wherein('school_do_sports.skill_id', $skillarea)
 			->orderBy('sports.name', 'ASC')
-			->groupBy('sports.id')
+			->groupBy('sports.id','sports.name')
 			->get()->toArray(); 
 			
 			
@@ -244,7 +244,7 @@ class Academy extends Controller
 			->where('class_skillarea_sports.class_id', $class_id)
 			->where('class_skillarea_sports.skillarea_id', 1)
 			->orderBy('sports.name', 'ASC')
-			->groupBy('sports.id')
+			->groupBy('sports.id','sports.name')
 			->get()->toArray(); 
 			
 			$skillsports = array_merge($skillsports11, $skillsports1);
@@ -262,7 +262,7 @@ class Academy extends Controller
 			->select(['sports.id','sports.name'])
 			->where('class_skillarea_sports.class_id', $class_id)
 			->where('class_skillarea_sports.skillarea_id', $request->skillarea_id)->orderBy('sports.name', 'ASC')
-			->groupBy('sports.id')
+			->groupBy('sports.id','sports.name')
 			->get(); 
 
 		}			
