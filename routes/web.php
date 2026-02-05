@@ -30,6 +30,7 @@ use App\Http\Controllers\StudentRecordController;
 use App\Http\Controllers\SchoolRecordController;
 use App\Http\Controllers\ParentDashoboardController;
 use App\Http\Controllers\AssessorAppController;
+use App\Http\Controllers\FillDartController;
 
 use App\Http\Controllers\Auth\PasswordRecoveryControlller;
 use App\Http\Controllers\Auth\ChangePasswordController;
@@ -434,12 +435,12 @@ Route::prefix('school')->group(function(){
 	Route::get('download-test-file/{logId}', [AssessorAppController::class, 'downloadTestUploadedFile'])->name('download.testuploadedfile');
 	Route::get('uploaded-error-file/{logId}', [AssessorAppController::class, 'downloadTestErrorFile'])->name('download.testerrorfile');
 
+	Route::get('viewdart', [FillDartController::class,'viewSchoolDart'])->name('viewschooldart');
 	
 });
 
 Route::get('school-dashboard-graph', [SchoolRecordController::class,'SchoolDashboardGraph'])->name('schoolDashboardGraph')->middleware('module_access:schoolDashboard');
 Route::get('school-dashboard', [SchoolRecordController::class,'SchoolDashboard'])->name('schoolDashboard')->middleware('module_access:schoolDashboard');
-Route::get('viewdart', [SchoolRecordController::class,'viewSchoolDart'])->name('viewschooldart')->middleware('module_access:viewschooldart');
 Route::post('viewdart',[SchoolRecordController::class, 'getReport'])->name('getDartReport');
 Route::get('skillsreport',[SchoolRecordController::class, 'skillreport'])->name('skillreport');
 
@@ -598,27 +599,27 @@ Route::get('concepts/{chapter}', [App\Http\Controllers\Academy::class, 'concepts
 
 Route::get('sports',[App\Http\Controllers\SportsController::class, 'index'])->name('sports');
 
-Route::get('terms-exam',[App\Http\Controllers\FillDartController::class, 'termsExam'])->name('terms.exam');
-Route::post('terms-exam-import',[App\Http\Controllers\FillDartController::class, 'termsExamImportData'])->name('terms.exam.import.data');
+Route::get('terms-exam',[FillDartController::class, 'termsExam'])->name('terms.exam');
+Route::post('terms-exam-import',[FillDartController::class, 'termsExamImportData'])->name('terms.exam.import.data');
 
-Route::get('fill-dart',[App\Http\Controllers\FillDartController::class, 'index'])->name('fill.dart');
-Route::get('testdata',[App\Http\Controllers\FillDartController::class, 'testdata'])->name('testdata');
-Route::get('get_activity',[App\Http\Controllers\FillDartController::class, 'getActivity'])->name('get_activity');
-Route::get('get_students',[App\Http\Controllers\FillDartController::class, 'getStudents'])->name('get_students');
-Route::post('fill_dart_data_submit',[App\Http\Controllers\FillDartController::class, 'SubmitFillDart'])->name('fill.dart.data.submit');
-Route::post('fill_dart_data_submit_ncs',[App\Http\Controllers\FillDartController::class, 'SubmitFillDartNCS'])->name('fill.dart.data.submit.ncs');
-Route::get('student-report',[App\Http\Controllers\FillDartController::class, 'StudentReport'])->name('students.report');
+Route::get('fill-dart',[FillDartController::class, 'index'])->name('fill.dart');
+Route::get('testdata',[FillDartController::class, 'testdata'])->name('testdata');
+Route::get('get_activity',[FillDartController::class, 'getActivity'])->name('get_activity');
+Route::get('get_students',[FillDartController::class, 'getStudents'])->name('get_students');
+Route::post('fill_dart_data_submit',[FillDartController::class, 'SubmitFillDart'])->name('fill.dart.data.submit');
+Route::post('fill_dart_data_submit_ncs',[FillDartController::class, 'SubmitFillDartNCS'])->name('fill.dart.data.submit.ncs');
+Route::get('student-report',[FillDartController::class, 'StudentReport'])->name('students.report');
 
-Route::post('submit-other-duty',[App\Http\Controllers\FillDartController::class, 'SubmitOtherDuty'])->name('submit.other.duty');
-Route::post('trainer-activity',[App\Http\Controllers\FillDartController::class, 'TrainerActivity'])->name('fill.trainer.activity');
+Route::post('submit-other-duty',[FillDartController::class, 'SubmitOtherDuty'])->name('submit.other.duty');
+Route::post('trainer-activity',[FillDartController::class, 'TrainerActivity'])->name('fill.trainer.activity');
 
-Route::get('view-dart',[App\Http\Controllers\FillDartController::class, 'ViewDart'])->name('view.dart');
-Route::get('view-dart-by-class',[App\Http\Controllers\FillDartController::class, 'ViewDartByClass'])->name('view.dart.class');
-Route::get('getFillDARTSkillArea', [App\Http\Controllers\FillDartController::class, 'getFillDARTSkillArea'])->name('getFillDARTSkillArea');
+Route::get('view-dart',[FillDartController::class, 'ViewDart'])->name('view.dart');
+Route::get('view-dart-by-class',[FillDartController::class, 'ViewDartByClass'])->name('view.dart.class');
+Route::get('getFillDARTSkillArea', [FillDartController::class, 'getFillDARTSkillArea'])->name('getFillDARTSkillArea');
 
-Route::get('filldart-dashboard', [App\Http\Controllers\FillDartController::class, 'dashboard'])->name('filldart.dashboard');
+Route::get('filldart-dashboard', [FillDartController::class, 'dashboard'])->name('filldart.dashboard');
 
-// Route::get('paris-2024', [App\Http\Controllers\FillDartController::class, 'ParisOlympics'])->name('paris.olympics');
+// Route::get('paris-2024', [FillDartController::class, 'ParisOlympics'])->name('paris.olympics');
 
 Route::get('read-excel-demo',[App\Http\Controllers\DATController::class, 'ReadExcelDemo'])->name('read.excel.demo');
 
