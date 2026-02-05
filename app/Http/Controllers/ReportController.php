@@ -458,6 +458,26 @@ class ReportController extends Controller {
         	$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
         	// $ajaxUrl = route('higherclass.status');
         }
+
+		$TermMasterId = $this->getTermId($schoolId);
+
+		$year = date('Y');
+		$month = date('m');
+		$day = date('d');
+		$today = Carbon::today()->toDateString();
+		if ($month < 4 || ($month == 3 && $day <= 31)) {
+			$academicYear = ($year - 1) . '-' . $year;
+		}
+
+		$terms = TermMaster::where('school_id', $schoolId)
+            ->where('is_active', 1)
+            ->where('academic_year', $academicYear)
+			->get();
+			
+		$filteredTerms = $terms->map(function($term) {
+			$term->name = $term->term_name;
+			return $term;
+		});
 		
         $ajaxUrl = route('trainer.higherclass.status');
 
@@ -492,9 +512,18 @@ class ReportController extends Controller {
 
             $start = $request->input('start', 0);
             $length = $request->input('length', 100);
+			if ($request->input('term')) {
+		        $selectedTerm = $request->input('term');
+		        if (!empty($selectedTerm)) {
+					$TermMasterId = $selectedTerm;
+		        }
+		    }
 		
             $query = DB::table('students as s')
-		        ->leftJoin('SeniorTestResultsSummary as r', 's.id', '=', 'r.student_id')
+		        ->leftJoin('SeniorTestResultsSummary as r', function ($join) use ($TermMasterId) {
+					$join->on('s.id', '=', 'r.student_id')
+						->where('r.term_id', '=', $TermMasterId);
+					})
 		        ->leftJoin('class', 's.class_id', '=', 'class.id')
 				->leftJoin('custom_classes', 's.custom_class_id', '=', 'custom_classes.id')
 			        ->select( 's.id', 's.dob', 's.student_name', 's.rollno' ,'r.sit_and_reach', 'r.run_600m', 'r.pushups', 'r.dash_50m',  'r.curlup',  'r.bmi', 'r.height', 'r.weight', 's.class_id','s.section_id',
@@ -584,9 +613,9 @@ class ReportController extends Controller {
         	$studentlist = $query->skip($start)
             ->take($length == -1 ? $recordsTotal : $length)->get();
 	
-	        $flattenedList = $studentlist->map(function ($item) use ($role_id) {
+	        $flattenedList = $studentlist->map(function ($item) use ($role_id, $TermMasterId) {
 
-	        	$view_link = route('reports.view', ['id' => Crypt::encryptString($item->id)]);
+	        	$view_link = route('reports.view.test', ['id' => Crypt::encryptString($item->id), 'term_id' => $TermMasterId]);
 
 				$age = \Carbon\Carbon::parse($item->dob)->age;
 				$isValid = $this->isValidAge($item->class_id, $age);
@@ -621,7 +650,7 @@ class ReportController extends Controller {
         }
 
        	$title = 'Fitness Test Status (Class 4 to 12)';
-        return view('reports.summary.higherclass', compact('title','classList','ajaxUrl'));
+        return view('reports.summary.higherclass', compact('title','classList','ajaxUrl','filteredTerms','TermMasterId'));
     }
 
 
@@ -651,6 +680,26 @@ class ReportController extends Controller {
 	        $schoolId = DB::table('school_reference')->where('school_user_id', $userId)->where('status', 1)->value('school_id');
 	       // $ajaxUrl = route('lowerclass.status');
 	    }
+
+		$TermMasterId = $this->getTermId($schoolId);
+
+		$year = date('Y');
+		$month = date('m');
+		$day = date('d');
+		$today = Carbon::today()->toDateString();
+		if ($month < 4 || ($month == 3 && $day <= 31)) {
+			$academicYear = ($year - 1) . '-' . $year;
+		}
+
+		$terms = TermMaster::where('school_id', $schoolId)
+            ->where('is_active', 1)
+            ->where('academic_year', $academicYear)
+			->get();
+			
+		$filteredTerms = $terms->map(function($term) {
+			$term->name = $term->term_name;
+			return $term;
+		});
 
 	    $ajaxUrl = route('trainer.lowerclass.status');
 
@@ -686,9 +735,19 @@ class ReportController extends Controller {
 	        $length = $request->input('length', 100);
 	        $draw   = intval($request->input('draw'));
 
+			if ($request->input('term')) {
+		        $selectedTerm = $request->input('term');
+		        if (!empty($selectedTerm)) {
+		            $TermMasterId = $selectedTerm;
+		        }
+		    }
+
 
 	        $query = DB::table('students as s')
-	            ->leftJoin('LowerTestResultsSummary as r', 's.id', '=', 'r.student_id')
+	            ->leftJoin('LowerTestResultsSummary as r', function ($join) use ($TermMasterId) {
+					$join->on('s.id', '=', 'r.student_id')
+						->where('r.term_id', '=', $TermMasterId);
+				})
 	            ->leftJoin('class', 's.class_id', '=', 'class.id')
 	            ->leftJoin('custom_classes', 's.custom_class_id', '=', 'custom_classes.id')
 	            ->where('s.school_code', $school->school_code)
@@ -809,13 +868,9 @@ class ReportController extends Controller {
 	        $draw = intval($request->input('draw'));
 	        $studentlist = $query->skip($start)->take($length == -1 ? $recordsTotal : $length)->get();
 
-	        $flattenedList = $studentlist->map(function ($item) use ($role_id) {
-
-	           /* $view_link = $role_id == 3
-	                ? route('trainer.reports.view', ['id' => Crypt::encryptString($item->id)])
-	                : route('reports.view', ['id' => Crypt::encryptString($item->id)]);*/
-
-	            $view_link = route('reports.view', ['id' => Crypt::encryptString($item->id)]);
+	        $flattenedList = $studentlist->map(function ($item) use ($role_id, $TermMasterId) {
+				
+				$view_link = route('reports.view.test', ['id' => Crypt::encryptString($item->id), 'term_id' => $TermMasterId]);
 				
 				$age = \Carbon\Carbon::parse($item->dob)->age;
 
@@ -863,7 +918,7 @@ class ReportController extends Controller {
 	    }
 
 	    $title = 'Fitness Test Status (Class 1 to 3)';
-	    return view('reports.summary.lowerclass', compact('title', 'classList', 'ajaxUrl'));
+	    return view('reports.summary.lowerclass', compact('title', 'classList', 'ajaxUrl','filteredTerms','TermMasterId'));
 	}
 
 

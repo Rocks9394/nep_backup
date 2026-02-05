@@ -97,7 +97,8 @@ $(document).ready(function() {
             type: 'GET',
             data: function(d) {
                 d.class = $('#filter_class').val();
-                d.status = $('#filter_status').val();            
+                d.term = $('#filter_term').val();         
+                d.status = $('#filter_status').val();   
                 d.test = $('.filter_test:checked').map(function () {
                     return $(this).val();
                 }).get();
@@ -174,6 +175,24 @@ $(document).ready(function() {
             });
             $('<div class="pull-right"></div>').append($dropdown).appendTo("#FitnessTestStatus_wrapper .top").next('.dt-length').addClass("pull-right");
             $dropdown.on('change', function() { table.ajax.reload(); });
+            
+            /* === Terms Filter === */
+            var terms = @json($filteredTerms);
+            var selectedTermId = @json($TermMasterId);
+            const $termDropdown = $('<select class="form-control" id="filter_term"></select>');
+            terms.forEach(option => {
+                const displayText = option.name;
+                const value = option.term_id ?? option.id;
+                const isSelected = value == selectedTermId;
+                $termDropdown.append(new Option(displayText, value, isSelected, isSelected));
+            });
+
+            $('<div class="pull-right"></div>')
+                .append($termDropdown)
+                .appendTo("#FitnessTestStatus_wrapper .top")
+                .next('.dt-length')
+                .addClass("pull-right");
+            $termDropdown.on('change', function() { table.ajax.reload(); });
 
             /* === STATUS FILTER === */
             var status = [
