@@ -8,6 +8,7 @@
        text-align: left !important;
    }
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <div class="container" >
    <div class="t-mrg2">
       <div class=" all-chaptr-cards">
@@ -41,8 +42,18 @@
                      </label>
                   </div>
                </div>
+               @if(Auth::user()->role_id == '3')
+                  <div class="col-auto col-md-auto px-0 mr-3">
+                     <a href="{{ route('modify.trainer.record') }}"
+                        class="btn btn-secondary d-flex align-items-center"
+                        style="gap:5px;">
+                        <i class="fas fa-edit"></i>
+                        <span class="d-none d-sm-block">Edit</span>
+                     </a>
+                  </div>
+               @endif
+                  
             </div>
-
             <div class="row">
                <div class="col-12">
                   <div id="activity_from_div" class="sports-filtr overlay mt-3">
@@ -470,10 +481,11 @@
       var terms = @json($filteredTerms);
       var selectedTermId = @json($TermMasterId);
       const $termDropdown = $('<select class="form-control px-3" id="filter_term"></select>');
+      $termDropdown.append('<option value="">Select Term</option>')
       terms.forEach(option => {
          const displayText = option.name;
          const value = option.term_id ?? option.id;
-         const isSelected = value == selectedTermId;
+         const isSelected = value == null;
          $termDropdown.append(new Option(displayText, value, isSelected, isSelected));
       });
       $('<div class="pull-right"></div>') 

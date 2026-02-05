@@ -1157,7 +1157,7 @@ class FillDartController extends Controller
         return redirect()->back()->with('success', 'Excel file imported successfully!');
 	}
 	
-
+	
     /**
 	 * 05-02-2026
      * view Dart Updatiion of term filters.
@@ -1172,11 +1172,26 @@ class FillDartController extends Controller
 			$role_id =  \Auth::user()->role_id;
 			
 		
-			if ($role_id != 2 && $role_id != 4) {
-			    abort(403, 'Unauthorized access. Only school can access this section.');
+			if (!in_array($role_id, [2, 3, 4])) {
+				abort(403, 'Unauthorized access. Only school can access this section.');
 			}
 
-			$school_id = DB::table('school_reference')->where('school_user_id',$SchoolUserId)->where('status', 1)->value('school_id');
+
+			if($role_id == 3){
+				if(Session::get('SelectSchoolId')){	
+					$school_id = Session::get('SelectSchoolId');			
+				}else{			
+					$SchoolTrainers = DB::table('school_trainers')
+					->join('schools','schools.id','=','school_trainers.school_id')
+					->select('schools.school_name','schools.id','schools.logo')
+					->where('school_trainers.trainer_id',$userId)->where('school_trainers.status', 1)->get();
+					$school_id = $SchoolTrainers[0]->id;		  	
+				}
+			}else{
+
+				$school_id = DB::table('school_reference')->where('school_user_id',$SchoolUserId)->where('status', 1)->value('school_id');
+			}		
+
 
 			$school = School::find($school_id);
 			$trainerList = $school->getTrainers;//->where('status',1);
@@ -1224,9 +1239,9 @@ class FillDartController extends Controller
 	            });
 	        }
 
-			if ($request->input('term')) {
-		        $selectedTerm = $request->input('term');
-		        $ViewDartQuery->where('term_master_id',$selectedTerm);
+			if ($request->filled('term') && $request->input('term') != '') {
+				$selectedTerm = $request->input('term');
+				$ViewDartQuery->where('term_master_id', $selectedTerm);
 			}
 			
 
@@ -1274,7 +1289,7 @@ class FillDartController extends Controller
 	            ]);
 	        }
 
-	        return view('school.viewschooldart', compact('title','trainerList','classList','filteredTerms','TermMasterId'));
+	        return view('fill-darts.viewDart', compact('title','trainerList','classList','filteredTerms','TermMasterId'));
 			
 
  		} catch (\Exception $e) {
@@ -1301,6 +1316,8 @@ class FillDartController extends Controller
 
 	    return '<a href="javascript:void(0)" onclick="modelContent(' . $row->activity_id . ', \'' . $skillareas . '\', \'' . $sports . '\', \'' . $techniques . '\', \'' . $classSection . '\')">' . $activitytitle . '</a>';
 	}
+	
+	
 	
 	
 	

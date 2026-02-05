@@ -49,7 +49,7 @@
 	                    </div>
 
 	                    <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
-	                        <a href="<?php echo e(route('view-trainer')); ?>" data-id="" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/viewDart.svg')); ?>"></div><span>View DART</span></a>
+	                        <a href="<?php echo e(route('viewschooldart')); ?>" data-id="" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/viewDart.svg')); ?>"></div><span>View DART</span></a>
 	                    </div>
 	              
 	                    <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">

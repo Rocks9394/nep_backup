@@ -982,104 +982,6 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		return $filename;
 	}
 
-
-
-	public function viewSchoolDart_bk(Request $request) 
-	{
-
-		$dates = Helper::LastTwoDates();
-		$fromDate = $dates[1];
-		$toDate   = $dates[0];
-
-
-
-		$title   = 'View Dart';	
-		$SchoolUserId  =  \Auth::id();
-		$role_id =  \Auth::user()->role_id;
-	
-		if($role_id != 4)
-		{
-			die('--you are not a school. school can only access--');
-		}
-
-		$SchoolId = DB::table('school_reference')->where('school_user_id',$SchoolUserId)->where('status', 1)->value('school_id');
-		
-		
-		#echo "<pre>";
-		#print_r($SchoolId);
-		#die('----change the detail----');
-		
-		
-		$school = School::find($SchoolId);
-		$trainerList = $school->getTrainers->where('status',1);
-		foreach ($trainerList as $trainer) 
-		{
-		    $trainer->name = User::where('id', $trainer->trainer_id)->orderBy('name')->first()->name;
-		}
-
-		$classList = $school->getClasses;
-		foreach ($classList as $class) 
-		{
-		   $class->name = Sclass::where('id', $class->class_id)->orderBy('name')->first()->name;
-		}
-
-		$trainersData = DB::table('schools')
-		    ->selectRaw('
-		        schools.id as schools_id,
-		        school_trainers.trainer_id as trainer_id,
-		        users.name as name,
-		        reports.custom_class_id,
-		        reports.period,
-		        reports.date,
-		        reports.skill_area_id,
-		        reports.skill_sports_id,
-		        reports.technique_id,
-		        reports.activity_id,
-		        reports.level,
-		        custom_classes.section as section,
-		        class.name as class,
-		        skillareas.name as skillareas,
-		        sports.name as sports,
-		        techniques.name as techniques,
-		        activity.title as title,
-		        SUM(CASE WHEN reports.level = 0 THEN 1 ELSE 0 END) AS absent_count,
-		        SUM(CASE WHEN reports.level != 0 THEN 1 ELSE 0 END) AS present_count'
-		    )
-		    ->join('school_trainers', 'school_trainers.school_id', '=', 'schools.id')
-		    ->join('users', 'users.id', '=', 'school_trainers.trainer_id')
-		    ->join('reports', 'reports.submitted_by', '=', 'school_trainers.trainer_id')
-		    ->join('custom_classes', 'custom_classes.id', '=', 'reports.custom_class_id')
-		    ->join('class', 'class.id', '=', 'custom_classes.class_id')
-		    ->join('skillareas', 'skillareas.id', '=', 'reports.skill_area_id')
-		    ->join('sports', 'sports.id', '=', 'reports.skill_sports_id')
-		    ->join('techniques', 'techniques.id', '=', 'reports.technique_id')
-		    ->join('activity', 'activity.id', '=', 'reports.activity_id')
-		    ->where('schools.id', $SchoolId)
-		    ->where('school_trainers.status', 1)
-			->whereBetween('reports.date', [$fromDate, $toDate])
-		    ->groupBy(
-		        'schools_id', 'trainer_id', 'name', 'reports.custom_class_id',
-		        'reports.period', 'reports.date', 'reports.skill_area_id',
-		        'reports.skill_sports_id', 'reports.technique_id', 'reports.activity_id',
-		        'reports.level', 'section', 'class', 'skillareas',
-		        'sports', 'techniques', 'title'
-		    )
-			
-		    //->orderBy('reports.created_at', 'DESC')
-    		->get();
-
-		return view('school.viewdart', compact('title','trainerList','classList','trainersData'));
-    }
-
-
-
-
-
-
-
-
-
-
    
     public function getReport(Request $request){
 		
@@ -1091,13 +993,6 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			$SchoolUserId  =  \Auth::id();
 			
 			$school_id = DB::table('school_reference')->where('school_user_id',$SchoolUserId)->where('status', 1)->value('school_id');
-			
-			#echo "<pre>";
-			#echo 'school principal id-'.$SchoolUserId;
-			#echo "<br>";
-			#print_r($school_id);
-			#die('-----change the detail----');
-			
 			
 
     		$formData = $request->all();

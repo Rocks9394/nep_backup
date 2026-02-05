@@ -52,7 +52,7 @@ class AssessorAppController extends Controller
 	        }
 
 	        return $next($request);
-	    })->except(['TestStatusHigherClass','TestStatusLowerClass','ViewFitnessReport','uploadTestData','testScoreSample','downloadTestTemplete','importTestData','downloadTestUploadedFile','downloadTestErrorFile']);
+	    })->except(['ViewFitnessReport','uploadTestData','testScoreSample','downloadTestTemplete','importTestData','downloadTestUploadedFile','downloadTestErrorFile']);
 	}
 	
 	public function index(Request $request)
@@ -1384,31 +1384,8 @@ class AssessorAppController extends Controller
 	}
 
 
-
 	/**
-	 * 02-09-2025
 	 * Get Fitness Level Based on Score and Benchmark. 
-	 * */
-/*	private function GetFitnessLevel($Student_id, $TestTypeMasterID, $Score, $ScoreCritera) {
-
-		$student = Sstudent::where('id', $Student_id)->select('gender','dob')->first();
-		$dob = Carbon::parse($student->dob);
-	    $studentAge = $dob->age;
-	    $genderValue = match (strtolower($student->gender)) {
-		    'male'   => 1,
-		    'female' => 2
-		};
-		
-		$result = DB::selectOne("CALL GetFitnessLevel(?, ?, ?, ?, ?)", [
-	        $TestTypeMasterID, $studentAge, $genderValue, $Score, $ScoreCritera
-	    ]);
-
-	    return $result;
-	}*/
-
-	/**
-	 * 02-09-2025
-	 * Get Fitness Level Based on Score and Benchmark Using MySQL Function. 
 	 * */
     private function GetFitnessTestLevel($Student_id, $TestTypeMasterID, $Score, $ScoreCritera) {
 
@@ -1478,52 +1455,6 @@ class AssessorAppController extends Controller
 	}
 
 
-
-
-
-
-	/**
-	 * Date : 22-09-2025
-	 * Show FitnessTest Staus.
-	 * */
-
-	public function ViewFitnessReport($id) {
-
-	    $studentId = $id;
-
-	    $studentsData = $this->getStudentData($studentId);  
-
- 	    $TermMasterId = $this->getTermId($studentsData->schools_id);
-	    $dob          = Carbon::parse($studentsData->dob);
-
-
-	    $studentAge   = $dob->age;
-	    $studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
-
-	    $ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
-
-	    // Fetch report + benchmarks
-	    $reportData    = $this->getReportData($studentId,$TermMasterId);
-	    $mappedReport  = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
-	    $groupedReport = $mappedReport->groupBy('Category');
-
-		$getBmiBenchmark = $getBmiBenchmark =  $this->getBmiBenchmark($ageGender);
-
-	    $higherClasses = [4,5,6,7,8,9,10,11,12];
-	    if (in_array($studentsData->class_id, $higherClasses)) {
-
-			[$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport);
-	        return view('assessor.reports.senior-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
-	        ));
-
-	    } else {
-
-            [$orderedReportData, $FmsReportData, $getFitnessBenchmark] =
-            $this->getJuniorReportData($studentsData->class_id, $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId);
-         
-	        return view('assessor.reports.junior-report', compact('studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'));
-	    }
-	}
 
 
     public function enterTest($schoolId = 2831)  {

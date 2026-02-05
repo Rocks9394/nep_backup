@@ -435,10 +435,11 @@ Route::prefix('school')->group(function(){
 	Route::get('download-test-file/{logId}', [AssessorAppController::class, 'downloadTestUploadedFile'])->name('download.testuploadedfile');
 	Route::get('uploaded-error-file/{logId}', [AssessorAppController::class, 'downloadTestErrorFile'])->name('download.testerrorfile');
 
-	Route::get('viewdart', [FillDartController::class,'viewSchoolDart'])->name('viewschooldart');
 	
 });
-
+// for view dart (schools, trainers and school users)
+Route::get('viewdart', [FillDartController::class,'viewSchoolDart'])->name('viewschooldart');
+	
 Route::get('school-dashboard-graph', [SchoolRecordController::class,'SchoolDashboardGraph'])->name('schoolDashboardGraph')->middleware('module_access:schoolDashboard');
 Route::get('school-dashboard', [SchoolRecordController::class,'SchoolDashboard'])->name('schoolDashboard')->middleware('module_access:schoolDashboard');
 Route::post('viewdart',[SchoolRecordController::class, 'getReport'])->name('getDartReport');
