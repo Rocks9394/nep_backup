@@ -173,24 +173,24 @@
                             </li>
                         @else
                             <li class="nav-item dropdown avtar">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="{{ route('filldart.dashboard') }}" role="button"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="{{ route('filldart.dashboard') }}" role="button"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     <img src="{{ asset('resources/images/avtar.png') }}" class="d-inline-block align-top" height="32" alt="avtar">
-                                    <span class="d-md-block d-none">
-                                    @if(auth()->guard('web')->check())
                                     
-                                        {{ Auth::user()->name }}
-                                    @elseif(auth()->guard('sstudent')->check())
-                                        {{ Auth::guard('sstudent')->user()->student_name }}
-                                    @endif
-                                </span>
+                                    <span class="d-md-block d-none">
+                                        @if(auth()->guard('web')->check())                                        
+                                            {{ Auth::user()->name }}
+                                        @elseif(auth()->guard('sstudent')->check())
+                                            {{ Auth::guard('sstudent')->user()->student_name }}
+                                        @endif
+                                    </span>
                                 </a>
-                                <div class="dropdown-menu user-menu" aria-labelledby="navbarDropdown">
+                                <div class="dropdown-menu user-menu mt-2" aria-labelledby="navbarDropdown">
                                     @if(auth()->guard('web')->check())
                                         @if(Auth::user()->role_id == '4')
-                                            <a class="dropdown-item" href="{{ route('update.profile')}}">
-                                            {{ __('School Profile') }}
-                                        </a>
+                                            <a class="dropdown-item" href="{{ route('update.profile')}}"> {{ __('School Profile') }} </a>
+                                            @if(Auth::user()->role_id == '4' && Auth::user()->id == '974')
+                                             <a class="dropdown-item" href="{{ route('password.change')}}"> {{ __('Change Password') }} </a>
+                                            @endif
                                         @else
                                         <a class="dropdown-item" href="{{ url('editprofile/' . Auth::user()->id) }}">
                                             {{ __('Edit Profile') }}

@@ -1101,7 +1101,7 @@
 						updatestatus(studentId, newdata);
 						break;
 					case 'gender':
-						changegender(studentId, gender);
+						changegender(studentId, newdata);
 						break;
 					case 'email':
 						updateEmail(studentId, newdata)

@@ -24,6 +24,17 @@
             padding: 6px;
             top: 15px;
         }
+        .select-terms{
+            height: 35px;
+            margin-left: 10px;
+        }
+        .term-select{
+            border-color: var(--org-color);
+            height: 100%;
+            padding: 2px;
+            border-radius:5px;
+            color: var(--org-color);
+        }
     </style>
     <div class="all-chaptr-cards1">
         <?php if($errors->any()): ?>
@@ -49,7 +60,7 @@
             <div class="t-mrg2">
                 <div class="all-chaptr-cards">
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col">
                             <div class="heading-rw mt-0 mt-md-1 mb-0 p-0">
                                 <?php if(auth()->guard('sstudent')->check()): ?>
                                     <a href="<?php echo e(route('student.dashboard')); ?>" class="back-button">
@@ -75,13 +86,24 @@
                             </div>
 
                         </div>
+                        <div class="col-auto">
+                            <div class="select-terms">
+                                <select name="term" id="term" class="term-select" onchange="getActivitiesDetail()">
+                                    <?php $__currentLoopData = $terms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($term->id); ?>"
+                                            <?php echo e($selectedTerm == $term->id ? 'selected' : ''); ?>>
+                                            <?php echo e($term->academic_year); ?> | <?php echo e($term->term_name); ?>
+
+                                        </option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </select>
+                            </div>
+                        </div>
 
                         <div class="col-12">
                             <div class="from__bx">
                                 <input type="hidden" name="school_id" id="school_id" value="<?php echo e($schoolId); ?>">
                                 <div class="form-row mt-1 mt-lg-3">
-
-                                    
 
                                     <div class="col-12 col-md-4 col-lg">
                                         <select class="form-control mx-0 w-100 mb-3" name="by_class_id" id="by_class_id"
@@ -96,7 +118,6 @@
                                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
                                     </div>
-
 
 
                                     <div class="col-12 col-md-4 col-lg">
@@ -306,6 +327,8 @@
             const sport_skill_id = jQuery('#by_sportskill_id').val();
             const technique_id = jQuery('#by_technique_id').val();
             const status_filter = jQuery('#by_status').val();
+            const term_filter = jQuery('#term').val();
+            console.log(term_filter);
             const clsSecName = jQuery('#by_class_id option:selected').data('class-section');
             submitLoader();
             jQuery.ajax({
@@ -317,6 +340,7 @@
                     "sport_skill_id": sport_skill_id,
                     "technique_id": technique_id,
                     "status": status_filter,
+                    "term_id": term_filter,
                     "_token": "<?php echo e(csrf_token()); ?>"
                 },
                 type: 'GET',

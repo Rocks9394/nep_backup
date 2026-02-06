@@ -72,7 +72,7 @@
         <div class="col-md-10 mb-4" id="security-questions-card">
             <div class="card shadow">
                 <div class="card-header bg-warning">
-                    <h5 class="mb-0 text-white">Step 1: Security Questions</h5>
+                    <h5 class="mb-0 text-white">Step 1: Security Questions1</h5>
                 </div>
                 <div class="card-body">
                     <div id="security-questions-alert"></div>
@@ -331,7 +331,8 @@
 
 
         function submitSecurityQuestions() {
-            const formData = new FormData(securityQuestionsForm);
+            const formData = new FormData(securityQuestionsForm);           
+
             
             // Show loading state
             submitQuestionsBtn.disabled = true;
@@ -371,6 +372,22 @@
         function submitPasswordChange() {
 
             const formData = new FormData(changePasswordForm);
+            const currentPassword = formData.get('current_password');
+            const newPassword = formData.get('new_password');
+            const confirmPassword = formData.get('new_password_confirmation');
+
+            if (currentPassword === newPassword) {
+                showAlert(passwordAlert, 'New password must be different from your current password.!', 'danger');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+
+                showAlert(passwordAlert, 'New password and confirmation do not match.', 'danger');
+                return;
+            }
+
+
             // Show loading state
             submitPasswordBtn.disabled = true;
             submitPasswordBtn.innerHTML =
@@ -400,7 +417,8 @@
             })
 
             .catch(error => {
-                console.error("Axios Error:", error);
+                // console.error("Axios Error:", error);
+
                 // Laravel validation / 4xx errors
                 if (error.response) {
                     const data = error.response.data;

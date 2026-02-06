@@ -371,11 +371,9 @@ Route::prefix('school')->group(function(){
 
 	/* Report Cards */
 	Route::get('fms-report', [SchoolRecordController::class, 'FMSReport'])->name('fms.report');
-	Route::get('fitness-report', [SchoolRecordController::class, 'FitnessReports'])->name('fitness.report')->middleware('module_access:fitness.report');
-	Route::get('reports/{id}', [SchoolRecordController::class, 'ViewFitnessReport'])->name('reports.view');
-	
+		
 	/* On Development Phase  */
-	Route::get('fitness-report-test', [ReportController::class, 'FitnessReports'])->name('fitness.report.test')->middleware('module_access:fitness.report');
+	Route::get('fitness-report', [ReportController::class, 'FitnessReports'])->name('fitness.report')->middleware('module_access:fitness.report');
 
 
 	Route::get('reports-cbse/{id}', [ReportController::class, 'ViewCbseReport'])->name('reports.cbse');
@@ -386,7 +384,7 @@ Route::prefix('school')->group(function(){
 	Route::get('test-relay-auth', [SchoolRecordController::class,'DOTNETREPORT'])->name('test.relay.auth');
 
 	/*Activity Gallary */  
-	Route::get('activity.gallary', [SchoolRecordController::class,'ActivityGallary'])->name('activity.gallary');
+	Route::get('activity-gallary', [SchoolRecordController::class,'ActivityGallary'])->name('activity.gallary');
 	
 
 	Route::get('get-student-according-class', [SchoolRecordController::class, 'getStudentAccordingToClass'])->name('get.student.according.class'); 

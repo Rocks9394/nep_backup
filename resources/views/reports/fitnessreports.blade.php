@@ -55,7 +55,7 @@
 			        ['data' => 'downloadReport',    'name' => 'id', 			   'orderable' => false],
 			    ]"
 				
-                ajax-url="{{ route('fitness.report.test') }}"
+                ajax-url="{{ route('fitness.report') }}"
                 :order="[ [0, 'asc']]"
                 :enable-export-buttons="false"
                 :enableLengthMenu="true"

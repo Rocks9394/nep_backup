@@ -50,6 +50,7 @@
 
 
 <style>
+    div#method-selection-card,#email-input-card, #backup-code-card, #security-questions-card, #reset-password-card, #success-card,#headquarter-card { border: 1px solid #c3c6cc; }
     .card { transition: all 0.3s ease; }
     .step-indicator { display: flex; justify-content: center; margin-bottom: 2rem;  width: 100%; }
     .step { width: 30px;  height: 30px; border-radius: 50%;background-color: #e9ecef; display: flex;  align-items: center;  justify-content: center;
@@ -86,6 +87,10 @@
     .copy-feedback.show {  opacity: 1; }
     .password-toggle { position: absolute; right: 10px;top: 72%; transform: translateY(-50%); background: none; border: none; color: #6c757d;  cursor: pointer;  z-index: 10; }
 
+    .btn{
+        font-size: 1rem !important;
+        padding: 3px 12px;
+    }
 
 </style>
 
@@ -160,8 +165,8 @@
 
                     </div>
 
-                    <div class="btn-group mt-4">
-                        <a href="{{ route('login') }}" class="btn btn-outline-secondary">Back to Login</a>
+                    <div class="btn-group mt-4" >
+                        <a href="{{ route('login') }}"  class="btn btn-outline-secondary" >Back to Login</a>
                         <button type="button" id="continue-method" class="btn btn-warning text-white" disabled>Continue</button>
                     </div>
                    
@@ -407,7 +412,11 @@
         // Method selection
         methodOptions.forEach(option => {
             option.addEventListener('click', function() {
-                // Remove active class from all options
+                
+                clearAllAlerts();
+                document.getElementById("backup-code-form").reset();
+                document.getElementById("email-form").reset(); 
+
                 methodOptions.forEach(opt => {
                     opt.classList.remove('active');
                     const radio = opt.querySelector('input[type="radio"]');
@@ -439,6 +448,7 @@
         
         // Back to method selection
         backToMethodBtn.addEventListener('click', function() {
+
             emailInputCard.style.display = 'none';
             methodSelectionCard.style.display = 'block';
             updateStepIndicator(1, 2);
@@ -522,8 +532,8 @@
             })
             .then(response => {
 
-
                 console.log('response-1', response)
+
                 const data = response.data;
                 if (!data.exists) {
                     throw new Error('No account found with this email address');
@@ -659,7 +669,6 @@
                     proceedToResetPassword();
 
                 } else {
-                    console.log('passs', data.message)
                     showAlert('backup-code-alert', data.message || 'Invalid security code', 'danger');
                 }
             })
@@ -924,5 +933,21 @@
         });
 
     });
+
+    function clearAllAlerts() {
+        const alertIds = [
+            'method-alert',
+            'email-alert',
+            'backup-code-alert',
+            'questions-alert',
+            'reset-password-alert'
+        ];
+
+        alertIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = '';
+        });
+    }
+
 </script>
 @endsection

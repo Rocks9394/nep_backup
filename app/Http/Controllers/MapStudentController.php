@@ -242,8 +242,6 @@ class MapStudentController extends Controller
 				'custom_classes.id',
 				'custom_classes.class_id',
 				'custom_classes.section',
-				'custom_classes.nomenclature',
-				'class.name',
 					DB::raw("CASE 
 						WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 						THEN custom_classes.nomenclature 
@@ -384,7 +382,7 @@ class MapStudentController extends Controller
 	                    ->where('school_do_sports.school_id', $school_id)
 	                    ->where('school_do_sports.skill_id', $skillAreaId)
 	                    ->orderBy('sports.name', 'ASC')
-	                    ->groupBy('sports.id')
+	                    ->groupBy('sports.id','sports.name')
 	                    ->get();
 
 	            } elseif ($skillAreaId == 8) { // Sports for All
@@ -393,7 +391,7 @@ class MapStudentController extends Controller
 	                    ->select('sports.id', 'sports.name')
 	                    ->where('school_do_sports.school_id', $school_id)
 	                    ->orderBy('sports.name', 'ASC')
-	                    ->groupBy('sports.id')
+	                    ->groupBy('sports.id','sports.name')
 	                    ->get()
 	                    ->toArray();
 
@@ -403,7 +401,7 @@ class MapStudentController extends Controller
 	                    ->where('class_skillarea_sports.class_id', $classId)
 	                    ->where('class_skillarea_sports.skillarea_id', 1) // Fundamental Movement Skills
 	                    ->orderBy('sports.name', 'ASC')
-	                    ->groupBy('sports.id')
+	                    ->groupBy('sports.id','sports.name')
 	                    ->get()
 	                    ->toArray();
 
@@ -415,7 +413,7 @@ class MapStudentController extends Controller
 	                    ->where('class_skillarea_sports.class_id', $classId)
 	                    ->where('class_skillarea_sports.skillarea_id', $skillAreaId)
 	                    ->orderBy('sports.name', 'ASC')
-	                    ->groupBy('sports.id')
+	                    ->groupBy('sports.id','sports.name')
 	                    ->get();
 	            }
 
@@ -486,100 +484,7 @@ class MapStudentController extends Controller
 	        ], 500);
 	    }
 	}
-	
-	function fetchactivityAccordingToClass_bk(Request $request)
-	{
 
-		/*$getactivity = DB::table('reports')
-		->join('activity','activity.id','=','reports.activity_id')
-		->join('skillareas','skillareas.id','=','reports.skill_area_id')
-		->join('sports','sports.id','=','reports.skill_sports_id')
-		->join('techniques','techniques.id', '=', 'reports.technique_id')
-		->select('reports.activity_id','skillareas.name as skillname', 'sports.name as sportsname', 'techniques.name as techniquename',  'activity.id','title','image','description','learning_outcomes','change_it')->where('reports.school_id',$request->school_id)->where('custom_class_id',$request->custom_class_id)
-		->groupBy('reports.activity_id', 'skillareas.name', 'sports.name', 'techniques.name', 'activity.id', 'title', 'image', 'description', 'learning_outcomes', 'change_it')
-		->get();
-		
-		$classId = DB::table('custom_classes')
-		 ->Where('id', $request->custom_class_id)
-		 ->where('custom_classes.status','1')
-		 ->value('class_id');
-		 
-		 
-		$posts = DB::table('activity')
-		->leftJoin('activity_technique','activity_technique.act_id','=','activity.id')
-		->join('skillareas','skillareas.id','=','activity_technique.skillarea_id')
-		->join('sports','sports.id','=','activity_technique.sportskill_id')
-		->join('techniques','techniques.id', '=', 'activity_technique.technique_id')
-		->select('activity_technique.act_id  as activity_id','skillareas.name as skillname', 'sports.name as sportsname', 'techniques.name as techniquename',  'activity.id','title','image','description','learning_outcomes','change_it')->where('activity_technique.class_id',$classId)
-		->groupBy('activity_technique.act_id', 'skillareas.name', 'sports.name', 'techniques.name', 'activity.id', 'title', 'image', 'description', 'learning_outcomes', 'change_it')
-		->get(); 
-		
-		return Response::json(array('success'=>true, 'activitieslist'=>$getactivity, 'futureActivityList'=>$posts));
-		
-		*/
-		
-		
-
-		$classId = DB::table('custom_classes')->where('id',$request->custom_class_id)->value('class_id');
-		
-		 // Single optimized query combining both
-		$getactivity = DB::table('activity_technique')
-		->join('activity','activity.id','=','activity_technique.act_id')
-		->join('skillareas','skillareas.id','=','activity_technique.skillarea_id')
-		->join('sports','sports.id','=','activity_technique.sportskill_id')
-		->join('techniques','techniques.id', '=', 'activity_technique.technique_id')
-		->select('activity_technique.act_id as activity_id','skillareas.name as skillname', 'sports.name as sportsname', 'techniques.name as techniquename',  'activity.id','title','image','description','learning_outcomes','change_it', 'skillareas.id as skillId', 'sports.id as sportsID', 'techniques.id as techniqueId')
-		->where('activity_technique.class_id',$classId)
-		->orderBy('skillareas.name') 
-	    ->orderBy('sports.name')   
-	    ->orderBy('techniques.name')
-		->get();
-		
-		
-		
-		 $DoneActivityId = DB::table('reports')
-		->where('reports.school_id',$request->school_id)
-		->where('custom_class_id',$request->custom_class_id)
-		->select('skill_area_id', 'skill_sports_id', 'technique_id', 'activity_id')
-		->groupBy('skill_area_id', 'skill_sports_id', 'technique_id', 'activity_id')
-		->get();
-		
-		
-		return Response::json(array('success'=>true, 'activitieslist'=>$getactivity, 'ActivityAlreadyDone' => $DoneActivityId));
-		
-		
-		
-		/*$finalactivity = [];
-
-		foreach($getactivity as $key=>$val)
-		{
-			$finalactivity[] = DB::table('activity')->select('id','title','image','description','learning_outcomes','change_it')->where('id',$val->activity_id)->first();
-		}*/
-
-
-		// $sportskills = Sport::orderBY('name','ASC')->get();
-		// $techniques = Technique::orderBY('name','ASC')->get();	
-		// $schools = School::WhereIn('id', $SchoolTrainers)->orderBY('school_name','ASC')->get();		
-		// $levels = DB::table('levels')->get();
-
-		// $classes = DB::table('custom_classes')
-		// ->join('class','class.id','=','custom_classes.class_id')
-		// ->select('custom_classes.id','class_id','section','class.name AS classname')
-		// ->WhereIn('school_id', $SchoolTrainers)
-		// ->orderBy('custom_classes.orders', 'ASC')
-		// ->get();
-
-		//$users = User::select('name')->distinct()->get();
-
-		// $getSports = DB::table('reports')
-		// ->select('skill_sports_id','sports.name as sportsskillname', DB::raw('count(*) as total'))
-		// ->join('sports','sports.id','=','reports.skill_sports_id')
-		// ->groupBy('skill_sports_id')
-		// //->where('student_id', $studentId)
-		// ->get();
-	
-
-	}
 	
 	function getSports(Request $request)
 	{

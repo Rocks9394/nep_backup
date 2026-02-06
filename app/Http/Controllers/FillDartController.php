@@ -191,6 +191,7 @@ class FillDartController extends Controller
 
 	public function index(Request $request) {
 		
+		
 		try
 		{
 
@@ -502,11 +503,6 @@ class FillDartController extends Controller
 		
 		
 		$sid = $request->school_id;
-		// $TermMasterId = TermMaster::where('school_id', $sid)
-		//  ->where('is_active', 1)
-		// ->whereDate('term_start_date', '<=', today())
-		// ->whereDate('term_end_date', '>=', today())
-		// ->value('id');
 
 		$present = $absent = [];
 		foreach($levels as $val){
@@ -535,7 +531,6 @@ class FillDartController extends Controller
 
 				$reports = new Report;
 				$reports->school_id       =  $request->school_id;
-				// $reports->term_master_id  =  $TermMasterId;
 				$reports->class_id        =  $class_id;
 				$reports->custom_class_id =  $request->custm_cls_id;
 				$reports->period          =  $request->period;
@@ -555,7 +550,6 @@ class FillDartController extends Controller
 			ViewDart::updateOrCreate(
 			    [
 			        'school_id' => $request->school_id,
-					// 'term_master_id'  =>  $TermMasterId,
 			        'trainer_id' => $userId,
 			        'period' => $request->period,
 			        'custm_cls_id' => $request->custm_cls_id,
@@ -1289,7 +1283,6 @@ class FillDartController extends Controller
 			->select('term_start_date', 'term_end_date')
 			->first();
 	}
-
 
     private function getActivityTitle($row) {
 	    if (empty($row->activity_id)) {

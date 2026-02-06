@@ -649,7 +649,7 @@ class ReportController extends Controller {
 	        ]);
         }
 
-       	$title = 'Fitness Test Status (Class 4 to 12)';
+       	$title = 'Fitness Test Summary (Class 4 to 12)';
         return view('reports.summary.higherclass', compact('title','classList','ajaxUrl','filteredTerms','TermMasterId'));
     }
 
@@ -794,7 +794,7 @@ class ReportController extends Controller {
 	            'dribbling_feet', 'kicking_ball', 'flamingo_balance', 'plate_tapping', 'bmi'
 	        ];
 
-			$applicableTestsByClass = [
+	        $applicableTestsByClass = [
 				14 => ['running', 'jumping_landing', 'one_foot_balance', 'catching_receiving_bounce', 'beam_walk'],
 				18 => ['running', 'one_foot_balance', 'beam_walk'],
 				22 => ['running', 'jumping_landing', 'hopping', 'catching_receiving_bounce', 'dribbling_hands', 'one_foot_balance', 'beam_walk'],
@@ -843,7 +843,6 @@ class ReportController extends Controller {
 					}
 				});
 			}
-
 
 	        $searchValue = $request->input('search.value');
 	        if (!empty($searchValue)) {
@@ -949,7 +948,7 @@ class ReportController extends Controller {
 	        ]);
 	    }
 
-	    $title = 'Fitness Test Status (Class 1 to 3)';
+	    $title = 'Fitness Test Summary (Class 1 to 3)';
 	    return view('reports.summary.lowerclass', compact('title', 'classList', 'ajaxUrl','filteredTerms','TermMasterId'));
 	}
 
