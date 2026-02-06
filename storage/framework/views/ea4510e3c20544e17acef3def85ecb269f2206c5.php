@@ -1,6 +1,6 @@
-@extends('layouts.filldart-app')
-@section('title', 'Goforfit | ' . $title)
-@section('content')
+
+<?php $__env->startSection('title', 'Goforfit | ' . $title); ?>
+<?php $__env->startSection('content'); ?>
 
 <style>
    td.dt-type-numeric {
@@ -25,7 +25,7 @@
                         </span>
                      </a>
                   
-                     <h1 class="ml-md-4 mb-0">{{$title}}</h1>
+                     <h1 class="ml-md-4 mb-0"><?php echo e($title); ?></h1>
                   </div>
                </div>
                <div class="col-auto col-md-auto">
@@ -42,16 +42,16 @@
                      </label>
                   </div>
                </div>
-               @if(Auth::user()->role_id == '3')
+               <?php if(Auth::user()->role_id == '3'): ?>
                   <div class="col-auto col-md-auto px-0 mr-3">
-                     <a href="{{ route('modify.trainer.record') }}"
+                     <a href="<?php echo e(route('modify.trainer.record')); ?>"
                         class="btn btn-secondary d-flex align-items-center"
                         style="gap:5px;">
                         <i class="fas fa-edit"></i>
                         <span class="d-none d-sm-block">Edit</span>
                      </a>
                   </div>
-               @endif
+               <?php endif; ?>
                   
             </div>
             <div class="row">
@@ -66,9 +66,9 @@
                                        <label for="Class">By Trainer</label><br>
                                        <select class="form-control mx-0 w-100" name="trainer_id" id="trainer_id">
                                           <option value="">All Trainer</option>
-                                          @foreach($trainerList as $trainer)
-                                          <option value="{{ $trainer->trainer_id }}">{{ $trainer->name }}</option>
-                                          @endforeach
+                                          <?php $__currentLoopData = $trainerList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $trainer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                          <option value="<?php echo e($trainer->trainer_id); ?>"><?php echo e($trainer->name); ?></option>
+                                          <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                        </select>
                                     </div>
                                     <div class="col-6 col-md-6 col-lg-3 mb-3" id="from-date">
@@ -85,9 +85,9 @@
                                        <label for="Period">By Class</label><br>
                                        <select class="form-control mx-0 w-100" name="custom_class_id" id="custom_class_id">
                                           <option value="">All Class</option>
-                                          @foreach($classList as $class)
-                                          <option value="{{ $class->class_id }}-{{ $class->id }} ">{{ $class->name }}-{{ $class->section }} </option>
-                                          @endforeach
+                                          <?php $__currentLoopData = $classList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                          <option value="<?php echo e($class->class_id); ?>-<?php echo e($class->id); ?> "><?php echo e($class->name); ?>-<?php echo e($class->section); ?> </option>
+                                          <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                        </select>
                                     </div>
 
@@ -292,7 +292,7 @@
             </tbody>
         `);
 
-         var route = "{{ route('viewschooldart') }}";
+         var route = "<?php echo e(route('viewschooldart')); ?>";
          var method = 'GET';
          loadData(route , method ,serializedData ='' , columnsConfig);
       }
@@ -383,7 +383,7 @@
         ];
       }
 
-      var route =  "{{ route('getTrainerReport') }}";
+      var route =  "<?php echo e(route('getTrainerReport')); ?>";
       var method = "POST";
       loadData(route , method , serializedData , columnsConfig);
    });
@@ -482,8 +482,8 @@
             "searchPlaceholder": "Type to search..."
          }
       });
-      var terms = @json($filteredTerms);
-      var selectedTermId = @json($TermMasterId);
+      var terms = <?php echo json_encode($filteredTerms, 15, 512) ?>;
+      var selectedTermId = <?php echo json_encode($TermMasterId, 15, 512) ?>;
       const $termDropdown = $('<select class="form-control px-3" id="filter_term"></select>');
       $termDropdown.append('<option value="">Select Term</option>')
       terms.forEach(option => {
@@ -507,10 +507,10 @@
 
 
       jQuery.ajax({
-         url: "{{ route('lession.plan.details') }}",
+         url: "<?php echo e(route('lession.plan.details')); ?>",
          data: {
              "activiy_id": ActivityId,
-             "_token": "{{ csrf_token() }}"
+             "_token": "<?php echo e(csrf_token()); ?>"
          },
          type: 'GET',
          success: function(response) {
@@ -625,4 +625,6 @@
    toDateInput.max = today;
 
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/fill-darts/viewDart.blade.php ENDPATH**/ ?>

@@ -223,7 +223,7 @@ $(document).ready(function() {
                     <button class="form-control dropdown-toggle" type="button" data-toggle="dropdown" id="test_count_label">
                         All Tests <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu" style="padding:10px; max-height:300px; overflow:auto; min-width:200px;"></ul>
+                    <ul class="dropdown-menu" style="padding:8px 0px 0px 32px; max-height:300px; overflow:auto; min-width:200px;"></ul>
                 </div>
             `);
 

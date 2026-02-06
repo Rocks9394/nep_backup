@@ -46,7 +46,7 @@ class ReportController extends Controller {
    
         $this->middleware('auth:web')->except(['ViewFitnessReport', 'downloadFitnessReport']);
         $this->higherClasses = [4, 5, 6, 7, 8, 9, 10, 11, 12];
-        $this->lowerClass = [1, 2, 3];
+        $this->lowerClass = [1, 2, 3, 14,18,22,23];
     }
 	
 	/**
@@ -794,23 +794,55 @@ class ReportController extends Controller {
 	            'dribbling_feet', 'kicking_ball', 'flamingo_balance', 'plate_tapping', 'bmi'
 	        ];
 
-	        if (!empty($status) && !empty($tests)) {
-	            if (in_array('all', $tests)) {
-	                $tests = $allTests;
-	            }
+			$applicableTestsByClass = [
+				14 => ['running', 'jumping_landing', 'one_foot_balance', 'catching_receiving_bounce', 'beam_walk'],
+				18 => ['running', 'one_foot_balance', 'beam_walk'],
+				22 => ['running', 'jumping_landing', 'hopping', 'catching_receiving_bounce', 'dribbling_hands', 'one_foot_balance', 'beam_walk'],
+				23 => ['running', 'jumping_landing', 'hopping', 'catching_receiving_bounce', 'dribbling_hands', 'kicking_ball', 'skipping', 'under_arm_throw', 'one_foot_balance', 'beam_walk'],
+			];
 
-	            $query->where(function ($q) use ($tests, $status) {
-	                if ($status === 'complete') {
-	                    foreach ($tests as $test) {
-	                        $q->whereNotNull("r.$test");
-	                    }
-	                } elseif ($status === 'incomplete') {
-	                    foreach ($tests as $test) {
-	                        $q->orWhereNull("r.$test");
-	                    }
-	                }
-	            });
-	        }
+
+	        if (!empty($status) && !empty($tests)) {
+
+				if (in_array('all', $tests)) {
+					$tests = $allTests;
+				}
+
+				$query->where(function ($q) use ($tests, $status, $applicableTestsByClass) {
+
+					$q->where(function ($q2) use ($tests, $status, $applicableTestsByClass) {
+
+						$q2->whereNotIn('s.class_id', [14, 18, 22, 23])
+						->where(function ($q3) use ($tests, $status) {
+								foreach ($tests as $test) {
+									$status === 'complete'
+										? $q3->whereNotNull("r.$test")
+										: $q3->orWhereNull("r.$test");
+								}
+						});
+					});
+
+					foreach ($applicableTestsByClass as $classId => $applicableTests) {
+
+						$filteredTests = array_intersect($tests, $applicableTests);
+
+						if (empty($filteredTests)) {
+							continue;
+						}
+
+						$q->orWhere(function ($q2) use ($classId, $filteredTests, $status) {
+							$q2->where('s.class_id', $classId)
+							->where(function ($q3) use ($filteredTests, $status) {
+									foreach ($filteredTests as $test) {
+										$status === 'complete'
+											? $q3->whereNotNull("r.$test")
+											: $q3->orWhereNull("r.$test");
+									}
+							});
+						});
+					}
+				});
+			}
 
 
 	        $searchValue = $request->input('search.value');
