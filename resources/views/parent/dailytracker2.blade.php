@@ -297,9 +297,10 @@
                 type: 'GET',
                 data: { session_term_id: sessionTermId },
                 beforeSend: function() {
-                    $('#report_card_container').html('<div class="text-center">Loading...</div>');
+                    submitLoader();
                 },
                 success: function (response) {
+                    swal.close()
                     $('#report_card_container').html(response.html);
                 },
                 error: function () {

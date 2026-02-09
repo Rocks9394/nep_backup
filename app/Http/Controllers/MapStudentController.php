@@ -85,6 +85,8 @@ class MapStudentController extends Controller
 			'custom_classes.id',
 			'custom_classes.class_id',
 			'custom_classes.section',
+			'custom_classes.nomenclature',
+			'class.name',
 			DB::raw("CASE 
 				WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 				THEN custom_classes.nomenclature 
@@ -242,6 +244,8 @@ class MapStudentController extends Controller
 				'custom_classes.id',
 				'custom_classes.class_id',
 				'custom_classes.section',
+				'custom_classes.nomenclature',
+				'class.name',
 					DB::raw("CASE 
 						WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
 						THEN custom_classes.nomenclature 

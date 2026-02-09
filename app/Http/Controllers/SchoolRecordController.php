@@ -69,6 +69,7 @@ class SchoolRecordController extends Controller
 	public function SchoolDashboardGraph() 
 	{
 		
+		die('---change the detail of payment detail---');
 		$title = 'Dashboard Graph';
 		
 		

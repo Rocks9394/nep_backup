@@ -59,7 +59,6 @@ class ReportController extends Controller {
 	    $userId  = Auth::id();
 	    $schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
 
-	   
         $cacheKey = "school_current_term_{$schoolId}";
         $terms = Cache::remember($cacheKey,  60, function () use ($schoolId) {
 		        return TermMaster::where('school_id', $schoolId)
@@ -1048,4 +1047,134 @@ class ReportController extends Controller {
 
 		return ($age >= $minAge && $age <= $maxAge);
 	}
+
+
+	private function getTermRange($termId){
+		return DB::table('term_masters')
+			->where('id', $termId)
+			->select('term_start_date', 'term_end_date')
+			->first();
+	}
+
+	function SkillsReport_bk(Request $request){
+
+		$title = 'Skills Report';
+		//$studentId = $request->sid;
+
+		$studentId = 11;
+	
+
+		$getReport = DB::table('reports')
+		->select('student_name', 'gender', 'dob', 'email_id', 'reports.*', 'class.name as classname', 'section', 'title', 'learning_outcomes', 'level_name', 'levels.orders as rating')
+		->join('students','students.id','=','reports.student_id')
+		->join('custom_classes','custom_classes.id','=','reports.custom_class_id')
+		->join('class','class.id','=','reports.class_id')
+		->join('activity','activity.id','=','reports.activity_id')
+		->join('levels','levels.id','=','reports.level')
+		->where('student_id', $studentId)
+		->get();
+
+		$getSports = DB::table('reports')
+		->select('skill_sports_id','sports.name as sportsskillname', DB::raw('count(*) as total'))
+		->join('sports','sports.id','=','reports.skill_sports_id')
+		->groupBy('skill_sports_id','sportsskillname')
+		->where('student_id', $studentId)
+		->get();
+
+		$getSkills = [];
+
+        foreach($getSports as $key => $val)
+		{
+			$getSkills[] = DB::table('reports')
+			->select('title', 'learning_outcomes', 'level_name', 'levels.orders as rating','skill_sports_id')
+			->join('activity','activity.id','=','reports.activity_id')
+			->join('levels','levels.id','=','reports.level')
+			->where('student_id', $studentId)
+			->where('skill_sports_id', $val->skill_sports_id)
+			->get();
+
+		}
+
+		//SELECT skill_sports_id as total FROM `reports` WHERE student_id = 11 GROUP BY skill_sports_id;
+		return view('reports.skill-reports', compact('title', 'getReport', 'getSports', 'getSkills'));
+
+	}
+
+
+	public function SkillsReport(Request $request)
+	{
+		$title = 'Skills Report';
+
+		
+		$userId  = Auth::id();
+	    $schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+		
+		$studentId = 6824;
+
+		$termId = $request->term_id ?? $this->getTermId($schoolId);
+			
+		$termRange = $this->getTermRange($termId);
+
+		$student = DB::table('students')
+			->join('custom_classes','custom_classes.id','=','students.custom_class_id')
+			->join('class','class.id','=','students.class_id')
+			->select(
+				'students.student_name',
+				'students.gender',
+				'students.dob',
+				'students.email_id',
+				'class.name as classname',
+				'custom_classes.section'
+			)
+			->where('students.id', $studentId)
+			->first();
+
+		$getReport = DB::table('reports')
+			->select(
+				'skill_sports_id',
+				'sports.name as sportsskillname',
+				DB::raw('count(*) as total')
+			)
+			->join('sports','sports.id','=','reports.skill_sports_id')
+			->where('reports.student_id', $studentId)
+			->whereBetween('reports.date', [
+						$termRange->term_start_date,
+						$termRange->term_end_date
+					])
+			->groupBy('skill_sports_id','sportsskillname')
+			->get();
+
+		$getSkills = [];
+
+		foreach ($getReport as $val) {
+			$getSkills[$val->skill_sports_id] = DB::table('reports')
+				->select(
+					'activity.title',
+					'activity.learning_outcomes',
+					'levels.level_name',
+					'techniques.name as techniques_name',
+					'levels.orders as rating',
+					'skill_sports_id'
+				)
+				->join('activity','activity.id','=','reports.activity_id')
+				->join('techniques', 'techniques.id', '=', 'reports.technique_id')
+				->join('levels','levels.id','=','reports.level')
+				->where('reports.student_id', $studentId)
+				->whereBetween('reports.date', [
+						$termRange->term_start_date,
+						$termRange->term_end_date
+					])
+				->where('reports.skill_sports_id', $val->skill_sports_id)
+				->get();
+		}
+
+		// echo"<pre>";print_r($getSkills);exit();
+
+		return view(
+			'reports.skill-reports',
+			compact('title', 'student', 'getReport', 'getSkills', 'termId')
+		);
+	}
+
+
 }

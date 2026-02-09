@@ -15,16 +15,14 @@
 
 @if(Auth::user()->role_id == '4')
 
-	{{--
     <marquee behavior="scroll" direction="left" scrollamount="5" onmouseover="this.stop()" onmouseout="this.start()" style="font-size: 16px;
     font-weight: 500;
     background-color: #ff8000;
     color: #fff;
     padding: 4px;">
-	  <strong>Important Notice: </strong><span>Please check the highlighted students in the Manage Student module and correct their DOB before starting the assessment. If all are already updated or no students are highlighted, you may ignore this notice.</span>
+	  <strong>Important Notice: </strong><span>Please check the highlighted students in the Manage Student module and update their details.</span>
 	</marquee>
 
-	--}}
 
 @elseif(Auth::user()->role_id == '3')
 	<marquee behavior="scroll" direction="left" scrollamount="5" onmouseover="this.stop()" onmouseout="this.start()" style="font-size: 16px;

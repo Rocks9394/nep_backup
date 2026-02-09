@@ -1,17 +1,14 @@
 @extends('layouts.filldart-app')
 @section('title', 'Goforfit | ' . $title)
 @section('content')
-<div class="pg-yallow-color">
-    <div class="container">
-        <div class="navbar-expand-lg">
-            <div id="fillter" class="" role="group" aria-label="Basic example">
-            </div>
-        </div>
-    </div>
-</div>
-<style>
 
-</style>
+<marquee behavior="scroll" direction="left" scrollamount="5" onmouseover="this.stop()" onmouseout="this.start()" style="font-size: 16px;
+	font-weight: 500;
+	background-color: #ff8000;
+	color: #fff;
+	padding: 4px;">
+	<strong>Important Notice: </strong><span>Kindly update your profile details (email, mobile number etc.) in the Edit Profile section. If all details are already updated, please ignore this notice.</span>
+</marquee>
 
 <div class="container">
     <div class="t-mrg">

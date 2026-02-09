@@ -593,6 +593,7 @@
 
         function getColorByScore(score) {
             if (score <= 1) return '#f44336'; // red
+            if (score <= 2) return '#ffee00'; // orange
             if (score <= 3) return '#ff9800'; // orange
             if (score === 4) return '#8bc34a'; // light green
             return '#4caf50'; // green
