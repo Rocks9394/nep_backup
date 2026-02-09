@@ -45,28 +45,25 @@ class AuthenticateStudent
     public function handle_bk(Request $request, Closure $next, ...$guards)
     {
   
-        if(!Auth::guard('sstudent')->check()) 
-		{
-            $rememberToken = $request->cookie('student_remember_token');
+        $isSchoolAdmin = Auth::guard('web')->check();
+        $isStudent = Auth::guard('sstudent')->check();
+        
 
-            if($rememberToken) 
-			{
-                $student = Sstudent::where('remember_token', $rememberToken)->first();
-
-                if($student) 
-				{
-                    Auth::guard('sstudent')->login($student);
-                    $request->session()->regenerate();
-                    return $next($request);
-                }
-            }
-
-           
-            return redirect()->route('login.test');
+        if ($isSchoolAdmin || $isStudent) {
+            return $next($request);
         }
 
-       
-        return $next($request);
+        $rememberToken = $request->cookie('student_remember_token');
+        if ($rememberToken) {
+            $student = Sstudent::where('remember_token', $rememberToken)->first();
+            if ($student) {
+                Auth::guard('sstudent')->login($student);
+                $request->session()->regenerate();
+                return $next($request);
+            }
+        }
+
+        return redirect()->route('login.test');
     
     }
 }

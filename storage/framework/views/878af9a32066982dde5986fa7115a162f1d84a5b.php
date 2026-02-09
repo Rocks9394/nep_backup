@@ -66,13 +66,13 @@
 	 	                    
 	                    <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
 							<a href="<?php echo e(route('trainer.lowerclass.status')); ?>" class="box"><div>
-							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/lc_test-status.svg')); ?>"></div><span>Fitness Test Status <br> (Upto Class-3)</span></a>
+							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/lc_test-status.svg')); ?>"></div><span>Test Summary <br> (Upto Class-3)</span></a>
 						</div>
 
 						<div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
 							<a href="<?php echo e(route('trainer.higherclass.status')); ?>" class="box"><div>
 							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/hc_test-status.svg')); ?>"></div><span>
-							Fitness Test Status <br> (Class-4 & Above)</span></a>
+							Test Summary <br> (Class-4 & Above)</span></a>
 						</div>
 					<?php endif; ?>
 
@@ -91,17 +91,17 @@
 
 	                    <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
 							<a href="<?php echo e(route('fitness.report')); ?>" class="box"><div>
-							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/fa.svg')); ?>"></div><span>Assessment Report</span></a>
+							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/fa.svg')); ?>"></div><span>Assessment Reports</span></a>
 						</div>
 						<div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
 							<a href="<?php echo e(route ('trainer.lowerclass.status')); ?>" class="box"><div>
-							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/lc_test-status.svg')); ?>"></div><span>Fitness Test Status <br> (Upto Class-3)</span></a>
+							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/lc_test-status.svg')); ?>"></div><span>Test Summary <br> (Upto Class-3)</span></a>
 						</div>
 
 						<div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
 							<a href="<?php echo e(route ('trainer.higherclass.status')); ?>" class="box"><div>
 							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/hc_test-status.svg')); ?>"></div><span>
-							Fitness Test Status <br> (Class-4 & Above)</span></a>
+							Test Summary <br> (Class-4 & Above)</span></a>
 						</div>
 	                
 	                     <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">

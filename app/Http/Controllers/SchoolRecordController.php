@@ -3542,31 +3542,37 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 	public function loginAsStudent(Request $request){
 
-        // dd($request->student_id);
-        $student = Sstudent::where('id', $request->student_id)
-	        ->where('status', 'active')
-	        ->first();
+		$student = Sstudent::where('id', $request->student_id)
+			->where('status', 'active')
+			->first();
 
-        // dd($student);
-        if (!$student) {
-            return response()->json(['success' => false, 'message' => 'Student has been transferred.']);
-        }
+		if (!$student) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Student has been transferred.'
+			]);
+		}
 
 		$class = DB::table('custom_classes')
-			->join('class','class.id','=','custom_classes.class_id')
-			->join('students','students.custom_class_id','=' ,'custom_classes.id')
-			->select('custom_classes.id','custom_classes.class_id','custom_classes.section',
-
+			->join('class', 'class.id', '=', 'custom_classes.class_id')
+			->join('students', 'students.custom_class_id', '=', 'custom_classes.id')
+			->select(
+				'custom_classes.id',
+				'custom_classes.class_id',
+				'custom_classes.section',
 				DB::raw("CASE 
-					WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
+					WHEN custom_classes.nomenclature IS NOT NULL 
+						AND custom_classes.nomenclature <> '' 
 					THEN custom_classes.nomenclature 
 					ELSE class.name 
 				END AS classname")
+			)
+			->where('students.id', $request->student_id)
+			->first();
 
-				// 'class.name AS classname'
-			)->where('students.id',$request->student_id)->first();
+		$request->session()->regenerate();
 
-        session([
+		session([
             'Auth_id' => Auth::guard('web')->id(),
             'impersonate_guard' => 'web',
 			'student_id' => $request->student_id,
@@ -3575,31 +3581,28 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			'section' => $student->section_id,
 			'rollno' => $student->rollno,
         ]);
-        Auth::guard('sstudent')->login($student);
 
-        $request->session()->regenerate();
-        $cookie = cookie(
-            'my_cookie_dot',
-            $this->generateRandomString(),
-            60,
-            '/',
-            config('app.cookie_domain'),
-            true,
-            true,
-            false,
-            'None'
-        );
 
-        return response()->json([
-            'success' => true,
-            'redirect_url' => route('student.dashboard')
-        ])->cookie($cookie);
+		Auth::guard('sstudent')->login($student);
 
-        return response()->json([
-            'success' => true,
-            'redirect_url' => route('student.dashboard')
-        ]);
-    }
+		$cookie = cookie(
+			'my_cookie_dot',
+			$this->generateRandomString(),
+			60,
+			'/',
+			config('app.cookie_domain'),
+			true,
+			true,
+			false,
+			'None'
+		);
+
+		return response()->json([
+			'success' => true,
+			'redirect_url' => route('student.dashboard')
+		])->cookie($cookie);
+	}
+
 
     public function leaveStudent(Request $request){
         $schoolId = session('Auth_id');

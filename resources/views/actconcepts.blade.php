@@ -176,8 +176,7 @@
 				<br>
 				 <div class="row">
 				 <form  name="commentactivity" id="commentactivity">
-				 @php $admins_role =Auth::guard('admin')->user()->role_id; @endphp
-				 @if($admins_role == '4' || $admins_role == '1')
+				 @if(Auth::guard('admin')->check() &&  (Auth::guard('admin')->user()->role_id == 4 || Auth::guard('admin')->user()->role_id == 1))
 				 <input type="hidden" name="activity_id" id="activity_id" value="{{$activity[0]->id}}">
 					<div class="row">
 						<div class="col-md-12">

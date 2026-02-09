@@ -610,6 +610,7 @@ class ReportController extends Controller {
 
             $recordsTotal = $query->count();
         	$draw = intval($request->input('draw'));
+			$recordsFiltered = (clone $query)->count();
         	$studentlist = $query->skip($start)
             ->take($length == -1 ? $recordsTotal : $length)->get();
 	
@@ -644,7 +645,7 @@ class ReportController extends Controller {
             return response()->json([
 	            'draw' => intval($draw),
 	            'recordsTotal' => $recordsTotal,
-	            'recordsFiltered' => $recordsTotal,
+	            'recordsFiltered' => $recordsFiltered,
 	            'data' => $flattenedList
 	        ]);
         }
@@ -897,6 +898,7 @@ class ReportController extends Controller {
 	            ->count();
 
 	        $draw = intval($request->input('draw'));
+			$recordsFiltered = (clone $query)->count();
 	        $studentlist = $query->skip($start)->take($length == -1 ? $recordsTotal : $length)->get();
 
 	        $flattenedList = $studentlist->map(function ($item) use ($role_id, $TermMasterId) {
@@ -943,7 +945,7 @@ class ReportController extends Controller {
 	        return response()->json([
 	            'draw'            => $draw,
 	            'recordsTotal'    => $recordsTotal,
-	            'recordsFiltered' => $recordsTotal,
+	            'recordsFiltered' => $recordsFiltered,
 	            'data'            => $flattenedList
 	        ]);
 	    }

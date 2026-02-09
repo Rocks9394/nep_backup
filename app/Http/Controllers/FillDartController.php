@@ -1133,8 +1133,8 @@ class FillDartController extends Controller
      * view Dart Updatiion of term filters.
      * */
 
-    public function viewSchoolDart(Request $request)	
-	{
+    public function viewSchoolDart(Request $request){
+		
 		try {
 
 			$title   = 'View Dart';	
@@ -1198,46 +1198,48 @@ class FillDartController extends Controller
 			});
 			
 			$ViewDartQuery = DB::table('view_dart')
-		    ->select('users.name','view_dart.*'	)
-		    ->join('users', 'users.id', '=', 'view_dart.trainer_id')
-		    ->where('view_dart.school_id', '=' , $school_id)->orderBy('date', 'desc');
-		    
-	        if ($request->has('search') && $request->search['value']) {
-	            $searchValue = $request->search['value'];
-	            $ViewDartQuery->where(function ($query) use ($searchValue) {
-	                $query->where('users.name', 'like', '%' . $searchValue . '%');
-	            });
-	        }
+				->select('users.name', 'view_dart.*')
+				->join('users', 'users.id', '=', 'view_dart.trainer_id')
+				->where('view_dart.school_id', $school_id)
+				->orderBy('date', 'desc');
 
-			if ($request->filled('term') && $request->input('term') != '') {
-				$selectedTerm = $request->input('term');
-				$termRange = $this->getTermRange($selectedTerm);
+			$filteredQuery = clone $ViewDartQuery;
+
+			if ($request->has('search') && $request->search['value']) {
+				$searchValue = $request->search['value'];
+				$filteredQuery->where('users.name', 'like', "%{$searchValue}%");
+			}
+
+			if ($request->filled('term')) {
+				$termRange = $this->getTermRange($request->term);
 				if ($termRange) {
-					$ViewDartQuery->whereBetween('date', [
+					$filteredQuery->whereBetween('date', [
 						$termRange->term_start_date,
 						$termRange->term_end_date
 					]);
 				}
 			}
-			
+			$totalRecords   = DB::table('view_dart')
+				->where('school_id', $school_id)
+				->count();
 
-	        if ($request->has('order')) {
-	            $columnIndex = $request->input('order.0.column');
-	            $columnName = $request->input('columns.' . $columnIndex . '.data');
-	            $orderDirection = $request->input('order.0.dir');
-	            $ViewDartQuery->orderBy($columnName, $orderDirection);
-	        }
+			$filteredRecords = (clone $filteredQuery)->count();
 
-	        $start = $request->input('start', 0);
-	        $length = $request->input('length', 100);
-	        if ($length != -1) {
-	            $ViewDartQuery->skip($start)->take($length);
-	        }       	
+			if ($request->has('order')) {
+				$columnIndex = $request->input('order.0.column');
+				$columnName = $request->input("columns.$columnIndex.data");
+				$orderDirection = $request->input('order.0.dir');
+				$filteredQuery->orderBy($columnName, $orderDirection);
+			}
 
-	        $ViewDartData = $ViewDartQuery->get();
-	        $totalRecords = DB::table('view_dart')->where('view_dart.school_id', '=', $school_id)->count();
-	        $filteredRecords = $ViewDartQuery->count();
-	      
+			$start  = $request->input('start', 0);
+			$length = $request->input('length', 100);
+
+			if ($length != -1) {
+				$filteredQuery->skip($start)->take($length);
+			}
+
+			$ViewDartData = $filteredQuery->get();
 
 	        $data = $ViewDartData->map(function($row) {
 	            return [
@@ -1260,7 +1262,7 @@ class FillDartController extends Controller
 	            return response()->json([
 	                'draw' => intval($request->draw),
 	                'recordsTotal' => $totalRecords,
-	                'recordsFiltered' => $totalRecords,
+	                'recordsFiltered' => $filteredRecords,
 	                'data' => $data
 	            ]);
 	        }
@@ -1276,6 +1278,7 @@ class FillDartController extends Controller
  		
 
     }
+
 
 	private function getTermRange($termId){
 		return DB::table('term_masters')

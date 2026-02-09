@@ -145,27 +145,26 @@
                             </li>
                         <?php else: ?>
                             <li class="nav-item dropdown avtar">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="<?php echo e(route('filldart.dashboard')); ?>" role="button"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="<?php echo e(route('filldart.dashboard')); ?>" role="button"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     <img src="<?php echo e(asset('resources/images/avtar.png')); ?>" class="d-inline-block align-top" height="32" alt="avtar">
-                                    <span class="d-md-block d-none">
-                                    <?php if(auth()->guard('web')->check()): ?>
                                     
-                                        <?php echo e(Auth::user()->name); ?>
+                                    <span class="d-md-block d-none">
+                                        <?php if(auth()->guard('web')->check()): ?>                                        
+                                            <?php echo e(Auth::user()->name); ?>
 
-                                    <?php elseif(auth()->guard('sstudent')->check()): ?>
-                                        <?php echo e(Auth::guard('sstudent')->user()->student_name); ?>
+                                        <?php elseif(auth()->guard('sstudent')->check()): ?>
+                                            <?php echo e(Auth::guard('sstudent')->user()->student_name); ?>
 
-                                    <?php endif; ?>
-                                </span>
+                                        <?php endif; ?>
+                                    </span>
                                 </a>
-                                <div class="dropdown-menu user-menu" aria-labelledby="navbarDropdown">
+                                <div class="dropdown-menu user-menu mt-2" aria-labelledby="navbarDropdown">
                                     <?php if(auth()->guard('web')->check()): ?>
                                         <?php if(Auth::user()->role_id == '4'): ?>
-                                            <a class="dropdown-item" href="<?php echo e(route('update.profile')); ?>">
-                                            <?php echo e(__('School Profile')); ?>
-
-                                        </a>
+                                            <a class="dropdown-item" href="<?php echo e(route('update.profile')); ?>"> <?php echo e(__('School Profile')); ?> </a>
+                                            <?php if(Auth::user()->role_id == '4' && Auth::user()->id == '974'): ?>
+                                             <a class="dropdown-item" href="<?php echo e(route('password.change')); ?>"> <?php echo e(__('Change Password')); ?> </a>
+                                            <?php endif; ?>
                                         <?php else: ?>
                                         <a class="dropdown-item" href="<?php echo e(url('editprofile/' . Auth::user()->id)); ?>">
                                             <?php echo e(__('Edit Profile')); ?>
