@@ -1,4 +1,4 @@
-@extends('layouts.filldart-app') @section('title', $title) @section('content')
+ <?php $__env->startSection('title', $title); ?> <?php $__env->startSection('content'); ?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 <div class="container">
@@ -6,14 +6,24 @@
 
 		<div class="all-chaptr-cards mb-4" style="margin: 0;">
 			<div class="row">
-				<x:back-button title="{{$title}}" >
-					<x-slot name="actionsOutside">
+				<?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.back-button','data' => ['title' => ''.e($title).'']]); ?>
+<?php $component->withName('back-button'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['title' => ''.e($title).'']); ?>
+					 <?php $__env->slot('actionsOutside', null, []); ?> 
 				        <div >				        	
 				        	<button class="btn btn-sm btn-primary" onclick="openAvailableDownloads()">Available Download</button>
-				        	@include('reports.modals.available-downloads')
+				        	<?php echo $__env->make('reports.modals.available-downloads', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 				        </div>
-				    </x-slot>
-				</x:back-button>
+				     <?php $__env->endSlot(); ?>
+				 <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
 			</div>
 		</div>
 
@@ -39,10 +49,8 @@
 
 		<div class="container-fluid p-0">
 
-            <x-data-listing-component
-                id="student-skill-reports-table"
-                :headers="['Class','Section','Roll No.','Student Name', 'Admission No.','Gender','Birth Date','Test Status','Report','Download']"
-                :columns="[			       
+            <?php if (isset($component)) { $__componentOriginal7d544a56946f4bd747a3eca2075b6198f1e62946 = $component; } ?>
+<?php $component = $__env->getContainer()->make(App\View\Components\DataListingComponent::class, ['id' => 'student-skill-reports-table','headers' => ['Class','Section','Roll No.','Student Name', 'Admission No.','Gender','Birth Date','Test Status','Report','Download'],'columns' => [			       
 			        ['data' => 'display_classname', 'name' => 'display_classname', 'orderable' => true],
 			        ['data' => 'section_id',        'name' => 'section_id',        'orderable' => true],
 			        ['data' => 'rollno',            'name' => 'rollno',            'orderable' => true],
@@ -53,40 +61,32 @@
 			        ['data' => 'testStatus',        'name' => 'test_status',       'orderable' => false],
 			        ['data' => 'viewReport',        'name' => 'id',                'orderable' => false],
 			        ['data' => 'downloadReport',    'name' => 'id', 			   'orderable' => false],
-			    ]"
-				
-                ajax-url="{{ route('fitness.report') }}"
-                :order="[ [0, 'asc']]"
-                :enable-export-buttons="false"
-                :enableLengthMenu="true"
-				:exportButtonText="'Bulk Action'"
-       			:pageLength="100"                
-                :enable-class-filter="false"
-                :enable-class-section-filter="true"
-                :enable-school-terms-filter="true"
-                {{-- :selectedClass="1" --}}
-                :enable-status-filter="true"
-                searchPlaceholder="Students Name | Admission"
-                :export-buttons="[
+			    ],'ajaxUrl' => ''.e(route('fitness.report')).'','enableExportButtons' => false,'enableLengthMenu' => true,'exportButtonText' => 'Bulk Action','pageLength' => 100,'enableClassFilter' => false,'enableClassSectionFilter' => true,'enableSchoolTermsFilter' => true,'enableStatusFilter' => true,'searchPlaceholder' => 'Students Name | Admission','exportButtons' => [
                     [   
                         'type' => 'custom', 'text' => 'Request Report Cards', 'action' => 'generateFitnessReportCard'
                     ]
-                ]"
-               
+                ]]); ?>
+<?php $component->withName('data-listing-component'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['order' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute([ [0, 'asc']])]); ?>
 
-            >
-
-            </x-data-listing-component>
+             <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal7d544a56946f4bd747a3eca2075b6198f1e62946)): ?>
+<?php $component = $__componentOriginal7d544a56946f4bd747a3eca2075b6198f1e62946; ?>
+<?php unset($__componentOriginal7d544a56946f4bd747a3eca2075b6198f1e62946); ?>
+<?php endif; ?>
         </div>       
 	</div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 
-	const currentTermId = {{ $current_term_id }};
+	const currentTermId = <?php echo e($current_term_id); ?>;
 
 	function generateFitnessReportCard(e, dt, node, config, selectedIds, termIds) {
 		
@@ -119,11 +119,11 @@
 		    	    headers: {
 		                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
 		            },
-		            url: "{{ route('generate.reportcards') }}",
+		            url: "<?php echo e(route('generate.reportcards')); ?>",
 		            method: 'POST',            
 		            contentType: "application/json",            
 		            data: JSON.stringify({
-		                _token: "{{ csrf_token() }}",
+		                _token: "<?php echo e(csrf_token()); ?>",
 		                student_ids: selectedIds,
 		                termIds : termIds,
 		            }), 
@@ -171,7 +171,7 @@
 	function openAvailableDownloads() {
 	    $('#availableDownloadsModal').modal('show');
 
-	    fetch("{{ route('fitness.report.available') }}")
+	    fetch("<?php echo e(route('fitness.report.available')); ?>")
 	        .then(res => res.json())
 	        .then(data => {
 	            document.getElementById('downloadsContent').innerHTML = data.html;	
@@ -179,5 +179,7 @@
 	}
 
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
 
+
+<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/reports/fitnessreports.blade.php ENDPATH**/ ?>

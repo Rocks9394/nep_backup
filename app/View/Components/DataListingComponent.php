@@ -40,6 +40,7 @@ class DataListingComponent extends Component
     public $selectedClass;     // ADD THIS PROPERTY FOR PRE-SELECTED CLASS
     public $selectedOnlyClass; // ADD THIS PROPERTY FOR PRE-SELECTED CLASS
     public $selectedSection;   // ADD THIS FOR PRE-SELECTED SECTION
+    public $exportButtonText;   // ADD THIS TO CHANGE EXPORT BUTTON -> BULK ACTION
 
     public function __construct(
         $id, 
@@ -67,7 +68,8 @@ class DataListingComponent extends Component
         $selectedClass = null,      // ADD THIS PARAMETER
         $selectedOnlyClass = null,  // ADD THIS PARAMETER
         $selectedSection = null,    // ADD THIS PARAMETER
-        $selectedStatus = null      // ADD THIS PARAMETER
+        $selectedStatus = null,      // ADD THIS PARAMETER        
+        $exportButtonText = null        //Add this for Export button text
 
         ){
 
@@ -93,6 +95,7 @@ class DataListingComponent extends Component
         $this->selectedStatus = $selectedStatus;        // SET SELECTED STATUS
         $this->selectedSection = $selectedSection;      // SET SELECTED SECTION
         $this->searchPlaceholder = $searchPlaceholder;
+        $this->exportButtonText = $exportButtonText;
         
  
         $this->classes = $this->SchoolClassList();

@@ -1056,50 +1056,6 @@ class ReportController extends Controller {
 			->first();
 	}
 
-	function SkillsReport_bk(Request $request){
-
-		$title = 'Skills Report';
-		//$studentId = $request->sid;
-
-		$studentId = 11;
-	
-
-		$getReport = DB::table('reports')
-		->select('student_name', 'gender', 'dob', 'email_id', 'reports.*', 'class.name as classname', 'section', 'title', 'learning_outcomes', 'level_name', 'levels.orders as rating')
-		->join('students','students.id','=','reports.student_id')
-		->join('custom_classes','custom_classes.id','=','reports.custom_class_id')
-		->join('class','class.id','=','reports.class_id')
-		->join('activity','activity.id','=','reports.activity_id')
-		->join('levels','levels.id','=','reports.level')
-		->where('student_id', $studentId)
-		->get();
-
-		$getSports = DB::table('reports')
-		->select('skill_sports_id','sports.name as sportsskillname', DB::raw('count(*) as total'))
-		->join('sports','sports.id','=','reports.skill_sports_id')
-		->groupBy('skill_sports_id','sportsskillname')
-		->where('student_id', $studentId)
-		->get();
-
-		$getSkills = [];
-
-        foreach($getSports as $key => $val)
-		{
-			$getSkills[] = DB::table('reports')
-			->select('title', 'learning_outcomes', 'level_name', 'levels.orders as rating','skill_sports_id')
-			->join('activity','activity.id','=','reports.activity_id')
-			->join('levels','levels.id','=','reports.level')
-			->where('student_id', $studentId)
-			->where('skill_sports_id', $val->skill_sports_id)
-			->get();
-
-		}
-
-		//SELECT skill_sports_id as total FROM `reports` WHERE student_id = 11 GROUP BY skill_sports_id;
-		return view('reports.skill-reports', compact('title', 'getReport', 'getSports', 'getSkills'));
-
-	}
-
 
 	public function SkillsReport(Request $request)
 	{
@@ -1108,7 +1064,7 @@ class ReportController extends Controller {
 		
 		$userId  = Auth::id();
 	    $schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
-		
+		$school = DB::table('schools')->where('id',$schoolId)->first();
 		$studentId = 6824;
 
 		$termId = $request->term_id ?? $this->getTermId($schoolId);
@@ -1122,6 +1078,8 @@ class ReportController extends Controller {
 				'students.student_name',
 				'students.gender',
 				'students.dob',
+				'students.rollno',
+				'students.student_uid',
 				'students.email_id',
 				'class.name as classname',
 				'custom_classes.section'
@@ -1172,7 +1130,7 @@ class ReportController extends Controller {
 
 		return view(
 			'reports.skill-reports',
-			compact('title', 'student', 'getReport', 'getSkills', 'termId')
+			compact('title', 'student', 'school', 'getReport', 'getSkills', 'termId')
 		);
 	}
 
