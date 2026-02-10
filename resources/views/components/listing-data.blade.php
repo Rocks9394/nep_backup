@@ -319,10 +319,10 @@ $(function () {
 
                     $statusDiv.insertBefore($skillDiv);
                 }
-                $('[id^="filter-"]').on('change', function () {
-                    table.ajax.reload();
-                });
             }
+            $('[id^="filter-"]').on('change', function () {
+                table.ajax.reload();
+            });
         }
 
     });

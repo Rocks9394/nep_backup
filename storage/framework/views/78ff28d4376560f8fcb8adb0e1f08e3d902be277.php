@@ -72,7 +72,7 @@ $(function () {
     const selectedOnlyClass = <?php echo json_encode($selectedOnlyClass ?? null, 15, 512) ?>; 
     const selectedSkillName = <?php echo json_encode($selectedSkillName ?? null, 15, 512) ?>; 
     const selectedSection = <?php echo json_encode($selectedSection ?? null, 15, 512) ?>;
-    const selectedStatus = <?php echo json_encode($selectedStatus ?? null, 15, 512) ?>;
+    const selectedStatus = <?php echo json_encode($selectedStatus ?? null, 15, 512) ?>;    
     const exportButtonText = <?php echo json_encode($exportButtonText ?? null, 15, 512) ?>;
     const buttonsConfig = [];
 
@@ -118,7 +118,7 @@ $(function () {
         ...<?php echo json_encode($columns); ?>
 
     ];
-    
+
     const buttonsConfigFinal = buttonsConfig.length > 0 ? [{
         extend: 'collection',
         text: exportButtonText ? exportButtonText : 'Export',
@@ -322,7 +322,6 @@ $(function () {
                     $statusDiv.insertBefore($skillDiv);
                 }
             }
-
             $('[id^="filter-"]').on('change', function () {
                 table.ajax.reload();
             });
