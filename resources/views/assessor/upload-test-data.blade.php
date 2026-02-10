@@ -108,6 +108,7 @@
                 ajax-url="{{ route('upload.test.data') }}"
                 :enable-export-buttons="false"
                 :enableLengthMenu="false"
+				:exportButtonText="'Bulk Action'"
                 :pageLength="100"
                 :enable-only-class-filter="false"
                 :enable-skill-name-filter="false"

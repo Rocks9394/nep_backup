@@ -53,7 +53,8 @@ class FitnessService
         }
     }
 
-    public function getBMILevel($studentId, $score){
+    public function getBMILevel($studentId, $score)
+	{
 
         $student = Sstudent::where('id', $studentId)
             ->select('gender', 'dob', 'id')

@@ -59,6 +59,8 @@ class ReportController extends Controller {
 	    $userId  = Auth::id();
 	    $schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
 
+		// Cache::forget("school_terms_{$schoolId}");
+        // Cache::forget("school_current_term_{$schoolId}");
         $cacheKey = "school_current_term_{$schoolId}";
         $terms = Cache::remember($cacheKey,  60, function () use ($schoolId) {
 		        return TermMaster::where('school_id', $schoolId)
@@ -1056,24 +1058,119 @@ class ReportController extends Controller {
 			->first();
 	}
 
+	/**
+	 * for skill reports 10/02/2026
+	 * **/
+	public function SkillReports(Request $request, DataTableListService $dataTable) {
 
-	public function SkillsReport(Request $request)
-	{
-		$title = 'Skills Report';
-
-		
-		$userId  = Auth::id();
+		$title   = 'Skill Report';
+	    $userId  = Auth::id();
 	    $schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
-		$school = DB::table('schools')->where('id',$schoolId)->first();
-		$studentId = 6824;
+		// Cache::forget("school_terms_{$schoolId}");
+        // Cache::forget("school_current_term_{$schoolId}");
+        $cacheKey = "school_current_term_{$schoolId}";
+        $terms = Cache::remember($cacheKey,  60, function () use ($schoolId) {
+		        return TermMaster::where('school_id', $schoolId)
+		            ->where('is_active', 1)
+		            ->get(['id', 'school_id', 'term_name', 'term_start_date', 'term_end_date']);
+		    }
+		);
+
+		$current_term_id = collect($terms)
+	    ->first(function ($term) {
+	        return today()->between(
+	            \Carbon\Carbon::parse($term->term_start_date),
+	            \Carbon\Carbon::parse($term->term_end_date)
+	        );
+	    })['id'] ?? null;
+	    
+
+	    if (!$request->ajax()) {	    	
+	        return view('reports.skillreports', compact('title','current_term_id'));
+	    }
+
+	    $term_id = $request->input('school-terms');
+	    if(empty($term_id)){
+	    	$term_id = $current_term_id;
+	    }
+
+	    /* Use DB-View (fitness_report_view) */
+	    $query = DB::table('fitness_report_view')->where('school_id', $schoolId)->where('term_id', $term_id);
+	    $filters = [
+
+			'class' => function ($query, $value) {
+                 $query->where('class_id', $value);
+            },
+
+            'section' => function ($query, $value) {
+                 $query->where('section_id', $value);
+            },
+
+            'class-section' => function ($query, $value) {
+                list($class_id, $section_id) = array_pad(explode('-', $value), 2, null);
+
+                if (!empty($class_id)) {
+                    $query->where('class_id', $class_id);
+                }
+
+                if (!empty($section_id)) {
+                    $query->where('section_id', $section_id);
+                }
+            },
+        ];
+
+        return $dataTable->setQuery($query)->setFilters($filters)
+
+        ->setSearchableColumns(['student_name', 'admission_number'])
+		->setSortableColumns([
+	    	'display_classname' =>'class_order',
+	        'section_id'        => 'section',
+	        'rollno'            => 'rollno',
+	        'student_name'      => 'student_name',
+	        'admission_number'   => 'admission_number',
+	        'gender'            => 'gender',
+	    ])
+
+        ->addCustomColumn('viewReport', function ($row) {
+            $id  = Crypt::encryptString($row->student_id);
+            $url = route('view.skill.report', ['id' => $id, 'term_id' => $row->term_id]);
+			$html = "<a href='{$url}' target='_blank'>Views</a>";
+            return $html;
+        })
+
+        ->addCustomColumn('downloadReport', function ($row) {
+            $id  = Crypt::encryptString($row->student_id);
+            $url = route('view.skill.report', ['id' => $id, 'term_id' => $row->term_id, 'download' => true]);
+            return "<a href='{$url}' class='btn btn-sm btn-primary'>  <i class='fa-solid fa-download'></i> </a>";
+        })
+        ->render($request);
+	}
+
+	
+
+	public function ViewSkillReport(Request $request){
+
+		$userId = Auth::id();
+
+		if ($request->id) {
+			$studentId = Crypt::decryptString($request->id);
+		} else {
+			$studentId = Auth::guard('sstudent')->user()->id;
+		}
+
+		$schoolId = DB::table('school_reference')
+			->where('school_user_id', $userId)
+			->where('status', 1)
+			->value('school_id');
+
+		$school = DB::table('schools')->where('id', $schoolId)->first();
 
 		$termId = $request->term_id ?? $this->getTermId($schoolId);
-			
 		$termRange = $this->getTermRange($termId);
 
 		$student = DB::table('students')
-			->join('custom_classes','custom_classes.id','=','students.custom_class_id')
-			->join('class','class.id','=','students.class_id')
+			->join('custom_classes', 'custom_classes.id', '=', 'students.custom_class_id')
+			->join('class', 'class.id', '=', 'students.class_id')
 			->select(
 				'students.student_name',
 				'students.gender',
@@ -1091,15 +1188,15 @@ class ReportController extends Controller {
 			->select(
 				'skill_sports_id',
 				'sports.name as sportsskillname',
-				DB::raw('count(*) as total')
+				DB::raw('COUNT(*) as total')
 			)
-			->join('sports','sports.id','=','reports.skill_sports_id')
+			->join('sports', 'sports.id', '=', 'reports.skill_sports_id')
 			->where('reports.student_id', $studentId)
 			->whereBetween('reports.date', [
-						$termRange->term_start_date,
-						$termRange->term_end_date
-					])
-			->groupBy('skill_sports_id','sportsskillname')
+				$termRange->term_start_date,
+				$termRange->term_end_date
+			])
+			->groupBy('skill_sports_id', 'sportsskillname')
 			->get();
 
 		$getSkills = [];
@@ -1114,24 +1211,30 @@ class ReportController extends Controller {
 					'levels.orders as rating',
 					'skill_sports_id'
 				)
-				->join('activity','activity.id','=','reports.activity_id')
+				->join('activity', 'activity.id', '=', 'reports.activity_id')
 				->join('techniques', 'techniques.id', '=', 'reports.technique_id')
-				->join('levels','levels.id','=','reports.level')
+				->join('levels', 'levels.id', '=', 'reports.level')
 				->where('reports.student_id', $studentId)
 				->whereBetween('reports.date', [
-						$termRange->term_start_date,
-						$termRange->term_end_date
-					])
+					$termRange->term_start_date,
+					$termRange->term_end_date
+				])
 				->where('reports.skill_sports_id', $val->skill_sports_id)
 				->get();
 		}
 
-		// echo"<pre>";print_r($getSkills);exit();
+		$data = compact('student', 'school', 'getReport', 'getSkills', 'termId');
 
-		return view(
-			'reports.skill-reports',
-			compact('title', 'student', 'school', 'getReport', 'getSkills', 'termId')
-		);
+		if ($request->boolean('download')) {
+
+			$pdf = Pdf::loadView('reports.skills.skill-reports-pdf', $data);
+
+			$fileName = 'Skill_Report_' . $student->student_name . '.pdf';
+
+			return $pdf->download($fileName);
+		}
+
+		return view('reports.skills.skill-reports', $data);
 	}
 
 

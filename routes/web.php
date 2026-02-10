@@ -266,7 +266,9 @@ Route::get('getactive-test', [App\Http\Controllers\PEActivityController::class, 
  * 19-06-2024
  * Route for handling all report.
  * */
-Route::get('skills-report', [ReportController::class,'SkillsReport'])->name('skill-report');
+
+Route::get('skill-reports', [ReportController::class,'SkillReports'])->name('skill.reports');
+Route::get('view-skills-report', [ReportController::class,'ViewSkillReport'])->name('view.skill.report');
 Route::post('generate-reportcards', [ReportController::class, 'queueBulkReportCards'])->name('generate.reportcards');
 
 /* Download Generated Report Cards */

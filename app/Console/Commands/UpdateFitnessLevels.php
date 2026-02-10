@@ -26,8 +26,9 @@ class UpdateFitnessLevels extends Command
 
         DB::table('SeniorTestResults as r')
             ->join('skill_reports as sr', 'sr.id', '=', 'r.TestTypeID')
-            // ->whereNull('level')
-            ->where('SchoolID', 15)
+            //->whereNull('level')
+			->where('level','N.A.')
+           // ->where('SchoolID', 2831)
             ->orderBy('r.ResultId')
             ->select(
                 'r.*',
@@ -40,7 +41,7 @@ class UpdateFitnessLevels extends Command
                     ->unique()
                     ->toArray();
 
-                $criteriaMap = DB::table('testtypemaster')
+                $criteriaMap = DB::table('TestTypeMaster')
                     ->whereIn('TestTypeID', $testTypeMasterIds)
                     ->pluck('ScoreCriteria', 'TestTypeID')
                     ->toArray();

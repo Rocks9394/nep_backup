@@ -71,7 +71,7 @@ $(function () {
     const selectedOnlyClass = @json($selectedOnlyClass ?? null); 
     const selectedSkillName = @json($selectedSkillName ?? null); 
     const selectedSection = @json($selectedSection ?? null);
-    const selectedStatus = @json($selectedStatus ?? null);
+    const selectedStatus = @json($selectedStatus ?? null);    
     const exportButtonText = @json($exportButtonText ?? null);
     const buttonsConfig = [];
 
@@ -116,7 +116,7 @@ $(function () {
 
         ...{!! json_encode($columns) !!}
     ];
-    console.log(exportButtonText);
+
     const buttonsConfigFinal = buttonsConfig.length > 0 ? [{
         extend: 'collection',
         text: exportButtonText ? exportButtonText : 'Export',

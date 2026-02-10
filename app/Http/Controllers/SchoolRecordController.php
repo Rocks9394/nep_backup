@@ -69,7 +69,6 @@ class SchoolRecordController extends Controller
 	public function SchoolDashboardGraph() 
 	{
 		
-		die('---change the detail of payment detail---');
 		$title = 'Dashboard Graph';
 		
 		
@@ -141,11 +140,6 @@ class SchoolRecordController extends Controller
 			->get();
 			
 			
-			#echo "<pre>";
-			#print_r($resultLevel);
-			#die('---change the detail bhawani pilani---');
-			
-				
 			$graph1levels = [];
 			$percentages = [];
 

@@ -5,7 +5,7 @@
     <title>Student Report</title>
 
     <style>
-        @page  {
+        @page {
             size: A4;
             margin: 15mm;
         }
@@ -164,7 +164,7 @@
             padding: 25px;
         }
 
-        @media  screen {
+        @media screen {
             body {
                 background: #f0f4f9;
             }
@@ -176,16 +176,16 @@
 <div class="container">
     <div class="header">
         <div class="logo mb-3 w-100">
-            <img src="<?php echo e(asset('public/assets/reports/seqfast-logo.png')); ?>"
+            <img src="{{ asset('public/assets/reports/seqfast-logo.png') }}"
                 style="width:90px; float:left;">
             <div class="header-title">P.E. Class Activities & Teacher Observations</div>
-            <img src="<?php echo e(asset('public/assets/uploads/logos/' . $school->logo)); ?>"
+            <img src="{{ asset('public/assets/uploads/logos/' . $school->logo) }}"
                 style="width:90px; float:right;">
         </div>
 
         <!-- Student Details -->
 
-        <?php
+        @php
 
             use Carbon\Carbon;
             $dob = Carbon::parse($student->dob); 
@@ -197,25 +197,25 @@
             } else {
                 $gender = 'Girl';
             }
-        ?>
+        @endphp
         <table class="student-details">
             <tr>
                 <th>Name</th>
-                <td><?php echo e($student->student_name); ?></td>
+                <td>{{ $student->student_name }}</td>
                 <th>Class</th>
-                <td><?php echo e($student->classname.'-'.$student->section); ?></td>
+                <td>{{ $student->classname.'-'.$student->section }}</td>
             </tr>
             <tr>
                 <th>Roll No</th>
-                <td><?php echo e($student->rollno); ?></td>
+                <td>{{ $student->rollno }}</td>
                 <th>Registration Number</th>
-                <td><?php echo e($student->student_uid); ?></td>
+                <td>{{ $student->student_uid }}</td>
             </tr>
             <tr>
                 <th>Date of Birth</th>
-                <td><?php echo e($formattedDob); ?> (<?php echo e($age); ?> Years)</td>
+                <td>{{ $formattedDob }} ({{ $age }} Years)</td>
                 <th>Gender</th>
-                <td><?php echo e($gender); ?></td>
+                <td>{{ $gender }}</td>
             </tr>
             <tr>
                 <th>Height (cm)</th>
@@ -225,9 +225,9 @@
             </tr>
             <tr>
                 <th>School Code</th>
-                <td><?php echo e($school->school_code); ?></td>
+                <td>{{$school->school_code}}</td>
                 <th>School Name</th>
-                <td><?php echo e($school->school_name); ?></td>
+                <td>{{$school->school_name}}</td>
             </tr>
         </table>
     </div>
@@ -245,34 +245,33 @@
             <th>Level</th>
         </tr>
 
-        <?php $__currentLoopData = $getReport; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $spval): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        @foreach ($getReport as $spval)
             <tr>
-                <td class="skill-area" rowspan="<?php echo e($spval->total); ?>">
-                    <?php echo e($spval->sportsskillname); ?>
-
+                <td class="skill-area" rowspan="{{ $spval->total }}">
+                    {{ $spval->sportsskillname }}
                 </td>
 
-                <?php $__currentLoopData = $getSkills; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $skval): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <?php $__currentLoopData = $skval; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sskval): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <?php if($sskval->skill_sports_id != $spval->skill_sports_id) continue; ?>
+                @foreach($getSkills as $skval)
+                    @foreach($skval as $sskval)
+                        @php if($sskval->skill_sports_id != $spval->skill_sports_id) continue; @endphp
 
-                        <td><?php echo e($sskval->title); ?></td>
-                        <td><?php echo $sskval->techniques_name; ?></td>
-                        <!-- <td><?php echo $sskval->learning_outcomes; ?></td> -->
+                        <td>{{ $sskval->title }}</td>
+                        <td>{!! $sskval->techniques_name !!}</td>
+                        <!-- <td>{!! $sskval->learning_outcomes !!}</td> -->
                         <td class="stars"  colspan="6">
-                            <?php for($i=0; $i<$sskval->rating-1; $i++): ?>
+                            @for($i=0; $i<$sskval->rating-1; $i++)
                                 <span class="star-filled">&#9733;</span>
-                            <?php endfor; ?>
+                            @endfor
 
-                            <?php for($i=0; $i<6-$sskval->rating; $i++): ?>
+                            @for($i=0; $i<6-$sskval->rating; $i++)
                                 <span class="star-empty">&#9734;</span>
-                            <?php endfor; ?>
+                            @endfor
                         </td>
-                        <td><?php echo e($sskval->level_name); ?></td>
+                        <td>{{ $sskval->level_name }}</td>
                     </tr>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    @endforeach
+                @endforeach
+        @endforeach
     </table>
     </div>
 
@@ -285,13 +284,12 @@
         </div>
 
         <div class="signature-block">
-            <div class="signature-name"><?php echo e($school->school_principal); ?></div>
+            <div class="signature-name">{{$school->school_principal}}</div>
             <div class="signature-title">Principal</div>
-            <div class="signature-org"><?php echo e($school->school_name); ?></div>
+            <div class="signature-org">{{$school->school_name}}</div>
         </div>
     </div>
 
 </div>
 </body>
 </html>
-<?php /**PATH C:\xampp\htdocs\nep\resources\views/reports/skill-reports.blade.php ENDPATH**/ ?>

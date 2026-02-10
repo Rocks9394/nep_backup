@@ -68,7 +68,7 @@ class DataListingComponent extends Component
         $selectedClass = null,      // ADD THIS PARAMETER
         $selectedOnlyClass = null,  // ADD THIS PARAMETER
         $selectedSection = null,    // ADD THIS PARAMETER
-        $selectedStatus = null,      // ADD THIS PARAMETER        
+        $selectedStatus = null,      // ADD THIS PARAMETER
         $exportButtonText = null        //Add this for Export button text
 
         ){

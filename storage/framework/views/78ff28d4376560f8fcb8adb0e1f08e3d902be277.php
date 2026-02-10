@@ -118,7 +118,7 @@ $(function () {
         ...<?php echo json_encode($columns); ?>
 
     ];
-    console.log(exportButtonText);
+    
     const buttonsConfigFinal = buttonsConfig.length > 0 ? [{
         extend: 'collection',
         text: exportButtonText ? exportButtonText : 'Export',
@@ -321,10 +321,11 @@ $(function () {
 
                     $statusDiv.insertBefore($skillDiv);
                 }
-                $('[id^="filter-"]').on('change', function () {
-                    table.ajax.reload();
-                });
             }
+
+            $('[id^="filter-"]').on('change', function () {
+                table.ajax.reload();
+            });
         }
 
     });
