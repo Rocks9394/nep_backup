@@ -86,6 +86,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 9pt;
+            flex: 1;
         }
 
         .report-table th {
@@ -162,6 +163,8 @@
 
         .report-content {
             padding: 25px;
+            display: flex;
+            flex-direction: column;
         }
 
         @media screen {
@@ -235,44 +238,56 @@
     <div class="report-content">
 
     <!-- Report Table -->
-    <table class="report-table">
-        <tr>
-            <th>Skill Area</th>
-            <th>Activity</th>
-            <th>Technique</th>
-            <!-- <th>Learning Outcome</th> -->
-            <th class="center" colspan="6">Rating</th>
-            <th>Level</th>
-        </tr>
-
-        @foreach ($getReport as $spval)
+        <table class="report-table">
             <tr>
-                <td class="skill-area" rowspan="{{ $spval->total }}">
-                    {{ $spval->sportsskillname }}
-                </td>
+                <th>Skill Area</th>
+                <th>Activity</th>
+                <th>Technique</th>
+                <th class="center" colspan="6">Rating</th>
+                <th>Level</th>
+            </tr>
 
-                @foreach($getSkills as $skval)
-                    @foreach($skval as $sskval)
-                        @php if($sskval->skill_sports_id != $spval->skill_sports_id) continue; @endphp
+            @foreach ($getReport as $spval)
 
-                        <td>{{ $sskval->title }}</td>
-                        <td>{!! $sskval->techniques_name !!}</td>
-                        <!-- <td>{!! $sskval->learning_outcomes !!}</td> -->
-                        <td class="stars"  colspan="6">
-                            @for($i=0; $i<$sskval->rating-1; $i++)
-                                <span class="star-filled">&#9733;</span>
-                            @endfor
+                @php
+                    $activities = $getSkills[$spval->skill_sports_id] ?? collect();
+                    $rowCount = $activities->count();
+                @endphp
 
-                            @for($i=0; $i<6-$sskval->rating; $i++)
-                                <span class="star-empty">&#9734;</span>
-                            @endfor
-                        </td>
-                        <td>{{ $sskval->level_name }}</td>
-                    </tr>
+                @if($rowCount > 0)
+
+                    @foreach($activities as $index => $activity)
+                        <tr>
+
+                            {{-- Print Skill Area only once --}}
+                            @if($index == 0)
+                                <td class="skill-area" rowspan="{{ $rowCount }}">
+                                    {{ $spval->sportsskillname }}
+                                </td>
+                            @endif
+
+                            <td>{{ $activity->title }}</td>
+                            <td>{!! $activity->techniques_name !!}</td>
+
+                            <td class="stars" colspan="6">
+                                @for($i = 0; $i < $activity->rating; $i++)
+                                    <span class="star-filled">&#9733;</span>
+                                @endfor
+
+                                @for($i = 0; $i < 6 - $activity->rating; $i++)
+                                    <span class="star-empty">&#9734;</span>
+                                @endfor
+                            </td>
+
+                            <td>{{ $activity->level_name }}</td>
+                        </tr>
                     @endforeach
-                @endforeach
-        @endforeach
-    </table>
+
+                @endif
+
+            @endforeach
+        </table>
+
     </div>
 
     <!-- Signatures -->

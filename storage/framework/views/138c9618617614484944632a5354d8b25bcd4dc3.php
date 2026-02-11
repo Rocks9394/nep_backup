@@ -86,6 +86,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 9pt;
+            flex: 1;
         }
 
         .report-table th {
@@ -162,6 +163,8 @@
 
         .report-content {
             padding: 25px;
+            display: flex;
+            flex-direction: column;
         }
 
         @media  screen {
@@ -235,45 +238,57 @@
     <div class="report-content">
 
     <!-- Report Table -->
-    <table class="report-table">
-        <tr>
-            <th>Skill Area</th>
-            <th>Activity</th>
-            <th>Technique</th>
-            <!-- <th>Learning Outcome</th> -->
-            <th class="center" colspan="6">Rating</th>
-            <th>Level</th>
-        </tr>
-
-        <?php $__currentLoopData = $getReport; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $spval): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <table class="report-table">
             <tr>
-                <td class="skill-area" rowspan="<?php echo e($spval->total); ?>">
-                    <?php echo e($spval->sportsskillname); ?>
+                <th>Skill Area</th>
+                <th>Activity</th>
+                <th>Technique</th>
+                <th class="center" colspan="6">Rating</th>
+                <th>Level</th>
+            </tr>
 
-                </td>
+            <?php $__currentLoopData = $getReport; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $spval): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                <?php $__currentLoopData = $getSkills; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $skval): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <?php $__currentLoopData = $skval; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sskval): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <?php if($sskval->skill_sports_id != $spval->skill_sports_id) continue; ?>
+                <?php
+                    $activities = $getSkills[$spval->skill_sports_id] ?? collect();
+                    $rowCount = $activities->count();
+                ?>
 
-                        <td><?php echo e($sskval->title); ?></td>
-                        <td><?php echo $sskval->techniques_name; ?></td>
-                        <!-- <td><?php echo $sskval->learning_outcomes; ?></td> -->
-                        <td class="stars"  colspan="6">
-                            <?php for($i=0; $i<$sskval->rating-1; $i++): ?>
-                                <span class="star-filled">&#9733;</span>
-                            <?php endfor; ?>
+                <?php if($rowCount > 0): ?>
 
-                            <?php for($i=0; $i<6-$sskval->rating; $i++): ?>
-                                <span class="star-empty">&#9734;</span>
-                            <?php endfor; ?>
-                        </td>
-                        <td><?php echo e($sskval->level_name); ?></td>
-                    </tr>
+                    <?php $__currentLoopData = $activities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $activity): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <tr>
+
+                            
+                            <?php if($index == 0): ?>
+                                <td class="skill-area" rowspan="<?php echo e($rowCount); ?>">
+                                    <?php echo e($spval->sportsskillname); ?>
+
+                                </td>
+                            <?php endif; ?>
+
+                            <td><?php echo e($activity->title); ?></td>
+                            <td><?php echo $activity->techniques_name; ?></td>
+
+                            <td class="stars" colspan="6">
+                                <?php for($i = 0; $i < $activity->rating; $i++): ?>
+                                    <span class="star-filled">&#9733;</span>
+                                <?php endfor; ?>
+
+                                <?php for($i = 0; $i < 6 - $activity->rating; $i++): ?>
+                                    <span class="star-empty">&#9734;</span>
+                                <?php endfor; ?>
+                            </td>
+
+                            <td><?php echo e($activity->level_name); ?></td>
+                        </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-    </table>
+
+                <?php endif; ?>
+
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </table>
+
     </div>
 
     <!-- Signatures -->

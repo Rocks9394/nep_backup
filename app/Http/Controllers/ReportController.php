@@ -1065,7 +1065,17 @@ class ReportController extends Controller {
 
 		$title   = 'Skill Report';
 	    $userId  = Auth::id();
-	    $schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+
+		if(Auth::user()->role_id == 3){
+			if(Session::get('SelectSchoolId')){	
+				$schoolId = Session::get('SelectSchoolId');	
+			}else{
+				$schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
+			}
+		}else{
+			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+		}
+
 		// Cache::forget("school_terms_{$schoolId}");
         // Cache::forget("school_current_term_{$schoolId}");
         $cacheKey = "school_current_term_{$schoolId}";
@@ -1158,7 +1168,6 @@ class ReportController extends Controller {
         ->render($request);
 	}
 
-	
 
 	public function ViewSkillReport(Request $request){
 
@@ -1170,10 +1179,15 @@ class ReportController extends Controller {
 			$studentId = Auth::guard('sstudent')->user()->id;
 		}
 
-		$schoolId = DB::table('school_reference')
-			->where('school_user_id', $userId)
-			->where('status', 1)
-			->value('school_id');
+		if(Auth::user()->role_id == 3){
+			if(Session::get('SelectSchoolId')){	
+				$schoolId = Session::get('SelectSchoolId');	
+			}else{
+				$schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
+			}
+		}else{
+			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+		}
 
 		$school = DB::table('schools')->where('id', $schoolId)->first();
 
@@ -1234,6 +1248,7 @@ class ReportController extends Controller {
 				->where('reports.skill_sports_id', $val->skill_sports_id)
 				->get();
 		}
+		// echo"<pre>";print_r($getSkills);exit();
 
 		$data = compact('student', 'school', 'getReport', 'getSkills', 'termId');
 

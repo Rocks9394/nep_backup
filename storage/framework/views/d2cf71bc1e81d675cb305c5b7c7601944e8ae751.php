@@ -7,7 +7,7 @@
     <style>
         @page  {
             size: A4;
-            margin: 15mm;
+            margin: 10mm;
         }
 
         body {
@@ -22,6 +22,8 @@
         .container {
             width: 100%;
             background: #fff;
+            position: relative;
+            height: 100%;
         }
 
         .header {
@@ -120,8 +122,9 @@
 
         .stars {
             text-align: center;
-            font-size: 12pt;
+            font-size: 11pt;
             white-space: nowrap;
+            padding: 0 5px;
         }
 
         .star-filled {
@@ -133,14 +136,17 @@
         }
 
         .signatures {
-            width: 100%;
-            margin-top: 60px;
+            position: fixed;
+            bottom: 10mm;
+            left: 10mm;
+            right: 10mm;
         }
+
 
         .signature-table {
             width: 100%;
             border-collapse: collapse;
-            text-align: center;
+            table-layout: fixed;
         }
 
         .signature-table td {
@@ -148,17 +154,29 @@
             vertical-align: top;
         }
 
+        .signature-table td:first-child {
+            text-align: left;
+        }
+
+        .signature-table td:last-child {
+            text-align: right;
+        }
+
+
         .signature-name {
             font-weight: bold;
+            text-align:center;
             margin-bottom: 4px;
         }
 
         .signature-title {
             font-size: 9pt;
+            text-align:center;
         }
 
         .signature-org {
             font-size: 8.5pt;
+            text-align:center;
             color: #666;
         }
     </style>
@@ -221,6 +239,12 @@
                 <td><?php echo e($gender); ?></td>
             </tr>
             <tr>
+                <th>Height (cm)</th>
+                <td>-</td>
+                <th>Weight (kg)</th>
+                <td>-</td>
+            </tr>
+            <tr>
                 <th>School Code</th>
                 <td><?php echo e($school->school_code); ?></td>
                 <th>School Name</th>
@@ -241,30 +265,47 @@
             </tr>
 
             <?php $__currentLoopData = $getReport; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $spval): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <tr>
-                    <td class="skill-area" rowspan="<?php echo e($spval->total); ?>">
-                        <?php echo e($spval->sportsskillname); ?>
 
-                    </td>
+                <?php
+                    $activities = $getSkills[$spval->skill_sports_id] ?? collect();
+                    $rowCount = $activities->count();
+                ?>
 
-                    <?php $__currentLoopData = $getSkills[$spval->skill_sports_id]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sskval): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <td><?php echo e($sskval->title); ?></td>
-                        <td><?php echo $sskval->techniques_name; ?></td>
+                <?php if($rowCount > 0): ?>
 
-                        <td class="stars" colspan="6">
-                            <?php for($i = 0; $i < $sskval->rating; $i++): ?>
-                                <span class="star-filled">&#9733;</span>
-                            <?php endfor; ?>
-                            <?php for($i = 0; $i < 6 - $sskval->rating; $i++): ?>
-                                <span class="star-empty">&#9734;</span>
-                            <?php endfor; ?>
-                        </td>
+                    <?php $__currentLoopData = $activities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $activity): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <tr>
 
-                        <td><?php echo e($sskval->level_name); ?></td>
-                    </tr>
+                            
+                            <?php if($index == 0): ?>
+                                <td class="skill-area" rowspan="<?php echo e($rowCount); ?>">
+                                    <?php echo e($spval->sportsskillname); ?>
+
+                                </td>
+                            <?php endif; ?>
+
+                            <td><?php echo e($activity->title); ?></td>
+                            <td><?php echo $activity->techniques_name; ?></td>
+
+                            <td class="stars" colspan="6">
+                                <?php for($i = 0; $i < $activity->rating; $i++): ?>
+                                    <span class="star-filled">&#9733;</span>
+                                <?php endfor; ?>
+
+                                <?php for($i = 0; $i < 6 - $activity->rating; $i++): ?>
+                                    <span class="star-empty">&#9734;</span>
+                                <?php endfor; ?>
+                            </td>
+
+                            <td><?php echo e($activity->level_name); ?></td>
+                        </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                <?php endif; ?>
+
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </table>
+
     </div>
 
     <!-- SIGNATURES -->
@@ -276,6 +317,7 @@
                     <div class="signature-title">Director</div>
                     <div class="signature-org">Sequoia Fitness & Sports Technology</div>
                 </td>
+                <td style="width: 30%;"></td>
                 <td>
                     <div class="signature-name"><?php echo e($school->school_principal); ?></div>
                     <div class="signature-title">Principal</div>

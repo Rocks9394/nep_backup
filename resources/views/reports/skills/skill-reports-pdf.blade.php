@@ -7,7 +7,7 @@
     <style>
         @page {
             size: A4;
-            margin: 15mm;
+            margin: 10mm;
         }
 
         body {
@@ -22,6 +22,8 @@
         .container {
             width: 100%;
             background: #fff;
+            position: relative;
+            height: 100%;
         }
 
         .header {
@@ -120,8 +122,9 @@
 
         .stars {
             text-align: center;
-            font-size: 12pt;
+            font-size: 11pt;
             white-space: nowrap;
+            padding: 0 5px;
         }
 
         .star-filled {
@@ -133,14 +136,17 @@
         }
 
         .signatures {
-            width: 100%;
-            margin-top: 60px;
+            position: fixed;
+            bottom: 10mm;
+            left: 10mm;
+            right: 10mm;
         }
+
 
         .signature-table {
             width: 100%;
             border-collapse: collapse;
-            text-align: center;
+            table-layout: fixed;
         }
 
         .signature-table td {
@@ -148,17 +154,29 @@
             vertical-align: top;
         }
 
+        .signature-table td:first-child {
+            text-align: left;
+        }
+
+        .signature-table td:last-child {
+            text-align: right;
+        }
+
+
         .signature-name {
             font-weight: bold;
+            text-align:center;
             margin-bottom: 4px;
         }
 
         .signature-title {
             font-size: 9pt;
+            text-align:center;
         }
 
         .signature-org {
             font-size: 8.5pt;
+            text-align:center;
             color: #666;
         }
     </style>
@@ -221,6 +239,12 @@
                 <td>{{ $gender }}</td>
             </tr>
             <tr>
+                <th>Height (cm)</th>
+                <td>-</td>
+                <th>Weight (kg)</th>
+                <td>-</td>
+            </tr>
+            <tr>
                 <th>School Code</th>
                 <td>{{ $school->school_code }}</td>
                 <th>School Name</th>
@@ -241,29 +265,46 @@
             </tr>
 
             @foreach ($getReport as $spval)
-                <tr>
-                    <td class="skill-area" rowspan="{{ $spval->total }}">
-                        {{ $spval->sportsskillname }}
-                    </td>
 
-                    @foreach ($getSkills[$spval->skill_sports_id] as $sskval)
-                        <td>{{ $sskval->title }}</td>
-                        <td>{!! $sskval->techniques_name !!}</td>
+                @php
+                    $activities = $getSkills[$spval->skill_sports_id] ?? collect();
+                    $rowCount = $activities->count();
+                @endphp
 
-                        <td class="stars" colspan="6">
-                            @for($i = 0; $i < $sskval->rating; $i++)
-                                <span class="star-filled">&#9733;</span>
-                            @endfor
-                            @for($i = 0; $i < 6 - $sskval->rating; $i++)
-                                <span class="star-empty">&#9734;</span>
-                            @endfor
-                        </td>
+                @if($rowCount > 0)
 
-                        <td>{{ $sskval->level_name }}</td>
-                    </tr>
+                    @foreach($activities as $index => $activity)
+                        <tr>
+
+                            {{-- Print Skill Area only once --}}
+                            @if($index == 0)
+                                <td class="skill-area" rowspan="{{ $rowCount }}">
+                                    {{ $spval->sportsskillname }}
+                                </td>
+                            @endif
+
+                            <td>{{ $activity->title }}</td>
+                            <td>{!! $activity->techniques_name !!}</td>
+
+                            <td class="stars" colspan="6">
+                                @for($i = 0; $i < $activity->rating; $i++)
+                                    <span class="star-filled">&#9733;</span>
+                                @endfor
+
+                                @for($i = 0; $i < 6 - $activity->rating; $i++)
+                                    <span class="star-empty">&#9734;</span>
+                                @endfor
+                            </td>
+
+                            <td>{{ $activity->level_name }}</td>
+                        </tr>
                     @endforeach
+
+                @endif
+
             @endforeach
         </table>
+
     </div>
 
     <!-- SIGNATURES -->
@@ -275,6 +316,7 @@
                     <div class="signature-title">Director</div>
                     <div class="signature-org">Sequoia Fitness & Sports Technology</div>
                 </td>
+                <td style="width: 30%;"></td>
                 <td>
                     <div class="signature-name">{{ $school->school_principal }}</div>
                     <div class="signature-title">Principal</div>
