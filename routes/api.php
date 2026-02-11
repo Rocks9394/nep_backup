@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
 
 /*Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -74,10 +75,8 @@ Route::post('getsportsactivity', [App\Http\Controllers\Api\GetActivityController
 //Current Logged in User
     Route::post('user/current', [App\Http\Controllers\Api\UserController::class,'getAuthUser']);
 
-
-
-
-
 //
 
 */
+
+Route::post('/login', [AuthController::class, 'login']);

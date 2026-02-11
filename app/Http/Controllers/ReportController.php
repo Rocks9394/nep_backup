@@ -1095,7 +1095,19 @@ class ReportController extends Controller {
 	    }
 
 	    /* Use DB-View (fitness_report_view) */
-	    $query = DB::table('fitness_report_view')->where('school_id', $schoolId)->where('term_id', $term_id);
+	    $query = DB::table('fitness_report_view')
+		->select(
+			'student_id',
+			'term_id',
+			'display_classname',
+			'class_id',
+			'section_id',
+			'rollno',
+			'student_name',
+			'admission_number',
+			'gender',
+			'dob',
+		)->where('school_id', $schoolId)->where('term_id', $term_id);
 	    $filters = [
 
 			'class' => function ($query, $value) {
@@ -1134,7 +1146,7 @@ class ReportController extends Controller {
         ->addCustomColumn('viewReport', function ($row) {
             $id  = Crypt::encryptString($row->student_id);
             $url = route('view.skill.report', ['id' => $id, 'term_id' => $row->term_id]);
-			$html = "<a href='{$url}' target='_blank'>Views</a>";
+			$html = "<a href='{$url}' target='_blank'>View</a>";
             return $html;
         })
 
