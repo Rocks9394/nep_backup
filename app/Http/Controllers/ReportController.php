@@ -1350,7 +1350,7 @@ class ReportController extends Controller {
 		
 		$reports = DB::table('skill_batches')
 	    	->where('school_id', $schoolId)
-	    	->select('total_students','completed_students','status','download_path','created_at','expires_at')->orderBy('created_at','desc')
+	    	->select('id', 'total_students','completed_students','status','download_path','created_at','expires_at')->orderBy('created_at','desc')
 	    	->get();
 
 	    if ($reports->isEmpty()) {
@@ -1358,11 +1358,19 @@ class ReportController extends Controller {
 	            'html' => '<p class="text-center text-muted">No report requests found.</p>'
 	        ]);
 	    }
+		$type = 'skill';
 
-	    $html = view('reports.modals.available-report-cards', compact('reports'))->render();
+	    $html = view('reports.modals.available-report-cards', compact('reports', 'type'))->render();
 	    return response()->json(['html' => $html]);
 	}
 
+	public function SkillReportsDownload($id){
+
+		$report = SkillBatch::findOrFail($id);
+
+		return Storage::disk('public')->download($report->download_path);
+
+	}
 
 
 }

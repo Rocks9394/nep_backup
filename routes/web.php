@@ -267,16 +267,17 @@ Route::get('getactive-test', [App\Http\Controllers\PEActivityController::class, 
  * Route for handling all report.
  * */
 
+/* Download/Generated Skill Report Cards */
+
 Route::get('skill-reports', [ReportController::class,'SkillReports'])->name('skill.reports');
 Route::get('view-skills-report', [ReportController::class,'ViewSkillReport'])->name('view.skill.report');
 Route::post('generate-skillreportcards', [ReportController::class, 'queueBulkSkillReportCards'])->name('generate.skillreportcards');
 Route::get('/skill-report/available', [ReportController::class, 'CheckSkillReportAvailablity'])->name('skill.report.available');
+Route::get('skill-reports-download/{id}', [ReportController::class, 'SkillReportsDownload'])->name('skill.reports.download');
 
 
-
+/* Download Generated Fitness Report Cards */
 Route::post('generate-reportcards', [ReportController::class, 'queueBulkReportCards'])->name('generate.reportcards');
-
-/* Download Generated Report Cards */
 
 Route::get('report/download/{batchId}', [ReportController::class, 'requestDownload'])->name('report.download.permanent');
 Route::get('report/download/{batchId}/signed', [ReportController::class, 'downloadSigned'])->name('report.download.signed');

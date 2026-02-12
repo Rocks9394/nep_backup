@@ -39,7 +39,8 @@
 
             <td>
                 <?php if($report->status === 'completed'): ?>
-                    <a href="<?php echo e($report->download_path); ?>" class="btn btn-sm btn-primary"> Ready to Download </a>
+                    <!-- <a href="<?php echo e($report->download_path); ?>" class="btn btn-sm btn-primary"> Ready to Download </a> -->
+                    <a href="<?php echo e(isset($type) && $type === 'skill' ? route('skill.reports.download', $report->id) : $report->download_path); ?>" class="btn btn-sm btn-primary"> Ready to Download </a>
                 <?php else: ?>
                     <button class="btn btn-sm btn-secondary" disabled>
                         Not Ready

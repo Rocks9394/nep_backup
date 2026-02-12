@@ -29,29 +29,28 @@ class GenerateBulkSkillReportsJob implements ShouldQueue
 
     public function __construct($schoolId, $studentIds, $batchId, $termId)
     {
-        $this->schoolId  = $schoolId;
+        $this->schoolId   = $schoolId;
         $this->studentIds = $studentIds;
-        $this->batchId   = $batchId;
-        $this->termId    = $termId;
+        $this->batchId    = $batchId;
+        $this->termId     = $termId;
     }
 
     public function handle()
     {
         try {
-
             ini_set('memory_limit', '1024M');
 
-            $batch = SkillBatch::findOrFail($this->batchId);
-            $batch->update([
+            SkillBatch::where('id', $this->batchId)->update([
                 'total_students' => count($this->studentIds),    
                 'status' => 'in_progress'
             ]);
-            
+
             $termRange = $this->getTermRange($this->termId);
             $school = DB::table('schools')->where('id', $this->schoolId)->first();
             $termID = $this->termId;
             $completedCount = 0;
 
+            // Group students by class + section
             $studentsGrouped = DB::table('students')
                 ->join('custom_classes', 'custom_classes.id', '=', 'students.custom_class_id')
                 ->join('class', 'class.id', '=', 'students.class_id')
@@ -94,75 +93,97 @@ class GenerateBulkSkillReportsJob implements ShouldQueue
 
                     $studentId = $studentRow->id;
 
-                    $student = DB::table('students')
-                        ->join('custom_classes', 'custom_classes.id', '=', 'students.custom_class_id')
-                        ->join('class', 'class.id', '=', 'students.class_id')
-                        ->select(
-                            'students.student_name',
-                            'students.gender',
-                            'students.dob',
-                            'students.rollno',
-                            'students.student_uid',
-                            'students.email_id',
-                            'class.name as classname',
-                            'custom_classes.section'
-                        )
-                        ->where('students.id', $studentId)
-                        ->first();
+                    // Mark student as processing
+                    SkillReportRequest::where('batch_id', $this->batchId)
+                        ->where('student_id', $studentId)
+                        ->update(['status' => 'processing']);
 
-                    $getReport = DB::table('reports')
-                        ->select(
-                            'skill_sports_id',
-                            'sports.name as sportsskillname',
-                            DB::raw('COUNT(*) as total')
-                        )
-                        ->join('sports', 'sports.id', '=', 'reports.skill_sports_id')
-                        ->where('reports.student_id', $studentId)
-                        ->whereBetween('reports.date', [
-                            $termRange->term_start_date,
-                            $termRange->term_end_date
-                        ])
-                        ->groupBy('skill_sports_id', 'sportsskillname')
-                        ->get();
-
-                    $getSkills = [];
-
-                    foreach ($getReport as $val) {
-                        $getSkills[$val->skill_sports_id] = DB::table('reports')
+                    try {
+                        $student = DB::table('students')
+                            ->join('custom_classes', 'custom_classes.id', '=', 'students.custom_class_id')
+                            ->join('class', 'class.id', '=', 'students.class_id')
                             ->select(
-                                'activity.title',
-                                'activity.learning_outcomes',
-                                'levels.level_name',
-                                'techniques.name as techniques_name',
-                                'levels.orders as rating',
-                                'skill_sports_id'
+                                'students.student_name',
+                                'students.gender',
+                                'students.dob',
+                                'students.rollno',
+                                'students.student_uid',
+                                'students.email_id',
+                                'class.name as classname',
+                                'custom_classes.section'
                             )
-                            ->join('activity', 'activity.id', '=', 'reports.activity_id')
-                            ->join('techniques', 'techniques.id', '=', 'reports.technique_id')
-                            ->join('levels', 'levels.id', '=', 'reports.level')
+                            ->where('students.id', $studentId)
+                            ->first();
+
+                        $getReport = DB::table('reports')
+                            ->select(
+                                'skill_sports_id',
+                                'sports.name as sportsskillname',
+                                DB::raw('COUNT(*) as total')
+                            )
+                            ->join('sports', 'sports.id', '=', 'reports.skill_sports_id')
                             ->where('reports.student_id', $studentId)
                             ->whereBetween('reports.date', [
                                 $termRange->term_start_date,
                                 $termRange->term_end_date
                             ])
-                            ->where('reports.skill_sports_id', $val->skill_sports_id)
+                            ->groupBy('skill_sports_id', 'sportsskillname')
                             ->get();
+
+                        $getSkills = [];
+
+                        foreach ($getReport as $val) {
+                            $getSkills[$val->skill_sports_id] = DB::table('reports')
+                                ->select(
+                                    'activity.title',
+                                    'activity.learning_outcomes',
+                                    'levels.level_name',
+                                    'techniques.name as techniques_name',
+                                    'levels.orders as rating',
+                                    'skill_sports_id'
+                                )
+                                ->join('activity', 'activity.id', '=', 'reports.activity_id')
+                                ->join('techniques', 'techniques.id', '=', 'reports.technique_id')
+                                ->join('levels', 'levels.id', '=', 'reports.level')
+                                ->where('reports.student_id', $studentId)
+                                ->whereBetween('reports.date', [
+                                    $termRange->term_start_date,
+                                    $termRange->term_end_date
+                                ])
+                                ->where('reports.skill_sports_id', $val->skill_sports_id)
+                                ->get();
+                        }
+
+                        $data = compact('student', 'school', 'getReport', 'getSkills', 'termID');
+
+                        $sectionHtml .= View::make(
+                            'reports.skills.skill-reports-pdf',
+                            $data
+                        )->render();
+
+                        $sectionHtml .= '<div style="page-break-after: always;"></div>';
+
+                        // Mark student as completed
+                        SkillReportRequest::where('batch_id', $this->batchId)
+                            ->where('student_id', $studentId)
+                            ->update(['status' => 'completed']);
+
+                    } catch (\Throwable $studentException) {
+                        Log::error("Skill Report failed for student {$studentId}", [
+                            'error' => $studentException->getMessage()
+                        ]);
+
+                        SkillReportRequest::where('batch_id', $this->batchId)
+                            ->where('student_id', $studentId)
+                            ->update(['status' => 'failed']);
                     }
 
-                    $data = compact('student', 'school', 'getReport', 'getSkills', 'termID');
-
-                    $sectionHtml .= View::make(
-                        'reports.skills.skill-reports-pdf',
-                        $data
-                    )->render();
-
-                    $sectionHtml .= '<div style="page-break-after: always;"></div>';
                     $completedCount++;
-
                     SkillBatch::where('id', $this->batchId)
                         ->update(['completed_students' => $completedCount]);
                 }
 
+                // Generate section PDF
                 $options = new Options();
                 $options->set('isHtml5ParserEnabled', true);
                 $options->set('isRemoteEnabled', true);
@@ -182,39 +203,40 @@ class GenerateBulkSkillReportsJob implements ShouldQueue
                 ];
             }
 
+            // Generate final zip
             $zipName = "Skill_Reports_Batch_{$this->batchId}.zip";
             $zipPath = $basePath . $zipName;
 
             $zip = new ZipArchive;
-
             if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
-
                 foreach ($sectionFiles as $file) {
                     $zip->addFile($file['absolute'], $file['relative']);
                 }
-
                 $zip->close();
             }
+            
+            // Update batch final info
+            SkillBatch::where('id', $this->batchId)->update([
+                'status' => 'completed',
+                'download_path' => "skill_reports/{$zipName}",
+                'final_zip_path' => "skill_reports/{$zipName}",
+                'expires_at' => now()->addDays(7),
+            ]);
+
+            // Cleanup section PDFs
             foreach ($sectionFiles as $file) {
                 if (file_exists($file['absolute'])) {
                     unlink($file['absolute']);
                 }
             }
+
+            // Remove class folders
             $folders = glob($basePath . '*', GLOB_ONLYDIR);
             foreach ($folders as $folder) {
                 @rmdir($folder);
             }
 
-            $batch->update([
-                'status' => 'completed',
-                'final_zip_path' => "reports/{$zipName}"
-            ]);
-
-            SkillReportRequest::where('batch_id', $this->batchId)
-                ->update(['status' => 'completed']);
-
         } catch (\Throwable $e) {
-
             Log::error("Bulk Skill Report Failed", [
                 'error' => $e->getMessage()
             ]);
@@ -223,10 +245,12 @@ class GenerateBulkSkillReportsJob implements ShouldQueue
                 ->update(['status' => 'failed']);
         }
     }
-    private function getTermRange($termId){
-		return DB::table('term_masters')
-			->where('id', $termId)
-			->select('term_start_date', 'term_end_date')
-			->first();
-	}
+
+    private function getTermRange($termId)
+    {
+        return DB::table('term_masters')
+            ->where('id', $termId)
+            ->select('term_start_date', 'term_end_date')
+            ->first();
+    }
 }

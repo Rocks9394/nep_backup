@@ -39,7 +39,8 @@
 
             <td>
                 @if($report->status === 'completed')
-                    <a href="{{ $report->download_path }}" class="btn btn-sm btn-primary"> Ready to Download </a>
+                    <!-- <a href="{{ $report->download_path }}" class="btn btn-sm btn-primary"> Ready to Download </a> -->
+                    <a href="{{ isset($type) && $type === 'skill' ? route('skill.reports.download', $report->id) : $report->download_path }}" class="btn btn-sm btn-primary"> Ready to Download </a>
                 @else
                     <button class="btn btn-sm btn-secondary" disabled>
                         Not Ready
