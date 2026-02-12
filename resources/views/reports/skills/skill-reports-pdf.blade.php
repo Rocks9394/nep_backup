@@ -239,12 +239,6 @@
                 <td>{{ $gender }}</td>
             </tr>
             <tr>
-                <th>Height (cm)</th>
-                <td>-</td>
-                <th>Weight (kg)</th>
-                <td>-</td>
-            </tr>
-            <tr>
                 <th>School Code</th>
                 <td>{{ $school->school_code }}</td>
                 <th>School Name</th>

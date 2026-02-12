@@ -29,6 +29,9 @@ use App\Jobs\GenerateSchoolReportsMasterJob;
 
 use App\Models\ReportBatch;
 use App\Models\ReportRequest;
+use App\Models\SkillBatch;
+use App\Models\SkillReportRequest;
+use App\Jobs\GenerateBulkSkillReportsJob;
 use App\Models\TermMaster;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Storage;
@@ -1061,6 +1064,7 @@ class ReportController extends Controller {
 	/**
 	 * for skill reports 10/02/2026
 	 * **/
+
 	public function SkillReports(Request $request, DataTableListService $dataTable) {
 
 		$title   = 'Skill Report';
@@ -1263,6 +1267,102 @@ class ReportController extends Controller {
 
 		return view('reports.skills.skill-reports', $data);
 	}
+
+	// bulk skill reports download 
+	public function queueBulkSkillReportCards(Request $request) {
+		try {
+            
+            $userId = Auth::id();
+
+            if(Auth::user()->role_id == 3){
+				if(Session::get('SelectSchoolId')){	
+					$schoolId = Session::get('SelectSchoolId');	
+				}else{
+					$schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
+				}
+			}else{
+				$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+			}
+            if (!$schoolId) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No school found for the current user.'
+                ], 400);
+            }
+
+            $studentIds = $request->input('student_ids', []);
+            $termId = $request->term_id ?? $this->getTermId($schoolId);
+
+
+            if (empty($studentIds)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No student IDs provided.'
+                ], 400);
+            }
+
+            $report_batch = SkillBatch::create([
+			    'school_id' => $schoolId,
+			    'status' => 'pending',
+			]);
+
+            foreach ($studentIds as $studentId) {            	
+			    SkillReportRequest::updateOrCreate(
+			        ['student_id' => $studentId],
+			        [
+			            'school_id' => $schoolId,
+			            'batch_id' => $report_batch->id,
+			            'status' => 'requested',
+			            'requested_at' => now(),
+			        ]
+			    );
+			}			
+
+            GenerateBulkSkillReportsJob::dispatch($schoolId, $studentIds, $report_batch->id, $termId)->onQueue('report_generation');
+            return response()->json([
+                'status' => 'queued',
+                'message' => 'Your report card request has been submitted and is being processed. Please return to this page later. Once the report is ready, it will appear under Available Downloads.'
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error("Failed to queue report generation", ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong while starting report generation.'
+            ], 500);
+        }
+	}
+
+	public function CheckSkillReportAvailablity() {
+
+		$userId = Auth::id();
+        
+		if(Auth::user()->role_id == 3){
+			if(Session::get('SelectSchoolId')){	
+				$schoolId = Session::get('SelectSchoolId');	
+			}else{
+				$schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
+			}
+		}else{
+			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+		}
+		
+		$reports = DB::table('skill_batches')
+	    	->where('school_id', $schoolId)
+	    	->select('total_students','completed_students','status','download_path','created_at','expires_at')->orderBy('created_at','desc')
+	    	->get();
+
+	    if ($reports->isEmpty()) {
+	        return response()->json([
+	            'html' => '<p class="text-center text-muted">No report requests found.</p>'
+	        ]);
+	    }
+
+	    $html = view('reports.modals.available-report-cards', compact('reports'))->render();
+	    return response()->json(['html' => $html]);
+	}
+
 
 
 }

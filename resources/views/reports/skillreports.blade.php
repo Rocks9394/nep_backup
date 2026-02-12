@@ -117,7 +117,7 @@
 		    	    headers: {
 		                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
 		            },
-		            url: "{{ route('generate.reportcards') }}",
+		            url: "{{ route('generate.skillreportcards') }}",
 		            method: 'POST',            
 		            contentType: "application/json",            
 		            data: JSON.stringify({
@@ -169,7 +169,7 @@
 	function openAvailableDownloads() {
 	    $('#availableDownloadsModal').modal('show');
 
-	    fetch("{{ route('fitness.report.available') }}")
+	    fetch("{{ route('skill.report.available') }}")
 	        .then(res => res.json())
 	        .then(data => {
 	            document.getElementById('downloadsContent').innerHTML = data.html;	

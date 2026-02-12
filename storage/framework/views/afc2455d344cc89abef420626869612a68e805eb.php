@@ -118,7 +118,7 @@
 		    	    headers: {
 		                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
 		            },
-		            url: "<?php echo e(route('generate.reportcards')); ?>",
+		            url: "<?php echo e(route('generate.skillreportcards')); ?>",
 		            method: 'POST',            
 		            contentType: "application/json",            
 		            data: JSON.stringify({
@@ -170,7 +170,7 @@
 	function openAvailableDownloads() {
 	    $('#availableDownloadsModal').modal('show');
 
-	    fetch("<?php echo e(route('fitness.report.available')); ?>")
+	    fetch("<?php echo e(route('skill.report.available')); ?>")
 	        .then(res => res.json())
 	        .then(data => {
 	            document.getElementById('downloadsContent').innerHTML = data.html;	

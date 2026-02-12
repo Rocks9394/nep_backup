@@ -176,7 +176,6 @@ return [
         App\Providers\RouteServiceProvider::class,
 		Mews\Captcha\CaptchaServiceProvider::class,
         App\Providers\EmailServiceProvider::class,
-        Laravel\Passport\PassportServiceProvider::class,
     ],
 
     /*
