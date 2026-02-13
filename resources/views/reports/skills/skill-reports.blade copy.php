@@ -7,7 +7,7 @@
     <style>
         @page {
             size: A4;
-            /* margin: 15mm; */
+            margin: 15mm;
         }
         body {
             font-family: "Roboto Condensed", sans-serif; 
@@ -22,7 +22,7 @@
             padding: 0;
             border: none;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            /* border-radius: 8px; */
+            border-radius: 8px;
             user-select: none;
             cursor: default;
             overflow: hidden;
@@ -178,40 +178,14 @@
 
 <body>
 <div class="container">
-    <table cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
-        <tr style="background-color: #0A87CD; height: 70px; ">
-            <td style="vertical-align: top;">
-                <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px; height: 100%;">
-                    <tr>
-                        <td style="width:180px;"></td>
-                        <td style="position: relative; vertical-align: top; width: 130px; height: 100%;">
-                            <img src="{{ asset('/public/assets/reports/yellow-dot.png')}}" alt="" style="width: 35px;height: 35px;position: relative;left:-30px;top: 0px;">
-                            <div style="position: absolute; top: 0; display: flex; align-items: flex-start; z-index: 10; width: 130px; overflow: hidden;">
-                                <div class="logo" style="position: relative; width: inherit;">
-                                    <span style="position: absolute; top:0; left:0; width: inherit; padding: 20px; box-sizing: border-box; display:inline-block;">
-                                        <img src="{{ asset('/public/assets/reports/seqfast-logo.png')}}" alt="" style="width: 95px;margin-top: 0px;">
-                                    </span>
-                                    <img src="{{ asset('/public/assets/reports/logo-bg.jpg')}}" alt="" style="width: 130px;height: 140px;margin-top: -35px;">
-                                </div>
-                            </div>
-                        </td>
-                        <td style="width: 410px;">
-                            <div style="margin: 20px 15px 15px 20px; font-weight: 600; font-size: 26px; color:#fff; text-transform: uppercase;">P.E. Assessment Report
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
     <div class="header">
-        <!-- <div class="logo mb-3 w-100">
+        <div class="logo mb-3 w-100">
             <img src="{{ asset('public/assets/reports/seqfast-logo.png') }}"
                 style="width:90px; float:left;">
             <div class="header-title">P.E. Class Activities & Teacher Observations</div>
             <img src="{{ asset('public/assets/uploads/logos/' . $school->logo) }}"
                 style="width:90px; float:right;">
-        </div> -->
+        </div>
 
         <!-- Student Details -->
 
@@ -228,7 +202,6 @@
                 $gender = 'Girl';
             }
         @endphp
-        
         <table class="student-details">
             <tr>
                 <th>Name</th>

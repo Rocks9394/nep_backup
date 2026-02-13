@@ -11,7 +11,8 @@
         }
 
         body {
-            font-family: DejaVu Sans, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "Roboto Condensed", sans-serif; 
+            font-optical-sizing: auto; 
             font-size: 10pt;
             color: #222;
             margin: 0;
@@ -249,7 +250,7 @@
 
     <!-- REPORT TABLE -->
     <div class="report-content">
-        <table class="report-table">
+        <!-- <table class="report-table">
             <tr>
                 <th>Skill Area</th>
                 <th>Activity</th>
@@ -298,7 +299,69 @@
                 <?php endif; ?>
 
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </table> -->
+
+        <table cellspacing="0" cellpadding="0" style="border-collapse: collapse; margin-bottom: 10px;">
+            <tr>
+                <td style="border-bottom: 3px solid #E60A00;">
+                    <div style="background:#E60A00; float:left; display: inline-flex; align-items: center; color: #fff; font-size: 18px; font-weight: 600; height: 32px;">
+                        <div style="float: left; padding: 1px 0px 0px 10px; margin-bottom: -3px;">Developmental Skills for Pre Nursery-A</div>
+                        <div style="float:left; transform: skew(26deg,0deg); display:inline-block; width: 20px; height: 32px; background: #E60A00; position: relative; right: -10px;"></div>
+                    </div>
+                </td>
+            </tr>
         </table>
+        
+        <?php $__currentLoopData = $getReport; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $spval): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+            <?php
+                $activities = $getSkills[$spval->skill_sports_id] ?? collect();
+            ?>
+
+            <?php if($activities->count() > 0): ?>
+                <h2 style="padding: 5px 10px; font-size: 20px; margin:0px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;"><?php echo e($spval->sportsskillname); ?></h2>
+                <table class="report-table" style="margin-bottom: 30px;">
+                    <tr style="background-color: #fecd0a;">
+                        <!-- <th>Skill Area</th> -->
+                        <th>Activity</th>
+                        <th>Technique</th>
+                        <th class="center" colspan="6">Rating</th>
+                        <th>Level</th>
+                        <th>Teacher's Observations</th>
+                    </tr>
+
+                    <?php $__currentLoopData = $activities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $activity): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <tr>
+                            <!-- <td class="skill-area">
+                                <?php echo e($spval->sportsskillname); ?>
+
+                            </td> -->
+
+                            <td><?php echo e($activity->title); ?></td>
+
+                            <td><?php echo $activity->techniques_name; ?></td>
+
+                            <td class="stars" colspan="6">
+                                <?php for($i = 0; $i < $activity->rating; $i++): ?>
+                                    <span class="star-filled">&#9733;</span>
+                                <?php endfor; ?>
+
+                                <?php for($i = 0; $i < 6 - $activity->rating; $i++): ?>
+                                    <span class="star-empty">&#9734;</span>
+                                <?php endfor; ?>
+                            </td>
+
+                            <td><?php echo e($activity->level_name); ?></td>
+
+                            <td><?php echo $activity->descriptions; ?></td>
+                        </tr>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                </table>
+
+            <?php endif; ?>
+
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
     </div>
 

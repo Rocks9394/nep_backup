@@ -1239,6 +1239,7 @@ class ReportController extends Controller {
 					'levels.level_name',
 					'techniques.name as techniques_name',
 					'levels.orders as rating',
+					'levels.description as descriptions',
 					'skill_sports_id'
 				)
 				->join('activity', 'activity.id', '=', 'reports.activity_id')

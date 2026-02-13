@@ -7,10 +7,11 @@
     <style>
         @page  {
             size: A4;
-            margin: 15mm;
+            /* margin: 15mm; */
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "Roboto Condensed", sans-serif; 
+            font-optical-sizing: auto; 
             background: #fff;
             color: #222;
             font-size: 10pt;
@@ -21,7 +22,7 @@
             padding: 0;
             border: none;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border-radius: 8px;
+            /* border-radius: 8px; */
             user-select: none;
             cursor: default;
             overflow: hidden;
@@ -90,11 +91,11 @@
         }
 
         .report-table th {
-            background: #222;
-            color: #fff;
+            color: #000;
             padding: 8px;
-            text-align: left;
-            border: 1px solid #333;
+            text-align: left;    
+            padding: 8px 9px 8px 9px;
+            border: 1px solid orange;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -105,8 +106,8 @@
             text-align: center;
         }
 
-        .report-table td {
-            border: 1px solid #e0e0e0;
+        .report-table td {            
+            border: 1px solid orange;
             padding: 6px;
             vertical-align: middle;
             white-space: normal;
@@ -117,7 +118,7 @@
             background: #fafafa;
         }
 
-        .stars {
+        .report-table .stars {
             text-align: center;
             font-size: 12pt;
             min-width: 90px;
@@ -177,14 +178,40 @@
 
 <body>
 <div class="container">
+    <table cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
+        <tr style="background-color: #0A87CD; height: 70px; ">
+            <td style="vertical-align: top;">
+                <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px; height: 100%;">
+                    <tr>
+                        <td style="width:180px;"></td>
+                        <td style="position: relative; vertical-align: top; width: 130px; height: 100%;">
+                            <img src="<?php echo e(asset('/public/assets/reports/yellow-dot.png')); ?>" alt="" style="width: 35px;height: 35px;position: relative;left:-30px;top: 0px;">
+                            <div style="position: absolute; top: 0; display: flex; align-items: flex-start; z-index: 10; width: 130px; overflow: hidden;">
+                                <div class="logo" style="position: relative; width: inherit;">
+                                    <span style="position: absolute; top:0; left:0; width: inherit; padding: 20px; box-sizing: border-box; display:inline-block;">
+                                        <img src="<?php echo e(asset('/public/assets/reports/seqfast-logo.png')); ?>" alt="" style="width: 95px;margin-top: 0px;">
+                                    </span>
+                                    <img src="<?php echo e(asset('/public/assets/reports/logo-bg.jpg')); ?>" alt="" style="width: 130px;height: 140px;margin-top: -35px;">
+                                </div>
+                            </div>
+                        </td>
+                        <td style="width: 410px;">
+                            <div style="margin: 20px 15px 15px 20px; font-weight: 600; font-size: 26px; color:#fff; text-transform: uppercase;">P.E. Assessment Report
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
     <div class="header">
-        <div class="logo mb-3 w-100">
+        <!-- <div class="logo mb-3 w-100">
             <img src="<?php echo e(asset('public/assets/reports/seqfast-logo.png')); ?>"
                 style="width:90px; float:left;">
             <div class="header-title">P.E. Class Activities & Teacher Observations</div>
             <img src="<?php echo e(asset('public/assets/uploads/logos/' . $school->logo)); ?>"
                 style="width:90px; float:right;">
-        </div>
+        </div> -->
 
         <!-- Student Details -->
 
@@ -201,6 +228,7 @@
                 $gender = 'Girl';
             }
         ?>
+        
         <table class="student-details">
             <tr>
                 <th>Name</th>
@@ -238,13 +266,14 @@
     <div class="report-content">
 
     <!-- Report Table -->
-        <table class="report-table">
-            <tr>
+        <!-- <table class="report-table">
+            <tr style="background-color: #fecd0a;">
                 <th>Skill Area</th>
                 <th>Activity</th>
                 <th>Technique</th>
                 <th class="center" colspan="6">Rating</th>
                 <th>Level</th>
+                <th>Teacher's Observations</th>
             </tr>
 
             <?php $__currentLoopData = $getReport; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $spval): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -280,14 +309,76 @@
                                 <?php endfor; ?>
                             </td>
 
-                            <td><?php echo e($activity->level_name); ?></td>
+                            <td><?php echo e($activity->level_name); ?></td>                            
+                            <td><?php echo $activity->descriptions; ?></td>
                         </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                 <?php endif; ?>
 
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </table> -->
+        <table cellspacing="0" cellpadding="0" style="border-collapse: collapse; margin-bottom: 10px;">
+            <tr>
+                <td style="border-bottom: 3px solid #E60A00;">
+                    <div style="background:#E60A00; float:left; display: inline-flex; align-items: center; color: #fff; font-size: 18px; font-weight: 600; height: 32px;">
+                        <div style="float: left; padding: 1px 0px 0px 10px; margin-bottom: -3px;">P.E. Class Activities & Fermative Assessment for <?php echo e($student->classname); ?></div>
+                        <div style="float:left; transform: skew(26deg,0deg); display:inline-block; width: 20px; height: 32px; background: #E60A00; position: relative; right: -10px;"></div>
+                    </div>
+                </td>
+            </tr>
         </table>
+        
+        <?php $__currentLoopData = $getReport; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $spval): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+            <?php
+                $activities = $getSkills[$spval->skill_sports_id] ?? collect();
+            ?>
+
+            <?php if($activities->count() > 0): ?>
+                <h2 style="padding: 5px 10px; font-size: 20px; margin:0px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;"><?php echo e($spval->sportsskillname); ?></h2>
+                <table class="report-table" style="margin-bottom: 30px;">
+                    <tr style="background-color: #fecd0a;">
+                        <!-- <th>Skill Area</th> -->
+                        <th>Technique</th>
+                        <th>Activity</th>
+                        <th class="center" colspan="6">Rating</th>
+                        <th>Level</th>
+                        <th>Teacher's Observations</th>
+                    </tr>
+
+                    <?php $__currentLoopData = $activities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $activity): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <tr>
+                            <!-- <td class="skill-area">
+                                <?php echo e($spval->sportsskillname); ?>
+
+                            </td> -->
+
+                            <td><?php echo $activity->techniques_name; ?></td>
+                            <td><?php echo e($activity->title); ?></td>
+
+                            <td class="stars" colspan="6">
+                                <?php for($i = 0; $i < $activity->rating; $i++): ?>
+                                    <span class="star-filled">&#9733;</span>
+                                <?php endfor; ?>
+
+                                <?php for($i = 0; $i < 6 - $activity->rating; $i++): ?>
+                                    <span class="star-empty">&#9734;</span>
+                                <?php endfor; ?>
+                            </td>
+
+                            <td><?php echo e($activity->level_name); ?></td>
+
+                            <td><?php echo $activity->descriptions; ?></td>
+                        </tr>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                </table>
+
+            <?php endif; ?>
+
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
 
     </div>
 
