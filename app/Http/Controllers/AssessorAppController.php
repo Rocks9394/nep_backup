@@ -18,6 +18,7 @@ use Redirect;
 use paginate;
 use Session;
 use PDF;
+use ZipArchive;
 use Dompdf\Dompdf;
 use App\Models\TermMaster;
 use App\Services\DataTableListService;
@@ -1984,8 +1985,8 @@ class AssessorAppController extends Controller
                 Excel::store(
                     $export,
                     $tempFileName,
-                    'local',
-                    ExcelExcel::XLSX
+                    null,
+                    \Maatwebsite\Excel\Excel::XLSX
                 );
 
                 $fullPath = storage_path("app/{$tempFileName}");

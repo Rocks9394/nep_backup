@@ -10,13 +10,6 @@
             height: 29.7cm;
             margin: 0;
         }
-        /* body {
-            font-family: "Roboto Condensed", sans-serif; 
-            font-optical-sizing: auto; 
-            background: #fff;
-            color: #222;
-            font-size: 10pt;
-        } */
             *,
         body {
             margin: 0;
@@ -39,7 +32,7 @@
             cursor: default;
             overflow: hidden;
             width: 100%;
-            max-width: 190mm; /* A4 width safe */
+            max-width: 21cm;
             margin: 0 auto;
         }
 
@@ -221,7 +214,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td style="width: 410px;">
+                        <td style="width: 485px;">
                             <div style="margin: 20px 15px 15px 20px; font-weight: 600; font-size: 26px; color:#fff; text-transform: uppercase;">P.E. Assessment Report
                             </div>
                         </td>
@@ -290,12 +283,12 @@
             <tr>
                 <td style="border-bottom: 3px solid #E60A00;">
                     <div style="background:#E60A00; float:left; display: inline-flex; align-items: center; color: #fff; font-size: 18px; font-weight: 600; height: 32px;">
-                        <div style="float: left; padding: 1px 0px 0px 10px; margin-bottom: -3px;">P.E. Class Activities & Fermative Assessment for {{$student->classname}}</div>
+                        <div style="float: left; padding: 1px 0px 0px 10px; margin-bottom: -3px;">P.E. Class Activities & Fermative Assessments</div>
                         <div style="float:left; transform: skew(26deg,0deg); display:inline-block; width: 20px; height: 32px; background: #E60A00; position: relative; right: -10px;"></div>
                     </div>
                     <div class="logo">
                         <img src="{{ asset('public/assets/uploads/logos/' . $school->logo) }}"
-                        style="width:110px;float:right;margin: -45px 12px -49px 40px;">
+                        style="width:110px;float:right;margin: -45px 12px -49px 170px;">
                     </div>
                 </td>
             </tr>
