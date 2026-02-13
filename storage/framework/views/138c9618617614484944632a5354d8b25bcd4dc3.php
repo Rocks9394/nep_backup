@@ -5,16 +5,28 @@
     <title>Student Report</title>
 
     <style>
-        @page  {
-            size: A4;
-            /* margin: 15mm; */
+        page[size="A4"] {
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0;
         }
-        body {
+        /* body {
             font-family: "Roboto Condensed", sans-serif; 
             font-optical-sizing: auto; 
             background: #fff;
             color: #222;
             font-size: 10pt;
+        } */
+            *,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Roboto Condensed", sans-serif;
+            font-optical-sizing: auto;
+            background-color: #eee;
         }
 
         .container {
@@ -32,7 +44,7 @@
         }
 
         .header {
-            padding: 20px 25px;
+            padding: 40px 25px 10px;
         }
 
         .logo {
@@ -63,24 +75,25 @@
         .student-details {
             width: 100%;
             border-collapse: collapse;
+            border: 1px solid #0A87CD;
             margin: 0 !important;
-            font-size: 11px;
+            font-size: 12px;
             background: rgba(255,255,255,0.95);
         }
 
         .student-details th {
             background: #e8f0f8;
             text-align: left;
-            padding: 8px 10px;
-            width: 18%;
+            padding: 5px;
+            width: 20%;
             border: 1px solid #d4dce6;
             font-weight: 700;
         }
 
         .student-details td {
-            padding: 8px 10px;
+            padding: 5px;
             border: 1px solid #d4dce6;
-            width: 32%;
+            width: 30%;
             color: #334e68;
         }
         .report-table {
@@ -88,43 +101,56 @@
             border-collapse: collapse;
             font-size: 9pt;
             flex: 1;
+            table-layout: fixed;
+        }
+
+        .report-table th,
+        .report-table td {
+            border: 1px solid orange;
+            padding: 6px;
         }
 
         .report-table th {
             color: #000;
-            padding: 8px;
-            text-align: left;    
-            padding: 8px 9px 8px 9px;
-            border: 1px solid orange;
+            text-align: left;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 180px;
         }
 
-        .report-table th.center {
+        .report-table th:nth-child(1),
+        .report-table td:nth-child(1) { 
+            width: 15%; 
+        }
+
+        .report-table th:nth-child(2),
+        .report-table td:nth-child(2) { 
+            width: 18%; 
+        }
+
+        .report-table th:nth-child(3),
+        .report-table td:nth-child(3) { 
+            width: 20%; 
+        }
+
+        .report-table th:nth-child(4),
+        .report-table td:nth-child(4) { 
+            width: 12%; 
+        }
+
+        .report-table th:nth-child(5),
+        .report-table td:nth-child(5) { 
+            width: 40%; 
+        }
+
+        .report-table td:nth-child(3) {
             text-align: center;
-        }
-
-        .report-table td {            
-            border: 1px solid orange;
-            padding: 6px;
-            vertical-align: middle;
-            white-space: normal;
+            font-size: 12pt;
         }
 
         .skill-area {
             font-weight: bold;
             background: #fafafa;
-        }
-
-        .report-table .stars {
-            text-align: center;
-            font-size: 12pt;
-            min-width: 90px;
-            align-items: center;
-            white-space: nowrap;            
-            overflow: hidden;
         }
 
         .star-filled {
@@ -177,7 +203,7 @@
 </head>
 
 <body>
-<div class="container">
+<div class="container" style="width: 21cm; border-collapse: collapse; margin-left: auto; margin-right: auto; font-family: Roboto Condensed, sans-serif; font-size: 12px; border: 0px; background-color: #fff;">
     <table cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
         <tr style="background-color: #0A87CD; height: 70px; ">
             <td style="vertical-align: top;">
@@ -204,17 +230,7 @@
             </td>
         </tr>
     </table>
-    <div class="header">
-        <!-- <div class="logo mb-3 w-100">
-            <img src="<?php echo e(asset('public/assets/reports/seqfast-logo.png')); ?>"
-                style="width:90px; float:left;">
-            <div class="header-title">P.E. Class Activities & Teacher Observations</div>
-            <img src="<?php echo e(asset('public/assets/uploads/logos/' . $school->logo)); ?>"
-                style="width:90px; float:right;">
-        </div> -->
-
-        <!-- Student Details -->
-
+    <div class="header" >
         <?php
 
             use Carbon\Carbon;
@@ -263,67 +279,23 @@
         </table>
     </div>
 
+    <table cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
+        <td rowspan="2" style="position: relative; vertical-align: top; width: auto; height: 100%;">
+            <img src="https://nep.localhost/public/assets/reports/inner-header2-bg.png" alt="" style="width: 450px; height:auto; position: relative; left:0px; top:0;">
+        </td>
+    </table>
+
     <div class="report-content">
-
-    <!-- Report Table -->
-        <!-- <table class="report-table">
-            <tr style="background-color: #fecd0a;">
-                <th>Skill Area</th>
-                <th>Activity</th>
-                <th>Technique</th>
-                <th class="center" colspan="6">Rating</th>
-                <th>Level</th>
-                <th>Teacher's Observations</th>
-            </tr>
-
-            <?php $__currentLoopData = $getReport; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $spval): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-                <?php
-                    $activities = $getSkills[$spval->skill_sports_id] ?? collect();
-                    $rowCount = $activities->count();
-                ?>
-
-                <?php if($rowCount > 0): ?>
-
-                    <?php $__currentLoopData = $activities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $activity): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <tr>
-
-                            
-                            <?php if($index == 0): ?>
-                                <td class="skill-area" rowspan="<?php echo e($rowCount); ?>">
-                                    <?php echo e($spval->sportsskillname); ?>
-
-                                </td>
-                            <?php endif; ?>
-
-                            <td><?php echo e($activity->title); ?></td>
-                            <td><?php echo $activity->techniques_name; ?></td>
-
-                            <td class="stars" colspan="6">
-                                <?php for($i = 0; $i < $activity->rating; $i++): ?>
-                                    <span class="star-filled">&#9733;</span>
-                                <?php endfor; ?>
-
-                                <?php for($i = 0; $i < 6 - $activity->rating; $i++): ?>
-                                    <span class="star-empty">&#9734;</span>
-                                <?php endfor; ?>
-                            </td>
-
-                            <td><?php echo e($activity->level_name); ?></td>                            
-                            <td><?php echo $activity->descriptions; ?></td>
-                        </tr>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-                <?php endif; ?>
-
-            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-        </table> -->
         <table cellspacing="0" cellpadding="0" style="border-collapse: collapse; margin-bottom: 10px;">
             <tr>
                 <td style="border-bottom: 3px solid #E60A00;">
                     <div style="background:#E60A00; float:left; display: inline-flex; align-items: center; color: #fff; font-size: 18px; font-weight: 600; height: 32px;">
                         <div style="float: left; padding: 1px 0px 0px 10px; margin-bottom: -3px;">P.E. Class Activities & Fermative Assessment for <?php echo e($student->classname); ?></div>
                         <div style="float:left; transform: skew(26deg,0deg); display:inline-block; width: 20px; height: 32px; background: #E60A00; position: relative; right: -10px;"></div>
+                    </div>
+                    <div class="logo">
+                        <img src="<?php echo e(asset('public/assets/uploads/logos/' . $school->logo)); ?>"
+                        style="width:110px;float:right;margin: -45px 12px -49px 40px;">
                     </div>
                 </td>
             </tr>
@@ -357,7 +329,7 @@
                             <td><?php echo $activity->techniques_name; ?></td>
                             <td><?php echo e($activity->title); ?></td>
 
-                            <td class="stars" colspan="6">
+                            <td colspan="6">
                                 <?php for($i = 0; $i < $activity->rating; $i++): ?>
                                     <span class="star-filled">&#9733;</span>
                                 <?php endfor; ?>
