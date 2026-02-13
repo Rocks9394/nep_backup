@@ -27,25 +27,18 @@
 			</div>
 		</div>
 
-		<!-- <div class="alert alert-info d-flex align-items-start gap-2" role="alert" style="border-left: 4px solid #0d6efd;">
+		<div class="alert alert-info d-flex align-items-start gap-2" role="alert" style="border-left: 4px solid #0d6efd;">
 		    <i class="bi bi-info-circle-fill text-primary"></i>
 		    <div>
 		        <strong>&nbsp;&nbsp;Note:</strong>  
 		        <ul class="mb-0 mt-1">
-		            <li> Reports can only be generated for students who have <strong>completed all fitness tests</strong>.</li>
 		            <li> If a student’s report is <strong>already requested</strong> or <strong>currently being processed</strong>, the checkbox will be disabled until it’s complete.</li>
-
-		            <li>
-					  Students with <strong>incomplete test data</strong> will be skipped during bulk report card generation.
-					  Please complete all tests or download the report manually.
-					</li>
-
  	            	<li>Generated reports are retained for <strong>7 days</strong> only. After 7 days, they will be permanently deleted from the system. Please download and store your reports before they expire.				  
 					</li>
 		        </ul>
 		    </div>
 		</div>
-		 -->
+		
 
 		<div class="container-fluid p-0">
 

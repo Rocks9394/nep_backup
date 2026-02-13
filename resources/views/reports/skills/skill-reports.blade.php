@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="{{ asset('public/favicon.ico')}}" sizes="32x32" />
     <title>Student Report</title>
 
     <style>
@@ -202,9 +203,9 @@
             <td style="vertical-align: top;">
                 <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px; height: 100%;">
                     <tr>
-                        <td style="width:180px;"></td>
+                        <td style="width:150px;"></td>
                         <td style="position: relative; vertical-align: top; width: 130px; height: 100%;">
-                            <img src="{{ asset('/public/assets/reports/yellow-dot.png')}}" alt="" style="width: 35px;height: 35px;position: relative;left:-30px;top: 0px;">
+                            <img src="{{ asset('/public/assets/reports/yellow-dot.png')}}" alt="" style="width: 35px;height: 35px;position: relative;left:-30px;top: -5px;">
                             <div style="position: absolute; top: 0; display: flex; align-items: flex-start; z-index: 10; width: 130px; overflow: hidden;">
                                 <div class="logo" style="position: relative; width: inherit;">
                                     <span style="position: absolute; top:0; left:0; width: inherit; padding: 20px; box-sizing: border-box; display:inline-block;">
@@ -214,8 +215,8 @@
                                 </div>
                             </div>
                         </td>
-                        <td style="width: 485px;">
-                            <div style="margin: 20px 15px 15px 20px; font-weight: 600; font-size: 26px; color:#fff; text-transform: uppercase;">P.E. Assessment Report
+                        <td style="width: 515px;">
+                            <div style="margin: 20px 15px 15px 30px; font-weight: 600; font-size: 26px; color:#fff; text-transform: uppercase;">P.E. Activities & Skills Report
                             </div>
                         </td>
                     </tr>
@@ -272,11 +273,11 @@
         </table>
     </div>
 
-    <table cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
+    <!-- <table cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
         <td rowspan="2" style="position: relative; vertical-align: top; width: auto; height: 100%;">
             <img src="https://nep.localhost/public/assets/reports/inner-header2-bg.png" alt="" style="width: 450px; height:auto; position: relative; left:0px; top:0;">
         </td>
-    </table>
+    </table> -->
 
     <div class="report-content">
         <table cellspacing="0" cellpadding="0" style="border-collapse: collapse; margin-bottom: 10px;">
@@ -334,6 +335,7 @@
                             <td>{{ $activity->level_name }}</td>
 
                             <td>{!! $activity->descriptions !!}</td>
+                            <!-- <td>Lorem ipsum dolor amet consectetur, adipisicing.</td> -->
                         </tr>
                     @endforeach
 
@@ -342,8 +344,6 @@
             @endif
 
         @endforeach
-
-
     </div>
 
     <!-- Signatures -->
