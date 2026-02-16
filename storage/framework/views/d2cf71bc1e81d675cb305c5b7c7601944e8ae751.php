@@ -1,257 +1,207 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="<?php echo e(asset('public/favicon.ico')); ?>" sizes="32x32" />
-    <title>Student Report</title>
+<meta charset="UTF-8">
+<title>Student Report</title>
 
-    <style>
-        page[size="A4"] {
-            width: 21cm;
-            height: 29.7cm;
-            margin: 0;
-        }
-            *,
-        body {
-            margin: 0;
-            padding: 0;
-        }
+<style>
+    @page  {
+        margin: 0;
+    }
+    body {
+        font-family:DejaVu Sans, "Roboto Condensed", sans-serif;
+        font-size: 12px;
+        margin: 0;
+        padding: 0;
+    }
 
-        body {
-            font-family: "Roboto Condensed", sans-serif;
-            font-optical-sizing: auto;
-            background-color: #eee;
-        }
+    .container {
+        width: 100%;        
+    }
 
-        .container {
-            background: #fff;
-            padding: 0;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            /* border-radius: 8px; */
-            user-select: none;
-            cursor: default;
-            overflow: hidden;
-            width: 100%;
-            max-width: 21cm;
-            margin: 0 auto;
-        }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
 
-        .header {
-            padding: 40px 25px 10px;
-        }
+    /* Header */
+    .header-table {
+        background: #0A87CD;
+        color: #fff;
+    }
 
-        .logo {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px !important;
-        }
+    .header-title {
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+        padding: 15px 0;
+        text-transform: uppercase;
+    }
+    .table-wrapper {
+        margin:0 15px !important;
+    }
 
-        .logo img {
-            height: 60px;
-            width: auto;
-            object-fit: contain;
-        }
+    /* Student Details */
+    .student-details{
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9pt;
+        flex: 1;
+        table-layout: fixed;
+    }
+    .student-details th {
+        background: #e8f0f8;
+        padding: 6px;
+        text-align: left;
+        border: 1px solid #d4dce6;
+        font-weight: bold;
+        width: 20%;
+    }
 
-        .header-title {
-            text-align: center;
-            font-size: 18px;
-            font-weight: 700;
-            margin: 0;
-            letter-spacing: 0.5px;
-        }
+    .student-details td {
+        padding: 6px;
+        border: 1px solid #d4dce6;
+        width: 30%;
+    }
 
-        h1 {
-            display: none;
-        }
+    /* Skill Title */
+    .skill-title {
+        background: #0A87CD;
+        margin:0 15px !important;
+        color: #fff;
+        font-weight: bold;
+        padding: 6px 10px;
+        font-size: 14px;
+    }
 
-        .student-details {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid #0A87CD;
-            margin: 0 !important;
-            font-size: 12px;
-            background: rgba(255,255,255,0.95);
-        }
+    .report-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9pt;
+        flex: 1;
+        table-layout: fixed;
+    }
+    .report-table th {
+        background: #fecd0a;
+        text-align: left;
+        color: #000;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-        .student-details th {
-            background: #e8f0f8;
-            text-align: left;
-            padding: 5px;
-            width: 20%;
-            border: 1px solid #d4dce6;
-            font-weight: 700;
-        }
+    .report-table th,
+    .report-table td {
+        border: 1px solid orange;
+        font-size: 9pt;
+        padding: 6px;
+    }
 
-        .student-details td {
-            padding: 5px;
-            border: 1px solid #d4dce6;
-            width: 30%;
-            color: #334e68;
-        }
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 9pt;
-            flex: 1;
-            table-layout: fixed;
-        }
+    .report-table th:nth-child(1),
+    .report-table td:nth-child(1) { 
+        width: 15%; 
+    }
 
-        .report-table th,
-        .report-table td {
-            border: 1px solid orange;
-            font-size: 9pt;
-            padding: 6px;
-        }
+    .report-table th:nth-child(2),
+    .report-table td:nth-child(2) { 
+        width: 18%; 
+    }
 
-        .report-table th {
-            color: #000;
-            text-align: left;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+    .report-table th:nth-child(3),
+    .report-table td:nth-child(3) { 
+        width: 12%; 
+    }
 
-        .report-table th:nth-child(1),
-        .report-table td:nth-child(1) { 
-            width: 15%; 
-        }
+    .report-table th:nth-child(4),
+    .report-table td:nth-child(4) { 
+        width: 20%; 
+    }
 
-        .report-table th:nth-child(2),
-        .report-table td:nth-child(2) { 
-            width: 18%; 
-        }
+    .report-table th:nth-child(5),
+    .report-table td:nth-child(5) { 
+        width: 40%; 
+    }
+    .report-table td.stars {
+        text-align: center;
+        font-size: 12pt;
+        width: 20%;
+    }
 
-        .report-table th:nth-child(3),
-        .report-table td:nth-child(3) { 
-            width: 12%; 
-        }
+    .star-filled {
+        color: #ffc107;
+    }
 
-        .report-table th:nth-child(4),
-        .report-table td:nth-child(4) { 
-            width: 20%; 
-        }
+    .star-empty {
+        color: #ddd;
+    }
 
-        .report-table th:nth-child(5),
-        .report-table td:nth-child(5) { 
-            width: 40%; 
-        }
-        .report-table td.stars {
-            text-align: center;
-            font-size: 12pt;
-            width: 20%;
-        }
+    .signature-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100px;
+    }
 
-        .skill-area {
-            font-weight: bold;
-            background: #fafafa;
-        }
+    .signature-table {
+        width: 100%;
+        padding: 0 40px 20px 40px;
+    }
 
-        .star-filled {
-            color: #ffc107;
-        }
-
-        .star-empty {
-            color: #ddd;
-        }
-        
-        .signatures {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 60px;
-            text-align: center;
-            padding: 0 25px 25px;
-        }
-
-        .signature-block {
-            width: 45%;
-        }
-
-        .signature-name {
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        .signature-title {
-            font-size: 9pt;
-            color: #444;
-        }
-
-        .signature-org {
-            font-size: 8.5pt;
-            color: #666;
-        }
-
-        .report-content {
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        @media  screen {
-            body {
-                background: #f0f4f9;
-            }
-        }
-    </style>
+    .signature-table td {
+        text-align: center;
+        vertical-align: bottom;
+    }
+</style>
 </head>
 
 <body>
-<div class="container" style="width: 21cm; border-collapse: collapse; margin-left: auto; margin-right: auto; font-family: Roboto Condensed, sans-serif; font-size: 12px; border: 0px; background-color: #fff;">
-    <table cellspacing="0" cellpadding="0" style="border-collapse: collapse; width:100%;">
-        <tr style="background-color: #0A87CD; height: 70px; ">
-            <td style="vertical-align: top;">
-                <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px; height: 100%;">
-                    <tr>
-                        <td style="width:5%;"></td>
-                        <td style="position: relative; vertical-align: top; width: 20%; height: 100%;">
-                            <div style="position: absolute; top: 0; display: flex; align-items: flex-start; left: -3px; z-index: 10; width: 130px; overflow: hidden;">
-                                <div class="logo" style="position: relative; width: inherit;">
-                                    <span style="position: absolute; top:0; left:0; width: inherit; padding: 20px; box-sizing: border-box; display:inline-block;">
-                                        <img src="<?php echo e(public_path('assets//reports/seqfast-logo.png')); ?>" alt="" style="width: 95px;margin-top: 0px;">
-                                    </span>
-                                    <img src="<?php echo e(public_path('assets//reports/logo-bg.jpg')); ?>" alt="" style="width: 130px;height: 140px;margin-top: -35px;">
-                                </div>
-                            </div>
-                            <img src="<?php echo e(public_path('assets//reports/yellow-dot.png')); ?>" alt="" style="width: 35px;height: 35px;position: relative;left:124px;top: -5px;">
-                        </td>
-                        <td style="width: 50%;">
-                            <div style="padding: 20px 5px 20px 5px;font-weight: 600; font-size: 26px; color:#fff; text-align:center; text-transform: uppercase;">Formative Assessment Report
-                            </div>
-                        </td>
-                        <td style="position: relative; vertical-align: top; width: 20%; height: 100%;">
-                            <img src="<?php echo e(public_path('assets//reports/yellow-dot.png')); ?>" alt="" style="width: 35px;height: 35px;position: relative;top: -5px;">
-                            <div style="position: absolute; top: 0; display: flex; align-items: flex-start; z-index: 10; width: 130px; overflow: hidden;left: 32px;">
-                                <div class="logo" style="position: relative; width: inherit;">
-                                    <span style="position: absolute; top:0; left:0; width: inherit; padding: 20px; box-sizing: border-box; display:inline-block;">
-                                        <img src="<?php echo e(public_path('assets/uploads/logos/' . $school->logo)); ?>" alt="" style="width: 95px;margin-top: 0px;">
-                                    </span>
-                                    <img src="<?php echo e(public_path('assets//reports/logo-bg.jpg')); ?>" alt="" style="width: 130px;height: 140px;margin-top: -35px;">
-                                </div>
-                            </div>
-                        </td>
-                        <td style="width:5%;"></td>
-                    </tr>
-                </table>
+<div class="container">
+    <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px; height: 70px;">
+        <tr style="background-color:#0A87CD;">
+            <td style="width:5%;"></td>
+            <td style="position: relative; vertical-align: top; width: 20%; height:70px;">
+                <div style="position: absolute; top: 0; display: flex; align-items: flex-start; left: -3px; z-index: 10; width: 130px; overflow: hidden;">
+                    <div class="logo" style="position: relative; width: inherit;">
+                        <span style="position: absolute; top:0; left:0; width: inherit; padding: 20px; box-sizing: border-box; display:inline-block;">
+                            <img src="<?php echo e(public_path('assets/reports/seqfast-logo.png')); ?>" alt="" style="width: 95px;margin-top: 0px;">
+                        </span>
+                        <img src="<?php echo e(public_path('assets/reports/logo-bg.jpg')); ?>" alt="" style="width: 130px;height: 140px;margin-top: -35px;">
+                    </div>
+                </div>
+                <img src="<?php echo e(public_path('assets/reports/yellow-dot.png')); ?>" alt="" style="width: 35px;height: 35px;position: relative;left:124px;top: -5px;">
             </td>
+            <td style="width: 50%;">
+                <div style="padding: 20px 5px 20px 5px;font-weight: 600; font-size: 26px; color:#fff; text-align:center; text-transform: uppercase;">Formative Assessment Report
+                </div>
+            </td>
+            <td style="position: relative; vertical-align: top; width: 20%; height:70px;">
+                <img src="<?php echo e(public_path('assets/reports/yellow-dot.png')); ?>" alt="" style="width: 35px;height: 35px;position: relative;top: 0px;">
+                <div style="position: absolute; top: 0; display: flex; align-items: flex-start; z-index: 10; width: 130px; overflow: hidden;left: 32px;">
+                    <div class="logo" style="position: relative; width: inherit;">
+                        <span style="position: absolute; top:0; left:0; width: inherit; padding: 20px; box-sizing: border-box; display:inline-block;">
+                            <img src="<?php echo e(public_path('assets/uploads/logos/' . $school->logo)); ?>" alt="" style="width: 95px;margin-top: 0px;">
+                        </span>
+                        <img src="<?php echo e(public_path('assets/reports/logo-bg.jpg')); ?>" alt="" style="width: 130px;height: 140px;margin-top: -35px;">
+                    </div>
+                </div>
+            </td>
+            <td style="width:5%;"></td>
         </tr>
     </table>
-    <div class="header" >
-        <?php
 
-            use Carbon\Carbon;
-            $dob = Carbon::parse($student->dob); 
-            $formattedDob = $dob->format('d M Y'); // 05 Jul 2019
-            $age = $dob->age;
-                                                                            
-            if (strtolower($student->gender) === 'male') {
-                $gender = 'Boy';
-            } else {
-                $gender = 'Girl';
-            }
-        ?>
-        
+    <br>
+
+    <!-- STUDENT DETAILS -->
+    <?php
+        use Carbon\Carbon;
+        $dob = Carbon::parse($student->dob);
+        $formattedDob = $dob->format('d M Y');
+        $age = $dob->age;
+        $gender = strtolower($student->gender) === 'male' ? 'Boy' : 'Girl';
+    ?>
+
+    <div class="table-wrapper">
         <table class="student-details">
             <tr>
                 <th>Name</th>
@@ -284,94 +234,105 @@
                 <td><?php echo e($school->school_name); ?></td>
             </tr>
         </table>
-    </div>
+    </table>
 
-    <!-- <table cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
-        <td rowspan="2" style="position: relative; vertical-align: top; width: auto; height: 100%;">
-            <img src="https://nep.localhost/public/assets/reports/inner-header2-bg.png" alt="" style="width: 450px; height:auto; position: relative; left:0px; top:0;">
-        </td>
-    </table> -->
-
-    <div class="report-content">
-        <table cellspacing="0" cellpadding="0" style="border-collapse: collapse; margin-bottom: 10px;">
+    <br><br>
+    <div class="table-wrapper">
+        <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0; border-collapse: collapse;">
             <tr>
                 <td style="border-bottom: 3px solid #E60A00;">
-                    <div style="background:#E60A00; float:left; display: inline-flex; align-items: center; color: #fff; font-size: 18px; font-weight: 600; height: 32px;">
-                        <div style="float: left; padding: 1px 0px 0px 10px; margin-bottom: -3px;">P.E. Class Activities & Formative Assessment</div>
-                        <div style="float:left; transform: skew(26deg,0deg); display:inline-block; width: 20px; height: 32px; background: #E60A00; position: relative; right: -10px;"></div>
+                    <div style="align-items: center; color: #fff; font-size: 18px; font-weight: 600; overflow:hidden; height: 30px;">
+                        <div style="float:left; padding: 1px 10px 1px 10px; background: #E60A00; margin-bottom: -3px;">P.E. Class Activities & Formative Assessment</div>
+
+                        <div style="float:left; transform: skew(25deg,0deg); display:inline-block; width: 20px; height: 32px; background: #E60A00; position: relative; right: 10px;"></div>
                     </div>
                 </td>
             </tr>
         </table>
+    </div>
+
+    <br>
+
+    <!-- SKILLS LOOP -->
+    <?php if($getSkills->isEmpty()): ?>
+       <h2 style="text-align:center; padding: 5px 10px; font-size: 20px; margin:0 15px; background-color: #fecd0a;font-size: 16px; font-weight: 600;">There is no skill report data</h2>
+    <?php else: ?>
         <?php $__currentLoopData = $getSkills; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $skillName => $sports): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-            <h2 style="padding: 5px 10px; font-size: 20px; margin:0px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;"><?php echo e($skillName); ?></h2>
+            <div class="skill-title">
+                <?php echo e($skillName); ?>
 
-            <table class="report-table" style="margin-bottom: 30px;">
-                <tr style="background-color: #fecd0a;">
-                    <th>Sport</th>
-                    <th>Activity</th>
-                    <th>Technique</th>
-                    <th class="center" colspan="6">Rating</th>
-                    <th>Observation</th>
-                </tr>
+            </div>
+            <div class="table-wrapper">
+                <table class="report-table">
+                    <tr>
+                        <th width="15%">Sport</th>
+                        <th width="20%">Activity</th>
+                        <th width="15%">Technique</th>
+                        <th width="20%">Rating</th>
+                        <th width="30%">Observation</th>
+                    </tr>
 
-                <?php $__currentLoopData = $sports; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sportName => $activities): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php $__currentLoopData = $sports; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sportName => $activities): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                    <?php $rowCount = $activities->count(); ?>
+                        <?php $rowCount = $activities->count(); ?>
 
-                    <?php $__currentLoopData = $activities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $activity): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <tr>
+                        <?php $__currentLoopData = $activities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $activity): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <tr>
 
-                            <?php if($index == 0): ?>
-                                <td rowspan="<?php echo e($rowCount); ?>" style="font-weight:bold;">
-                                    <?php echo e($sportName); ?>
+                                <?php if($index == 0): ?>
+                                    <td rowspan="<?php echo e($rowCount); ?>">
+                                        <strong><?php echo e($sportName); ?></strong>
+                                    </td>
+                                <?php endif; ?>
 
+                                <td><?php echo e($activity->title); ?></td>
+
+                                <td><?php echo $activity->techniques_name; ?></td>
+
+                                <td class="stars">
+                                    <?php for($i = 0; $i < $activity->rating; $i++): ?>
+                                        <span class="star-filled">&#9733;</span>
+                                    <?php endfor; ?>
+
+                                    <?php for($i = 0; $i < 6 - $activity->rating; $i++): ?>
+                                        <span class="star-empty">&#9734;</span>
+                                    <?php endfor; ?>
                                 </td>
-                            <?php endif; ?>
 
-                            <td><?php echo e($activity->title); ?></td>
+                                <td>Lorem ipsum dolor sit amet.</td>
+                            </tr>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                            <td><?php echo $activity->techniques_name; ?></td>
-
-                            <td colspan="6" class="stars">
-                                <?php for($i = 0; $i < $activity->rating; $i++): ?>
-                                    <span class="star-filled">&#9733;</span>
-                                <?php endfor; ?>
-
-                                <?php for($i = 0; $i < 6 - $activity->rating; $i++): ?>
-                                    <span class="star-empty">&#9734;</span>
-                                <?php endfor; ?>
-                            </td>
-
-                            <td>Lorem ipsum dolor sit amet.</td>
-
-                        </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </table>
+            </div>
 
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-            </table>
+            <br>
 
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+    <?php endif; ?>
 
+    <!-- SIGNATURES -->
+    <div class="signature-footer">
+        <table class="signature-table">
+            <tr>
+                <td width="50%">
+                    <strong>Rashmi Sharma</strong><br>
+                    Director<br>
+                    Sequoia Fitness & Sports Technology
+                </td>
 
+                <td width="50%">
+                    <strong><?php echo e($school->school_principal); ?></strong><br>
+                    Principal<br>
+                    <?php echo e($school->school_name); ?>
+
+                </td>
+            </tr>
+        </table>
     </div>
 
-    <!-- Signatures -->
-    <div class="signatures">
-        <div class="signature-block">
-            <div class="signature-name">Rashmi Sharma</div>
-            <div class="signature-title">Director</div>
-            <div class="signature-org">Sequoia Fitness & Sports Technology</div>
-        </div>
-
-        <div class="signature-block">
-            <div class="signature-name"><?php echo e($school->school_principal); ?></div>
-            <div class="signature-title">Principal</div>
-            <div class="signature-org"><?php echo e($school->school_name); ?></div>
-        </div>
-    </div>
 
 </div>
 </body>

@@ -1263,6 +1263,8 @@ class ReportController extends Controller {
 
 			$fileName = 'Skill_Report_' . $student->student_name . '.pdf';
 
+			return $pdf->stream($fileName);
+
 			return $pdf->download($fileName);
 		}
 

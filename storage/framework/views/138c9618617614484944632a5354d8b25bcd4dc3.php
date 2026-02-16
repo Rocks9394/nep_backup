@@ -35,6 +35,9 @@
             width: 100%;
             max-width: 21cm;
             margin: 0 auto;
+            min-height: 29.7cm;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
@@ -162,6 +165,7 @@
             margin-top: 60px;
             text-align: center;
             padding: 0 25px 25px;
+            margin-top: auto;
         }
 
         .signature-block {
@@ -187,6 +191,7 @@
             padding: 25px;
             display: flex;
             flex-direction: column;
+            flex: 1;
         }
 
         @media  screen {
@@ -303,58 +308,61 @@
                 </td>
             </tr>
         </table>
-        <?php $__currentLoopData = $getSkills; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $skillName => $sports): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <?php if($getSkills->isEmpty()): ?>
+            <h2 style="text-align:center; padding: 5px 10px; font-size: 20px; margin:0px; background-color: #fecd0a;font-size: 16px; font-weight: 600;">There is no skill report data</h2>
+        <?php else: ?>
+            <?php $__currentLoopData = $getSkills; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $skillName => $sports): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-            <h2 style="padding: 5px 10px; font-size: 20px; margin:0px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;"><?php echo e($skillName); ?></h2>
+                <h2 style="padding: 5px 10px; font-size: 20px; margin:0px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;"><?php echo e($skillName); ?></h2>
 
-            <table class="report-table" style="margin-bottom: 30px;">
-                <tr style="background-color: #fecd0a;">
-                    <th>Sport</th>
-                    <th>Activity</th>
-                    <th>Technique</th>
-                    <th class="center" colspan="6">Rating</th>
-                    <th>Observation</th>
-                </tr>
+                <table class="report-table" style="margin-bottom: 30px;">
+                    <tr style="background-color: #fecd0a;">
+                        <th>Sport</th>
+                        <th>Activity</th>
+                        <th>Technique</th>
+                        <th class="center" colspan="6">Rating</th>
+                        <th>Observation</th>
+                    </tr>
 
-                <?php $__currentLoopData = $sports; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sportName => $activities): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php $__currentLoopData = $sports; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sportName => $activities): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                    <?php $rowCount = $activities->count(); ?>
+                        <?php $rowCount = $activities->count(); ?>
 
-                    <?php $__currentLoopData = $activities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $activity): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <tr>
+                        <?php $__currentLoopData = $activities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $activity): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <tr>
 
-                            <?php if($index == 0): ?>
-                                <td rowspan="<?php echo e($rowCount); ?>" style="font-weight:bold;">
-                                    <?php echo e($sportName); ?>
+                                <?php if($index == 0): ?>
+                                    <td rowspan="<?php echo e($rowCount); ?>" style="font-weight:bold;">
+                                        <?php echo e($sportName); ?>
 
+                                    </td>
+                                <?php endif; ?>
+
+                                <td><?php echo e($activity->title); ?></td>
+
+                                <td><?php echo $activity->techniques_name; ?></td>
+
+                                <td colspan="6" class="stars">
+                                    <?php for($i = 0; $i < $activity->rating; $i++): ?>
+                                        <span class="star-filled">&#9733;</span>
+                                    <?php endfor; ?>
+
+                                    <?php for($i = 0; $i < 6 - $activity->rating; $i++): ?>
+                                        <span class="star-empty">&#9734;</span>
+                                    <?php endfor; ?>
                                 </td>
-                            <?php endif; ?>
 
-                            <td><?php echo e($activity->title); ?></td>
+                                <td>Lorem ipsum dolor sit amet.</td>
 
-                            <td><?php echo $activity->techniques_name; ?></td>
+                            </tr>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                            <td colspan="6" class="stars">
-                                <?php for($i = 0; $i < $activity->rating; $i++): ?>
-                                    <span class="star-filled">&#9733;</span>
-                                <?php endfor; ?>
-
-                                <?php for($i = 0; $i < 6 - $activity->rating; $i++): ?>
-                                    <span class="star-empty">&#9734;</span>
-                                <?php endfor; ?>
-                            </td>
-
-                            <td>Lorem ipsum dolor sit amet.</td>
-
-                        </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </table>
 
-            </table>
-
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        <?php endif; ?>
 
     </div>
 

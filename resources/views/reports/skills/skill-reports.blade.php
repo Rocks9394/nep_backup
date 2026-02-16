@@ -35,6 +35,9 @@
             width: 100%;
             max-width: 21cm;
             margin: 0 auto;
+            min-height: 29.7cm;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
@@ -162,6 +165,7 @@
             margin-top: 60px;
             text-align: center;
             padding: 0 25px 25px;
+            margin-top: auto;
         }
 
         .signature-block {
@@ -187,6 +191,7 @@
             padding: 25px;
             display: flex;
             flex-direction: column;
+            flex: 1;
         }
 
         @media screen {
@@ -303,57 +308,60 @@
                 </td>
             </tr>
         </table>
-        @foreach ($getSkills as $skillName => $sports)
+        @if($getSkills->isEmpty())
+            <h2 style="text-align:center; padding: 5px 10px; font-size: 20px; margin:0px; background-color: #fecd0a;font-size: 16px; font-weight: 600;">There is no skill report data</h2>
+        @else
+            @foreach ($getSkills as $skillName => $sports)
 
-            <h2 style="padding: 5px 10px; font-size: 20px; margin:0px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;">{{ $skillName }}</h2>
+                <h2 style="padding: 5px 10px; font-size: 20px; margin:0px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;">{{ $skillName }}</h2>
 
-            <table class="report-table" style="margin-bottom: 30px;">
-                <tr style="background-color: #fecd0a;">
-                    <th>Sport</th>
-                    <th>Activity</th>
-                    <th>Technique</th>
-                    <th class="center" colspan="6">Rating</th>
-                    <th>Observation</th>
-                </tr>
+                <table class="report-table" style="margin-bottom: 30px;">
+                    <tr style="background-color: #fecd0a;">
+                        <th>Sport</th>
+                        <th>Activity</th>
+                        <th>Technique</th>
+                        <th class="center" colspan="6">Rating</th>
+                        <th>Observation</th>
+                    </tr>
 
-                @foreach ($sports as $sportName => $activities)
+                    @foreach ($sports as $sportName => $activities)
 
-                    @php $rowCount = $activities->count(); @endphp
+                        @php $rowCount = $activities->count(); @endphp
 
-                    @foreach ($activities as $index => $activity)
-                        <tr>
+                        @foreach ($activities as $index => $activity)
+                            <tr>
 
-                            @if ($index == 0)
-                                <td rowspan="{{ $rowCount }}" style="font-weight:bold;">
-                                    {{ $sportName }}
+                                @if ($index == 0)
+                                    <td rowspan="{{ $rowCount }}" style="font-weight:bold;">
+                                        {{ $sportName }}
+                                    </td>
+                                @endif
+
+                                <td>{{ $activity->title }}</td>
+
+                                <td>{!! $activity->techniques_name !!}</td>
+
+                                <td colspan="6" class="stars">
+                                    @for($i = 0; $i < $activity->rating; $i++)
+                                        <span class="star-filled">&#9733;</span>
+                                    @endfor
+
+                                    @for($i = 0; $i < 6 - $activity->rating; $i++)
+                                        <span class="star-empty">&#9734;</span>
+                                    @endfor
                                 </td>
-                            @endif
 
-                            <td>{{ $activity->title }}</td>
+                                <td>Lorem ipsum dolor sit amet.</td>
 
-                            <td>{!! $activity->techniques_name !!}</td>
+                            </tr>
+                        @endforeach
 
-                            <td colspan="6" class="stars">
-                                @for($i = 0; $i < $activity->rating; $i++)
-                                    <span class="star-filled">&#9733;</span>
-                                @endfor
-
-                                @for($i = 0; $i < 6 - $activity->rating; $i++)
-                                    <span class="star-empty">&#9734;</span>
-                                @endfor
-                            </td>
-
-                            <td>Lorem ipsum dolor sit amet.</td>
-
-                        </tr>
                     @endforeach
 
-                @endforeach
+                </table>
 
-            </table>
-
-        @endforeach
-
+            @endforeach
+        @endif
 
     </div>
 
