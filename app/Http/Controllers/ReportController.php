@@ -1214,6 +1214,102 @@ class ReportController extends Controller {
 			->where('students.id', $studentId)
 			->first();
 
+		$getReportData = DB::table('reports')
+			->select(
+				'reports.skill_area_id',
+				'skillareas.name as skillname',
+
+				'reports.skill_sports_id',
+				'sports.name as sportsskillname',
+
+				'activity.title',
+				'activity.learning_outcomes',
+
+				'techniques.name as techniques_name',
+
+				'levels.level_name',
+				'levels.orders as rating',
+				'levels.description as descriptions'
+			)
+			->join('skillareas', 'skillareas.id', '=', 'reports.skill_area_id')
+			->join('sports', 'sports.id', '=', 'reports.skill_sports_id')
+			->join('activity', 'activity.id', '=', 'reports.activity_id')
+			->join('techniques', 'techniques.id', '=', 'reports.technique_id')
+			->join('levels', 'levels.id', '=', 'reports.level')
+			->where('reports.student_id', $studentId)
+			->whereBetween('reports.date', [
+				$termRange->term_start_date,
+				$termRange->term_end_date
+			])
+			->orderBy('skillareas.name')
+			->orderBy('sports.name')
+			->get();
+
+			$getSkills = $getReportData
+			->groupBy('skillname') // First level
+			->map(function ($skillGroup) {
+				return $skillGroup->groupBy('sportsskillname'); // Second level
+			});
+
+
+
+		// echo"<pre>";print_r($getSkills);exit();
+
+		$data = compact('student', 'school', 'getReportData', 'getSkills', 'termId');
+
+		if ($request->boolean('download')) {
+
+			$pdf = Pdf::loadView('reports.skills.skill-reports-pdf', $data);
+
+			$fileName = 'Skill_Report_' . $student->student_name . '.pdf';
+
+			return $pdf->download($fileName);
+		}
+
+		return view('reports.skills.skill-reports', $data);
+	}
+
+	public function ViewSkillReport_bk(Request $request){
+
+		$userId = Auth::id();
+
+		if ($request->id) {
+			$studentId = Crypt::decryptString($request->id);
+		} else {
+			$studentId = Auth::guard('sstudent')->user()->id;
+		}
+
+		if(Auth::user()->role_id == 3){
+			if(Session::get('SelectSchoolId')){	
+				$schoolId = Session::get('SelectSchoolId');	
+			}else{
+				$schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
+			}
+		}else{
+			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+		}
+
+		$school = DB::table('schools')->where('id', $schoolId)->first();
+
+		$termId = $request->term_id ?? $this->getTermId($schoolId);
+		$termRange = $this->getTermRange($termId);
+
+		$student = DB::table('students')
+			->join('custom_classes', 'custom_classes.id', '=', 'students.custom_class_id')
+			->join('class', 'class.id', '=', 'students.class_id')
+			->select(
+				'students.student_name',
+				'students.gender',
+				'students.dob',
+				'students.rollno',
+				'students.student_uid',
+				'students.email_id',
+				'class.name as classname',
+				'custom_classes.section'
+			)
+			->where('students.id', $studentId)
+			->first();
+
 		$getReport = DB::table('reports')
 			->select(
 				'skill_sports_id',

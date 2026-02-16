@@ -101,6 +101,7 @@
         .report-table th,
         .report-table td {
             border: 1px solid orange;
+            font-size: 9pt;
             padding: 6px;
         }
 
@@ -124,22 +125,22 @@
 
         .report-table th:nth-child(3),
         .report-table td:nth-child(3) { 
-            width: 20%; 
+            width: 12%; 
         }
 
         .report-table th:nth-child(4),
         .report-table td:nth-child(4) { 
-            width: 12%; 
+            width: 20%; 
         }
 
         .report-table th:nth-child(5),
         .report-table td:nth-child(5) { 
             width: 40%; 
         }
-
-        .report-table td:nth-child(3) {
+        .report-table td.stars {
             text-align: center;
             font-size: 12pt;
+            width: 20%;
         }
 
         .skill-area {
@@ -198,14 +199,13 @@
 
 <body>
 <div class="container" style="width: 21cm; border-collapse: collapse; margin-left: auto; margin-right: auto; font-family: Roboto Condensed, sans-serif; font-size: 12px; border: 0px; background-color: #fff;">
-    <table cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
+    <table cellspacing="0" cellpadding="0" style="border-collapse: collapse; width:100%;">
         <tr style="background-color: #0A87CD; height: 70px; ">
             <td style="vertical-align: top;">
                 <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px; height: 100%;">
                     <tr>
-                        <td style="width:150px;"></td>
-                        <td style="position: relative; vertical-align: top; width: 130px; height: 100%;">
-                            <img src="{{ asset('/public/assets/reports/yellow-dot.png')}}" alt="" style="width: 35px;height: 35px;position: relative;left:-30px;top: -5px;">
+                        <td style="width:10%;"></td>
+                        <td style="position: relative; vertical-align: top; width: 20%; height: 100%;">
                             <div style="position: absolute; top: 0; display: flex; align-items: flex-start; z-index: 10; width: 130px; overflow: hidden;">
                                 <div class="logo" style="position: relative; width: inherit;">
                                     <span style="position: absolute; top:0; left:0; width: inherit; padding: 20px; box-sizing: border-box; display:inline-block;">
@@ -214,11 +214,24 @@
                                     <img src="{{ asset('/public/assets/reports/logo-bg.jpg')}}" alt="" style="width: 130px;height: 140px;margin-top: -35px;">
                                 </div>
                             </div>
+                            <img src="{{ asset('/public/assets/reports/yellow-dot.png')}}" alt="" style="width: 35px;height: 35px;position: relative;left:128px;top: -5px;">
                         </td>
-                        <td style="width: 515px;">
-                            <div style="margin: 20px 15px 15px 30px; font-weight: 600; font-size: 26px; color:#fff; text-transform: uppercase;">P.E. Activities & Skills Report
+                        <td style="width: 40%;">
+                            <div style="margin: 20px 15px 15px 30px; font-weight: 600; font-size: 26px; color:#fff; text-transform: uppercase;">Formative Assessment Report
                             </div>
                         </td>
+                        <td style="position: relative; vertical-align: top; width: 20%; height: 100%;">
+                            <img src="{{ asset('/public/assets/reports/yellow-dot.png')}}" alt="" style="width: 35px;height: 35px;position: relative;left:-30px;top: -5px;">
+                            <div style="position: absolute; top: 0; display: flex; align-items: flex-start; z-index: 10; width: 130px; overflow: hidden;">
+                                <div class="logo" style="position: relative; width: inherit;">
+                                    <span style="position: absolute; top:0; left:0; width: inherit; padding: 20px; box-sizing: border-box; display:inline-block;">
+                                        <img src="{{ asset('public/assets/uploads/logos/' . $school->logo) }}" alt="" style="width: 95px;margin-top: 0px;">
+                                    </span>
+                                    <img src="{{ asset('/public/assets/reports/logo-bg.jpg')}}" alt="" style="width: 130px;height: 140px;margin-top: -35px;">
+                                </div>
+                            </div>
+                        </td>
+                        <td style="width:10%;"></td>
                     </tr>
                 </table>
             </td>
@@ -284,45 +297,43 @@
             <tr>
                 <td style="border-bottom: 3px solid #E60A00;">
                     <div style="background:#E60A00; float:left; display: inline-flex; align-items: center; color: #fff; font-size: 18px; font-weight: 600; height: 32px;">
-                        <div style="float: left; padding: 1px 0px 0px 10px; margin-bottom: -3px;">P.E. Class Activities & Fermative Assessments</div>
+                        <div style="float: left; padding: 1px 0px 0px 10px; margin-bottom: -3px;">P.E. Class Activities & Formative Assessment</div>
                         <div style="float:left; transform: skew(26deg,0deg); display:inline-block; width: 20px; height: 32px; background: #E60A00; position: relative; right: -10px;"></div>
-                    </div>
-                    <div class="logo">
-                        <img src="{{ asset('public/assets/uploads/logos/' . $school->logo) }}"
-                        style="width:110px;float:right;margin: -45px 12px -49px 170px;">
                     </div>
                 </td>
             </tr>
         </table>
-        
-        @foreach ($getReport as $spval)
+        @foreach ($getSkills as $skillName => $sports)
 
-            @php
-                $activities = $getSkills[$spval->skill_sports_id] ?? collect();
-            @endphp
+            <h2 style="padding: 5px 10px; font-size: 20px; margin:0px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;">{{ $skillName }}</h2>
 
-            @if($activities->count() > 0)
-                <h2 style="padding: 5px 10px; font-size: 20px; margin:0px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;">{{ $spval->sportsskillname }}</h2>
-                <table class="report-table" style="margin-bottom: 30px;">
-                    <tr style="background-color: #fecd0a;">
-                        <!-- <th>Skill Area</th> -->
-                        <th>Technique</th>
-                        <th>Activity</th>
-                        <th class="center" colspan="6">Rating</th>
-                        <th>Level</th>
-                        <th>Teacher's Observations</th>
-                    </tr>
+            <table class="report-table" style="margin-bottom: 30px;">
+                <tr style="background-color: #fecd0a;">
+                    <th>Sport</th>
+                    <th>Activity</th>
+                    <th>Technique</th>
+                    <th class="center" colspan="6">Rating</th>
+                    <th>Observation</th>
+                </tr>
 
-                    @foreach($activities as $activity)
+                @foreach ($sports as $sportName => $activities)
+
+                    @php $rowCount = $activities->count(); @endphp
+
+                    @foreach ($activities as $index => $activity)
                         <tr>
-                            <!-- <td class="skill-area">
-                                {{ $spval->sportsskillname }}
-                            </td> -->
 
-                            <td>{!! $activity->techniques_name !!}</td>
+                            @if ($index == 0)
+                                <td rowspan="{{ $rowCount }}" style="font-weight:bold;">
+                                    {{ $sportName }}
+                                </td>
+                            @endif
+
                             <td>{{ $activity->title }}</td>
 
-                            <td colspan="6">
+                            <td>{!! $activity->techniques_name !!}</td>
+
+                            <td colspan="6" class="stars">
                                 @for($i = 0; $i < $activity->rating; $i++)
                                     <span class="star-filled">&#9733;</span>
                                 @endfor
@@ -332,18 +343,18 @@
                                 @endfor
                             </td>
 
-                            <td>{{ $activity->level_name }}</td>
+                            <td>Lorem ipsum dolor sit amet.</td>
 
-                            <td>{!! $activity->descriptions !!}</td>
-                            <!-- <td>Lorem ipsum dolor amet consectetur, adipisicing.</td> -->
                         </tr>
                     @endforeach
 
-                </table>
+                @endforeach
 
-            @endif
+            </table>
 
         @endforeach
+
+
     </div>
 
     <!-- Signatures -->
