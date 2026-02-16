@@ -204,9 +204,9 @@
             <td style="vertical-align: top;">
                 <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px; height: 100%;">
                     <tr>
-                        <td style="width:10%;"></td>
+                        <td style="width:5%;"></td>
                         <td style="position: relative; vertical-align: top; width: 20%; height: 100%;">
-                            <div style="position: absolute; top: 0; display: flex; align-items: flex-start; z-index: 10; width: 130px; overflow: hidden;">
+                            <div style="position: absolute; top: 0; display: flex; align-items: flex-start; left: -3px; z-index: 10; width: 130px; overflow: hidden;">
                                 <div class="logo" style="position: relative; width: inherit;">
                                     <span style="position: absolute; top:0; left:0; width: inherit; padding: 20px; box-sizing: border-box; display:inline-block;">
                                         <img src="{{ asset('/public/assets/reports/seqfast-logo.png')}}" alt="" style="width: 95px;margin-top: 0px;">
@@ -214,15 +214,15 @@
                                     <img src="{{ asset('/public/assets/reports/logo-bg.jpg')}}" alt="" style="width: 130px;height: 140px;margin-top: -35px;">
                                 </div>
                             </div>
-                            <img src="{{ asset('/public/assets/reports/yellow-dot.png')}}" alt="" style="width: 35px;height: 35px;position: relative;left:128px;top: -5px;">
+                            <img src="{{ asset('/public/assets/reports/yellow-dot.png')}}" alt="" style="width: 35px;height: 35px;position: relative;left:124px;top: -5px;">
                         </td>
-                        <td style="width: 40%;">
-                            <div style="margin: 20px 15px 15px 30px; font-weight: 600; font-size: 26px; color:#fff; text-transform: uppercase;">Formative Assessment Report
+                        <td style="width: 50%;">
+                            <div style="padding: 20px 5px 20px 5px;font-weight: 600; font-size: 26px; color:#fff; text-align:center; text-transform: uppercase;">Formative Assessment Report
                             </div>
                         </td>
                         <td style="position: relative; vertical-align: top; width: 20%; height: 100%;">
-                            <img src="{{ asset('/public/assets/reports/yellow-dot.png')}}" alt="" style="width: 35px;height: 35px;position: relative;left:-30px;top: -5px;">
-                            <div style="position: absolute; top: 0; display: flex; align-items: flex-start; z-index: 10; width: 130px; overflow: hidden;">
+                            <img src="{{ asset('/public/assets/reports/yellow-dot.png')}}" alt="" style="width: 35px;height: 35px;position: relative;top: -5px;">
+                            <div style="position: absolute; top: 0; display: flex; align-items: flex-start; z-index: 10; width: 130px; overflow: hidden;left: 32px;">
                                 <div class="logo" style="position: relative; width: inherit;">
                                     <span style="position: absolute; top:0; left:0; width: inherit; padding: 20px; box-sizing: border-box; display:inline-block;">
                                         <img src="{{ asset('public/assets/uploads/logos/' . $school->logo) }}" alt="" style="width: 95px;margin-top: 0px;">
@@ -231,7 +231,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td style="width:10%;"></td>
+                        <td style="width:5%;"></td>
                     </tr>
                 </table>
             </td>
