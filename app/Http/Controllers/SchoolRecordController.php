@@ -87,7 +87,7 @@ class SchoolRecordController extends Controller
 			$studentscount = DB::table('schools')
 			->join('students', 'students.school_id', '=' , 'schools.id') 
 			->where('schools.id', $schoolId)
-			->where('students.status','=', 1)
+			->where('students.status','=', 'active')
 			->count();
 			
 			

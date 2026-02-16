@@ -180,7 +180,7 @@
                 <div style="position: absolute; top: 0; display: flex; align-items: flex-start; z-index: 10; width: 130px; overflow: hidden;left: 32px;">
                     <div class="logo" style="position: relative; width: inherit;">
                         <span style="position: absolute; top:0; left:0; width: inherit; padding: 20px; box-sizing: border-box; display:inline-block;">
-                            <img src="{{ public_path('assets/uploads/logos/' . $school->logo) }}" alt="" style="width: 95px; height: 110px; margin-top: 0px;">
+                            <img src="{{ public_path('assets/uploads/logos/' . $school->logo) }}" alt="" style="width: 95px; height:70px;margin-top: 0px;">
                         </span>
                         <img src="{{ public_path('assets/reports/logo-bg.jpg')}}" alt="" style="width: 130px;height: 140px;margin-top: -35px;">
                     </div>
