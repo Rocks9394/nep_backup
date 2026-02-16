@@ -97,7 +97,6 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 9pt;
-            flex: 1;
             table-layout: fixed;
         }
 
@@ -138,7 +137,7 @@
 
         .report-table th:nth-child(5),
         .report-table td:nth-child(5) { 
-            width: 40%; 
+            width: 35%; 
         }
         .report-table td.stars {
             text-align: center;
@@ -320,7 +319,7 @@
                         <th>Sport</th>
                         <th>Activity</th>
                         <th>Technique</th>
-                        <th class="center" colspan="6">Rating</th>
+                        <th>Rating</th>
                         <th>Observation</th>
                     </tr>
 
@@ -342,7 +341,7 @@
 
                                 <td><?php echo $activity->techniques_name; ?></td>
 
-                                <td colspan="6" class="stars">
+                                <td class="stars">
                                     <?php for($i = 0; $i < $activity->rating; $i++): ?>
                                         <span class="star-filled">&#9733;</span>
                                     <?php endfor; ?>
