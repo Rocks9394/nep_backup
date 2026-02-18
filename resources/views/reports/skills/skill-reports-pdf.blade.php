@@ -119,7 +119,7 @@
 
     .report-table th:nth-child(5),
     .report-table td:nth-child(5) { 
-        width: 35%; 
+        width: 40%; 
     }
     .report-table td.stars {
         text-align: center;

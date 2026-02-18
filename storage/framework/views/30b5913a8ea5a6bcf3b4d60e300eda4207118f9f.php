@@ -1,7 +1,7 @@
 <div>
     <!-- I begin to speak only when I am certain what I will say is not better left unsaid. - Cato the Younger -->
     <div class="form-row my-2">
-            <input type="hidden" id="all_classes" value='@json($classes)'>
+            <input type="hidden" id="all_classes" value='<?php echo json_encode($classes, 15, 512) ?>'>
             <div class="col-12 col-md-4">
                 <div class="form mt-1 mt-md-3">
                     <label for="class_id" class="form-label">Select Class</label>
@@ -9,11 +9,12 @@
                         <select name="class_id" id="class_id" class="form-control">
                         <option value="">-- Select Class --</option>
 
-                            @foreach ($classes as $customcls)
-                        <option value="{{ $customcls->id . '-' . $customcls->class_id.'-'.$customcls->section }}">
-                            {{ $customcls->classname . '-' . $customcls->section}}
+                            <?php $__currentLoopData = $classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customcls): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($customcls->id . '-' . $customcls->class_id.'-'.$customcls->section); ?>">
+                            <?php echo e($customcls->classname . '-' . $customcls->section); ?>
+
                         </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                         </select>
                     </div>
@@ -24,17 +25,17 @@
                 <div class="form mt-1 mt-md-3">
                     <label for="student_id" class="form-label">Select Student</label>
                     <div class="input-group1 mb-3">
-                        <select name="student_id" id="student_id" data-test-type="{{$type}}" class="form-control">
+                        <select name="student_id" id="student_id" data-test-type="<?php echo e($type); ?>" class="form-control">
                             <option value="">-- Select Student --</option>
                         </select>
                     </div>
                 </div>
             </div>     
-            @if(Auth::user()->id == '995')
+            <?php if(Auth::user()->id == '995'): ?>
             <div class="col-4 col-sm-3 col-md-2 col-lg-1">
                 <div class="form mt-1 mt-md-3">
                     <div class="mb-3" style="margin-top:32px;">
-                       <a href="{{ route('scan') }}"
+                       <a href="<?php echo e(route('scan')); ?>"
                             class="btn btn-outline-secondary px-3 ml-0 d-flex justify-content-center align-items-center border-btn"
                             style="gap: 5px" data-toggle="modal" data-target=".bd-scan-modal-lg"><span
                                 class="d-flex"><i class="bi bi-qr-code"></i></span>
@@ -44,7 +45,7 @@
                     </div>
                 </div>
             </div>
-            @endif
+            <?php endif; ?>
 
         </div>
         <div class="row my-2">
@@ -79,7 +80,7 @@
 
 </div>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
     function domReady(fn) {
@@ -151,7 +152,7 @@
                 let skillReportId = $("input[name='skillReportId']").val();
 
                 $.ajax({
-                    url: '{{ route("fetch.student.detail") }}',
+                    url: '<?php echo e(route("fetch.student.detail")); ?>',
                     method: 'GET',
                     data: {
                         student_reg_no: student_reg_no,
@@ -209,7 +210,7 @@
 </script>
 <script>
     $(document).ready(function () {
-       if(localStorage.getItem("selected_class")){
+        if(localStorage.getItem("selected_class")){
             let savedClass = localStorage.getItem("selected_class");
             document.getElementById('class_id').value = savedClass;
             getStudents(savedClass);
@@ -221,6 +222,7 @@
         });
 
         function getStudents(classCustom){
+
             let skillReportId = $("input[name='skillReportId']").val();
             let testType = $('#student_id').data('test-type');
             const testStatus = localStorage.getItem("testStatus");
@@ -237,7 +239,7 @@
             studentDropdown.innerHTML = '<option value="">Loading...</option>';
 
             if (classCustom) {
-                fetch(`{{ route('studentRollNo.autocomplete') }}?class_id=${classCustom}&test_status=${testStatus}&skillReportId=${skillReportId}&testType=${testType}&query=`)
+                fetch(`<?php echo e(route('studentRollNo.autocomplete')); ?>?class_id=${classCustom}&test_status=${testStatus}&skillReportId=${skillReportId}&testType=${testType}&query=`)
                     .then(response => response.json())
                     .then(data => {
                         studentDropdown.innerHTML = '';
@@ -305,7 +307,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: "{{ route('delete-student-test') }}", 
+                        url: "<?php echo e(route('delete-student-test')); ?>", 
                         type: "POST",
                         data: {
                             student_id: response.data.student_id,
@@ -374,7 +376,7 @@
         let [custom_class_id, class_id] = classValue.split('-');
         let testType = $('#student_id').data('test-type');
         $.ajax({
-            url: '{{ route("fetch.student.detail") }}',
+            url: '<?php echo e(route("fetch.student.detail")); ?>',
             method: 'GET',
             data: {
                 class_id: class_id,
@@ -431,4 +433,4 @@
     });
 </script>
 
-@endpush
+<?php $__env->stopPush(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/components/get-student-list.blade.php ENDPATH**/ ?>
