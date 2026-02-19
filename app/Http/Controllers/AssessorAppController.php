@@ -570,16 +570,16 @@ class AssessorAppController extends Controller
 			$Result->save();
 		
 			$BMIValue = round($BMI, 2);
-			$BMIDisplay = $BMIValue. ' kg/m²';
+			$BMIDisplay = $BMIValue. ' kg/m²'; // not in use 
 
 			if($request->input('testtype') === 'seniorbmi') {
 
 				// Need to craete the Method
-				$this->UpdateSeniorTestStatus($alldata['student_id'],$TermMasterId, $alldata['skillReportId'],$BMIDisplay,$alldata['SchoolId'], $alldata['height'], $alldata['weight']);
+				$this->UpdateSeniorTestStatus($alldata['student_id'],$TermMasterId, $alldata['skillReportId'],$BMIValue,$alldata['SchoolId'], $alldata['height'], $alldata['weight']);
 			}
 
 			if($request->input('testtype') === 'juniorbmi') {				
-				$this->UpdateLowerTestStatus($alldata['student_id'], $TermMasterId, $alldata['skillReportId'], $BMIDisplay, $alldata['SchoolId'], $alldata['height'], $alldata['weight']);
+				$this->UpdateLowerTestStatus($alldata['student_id'], $TermMasterId, $alldata['skillReportId'], $BMIValue, $alldata['SchoolId'], $alldata['height'], $alldata['weight']);
 			}
 	
 			$message = $this->TestMessage($alldata['student_id'],$alldata['skillReportId']);
@@ -658,9 +658,8 @@ class AssessorAppController extends Controller
 			$Result->level        = $levels;
 			$Result->save();
 		
-			$score = $alldata['total_number'] .' times';
-			$this->UpdateLowerTestStatus($alldata['student_id'], $TermMasterId, $alldata['skillReportId'], $score , $alldata['SchoolId'], null, null);
-
+			// $score = $alldata['total_number'] .' times';
+			$this->UpdateLowerTestStatus($alldata['student_id'], $TermMasterId, $alldata['skillReportId'], $alldata['total_number'], $alldata['SchoolId'], null, null);
 	
 			$message = $this->TestMessage($alldata['student_id'],$alldata['skillReportId']);
 			return response()->json(['success' => true,'message' => $message]);
@@ -723,9 +722,9 @@ class AssessorAppController extends Controller
 			$Result->level        = $levels;
 			$Result->save();
 
-			$score = $seconds .' Sec';
-			$this->UpdateLowerTestStatus($alldata['student_id'], $TermMasterId, $alldata['skillReportId'], $score , $alldata['SchoolId'], null, null);
-			
+			// $score = $seconds .' Sec';
+			$this->UpdateLowerTestStatus($alldata['student_id'], $TermMasterId, $alldata['skillReportId'], $alldata['total_miliseconds'] , $alldata['SchoolId'], null, null);
+	
 			$message = $this->TestMessage($alldata['student_id'],$alldata['skillReportId']);
 			return response()->json(['success' => true,'message' => $message]);
 			
@@ -792,8 +791,8 @@ class AssessorAppController extends Controller
 				$Result->save();
 
 
-				$score = $studentTimeInSec .' Sec';
-				$this->UpdateSeniorTestStatus($studentId,$TermMasterId, $alldata['skillReportId'],$score,$alldata['SchoolId'], null, null);
+				// $score = $studentTimeInSec .' Sec';
+				$this->UpdateSeniorTestStatus($studentId,$TermMasterId, $alldata['skillReportId'],$studentTime,$alldata['SchoolId'], null, null);
 				$messages[] = $this->TestMessage($studentId, $alldata['skillReportId']);
 			}
 
@@ -808,8 +807,7 @@ class AssessorAppController extends Controller
 	}
 
 
-    public function SubmitPushUpRecord(Request $request)
-	{
+    public function SubmitPushUpRecord(Request $request){
 		
 		$alldata = $request->all();
 		$userId  = \Auth::id();
@@ -851,8 +849,8 @@ class AssessorAppController extends Controller
 			$Result->level        = $levels;
 			$Result->save();
 		
-			$score = $alldata['total_push_up'] .' times'; 	
-			$this->UpdateSeniorTestStatus($alldata['student_id'],$TermMasterId, $alldata['skillReportId'], $score ,$alldata['SchoolId'], null, null);
+			// $score = $alldata['total_push_up'] .' times'; 	
+			$this->UpdateSeniorTestStatus($alldata['student_id'],$TermMasterId, $alldata['skillReportId'], $alldata['total_push_up'], $alldata['SchoolId'], null, null);
 
 			$message = $this->TestMessage($alldata['student_id'],$alldata['skillReportId']);
 			return response()->json(['success' => true,'message' => $message]);
@@ -910,8 +908,8 @@ class AssessorAppController extends Controller
 			$Result->level        = $levels;
 			$Result->save();
 		
-			$score = $alldata['count_total_number'] .' times';
-			$this->UpdateSeniorTestStatus($alldata['student_id'],$TermMasterId, $alldata['skillReportId'], $score,$alldata['SchoolId'], null, null);
+			// $score = $alldata['count_total_number'] .' times';
+			$this->UpdateSeniorTestStatus($alldata['student_id'],$TermMasterId, $alldata['skillReportId'], $alldata['count_total_number'], $alldata['SchoolId'], null, null);
 
 			$message = $this->TestMessage($alldata['student_id'],$alldata['skillReportId']);
 			return response()->json(['success' => true,'message' => $message]);
@@ -923,8 +921,7 @@ class AssessorAppController extends Controller
 	}
 	
 	
-	public function SubmitSitAndReachRecord(Request $request)
-	{
+	public function SubmitSitAndReachRecord(Request $request){
 		
 		$alldata = $request->all();
 		$userId  = \Auth::id();
@@ -970,8 +967,8 @@ class AssessorAppController extends Controller
 			$Result->level        = $levels;
 			$Result->save();
 				
-			$score = $studentScore .' cm';
-			$this->UpdateSeniorTestStatus($alldata['student_id'],$TermMasterId, $alldata['skillReportId'], $score,$alldata['SchoolId'], null, null);
+			// $score = $studentScore .' cm';
+			$this->UpdateSeniorTestStatus($alldata['student_id'],$TermMasterId, $alldata['skillReportId'], $alldata['result'], $alldata['SchoolId'], null, null);
 
 			$message = $this->TestMessage($alldata['student_id'],$alldata['skillReportId']);
 			return response()->json(['success' => true,'message' => $message]);
@@ -2217,11 +2214,11 @@ class AssessorAppController extends Controller
         $log = TestImportLog::findOrFail($logId);
 	    $filePath = $log->file_path; 
 
-	    if (!$filePath || !Storage::disk('azure')->exists($filePath)) {
+	    if (!$filePath || !Storage::disk('local')->exists($filePath)) {
 	        abort(404, 'File not found.');
 	    }
 
-	    return Storage::disk('azure')->download( $filePath, basename($filePath),
+	    return Storage::disk('local')->download( $filePath, basename($filePath),
 	        ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
 	    );
     }

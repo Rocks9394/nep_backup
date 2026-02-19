@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\ReportBatch;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use DB;
 
 class CleanupExpiredReportBatches extends Command
 {

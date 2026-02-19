@@ -1,70 +1,65 @@
-<div>
-    <!-- I begin to speak only when I am certain what I will say is not better left unsaid. - Cato the Younger -->
-    <div class="form-row my-2">
-            <input type="hidden" id="all_classes" value='<?php echo json_encode($classes, 15, 512) ?>'>
-            <div class="col-12 col-md-4">
-                <div class="form mt-1 mt-md-3">
-                    <label for="class_id" class="form-label">Select Class</label>
-                    <div class="input-group1 mb-3">
-                        <select name="class_id" id="class_id" class="form-control">
-                        <option value="">-- Select Class --</option>
+<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
 
-                            <?php $__currentLoopData = $classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customcls): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <option value="<?php echo e($customcls->id . '-' . $customcls->class_id.'-'.$customcls->section); ?>">
-                            <?php echo e($customcls->classname . '-' . $customcls->section); ?>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                style="left:20px; z-index:5; background:#fff;">
+                <span aria-hidden="true">&times;</span>
+            </button>
 
-                        </option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            <div class="form-row my-2 p-5">
+                
+                <div class="col-12 col-md-4">
+                    <div class="form mt-1 mt-md-3">
+                        <label for="class_id" class="form-label">Select Class</label>
+                        <div class="input-group mb-3">
+                            <select name="class_id" id="class_id" class="form-control">
+                            <option value="">-- Select Class --</option>
 
-                        </select>
+                                <?php $__currentLoopData = $classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customcls): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($customcls->id . '-' . $customcls->class_id.'-'.$customcls->section); ?>">
+                                <?php echo e($customcls->classname . '-' . $customcls->section); ?>
+
+                            </option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                            </select>
+                        </div>
                     </div>
                 </div>
+
+                <div class="col-12 col-md-8">
+                    <div class="form mt-1 mt-md-3">
+                        <label for="student_id" class="form-label">Select Student</label>
+                        <div class="input-group mb-3">
+                            <select name="student_id" id="student_id" data-grade="speed" data-test-type="fitnessTest" class="form-control">
+                                <option value="">-- Select Student --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>  
+                <?php if(Auth::user()->id==995): ?>
+                <div class="col-4 col-sm-3 col-md-2 col-lg-1">
+                    <div class="form mt-1 mt-md-3">
+                        <div class="mb-3" style="margin-top:32px;">
+                        <a href="<?php echo e(route('scan')); ?>"
+                                class="btn btn-outline-secondary px-3 ml-0 d-flex justify-content-center align-items-center border-btn"
+                                style="gap: 5px" data-toggle="modal" data-target=".bd-scan-modal-lg"><span
+                                    class="d-flex"><i class="bi bi-qr-code"></i></span>
+                                <span>Scan</span>
+                            </a>
+
+                        </div>
+                    </div>
+                </div>       
+                <?php endif; ?>
             </div>
-
-            <div class="col-12 col-md-8">
-                <div class="form mt-1 mt-md-3">
-                    <label for="student_id" class="form-label">Select Student</label>
-                    <div class="input-group1 mb-3">
-                        <select name="student_id" id="student_id" data-test-type="<?php echo e($type); ?>" class="form-control">
-                            <option value="">-- Select Student --</option>
-                        </select>
-                    </div>
-                </div>
-            </div>     
-            <?php if(Auth::user()->id == '995'): ?>
-            <div class="col-4 col-sm-3 col-md-2 col-lg-1">
-                <div class="form mt-1 mt-md-3">
-                    <div class="mb-3" style="margin-top:32px;">
-                       <a href="<?php echo e(route('scan')); ?>"
-                            class="btn btn-outline-secondary px-3 ml-0 d-flex justify-content-center align-items-center border-btn"
-                            style="gap: 5px" data-toggle="modal" data-target=".bd-scan-modal-lg"><span
-                                class="d-flex"><i class="bi bi-qr-code"></i></span>
-                            <span>Scan</span>
-                        </a>
-
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
 
         </div>
-        <div class="row my-2">
-            <div class="col-12">
-                <div class="card alert alert-warning border-0" style="box-shadow: none; min-height:auto;">
-                    <div class="student-details p-0">
-                        <div class="__details">
-                            <p><span class="h6" id="student_name">Student Name </span>&nbsp;|&nbsp;<span
-                                    id="student_registration_no"> Registration Number: </span> </p>
-                            <p><span id="student_class"> Class</span>&nbsp;|&nbsp;Roll No: <span
-                                    id="student_roll_no"></span></p>
-                        </div>                    
-                    </div>
-                </div>
-            </div>
-        </div>
+    </div>
+
 </div>
-
-
 <div class="modal fade bd-scan-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
     aria-hidden="true" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-lg">
@@ -80,8 +75,10 @@
 
 </div>
 
+
 <?php $__env->startPush('scripts'); ?>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
 <script>
     function domReady(fn) {
         if (document.readyState === "complete" || document.readyState === "interactive") {
@@ -92,9 +89,11 @@
     }
     let htmlscanner; 
     let testType = '';
+
     domReady(function () {
         
         $('.bd-scan-modal-lg').on('shown.bs.modal', function () {
+        console.log("hello");
             testType = $('#student_id').data('test-type');
             if (!htmlscanner) {
                 htmlscanner = new Html5QrcodeScanner( "my-qr-reader", { fps: 10, qrbos: 240 } );
@@ -117,25 +116,14 @@
             const match = decodeText.match(/Goforfit Id\s*:\s*([A-Z0-9]+)/i);
             return match ? match[1] : null;
         }
-
         function onScanSuccess(decodeText, decodeResult) {
-            let allClasses = $('#all_classes').val(); 
-            let parsedClasses = [];
-            let studentDropdown = document.getElementById('student_id');
-
-            try {
-                parsedClasses = JSON.parse(allClasses);
-            } catch (e) {
-                console.error("Invalid classes JSON", e);
-            }
-
             if (!htmlscanner || typeof htmlscanner.clear !== 'function') {
                 console.warn('Scanner not initialized');
                 return;
             }
             htmlscanner.clear().then(() => {
                 $('.bd-scan-modal-lg').modal('hide');
-                submitLoader();
+                // submitLoader();
 
                 const student_reg_no = extractUserId(decodeText);
 
@@ -158,8 +146,7 @@
                         student_reg_no: student_reg_no,
                         skillReportId: skillReportId,
                         testType: testType,
-                        school_id: school_id,                        
-                        scan_classes: parsedClasses 
+                        school_id: school_id
                     },
                     success: function(response) {
                         Swal.close();
@@ -172,18 +159,39 @@
                             return;
                         }
                         const studentData = response.data;
-                        
-                        studentDropdown.innerHTML = '<option value="">-- Select Student --</option>';
+
                         if (studentData.test_already_given === true) {
                             clearExistingRecords(response, skillReportId, school_id, response.data.class_name, testType);
                             return;
-                        }                                                       
-                        $('#student_name').text(response.data.name);
-                        $('#student_class').text(response.data.class_name);
-                        $('#student_registration_no').text(response.data.student_registration_no);
-                        $('#selected_student_id').val(response.data.student_id);
-                        $('#student_roll_no').text(response.data.student_roll_no);
-                        $('#AGE_GENDER_ID').attr('placeholder', response.data.Age+ '/' + response.data.Gender);
+                        }
+                        const studentId = response.data.student_id;
+                        stdArray = toggleValue(stdArray, studentId, selectedRank);
+
+                        const existingStudent = document.querySelector(`.student-id[value="${studentId}"]`);
+                        if (existingStudent) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Student Already Selected',
+                                text: 'This student has already been assigned to another rank.',
+                                confirmButtonText: 'OK'
+                            });
+                            return;
+                        }
+
+                        if (selectedRank) { // only update the current lane
+                            let li = $(`#laneList li[data-rank='${selectedRank}']`);
+                            li.find('.student-name').text(response.data.name);
+                            li.find('.student-class').text(response.data.class_name);                        
+                            li.find('.student_roll_no').text(response.data.student_roll_no);
+                            li.find('.student-reg').text(response.data.student_registration_no);
+                            li.find('.student-id').val(response.data.student_id);
+                            localStorage.setItem(studentli, JSON.stringify(stdArray));
+                            $('#class_id').trigger('change');
+
+                        }
+
+                        $('.bd-example-modal-lg').modal('hide');                        
+                        selectedRank = null;
                     },
                     error: function(xhr, status, error) {
                         Swal.close();
@@ -191,7 +199,7 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Request Failed',
-                            text:error
+                            text: 'Not authorized to take test for this student'
                         });
                     }
                 });
@@ -205,23 +213,15 @@
                 });
             });
         }
-    });
+    });  
 
 </script>
 <script>
+    let stdArray = [];
+    const studentli = "selected_student";
     $(document).ready(function () {
-       if(localStorage.getItem("selected_class")){
-            let savedClass = localStorage.getItem("selected_class");
-            document.getElementById('class_id').value = savedClass;
-            getStudents(savedClass);
-        }
         $('#class_id').on('change', function () {
-            let classCustom = this.value;
-            localStorage.setItem('selected_class',classCustom);
-            getStudents(classCustom);
-        });
-
-        function getStudents(classCustom){
+            let classCustom = this.value;       
             let skillReportId = $("input[name='skillReportId']").val();
             let testType = $('#student_id').data('test-type');
             const testStatus = localStorage.getItem("testStatus");
@@ -277,6 +277,7 @@
                             });
                         }
                         else {
+                            $('#class_id option[value="'+classCustom+'"]').hide(); 
                             studentDropdown.innerHTML = '<option value="">No students found in the selected class</option>';
                         }
                     })
@@ -286,7 +287,7 @@
             } else {
                 studentDropdown.innerHTML = '<option value="">-- Select Class First --</option>';
             }
-        };
+        });
 
         window.clearExistingRecords = function(response, skillReportId, school_id, class_id, testType) {
             const selectElement = document.getElementById('student_id');
@@ -341,6 +342,23 @@
                                 $('#selected_student_id').val(response.data.student_id);
                                 $('#student_roll_no').text(response.data.student_roll_no);
                                 $('#AGE_GENDER_ID').attr('placeholder', response.data.Age+ '/' + response.data.Gender);
+                                
+                                if (selectedRank) {
+                                    const studentId = response.data.student_id;
+                                    stdArray = toggleValue(stdArray, studentId, selectedRank);
+
+                                     let li = $(`#laneList li[data-rank='${selectedRank}']`);
+                                    li.find('.student-name').text(response.data.name);
+                                    li.find('.student-class').text(response.data.class_name);                        
+                                    li.find('.student_roll_no').text(response.data.student_roll_no);
+                                    li.find('.student-reg').text(response.data.student_registration_no);
+                                    li.find('.student-id').val(response.data.student_id);
+                                    localStorage.setItem(studentli, JSON.stringify(stdArray));
+                                    $('#class_id').trigger('change');
+                                }
+                                    $('#class_id').trigger('change');
+                                    $('.bd-example-modal-lg').modal('hide'); 
+                                    selectedRank = null;
                                 }); 
                                 
 
@@ -353,7 +371,7 @@
                     $('#class_id').trigger('change');
                 }
             });
-        };
+        };        
 
     });
 
@@ -369,6 +387,7 @@
         
         // for 50m dash and 600m speed 
         const selectElement = document.getElementById('student_id');
+        const grade = selectElement.getAttribute('data-grade');
         const selectedStudent = selectElement.options[selectElement.selectedIndex];
         const studentId = selectedStudent.getAttribute('data-id');
 
@@ -400,6 +419,7 @@
                 });
             },
 
+
             success: function(response) {
 
                 Swal.close();
@@ -410,14 +430,49 @@
                         clearExistingRecords(response, skillReportId,school_id, class_id, testType);
                         return; 
                     }
-                        
-                    $('#student_name').text(response.data.name);
-                    $('#student_class').text(response.data.class_name);
-                    $('#student_registration_no').text(response.data.student_registration_no);
-                    $('#selected_student_id').val(response.data.student_id);
-                    $('#student_roll_no').text(response.data.student_roll_no);
-                    $('#AGE_GENDER_ID').attr('placeholder', response.data.Age+ '/' + response.data.Gender);
                     
+                    if(grade=="speed"){
+
+                        const studentId = response.data.student_id;
+                        stdArray = toggleValue(stdArray, studentId, selectedRank);
+
+                        const existingStudent = document.querySelector(`.student-id[value="${studentId}"]`);
+                        if (existingStudent) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Student Already Selected',
+                                text: 'This student has already been assigned to another rank.',
+                                confirmButtonText: 'OK'
+                            });
+                            return;
+                        }
+
+                        if (selectedRank) { // only update the current lane
+                            let li = $(`#laneList li[data-rank='${selectedRank}']`);
+                            li.find('.student-name').text(response.data.name);
+                            li.find('.student-class').text(response.data.class_name);                        
+                            li.find('.student_roll_no').text(response.data.student_roll_no);
+                            li.find('.student-reg').text(response.data.student_registration_no);
+                            li.find('.student-id').val(response.data.student_id);
+                            localStorage.setItem(studentli, JSON.stringify(stdArray));
+                            $('#class_id').trigger('change');
+
+                        }
+
+                        $('.bd-example-modal-lg').modal('hide');
+                        document.getElementById('student_id').innerHTML = '<option value="">--Selected Students --</option>';                        
+                        selectedRank = null;
+
+                    }else{                        
+                        $('#student_name').text(response.data.name);
+                        $('#student_class').text(response.data.class_name);
+                        $('#student_registration_no').text(response.data.student_registration_no);
+                        $('#selected_student_id').val(response.data.student_id);
+                        $('#student_roll_no').text(response.data.student_roll_no);
+                        $('#AGE_GENDER_ID').attr('placeholder', response.data.Age+ '/' + response.data.Gender);
+                    }
+
+
                 } else {
 
                     // showMessages('info', 'Student not found', response.message);
@@ -430,6 +485,16 @@
         });
         
     });
+
+    function toggleValue(arr, studentId, selectedRank) {
+        arr = arr.filter(item => item.studentId !== studentId);
+        arr = arr.filter(item => item.selectedRank !== selectedRank);
+        arr.push({selectedRank, studentId});
+        
+        return arr;
+    }
 </script>
 
-<?php $__env->stopPush(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/components/get-student-list.blade.php ENDPATH**/ ?>
+<?php $__env->stopPush(); ?>
+
+<?php /**PATH C:\xampp\htdocs\nep\resources\views/components/speed-get-students.blade.php ENDPATH**/ ?>

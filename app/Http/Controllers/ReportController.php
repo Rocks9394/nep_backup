@@ -540,7 +540,9 @@ class ReportController extends Controller {
 	            )
 			    ->whereIn('class.id', $higherClass)		
 				->where('s.status', 'active')      
-		        ->where('s.school_code', $school->school_code);
+		        ->where('s.school_code', $school->school_code)
+				->orderBy('s.class_id')
+				->orderBy('s.section_id');
 		      
 
 			if ($request->input('class')) {
@@ -596,6 +598,7 @@ class ReportController extends Controller {
 	            $sortableColumns = [
 	                'class_name'     => DB::raw("display_classname"),
 	                'student_name'   => 's.student_name',
+	                'rollno'		 => 's.rollno',
 					'age'   		 => 's.dob',
 	                'sit_and_reach'  => 'r.sit_and_reach',
 	                'run_600m'       => 'r.run_600m',
@@ -634,11 +637,25 @@ class ReportController extends Controller {
 					'invalid_age' => $isValid ? 0 : 1, 
 	           		'class_name' => $item->display_classname.'-'. $item->section,
 	           		'rollno' => $item->rollno ?? 'N.A.',
-	                'sit_and_reach' => $item->sit_and_reach ?? '---',
-	                'run_600m' => $item->run_600m ?? '---',
-	                'pushups' => $item->pushups ?? '---',
-	                'dash_50m' => $item->dash_50m ?? '---',
-	                'curlup' => $item->curlup ?? '---',
+	                'sit_and_reach' => isset($item->sit_and_reach) ? (int)$item->sit_and_reach / 10 : '---',
+	                'run_600m' => is_numeric($item->run_600m)
+									? sprintf(
+										'%02d:%02d.%02d',
+										floor((int)$item->run_600m / 60000),
+										floor(((int)$item->run_600m % 60000) / 1000),
+										floor(((int)$item->run_600m % 1000) / 10)
+									)
+									: '---',
+	                'pushups' => isset($item->pushups) ? (int)$item->pushups : '---',
+	                'dash_50m' => is_numeric($item->dash_50m)
+									? sprintf(
+										'%02d:%02d.%02d',
+										floor((int)$item->dash_50m / 60000),
+										floor(((int)$item->dash_50m % 60000) / 1000),
+										floor(((int)$item->dash_50m % 1000) / 10)
+									)
+									: '---',
+	                'curlup' => isset($item->curlup) ? (int)$item->curlup : '---',
 	                'bmi' => $item->bmi ?? '---',
 	                'height' => $item->height ?? '---',
 	                'weight' => $item->weight ?? '---',	                
@@ -777,7 +794,9 @@ class ReportController extends Controller {
 	                            ELSE class.name 
 	                         END AS display_classname"),
 	                'custom_classes.section'
-	            );
+	            )
+				->orderBy('s.class_id')
+				->orderBy('s.section_id');
 
 	        if ($request->filled('class')) {
 	            [$class_id, $section_id] = explode('-', $request->input('class'));
@@ -937,8 +956,15 @@ class ReportController extends Controller {
 	                'dribbling_hands' => $item->dribbling_hands ?? '---',
 	                'dribbling_feet'  => $item->dribbling_feet ?? '---',
 	                'kicking_ball'    => $item->kicking_ball ?? '---',
-	                'flamingo_balance' => $item->flamingo_balance ?? '---',
-	                'plate_tapping'   => $item->plate_tapping ?? '---',
+	                'flamingo_balance' => isset($item->flamingo_balance) ? (int)$item->flamingo_balance : '---',
+	                'plate_tapping'   => is_numeric($item->plate_tapping)
+										? sprintf(
+											'%02d:%02d.%02d',
+											floor((int)$item->plate_tapping / 60000),
+											floor(((int)$item->plate_tapping % 60000) / 1000),
+											floor(((int)$item->plate_tapping % 1000) / 10)
+										)
+										: '---',
 	                'bmi'             => $item->bmi ?? '---',
 	                'height'          => $item->height ?? '---',
 	                'weight'          => $item->weight ?? '---',

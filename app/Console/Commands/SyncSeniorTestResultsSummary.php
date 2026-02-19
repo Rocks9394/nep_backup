@@ -14,7 +14,7 @@ class SyncSeniorTestResultsSummary extends Command
     public function handle()
     {
         DB::statement("
-            INSERT INTO SeniorTestResultsSummary_bkup ( 
+            INSERT INTO SeniorTestResultsSummary ( 
                 school_id,
                 student_id,
                 term_id,
@@ -37,7 +37,7 @@ class SyncSeniorTestResultsSummary extends Command
                 -- Sit & Reach (TestTypeID = 22)
                 MAX(CASE 
                     WHEN r.TestTypeID = 22
-                    THEN CONCAT(r.Score, ' cm') 
+                    THEN r.Score 
                 END),
 
                 -- Run 600m (TestTypeID = 20)
@@ -49,25 +49,25 @@ class SyncSeniorTestResultsSummary extends Command
                 -- Pushups (TestTypeID = 23)
                 MAX(CASE 
                     WHEN r.TestTypeID = 23 
-                    THEN CONCAT(r.Score, ' times') 
+                    THEN r.Score 
                 END),
 
                 -- Dash 50m (TestTypeID = 19)
                 MAX(CASE 
                     WHEN r.TestTypeID = 19 
-                    THEN CONCAT(r.Score, ' sec') 
+                    THEN r.Score 
                 END),
 
                 -- Curlup (TestTypeID = 21)
                 MAX(CASE 
                     WHEN r.TestTypeID = 21 
-                    THEN CONCAT(r.Score, ' times') 
+                    THEN r.Score 
                 END),
 
                 -- BMI (derived)
                 MAX(CASE 
                     WHEN r.TestTypeID = 18
-                    THEN CONCAT(r.Score, ' kg/m²') 
+                    THEN r.Score 
                 END),
 
                 -- Height
@@ -100,6 +100,6 @@ class SyncSeniorTestResultsSummary extends Command
                 updated_at   = NOW()
         ");
 
-        $this->info('SeniorTestResultsSummary synchronized successfully ');
+        $this->info('SeniorTestResultsSummary synchronized successfully.');
     }
 }

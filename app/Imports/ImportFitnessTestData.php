@@ -134,7 +134,7 @@ class ImportFitnessTestData implements ToCollection, WithHeadingRow, WithChunkRe
 
                     $data['height'] = $height;
                     $data['weight'] = $weight;
-                    $data['Score']  = $score;
+                    $data['Score']  = round($score, 2);
                     $data['level']  = $result->level_code;
                 }
 
