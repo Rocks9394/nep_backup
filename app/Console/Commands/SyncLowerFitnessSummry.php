@@ -20,6 +20,9 @@ class SyncLowerFitnessSummry extends Command
                 school_id,
                 flamingo_balance,
                 plate_tapping,
+                bmi,
+                height,
+                weight,
                 created_at,
                 updated_at
             )
@@ -39,15 +42,40 @@ class SyncLowerFitnessSummry extends Command
                     THEN r.Score 
                 END),
 
+                -- BMI (derived)
+                MAX(CASE 
+                    WHEN r.TestTypeID = 18
+                    THEN r.Score 
+                END),
+
+                -- Height
+                MAX(CASE 
+                    WHEN r.height IS NOT NULL 
+                    THEN CONCAT(r.height, ' cm') 
+                END),
+
+                -- Weight
+                MAX(CASE 
+                    WHEN r.weight IS NOT NULL 
+                    THEN CONCAT(r.weight, ' kg') 
+                END),
+
                 NOW(),
                 NOW()
 
             FROM SeniorTestResults r
+
+            INNER JOIN students s ON s.id = r.StudentID
+            WHERE s.class_id BETWEEN 1 AND 3
+
             GROUP BY r.SchoolID, r.StudentID, r.TermId
 
             ON DUPLICATE KEY UPDATE
                 flamingo_balance = VALUES(flamingo_balance),                
                 plate_tapping = VALUES(plate_tapping),
+                bmi          = VALUES(bmi),
+                height       = VALUES(height),
+                weight       = VALUES(weight),
                 updated_at   = NOW()
         ");
 

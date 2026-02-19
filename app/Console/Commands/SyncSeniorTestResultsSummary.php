@@ -86,6 +86,10 @@ class SyncSeniorTestResultsSummary extends Command
                 NOW()
 
             FROM SeniorTestResults r
+
+            INNER JOIN students s ON s.id = r.StudentID
+            WHERE s.class_id BETWEEN 4 AND 12
+            
             GROUP BY r.SchoolID, r.StudentID, r.TermId
 
             ON DUPLICATE KEY UPDATE
