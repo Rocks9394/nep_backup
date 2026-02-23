@@ -132,6 +132,14 @@ class ImportStudentProfile implements ToCollection, WithHeadingRow  {
 
                     $custom_class_id = $customClass->id;
                 }
+                $year = date('Y');
+                $month = date('m');
+
+                if ($month >= 4) {
+                    $academicYear = $year . '-' . ($year + 1);
+                } else {
+                    $academicYear = ($year - 1) . '-' . $year;
+                }
 
                 $studentData = [
                     'school_id'     => $this->school_id,
@@ -151,6 +159,7 @@ class ImportStudentProfile implements ToCollection, WithHeadingRow  {
                     'fav_sport'     => $row['favorite_sports'],
                     'hobbies'       => $row['hobbies'],
                     'status'        => 'active',
+                    'academic_year'	=> $academicYear
                 ];
 
                 // Check if the student already exists

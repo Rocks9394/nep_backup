@@ -2,16 +2,17 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Sstudent extends Authenticatable
 {
-   use HasFactory;
+   use HasFactory ,  HasApiTokens;
 
    protected $guarded = [];
    protected $table = 'students';
  
-   protected $fillable = ['school_id','school_code','student_uid','student_name','gender','class_id','custom_class_id','section_id','dob','user_id','password', 'email_id','rollno','status','last_updated','is_active'];
+   protected $fillable = ['school_id','school_code','student_uid','student_name','gender','class_id','custom_class_id','section_id','dob','user_id','password', 'email_id','rollno','status','academic_year','last_updated','is_active'];
 
 	// protected $guard = 'sstudent';
 
@@ -57,5 +58,15 @@ class Sstudent extends Authenticatable
         return $this->hasOne(StudentInfo::class, 'student_id');
     }
 
+    public function school() {
+    
+        return $this->belongsTo(School::class, 'school_id');
+    }
+
+	
+	protected $hidden = [
+	    'password',
+	    'remember_token',
+	];
 	
 }

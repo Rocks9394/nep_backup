@@ -1610,7 +1610,14 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	        $words = explode(" ", $request->post('student_name'));
 	        $namefirstletter = $words[0];
 	        $password = strtolower($namefirstletter) . '@' . $request->post('student_uid');
+			$year = date('Y');
+			$month = date('m');
 
+			if ($month >= 4) {
+				$academicYear = $year . '-' . ($year + 1);
+			} else {
+				$academicYear = ($year - 1) . '-' . $year;
+			}
 
 	        if (!empty($custom_class_id)) {
 	            $data = Sstudent::create([
@@ -1628,6 +1635,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	                'email_id'      => $request->post('email'),
 	                'rollno'        => $request->post('rollno'),
 	                'status'        => $request->post('status'),
+					'academic_year'	=> $academicYear
 	            ]);
 
 	            $className = Sclass::find($data->class_id)->value('name');
@@ -1708,7 +1716,12 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			return $e->getMessage();
 		}
    	}
-
+	
+	
+	/**
+   	 * Delete students 23_Feb
+   	 * */
+	
 	public function DeleteStudent(Request $request){
 		try {
 
@@ -1728,58 +1741,41 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 					'message' => 'Invalid action requested.'
 				], 400);
 			}
+			$students = DB::table('students')
+				->whereIn('id', $ids)
+				->get();
 
-			// ================= DELETE =================
-			if ($action === 'delete') {
-
-				$students = DB::table('students')
-					->whereIn('id', $ids)
-					->get();
-
-				if ($students->isEmpty()) {
-					return response()->json([
-						'status' => false,
-						'message' => 'Selected students not found.'
-					], 404);
-				}
-
-				$deletedData = [];
-				$now = now();
-				$userId = Auth::id();
-
-				foreach ($students as $student) {
-					$deletedData[] = [
-						'student_id'      => $student->id,
-						'name'            => $student->student_name,
-						'deleted_by'      => $userId,
-						'deleted_at'      => $now,
-						'school_id'       => $student->school_id,
-						'custom_class_id' => $student->custom_class_id,
-						'student_uid'     => $student->student_uid,
-						'json_data'       => json_encode((array) $student),
-					];
-				}
-
-				DB::table('deleted_students')->insert($deletedData);
-				DB::table('students')->whereIn('id', $ids)->delete();
-
+			if ($students->isEmpty()) {
 				return response()->json([
-					'status' => true,
-					'message' => count($ids) . ' student(s) permanently deleted successfully.'
-				], 200);
+					'status' => false,
+					'message' => 'Selected students not found.'
+				], 404);
 			}
 
-			// ================= TRASH =================
-			if ($action === 'trash') {
+			$deletedData = [];
+			$now = now();
+			$userId = Auth::id();
 
-				$affected = Sstudent::whereIn('id', $ids)
-					->update(['status' => 'trashed']);
-
-				return response()->json([
-					'status' => true,
-					'message' => $affected . ' student(s) moved to trash successfully.'
-				], 200);
+			foreach ($students as $student) {
+				$deletedData[] = [
+					'student_id'      => $student->id,
+					'name'            => $student->student_name,
+					'deleted_by'      => $userId,
+					'deleted_at'      => $now,
+					'school_id'       => $student->school_id,
+					'custom_class_id' => $student->custom_class_id,
+					'student_uid'     => $student->student_uid,
+					'json_data'       => json_encode((array) $student),
+				];
 			}
+
+			DB::table('deleted_students')->insert($deletedData);
+			DB::table('students')->whereIn('id', $ids)->delete();
+
+			return response()->json([
+				'status' => true,
+				'message' => count($ids) . ' student(s) permanently deleted successfully.'
+			], 200);
 
 		} catch (\Exception $e) {
 
@@ -1867,7 +1863,8 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				$student->update([
 					'class_id'			=> $nextClassId,
 					'custom_class_id'	=> $customClassId,
-					'rollno'			=> $newRoll
+					'rollno'			=> $newRoll,
+					'academic_year'		=> $academicYear
 				]);
 				$promotedCount++;
 			}
@@ -1886,7 +1883,6 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			], 500);
 		}
 	}
-	
 
 
 	/**

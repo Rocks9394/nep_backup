@@ -36,8 +36,26 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            //
+            
         });
+
+        /*$this->renderable(function (\Illuminate\Auth\AuthenticationException $e, $request) {
+            if ($request->is('api/*')) {
+                \Log::error('Auth Failure: ' . $e->getMessage(), [
+                    'guards' => $e->guards(),
+                    // This will tell us if Apache is actually sending the token to PHP
+                    'header' => $request->header('Authorization') ? 'Present' : 'Missing',
+                    'full_header' => $request->header('Authorization'), 
+                ]);
+
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthenticated.',
+                    'debug_info' => 'Check your laravel.log for details'
+                ], 401);
+            }
+        });*/
+        
     }
 	
 	

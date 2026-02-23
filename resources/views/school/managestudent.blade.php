@@ -517,7 +517,7 @@
 			var status = [
 				{ name: 'Bulk Action', status: '',},
 				{ name: 'Delete', status: 'delete', },
-				{ name: 'Promote', status: 'promote', },
+				// { name: 'Promote', status: 'promote', },
 			];
 			status.forEach(option => {
 			    const section = option.status ? ` - ${option.status}` : '';
@@ -611,11 +611,15 @@
 								Swal.fire({
 									icon: 'error',
 									title: 'Error',
-									text: message
+									text: message,
+									confirmButtonText: 'OK',
+									allowOutsideClick: false
+								}).then((result) => {
+									if (result.isConfirmed) {
+										$('#studentTableRecords').DataTable().ajax.reload(null, false);
+										$('#select_action').val('');
+									}
 								});
-
-								$('#studentTableRecords').DataTable().ajax.reload();
-								$('#select_action').val('');
 							}
 						});
 					} else {

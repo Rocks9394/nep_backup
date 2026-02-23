@@ -347,10 +347,9 @@ Route::prefix('school')->group(function(){
 	Route::post('getclasssection', [SchoolRecordController::class, 'getClassSection'])->name('getclasssection');
 	Route::post('changegender',[SchoolRecordController::class, 'changeGender'])->name('changegender');
 	Route::post('changestatus',[SchoolRecordController::class, 'changeStatus'])->name('changestatus');
-	
+
 	Route::post('del-student',[SchoolRecordController::class, 'DeleteStudent'])->name('del-student');
 	Route::post('promote-student',[SchoolRecordController::class, 'PromoteStudent'])->name('promote-student');
-
 
 	Route::get('fetchStudents',[SchoolRecordController::class, 'fetchStudents'])->name('fetchStudents');
 

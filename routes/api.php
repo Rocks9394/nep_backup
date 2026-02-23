@@ -2,9 +2,43 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-/*Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-}); */
+use App\Http\Controllers\NativeApi\AuthController;
+use App\Http\Controllers\Api\LoginController;
+use App\Http\Controllers\NativeApi\TrainerProfileController;
+use App\Http\Controllers\NativeApi\StudentProfileController;
+
+
+
+
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::middleware('auth:student-api')->group(function () {
+
+    Route::get('/student/profile', [StudentProfileController::class, 'show']);
+    Route::get('/student/dashboard', [StudentProfileController::class,'dashboard'])->name('students.dashboard');
+  
+});
+
+
+Route::middleware('auth:user-api')->group(function () {
+    Route::get('/user/profile', [TrainerProfileController::class, 'show']);
+    
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Route::get('getclass', [App\Http\Controllers\Api\GetActivityController::class,'getclass']);	
 Route::get('getsubject', [App\Http\Controllers\Api\GetActivityController::class,'getsubject']);
