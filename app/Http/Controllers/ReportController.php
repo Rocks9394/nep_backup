@@ -956,7 +956,11 @@ class ReportController extends Controller {
 	                'dribbling_hands' => $item->dribbling_hands ?? '---',
 	                'dribbling_feet'  => $item->dribbling_feet ?? '---',
 	                'kicking_ball'    => $item->kicking_ball ?? '---',
-	                'flamingo_balance' => isset($item->flamingo_balance) ? (int)$item->flamingo_balance : '---',
+	                'flamingo_balance' => !isset($item->flamingo_balance) 
+											? '---' 
+											: ((int)$item->flamingo_balance === 1000 
+												? 'Disqualified' 
+												: (int)$item->flamingo_balance),
 	                'plate_tapping'   => is_numeric($item->plate_tapping)
 										? sprintf(
 											'%02d:%02d.%02d',
