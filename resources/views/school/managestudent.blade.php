@@ -587,23 +587,35 @@
 								Swal.fire({
 									icon: 'success',
 									title: 'Success',
-									text: response.message
+									text: response.message,
+									confirmButtonText: 'OK',
+									allowOutsideClick: false
+								}).then((result) => {
+
+									if (result.isConfirmed) {
+										$('#studentTableRecords').DataTable().ajax.reload();
+										$('#select_action').val('');
+									}
+
+								});
+							},
+							error: function (xhr) {
+								Swal.close();
+
+								let message = 'Something went wrong.';
+
+								if (xhr.responseJSON && xhr.responseJSON.message) {
+									message = xhr.responseJSON.message;
+								}
+
+								Swal.fire({
+									icon: 'error',
+									title: 'Error',
+									text: message
 								});
 
 								$('#studentTableRecords').DataTable().ajax.reload();
 								$('#select_action').val('');
-							},
-							error: function (xhr) {
-								Swal.close();
-								Swal.fire({
-									icon: 'info',
-									title: 'Error',
-									text: 'The system is currently busy processing other requests. Please try again in a few moments.'
-								}).then(() => {
-								
-									$('#studentTableRecords').DataTable().ajax.reload();
-									$('#select_action').val('');
-								});;
 							}
 						});
 					} else {

@@ -1709,58 +1709,86 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		}
    	}
 
-	public function DeleteStudent(Request $request) {
+	public function DeleteStudent(Request $request){
+		try {
 
-	    $action = $request->input('action');
-	    $ids = $request->input('ids', []);
+			$action = $request->input('action');
+			$ids = $request->input('ids', []);
 
-	    if (empty($ids) || !in_array($action, ['delete', 'trash'])) {
-	        return response()->json(['message' => 'Invalid request.'], 400);
-	    }
+			if (empty($ids)) {
+				return response()->json([
+					'status' => false,
+					'message' => 'No students selected.'
+				], 422);
+			}
 
-		if ($action === 'delete') {
-			
-			
-		    $students = DB::table('students')->select('id', 'school_id', 'school_code', 'student_uid', 'student_name', 'gender', 'class_id', 'custom_class_id', 'section_id','dob','email_id')
-		        ->whereIn('id', $ids)->get();
+			if (!in_array($action, ['delete', 'trash'])) {
+				return response()->json([
+					'status' => false,
+					'message' => 'Invalid action requested.'
+				], 400);
+			}
 
-		    $deletedData = [];
-		    $now = now();
-		    $userId = Auth::id();
+			// ================= DELETE =================
+			if ($action === 'delete') {
 
-		    foreach ($students as $student) {
-		        $deletedData[] = [
-		            'student_id'       => $student->id,
-		            'name'             => $student->student_name,
-		            'deleted_by'       => $userId,
-		            'deleted_at'       => $now,
-		            'school_id'        => $student->school_id,
-		            'custom_class_id'  => $student->custom_class_id,
-		            'student_uid'     => $student->student_uid,
-		            'json_data'        => json_encode((array) $student),
-		        ];
-		    }
+				$students = DB::table('students')
+					->whereIn('id', $ids)
+					->get();
 
-		    if (!empty($deletedData)) {
-		        DB::table('deleted_students')->insert($deletedData);
-		    }
+				if ($students->isEmpty()) {
+					return response()->json([
+						'status' => false,
+						'message' => 'Selected students not found.'
+					], 404);
+				}
 
-		    DB::table('students')->whereIn('id', $ids)->delete();
-		    AuditHelper::log('action', 'Deleted Students');
+				$deletedData = [];
+				$now = now();
+				$userId = Auth::id();
 
-		    return response()->json(['message' => 'Action completed successfully!']);
+				foreach ($students as $student) {
+					$deletedData[] = [
+						'student_id'      => $student->id,
+						'name'            => $student->student_name,
+						'deleted_by'      => $userId,
+						'deleted_at'      => $now,
+						'school_id'       => $student->school_id,
+						'custom_class_id' => $student->custom_class_id,
+						'student_uid'     => $student->student_uid,
+						'json_data'       => json_encode((array) $student),
+					];
+				}
+
+				DB::table('deleted_students')->insert($deletedData);
+				DB::table('students')->whereIn('id', $ids)->delete();
+
+				return response()->json([
+					'status' => true,
+					'message' => count($ids) . ' student(s) permanently deleted successfully.'
+				], 200);
+			}
+
+			// ================= TRASH =================
+			if ($action === 'trash') {
+
+				$affected = Sstudent::whereIn('id', $ids)
+					->update(['status' => 'trashed']);
+
+				return response()->json([
+					'status' => true,
+					'message' => $affected . ' student(s) moved to trash successfully.'
+				], 200);
+			}
+
+		} catch (\Exception $e) {
+
+			return response()->json([
+				'status' => false,
+				'message' => 'Failed to process request.',
+				'error'   => $e->getMessage()
+			], 500);
 		}
-
-
-
-	    if ($action === 'trash') {
-	        Sstudent::whereIn('id', $ids)->update(['status' => 'trashed']);
-
-
-	        return response()->json(['message' => 'Selected students moved to trash successfully.']);
-	    }
-
-	    return response()->json(['message' => 'Action performed successfully.']);
 	}
 
 	/**
@@ -1779,12 +1807,12 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 			$ids = $request->input('ids');
 
-			$students = Sstudent::whereIn('id', $ids)->get();
+			$students = Sstudent::whereIn('id', $ids)->where('status', 'active')->get();
 
 			if ($students->isEmpty()) {
 				return response()->json([
 					'status' => false,
-					'message' => 'No students found.'
+					'message' => 'No active students found for promotion.'
 				], 404);
 			}
 
@@ -1804,37 +1832,57 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 					return $item->class_id . '_' . $item->section;
 				});
 
+			$year = date('Y');
+			$month = date('m');
+
+			if ($month >= 4) {
+				$academicYear = $year . '-' . ($year + 1);
+			} else {
+				$academicYear = ($year - 1) . '-' . $year;
+			}
+
+			$promotedCount = 0;
+			$transferredCount = 0;
+
 			foreach ($students as $student) {
 				if ($student->class_id >= 12) {
 					$student->update([
 						'status' => 'transfer',
 					]);
+					$transferredCount++;
 					continue;
 				}
 
 				$nextClassId = $student->class_id + 1;
-
 				$key = $nextClassId . '_' . $student->section_id;
 
 				$customClassId = $customClasses[$key]->id ?? null;
+				$maxRoll = Sstudent::where('academic_year', $academicYear)
+					->where('class_id', $nextClassId)
+					->where('section_id', $student->section_id)
+					->max('rollno');
+
+				$newRoll = $maxRoll ? $maxRoll + 1 : 1;
 
 				$student->update([
-					'class_id' => $nextClassId,
-					'custom_class_id' => $customClassId
+					'class_id'			=> $nextClassId,
+					'custom_class_id'	=> $customClassId,
+					'rollno'			=> $newRoll
 				]);
+				$promotedCount++;
 			}
 
 			return response()->json([
 				'status' => true,
-				'message' => 'Students promoted successfully.'
-			]);
+				'message' => "$promotedCount student(s) promoted successfully. $transferredCount student(s) transferred."
+			], 200);
 
 		} catch (\Exception $e) {
 
 			return response()->json([
 				'status' => false,
-				'message' => 'Something went wrong.',
-				'error' => $e->getMessage()
+				'message' => 'Failed to promote students.',
+				'error'   => $e->getMessage()
 			], 500);
 		}
 	}
