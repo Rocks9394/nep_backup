@@ -20,7 +20,8 @@ class GeneratePasswordsBySchool extends Command
         // Fetch schools with pending password jobs
         $schoolIds = DB::table('school_password_jobs')
             ->where('status', 'pending')
-            ->limit(5) // process 5 schools per run to avoid overload
+            // ->where('school_id',15)
+            // ->limit(5)
             ->pluck('school_id')
             ->toArray();
 

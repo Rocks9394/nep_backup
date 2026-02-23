@@ -37,6 +37,7 @@ class StudentsCredentialsExport implements FromCollection, WithHeadings, WithMap
                 'custom_classes.nomenclature as custom_class_name',
                 'custom_classes.section',  
                 'students.rollno', 
+                'student_uid',
                 'students.user_id',
                 'students.password',
                 DB::raw("CASE 
@@ -80,13 +81,15 @@ class StudentsCredentialsExport implements FromCollection, WithHeadings, WithMap
 
     public function map($student): array
     {
+        $firstName = strtolower(trim(explode(' ', $student->student_name)[0]));
+        $plainPassword = $firstName . '@' . trim($student->student_uid);
         return [
             $student->display_classname, 
             $student->section, 
             $student->rollno, 
             $student->student_name, 
             (string) $student->user_id, 
-            $student->password, 
+            $plainPassword
         ];
     }
 

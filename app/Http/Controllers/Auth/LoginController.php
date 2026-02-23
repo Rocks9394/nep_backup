@@ -13,6 +13,7 @@ use App\Models\Sstudent;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cookie;
 use App\Helpers\Helper;
+use Illuminate\Support\Facades\Hash;
 use Artisan;
 use Illuminate\Support\Facades\Log;
 
@@ -382,7 +383,7 @@ class LoginController extends Controller
 	        ->where('status', '<>', 'transfer')->where('is_active','<>', 0)
 	        ->first();
 
-	    if ($student && $student->password == $dob) {
+	    if ($student && Hash::check($dob, $student->password)) {
 	        Auth::guard('sstudent')->login($student, $remember);
 	        $request->session()->regenerate();
 

@@ -12,7 +12,7 @@ class Sstudent extends Authenticatable
    protected $guarded = [];
    protected $table = 'students';
  
-   protected $fillable = ['school_id','school_code','student_uid','student_name','gender','class_id','custom_class_id','section_id','dob','user_id','password', 'email_id','rollno','status','academic_year','last_updated','is_active'];
+   protected $fillable = ['school_id','school_code','student_uid','student_name','gender','class_id','custom_class_id','section_id','dob','user_id','password', 'password_generated', 'email_id','rollno','status','academic_year','last_updated','is_active'];
 
 	// protected $guard = 'sstudent';
 
