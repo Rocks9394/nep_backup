@@ -1,10 +1,10 @@
-@extends('layouts.filldart-app') @section('title', $title) @section('content')
+ <?php $__env->startSection('title', $title); ?> <?php $__env->startSection('content'); ?>
 
-@php
+<?php
 	$userId = Auth::user()->id; 
 	$schoolsId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id'); 
 	$schoolCode = DB::table('schools')->where('id',$schoolsId)->value('school_code'); 
-@endphp
+?>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
@@ -84,28 +84,28 @@
 								</span>
 							</a>
 							
-							<h1 class="ml-md-4 mb-0">{{$title}}</h1>
+							<h1 class="ml-md-4 mb-0"><?php echo e($title); ?></h1>
 							</div>
 						
 					</div>
 
-					@if($check == 'true')
+					<?php if($check == 'true'): ?>
 					<div class="col-auto col-md-auto" style="color: #ffffff;">
 						<div class="d-flex">
 							<a type="button" id="upload_btn" title="Upload Data" class="btn btn-primary custome-btn-i w-100 mr-3" data-toggle="modal" data-target="#uploadbulkdata"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-upload" viewBox="0 0 16 16"> <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z"/></svg><span>Upload Data</span> </a>
 							<a type="button" id="addstudent" title="Add Student" class="btn btn-primary custome-btn-i w-100" data-toggle="modal" data-target="#studentRegistrationForm"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg><span>Add Student</span></a>
 						</div>
 					</div>
-					@endif
+					<?php endif; ?>
 				</div>
 			</form>
 		</div>
 
-		@if($check == 'false')
-			@include('school.bulkuploadform')
-		@endif
+		<?php if($check == 'false'): ?>
+			<?php echo $__env->make('school.bulkuploadform', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+		<?php endif; ?>
 
-		@if($check == 'true')
+		<?php if($check == 'true'): ?>
 		<div class="container-fluid p-0">
 			<div class="responsive m-0 mt-4 pt-2" id="record_table">
 				<table id="studentTableRecords" class="table table-bordered tbl-style" >
@@ -129,7 +129,7 @@
 				</table>
 			</div>
 		</div>
-		@endif
+		<?php endif; ?>
 
 	</div>
 </div>
@@ -146,7 +146,7 @@
             </button>
          </div>
          <div class="upload">         
-			@include('school.bulkuploadform')
+			<?php echo $__env->make('school.bulkuploadform', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
          </div>
       </div>
    </div>
@@ -168,10 +168,10 @@
 
 			   
 			<form action="javascript:void(0);" id="RegistrationForm">
-				@csrf
+				<?php echo csrf_field(); ?>
 				<div class="modal-body">
 					<input type="hidden" name="status" value="active">
-					<input type="hidden" name="schools_id" value="{{ $studentsDetails[0]->schools_id ?? ''}}">
+					<input type="hidden" name="schools_id" value="<?php echo e($studentsDetails[0]->schools_id ?? ''); ?>">
 					<input type="hidden" name="className" value="active">
 
 					<div class="row">
@@ -214,9 +214,9 @@
 								<label for="studentClass">Class</label>
 								<select class="form-control form-control-sm" name="class" id="studentClass">
 									<option value="">Select Class</option>
-									@foreach($classes as $class)
-									<option data-id="{{ $class->className }}" value="{{ $class->id }}">{{ $class->className }}</option>
-									@endforeach
+									<?php $__currentLoopData = $classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $class): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+									<option data-id="<?php echo e($class->className); ?>" value="<?php echo e($class->id); ?>"><?php echo e($class->className); ?></option>
+									<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 								</select>
 								<span id="class_errormsg"></span>
 							</div>
@@ -247,7 +247,7 @@
 						<div class="col-md-4">
 							<div class="form-group">
 								<label for="studentUserId">School Code</label>
-								<input class="form-control form-control-sm" type="text" name="school_code" value="{{ $studentsDetails[0]->school_code  ?? ''}}" readonly>
+								<input class="form-control form-control-sm" type="text" name="school_code" value="<?php echo e($studentsDetails[0]->school_code  ?? ''); ?>" readonly>
 							</div>
 						</div>
 				
@@ -263,7 +263,7 @@
 						<div class="col-md-4 registerstudent">
 							<div class="form-group">
 								<label for="studentUserId">Student User ID</label>
-								<input class="form-control form-control-sm" id="studentUserId" name="studentuid" type="text" value="{{ $studentsDetails[0]->school_code  ?? ''}}" readonly>
+								<input class="form-control form-control-sm" id="studentUserId" name="studentuid" type="text" value="<?php echo e($studentsDetails[0]->school_code  ?? ''); ?>" readonly>
 								<span id="studentuid_errormsg"></span>
 							</div>
 						</div>
@@ -338,7 +338,7 @@
 			serverSide: true,
 
 			ajax: {
-				url: "{{ route('managestudent') }}",
+				url: "<?php echo e(route('managestudent')); ?>",
 				data: function(d) {
 			d.class_id = $('#select_class').val();
 			d.status = $('#select_status').val();
@@ -479,7 +479,7 @@
 			"initComplete": function() { 
 			$('.dt-search input[type="search"]').attr('placeholder', 'Search here...');
 
-				var classList = @json($classList);
+				var classList = <?php echo json_encode($classList, 15, 512) ?>;
 			const $dropdown = $('<select class="form-control" id="select_class"></select>');
 			classList.forEach(option => {
 				const section = option.section ? ` - ${option.section}` : '';
@@ -572,10 +572,10 @@
 						});
 
 						$.ajax({
-							// url: "{{ route('del-student') }}",
+							// url: "<?php echo e(route('del-student')); ?>",
 							url: action === 'delete'
-								? "{{ route('del-student') }}"
-								: "{{ route('promote-student') }}",
+								? "<?php echo e(route('del-student')); ?>"
+								: "<?php echo e(route('promote-student')); ?>",
 							method: 'POST',
 							data: {
 								_token: $('meta[name="csrf-token"]').attr('content'),
@@ -907,11 +907,11 @@
 			});
 
 			$.ajax({
-				url: "{{ route('get.class.section.summary') }}",
+				url: "<?php echo e(route('get.class.section.summary')); ?>",
 				method: "POST",
 				contentType: "application/json",
 				data: JSON.stringify({
-					_token: "{{ csrf_token() }}",
+					_token: "<?php echo e(csrf_token()); ?>",
 					student_ids: studentIds
 				}),
 				success: function(response) {
@@ -973,11 +973,11 @@
 			});
 
 			$.ajax({
-				url: "{{ route('generate.class.section.credentials') }}",
+				url: "<?php echo e(route('generate.class.section.credentials')); ?>",
 				method: "POST",
 				contentType: "application/json",
 				data: JSON.stringify({
-					_token: "{{ csrf_token() }}",
+					_token: "<?php echo e(csrf_token()); ?>",
 					student_ids: studentIds,
 					export_type: exportType
 				}),
@@ -1065,11 +1065,11 @@
 			});
 
 			$.ajax({
-				url: "{{ route('get.class.section.summary') }}",
+				url: "<?php echo e(route('get.class.section.summary')); ?>",
 				method: "POST",
 				contentType: "application/json",
 				data: JSON.stringify({
-					_token: "{{ csrf_token() }}",
+					_token: "<?php echo e(csrf_token()); ?>",
 					student_ids: studentIds
 				}),
 				success: function(response) {
@@ -1099,11 +1099,11 @@
 			});
 
 			$.ajax({
-				url: "{{ route('generatecard') }}",
+				url: "<?php echo e(route('generatecard')); ?>",
 				method: "POST",
 				contentType: "application/json",
 				data: JSON.stringify({
-					_token: "{{ csrf_token() }}",
+					_token: "<?php echo e(csrf_token()); ?>",
 					student_ids: studentIds,
 				}),
 				xhrFields: { 
@@ -1238,7 +1238,7 @@
 		console.log(studentId);
 
 		$.ajax({
-			url: "{{ route('school.loginAsStudent')}}",
+			url: "<?php echo e(route('school.loginAsStudent')); ?>",
 			method: 'POST',
 			data: {
 				student_id: studentId,
@@ -1803,7 +1803,7 @@
 
 	$(document).on('keyup', '#studentRegistration', function() {
 		$('.registerstudent').css('display', 'block');
-		var school_code = `{{ $schoolCode }}`;
+		var school_code = `<?php echo e($schoolCode); ?>`;
 		if ($(this).val() !== '') {
 			$('#studentUserId').val(school_code + $(this).val());
 		} else {
@@ -1926,7 +1926,7 @@
 	    });
 
       $.ajax({
-         url: "{{ route('import-student-data') }}",
+         url: "<?php echo e(route('import-student-data')); ?>",
          type: 'POST',
          data: formData,
          processData: false,
@@ -2017,7 +2017,7 @@
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 			},
 			type: "POST",
-			url: "{{ route('import-student-data') }}",
+			url: "<?php echo e(route('import-student-data')); ?>",
 			data: formData,
 			processData: false,
 			contentType: false,
@@ -2061,7 +2061,7 @@
 	    const studentId = $(this).data('id');
 	    const schools_id = $(this).data('schools_id');
 
-	     const url = '{{ route("student.dashboard") }}?student_id=' + studentId + '&schools_id=' + schools_id;
+	     const url = '<?php echo e(route("student.dashboard")); ?>?student_id=' + studentId + '&schools_id=' + schools_id;
 	    // Create a temporary link and click it
 	    const link = document.createElement('a');
 	    link.href = url;
@@ -2072,35 +2072,9 @@
 
 
 
-	{{--
-	$(document).on('click', '.student-login', function() {
-		const studentId = $(this).data('id');
-		console.log(studentId);
-
-		$.ajax({
-			url: '{{ route("auth.login.test") }}', 
-			type: 'POST',
-			data: {
-				student_id: studentId,
-				_token: '{{ csrf_token() }}'
-			},
-			success: function(response) {
-
-				console.log(response)
-
-				if (response.success) {
-					window.open('{{ route("student.dashboard") }}?student_id=' + studentId, 'studentLoginWindow', 'width=800,height=600');
-				} else {
-					alert('Login failed. Please try again.');
-				}
-			},
-			error: function(xhr, status, error) {
-				alert('An error occurred. Please try again.');
-			}
-		});
-	});
-
-	--}}
+	
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/school/managestudent.blade.php ENDPATH**/ ?>

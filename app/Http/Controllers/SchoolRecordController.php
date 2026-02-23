@@ -1708,6 +1708,136 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			return $e->getMessage();
 		}
    	}
+
+	public function DeleteStudent(Request $request) {
+
+	    $action = $request->input('action');
+	    $ids = $request->input('ids', []);
+
+	    if (empty($ids) || !in_array($action, ['delete', 'trash'])) {
+	        return response()->json(['message' => 'Invalid request.'], 400);
+	    }
+
+		if ($action === 'delete') {
+			
+			
+		    $students = DB::table('students')->select('id', 'school_id', 'school_code', 'student_uid', 'student_name', 'gender', 'class_id', 'custom_class_id', 'section_id','dob','email_id')
+		        ->whereIn('id', $ids)->get();
+
+		    $deletedData = [];
+		    $now = now();
+		    $userId = Auth::id();
+
+		    foreach ($students as $student) {
+		        $deletedData[] = [
+		            'student_id'       => $student->id,
+		            'name'             => $student->student_name,
+		            'deleted_by'       => $userId,
+		            'deleted_at'       => $now,
+		            'school_id'        => $student->school_id,
+		            'custom_class_id'  => $student->custom_class_id,
+		            'student_uid'     => $student->student_uid,
+		            'json_data'        => json_encode((array) $student),
+		        ];
+		    }
+
+		    if (!empty($deletedData)) {
+		        DB::table('deleted_students')->insert($deletedData);
+		    }
+
+		    DB::table('students')->whereIn('id', $ids)->delete();
+		    AuditHelper::log('action', 'Deleted Students');
+
+		    return response()->json(['message' => 'Action completed successfully!']);
+		}
+
+
+
+	    if ($action === 'trash') {
+	        Sstudent::whereIn('id', $ids)->update(['status' => 'trashed']);
+
+
+	        return response()->json(['message' => 'Selected students moved to trash successfully.']);
+	    }
+
+	    return response()->json(['message' => 'Action performed successfully.']);
+	}
+
+	/**
+   	 * Promote students 23_Feb
+   	 * */
+	
+	public function PromoteStudent(Request $request) {
+
+		try{
+			$userId = Auth::id();
+
+			$schoolId = DB::table('school_reference')
+				->where('school_user_id', $userId)
+				->where('status', 1)
+				->value('school_id');
+
+			$ids = $request->input('ids');
+
+			$students = Sstudent::whereIn('id', $ids)->get();
+
+			if ($students->isEmpty()) {
+				return response()->json([
+					'status' => false,
+					'message' => 'No students found.'
+				], 404);
+			}
+
+			$nextClassPairs = $students->map(function ($student) {
+				return [
+					'next_class_id' => $student->class_id + 1,
+					'section_id' => $student->section_id
+				];
+			})->unique();
+
+			$customClasses = DB::table('custom_classes')
+				->where('school_id', $schoolId)
+				->whereIn('class_id', $nextClassPairs->pluck('next_class_id'))
+				->whereIn('section', $nextClassPairs->pluck('section_id'))
+				->get()
+				->keyBy(function ($item) {
+					return $item->class_id . '_' . $item->section;
+				});
+
+			foreach ($students as $student) {
+				if ($student->class_id >= 12) {
+					$student->update([
+						'status' => 'transfer',
+					]);
+					continue;
+				}
+
+				$nextClassId = $student->class_id + 1;
+
+				$key = $nextClassId . '_' . $student->section_id;
+
+				$customClassId = $customClasses[$key]->id ?? null;
+
+				$student->update([
+					'class_id' => $nextClassId,
+					'custom_class_id' => $customClassId
+				]);
+			}
+
+			return response()->json([
+				'status' => true,
+				'message' => 'Students promoted successfully.'
+			]);
+
+		} catch (\Exception $e) {
+
+			return response()->json([
+				'status' => false,
+				'message' => 'Something went wrong.',
+				'error' => $e->getMessage()
+			], 500);
+		}
+	}
 	
 
 
