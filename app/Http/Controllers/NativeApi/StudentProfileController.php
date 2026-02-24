@@ -225,7 +225,9 @@ class StudentProfileController extends Controller
             'L8' => "Beyond L7",
         ];
 
-        foreach ($fitnessTest as $item) {
+
+        /* Creating N+1 problems */
+        foreach ($fitnessTest as $item) {    
             $level = $item->level;
             $item->levelOutcome = $levelLabels[$level] ?? 'Unknown';
         }

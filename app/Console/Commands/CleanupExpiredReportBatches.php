@@ -23,6 +23,8 @@ class CleanupExpiredReportBatches extends Command
 
     public function handle() {  
 
+
+        $expiry_date = 7;
         $disk = Storage::disk('reports');
         ReportBatch::whereNotNull('expires_at')->where('expires_at', '<', now())->whereNotNull('final_zip_path')
         ->chunkById(50, function ($batches) use ($disk) {

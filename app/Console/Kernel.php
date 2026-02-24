@@ -38,6 +38,13 @@ class Kernel extends ConsoleKernel
         ->runInBackground()
         ->appendOutputTo(storage_path('logs/scheduler.log'));
 
+        $schedule->command('delete:upload-history')
+         ->dailyAt('14:32')
+        ->withoutOverlapping(3600) 
+        ->onOneServer()
+        ->runInBackground()
+        ->appendOutputTo(storage_path('logs/scheduler.log'));
+
         // $schedule->command('fitness:update-levels')
         //  ->dailyAt('16:59')
         // ->withoutOverlapping(3600) 
