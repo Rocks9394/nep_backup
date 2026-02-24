@@ -747,8 +747,8 @@ class ViewTrainerController extends Controller
     }
 
 
-	public function trainerProfile(Request $request , $id){
-
+	public function trainerProfile(Request $request){
+		$user_id = Auth::id();
 		$schools = School::select('id','school_name')->orderBy('school_name')->get();
 		$regions = Region::all();
 		$districts = DB::table('districts')->get();
@@ -757,78 +757,78 @@ class ViewTrainerController extends Controller
 					->leftJoin('usermetas','usermetas.user_id','=','users.id')
 					->select('users.id','users.name','users.email','users.phone','users.self_registrationId','users.gender','usermetas.qualification',
 					'usermetas.experience','usermetas.region_id','usermetas.state_id', 'usermetas.pincode' ,'usermetas.school_id','usermetas.subject','usermetas.dob','usermetas.address','usermetas.district','usermetas.city')
-					->where('users.id',$id)
+					->where('users.id',$user_id)
 					->first();
 		return view('viewtrainer.edit-profile',compact('result','regions','schools','states','districts'));
 	}
-	public function trainerUpdate(Request $request,$id)
-	{
-		
-			$user_id = Auth::id();
-			$request->validate([
-				'name' => 'required|string|max:255',
-				'gender' => 'required',
-				'dob' => 'required|date',
-				'email' => 'required|email',
-				'phone' => 'required',
-				'qualification' => 'required',
-				'region' => 'required',
-				'state' => 'required',
-				'district' => 'required',
-				'city' => 'required',
-				'pincode' => 'required|digits:6',
-			]);
 
-			list($stateId, $stateName) = explode('|', $request->state);
-			$dob = $request->post('dob');
-        	$password = str_replace('-', '', $dob);
+	public function trainerUpdate(Request $request){		
 		
-			$users         = User::find($id);
-			$users->name   = $request->name;
-			$users->phone  = $request->phone;
-			$users->email  = $request->email;
-			$users->password  = Hash::make($password);
-			$users->gender = $request->gender;
-			$users->save();
-			
-			$usermetas = Usermeta::where('user_id',$id)->first();
+		$user_id = Auth::id();
+		$request->validate([
+			'name' => 'required|string|max:255',
+			'gender' => 'required',
+			'dob' => 'required|date',
+			'email' => 'required|email',
+			'phone' => 'required',
+			'qualification' => 'required',
+			'region' => 'required',
+			'state' => 'required',
+			'district' => 'required',
+			'city' => 'required',
+			'pincode' => 'required|digits:6',
+		]);
 
-			if(!empty($usermetas))
-				{
-					$usermetas->gender 		  = $request->gender;
-					$usermetas->qualification = $request->qualification;
-					$usermetas->experience    = $request->experience;
-					$usermetas->address    = $request->address;
-					$usermetas->region_id     = $request->region;
-					$usermetas->state         = $stateName;
-					$usermetas->state_id      = $stateId;
-					$usermetas->state_id      = $stateId;
-					$usermetas->district      = $request->district;
-					$usermetas->city      	  = $request->city;
-					$usermetas->pincode       = $request->pincode;
-					$usermetas->dob           = $request->dob;
-					$usermetas->save();
-				}
-			else
-				{
-					$usermetas = new Usermeta();
-					$usermetas->user_id 	  = $user_id; 
-					$usermetas->gender 		  = $request->gender;
-					$usermetas->qualification = $request->qualification;
-					$usermetas->experience 	  = $request->experience;
-					$usermetas->address       = $request->address;
-					$usermetas->region_id     = $request->region;
-					$usermetas->state         = $stateName;
-					$usermetas->state_id      = $stateId;
-					$usermetas->state_id      = $stateId;
-					$usermetas->district      = $request->district;
-					$usermetas->city      	  = $request->city;
-					$usermetas->pincode       = $request->pincode;
-					$usermetas->dob           = $request->dob;
-					$usermetas->save();
-				}
-			
-			
-			return back()->with('msg','Profile updated successfully');
+		list($stateId, $stateName) = explode('|', $request->state);
+		$dob = $request->post('dob');
+		$password = str_replace('-', '', $dob);
+	
+		$users         = User::find($user_id);
+		$users->name   = $request->name;
+		$users->phone  = $request->phone;
+		$users->email  = $request->email;
+		$users->password  = Hash::make($password);
+		$users->gender = $request->gender;
+		$users->save();
+		
+		$usermetas = Usermeta::where('user_id',$user_id)->first();
+
+		if(!empty($usermetas))
+			{
+				$usermetas->gender 		  = $request->gender;
+				$usermetas->qualification = $request->qualification;
+				$usermetas->experience    = $request->experience;
+				$usermetas->address		  = $request->address;
+				$usermetas->region_id     = $request->region;
+				$usermetas->state         = $stateName;
+				$usermetas->state_id      = $stateId;
+				$usermetas->state_id      = $stateId;
+				$usermetas->district      = $request->district;
+				$usermetas->city      	  = $request->city;
+				$usermetas->pincode       = $request->pincode;
+				$usermetas->dob           = $request->dob;
+				$usermetas->save();
+			}
+		else
+			{
+				$usermetas = new Usermeta();
+				$usermetas->user_id 	  = $user_id; 
+				$usermetas->gender 		  = $request->gender;
+				$usermetas->qualification = $request->qualification;
+				$usermetas->experience 	  = $request->experience;
+				$usermetas->address       = $request->address;
+				$usermetas->region_id     = $request->region;
+				$usermetas->state         = $stateName;
+				$usermetas->state_id      = $stateId;
+				$usermetas->state_id      = $stateId;
+				$usermetas->district      = $request->district;
+				$usermetas->city      	  = $request->city;
+				$usermetas->pincode       = $request->pincode;
+				$usermetas->dob           = $request->dob;
+				$usermetas->save();
+			}
+		
+		
+		return back()->with('msg','Profile updated successfully');
 	}
 }

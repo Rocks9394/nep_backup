@@ -166,7 +166,7 @@
                                              <a class="dropdown-item" href="<?php echo e(route('password.change')); ?>"> <?php echo e(__('Change Password')); ?> </a>
                                             <?php endif; ?>
                                         <?php else: ?>
-                                        <a class="dropdown-item" href="<?php echo e(url('editprofile/' . Auth::user()->id)); ?>">
+                                        <a class="dropdown-item" href="<?php echo e(url('editprofile')); ?>">
                                             <?php echo e(__('Edit Profile')); ?>
 
                                         </a>

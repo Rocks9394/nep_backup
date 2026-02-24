@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cookie;
 use App\Helpers\Helper;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 use Artisan;
 use Illuminate\Support\Facades\Log;
 
@@ -392,6 +393,11 @@ class LoginController extends Controller
 	        // Set cross-domain secure cookie
 	        $cookie = cookie('my_cookie_dot', $this->generateRandomString(), 60, '/', config('app.cookie_domain'), true, true, false, 'None');
 			Helper::auditLog('login', $role);
+			if (Carbon::parse($student->updated_at)->lt(now()->subMonths(3))) {
+				$route = route('student.profile');
+				session()->flash('show_profile_update_popup', true);
+				session()->flash('profile_update_route', $route);
+			}
 	        return redirect()->route('student.dashboard')->cookie($cookie);
 	    }
 
@@ -424,6 +430,11 @@ class LoginController extends Controller
 	        // $route = $role === 'School' ? 'schoolDashboard' : 'filldart.dashboard';
 	        //$route = $role === 'School' ? 'filldart.dashboard' : 'filldart.dashboard';
 	        Helper::auditLog('login', $role);
+			if (Carbon::parse($user->updated_at)->lt(now()->subMonths(3))) {
+				$route = route('update.profile');
+				session()->flash('show_profile_update_popup', true);
+				session()->flash('profile_update_route', $route);
+			}
 
 	        $cookie = cookie('my_cookie_dot', $this->generateRandomString(), 60, '/', config('app.cookie_domain'), true, true, false, 'None');
 	        return redirect()->route('filldart.dashboard')->cookie($cookie);
@@ -431,8 +442,6 @@ class LoginController extends Controller
 	    Auth::logout();
 	    return redirect()->route('login')->with(['status' => 'error', 'msg' => 'Invalid School credentials.']);
 	}
-
-
 
 	private function handleTrainerLogin(Request $request, $remember, $role) {
 	    $credentials = [
@@ -452,7 +461,11 @@ class LoginController extends Controller
 	        $this->setRememberMeCookies($remember, $request, $request->password, $user->remember_token, 'Trainer');
 	        $cookie = cookie('my_cookie_dot', $this->generateRandomString(), 60,'/', config('app.cookie_domain'), true,  true, false, 'None');
 			Helper::auditLog('login', $role);
-			
+			if (Carbon::parse($user->updated_at)->lt(now()->subMonths(3))) {
+				$route = route('editprofile');
+				session()->flash('show_profile_update_popup', true);
+				session()->flash('profile_update_route', $route);
+			}
 	        return redirect()->route('filldart.dashboard')->cookie($cookie);
 	    }
 

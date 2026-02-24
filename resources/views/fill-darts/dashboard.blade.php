@@ -35,6 +35,27 @@
 @endif
 
 
+@if(session('show_profile_update_popup'))
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        Swal.fire({
+			title: 'Profile Update Required',
+			text: 'Kindly update your profile.',
+			icon: 'warning',
+			confirmButtonText: 'Update Now',
+			cancelButtonText: 'Skip',
+        	showCancelButton: true,
+			allowOutsideClick: false
+		}).then((result) => {
+			if (result.isConfirmed) {
+				window.location.href = "{{ session('profile_update_route') }}";
+			}
+		});
+    });
+</script>
+@endif
+
+
 
 <div class="container">
     <div class="t-mrg">
@@ -312,6 +333,7 @@
     </script>
   @endif
 @endif
+
 
 
 <script >

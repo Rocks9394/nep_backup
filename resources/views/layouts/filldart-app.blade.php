@@ -192,7 +192,7 @@
                                              <a class="dropdown-item" href="{{ route('password.change')}}"> {{ __('Change Password') }} </a>
                                             @endif
                                         @else
-                                        <a class="dropdown-item" href="{{ url('editprofile/' . Auth::user()->id) }}">
+                                        <a class="dropdown-item" href="{{ url('editprofile') }}">
                                             {{ __('Edit Profile') }}
                                         </a>
                                         @endif
