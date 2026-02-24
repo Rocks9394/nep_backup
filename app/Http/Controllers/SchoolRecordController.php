@@ -1853,17 +1853,10 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				$key = $nextClassId . '_' . $student->section_id;
 
 				$customClassId = $customClasses[$key]->id ?? null;
-				$maxRoll = Sstudent::where('academic_year', $academicYear)
-					->where('class_id', $nextClassId)
-					->where('section_id', $student->section_id)
-					->max('rollno');
-
-				$newRoll = $maxRoll ? $maxRoll + 1 : 1;
 
 				$student->update([
 					'class_id'			=> $nextClassId,
 					'custom_class_id'	=> $customClassId,
-					'rollno'			=> $newRoll,
 					'academic_year'		=> $academicYear
 				]);
 				$promotedCount++;

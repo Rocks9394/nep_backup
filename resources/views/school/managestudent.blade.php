@@ -517,7 +517,7 @@
 			var status = [
 				{ name: 'Bulk Action', status: '',},
 				{ name: 'Delete', status: 'delete', },
-				// { name: 'Promote', status: 'promote', },
+				{ name: 'Promote', status: 'promote', },
 			];
 			status.forEach(option => {
 			    const section = option.status ? ` - ${option.status}` : '';
