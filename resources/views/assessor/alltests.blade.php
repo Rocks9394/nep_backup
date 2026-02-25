@@ -187,6 +187,7 @@
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        localStorage.removeItem('selected_class');
         const termSelect = document.getElementById('term');
         let previousValue = termSelect.value;
 

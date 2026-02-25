@@ -32,26 +32,28 @@ class Helper
         return DB::table('class')->where('id', $class_id)->value('name');
     }
 	
-	public static function changeToRoman($string) {
+	public static function changeToRoman($custom_class_id) {
     
-	    if(str_starts_with($string, 'Class')){
-	        $number = trim($string , 'Class');
-	    }else{
-	        return $string;        
-	    }
+		$string = DB::table('custom_classes')->select('nomenclature','section')->where('id', $custom_class_id)->first();
 
-	    $map = array('X' => 10, 'IX' => 9, 'V' => 5, 'IV' => 4, 'I' => 1);
-	    $returnValue = '';
-	    while ($number > 0) {
-	        foreach ($map as $roman => $int) {
-	            if($number >= $int) {
-	                $number -= $int;
-	                $returnValue .= $roman;
-	                break;
-	            }
-	        }
+	    if(str_starts_with($string->nomenclature, 'Class')){
+	        $number = trim($string->nomenclature, 'Class');
+			$map = array('X' => 10, 'IX' => 9, 'V' => 5, 'IV' => 4, 'I' => 1);
+			$returnValue = '';
+			while ($number > 0) {
+				foreach ($map as $roman => $int) {
+					if($number >= $int) {
+						$number -= $int;
+						$returnValue .= $roman;
+						break;
+					}
+				}
+			}
+			$classSection =	$returnValue.'-'.$string->section;
+	    }else{
+	        $classSection =	$string->nomenclature.'-'.$string->section;        
 	    }
-	    return $returnValue;
+	    return $classSection;
 	}
 	
 	public static function GetSchoolLogo()

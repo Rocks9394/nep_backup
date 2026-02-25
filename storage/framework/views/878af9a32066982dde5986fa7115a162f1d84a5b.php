@@ -34,23 +34,28 @@
 </marquee>
 <?php endif; ?>
 
+
 <?php if(session('show_profile_update_popup')): ?>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         Swal.fire({
-        title: 'Profile Update Required',
-        text: 'Kindly update your profile.',
-        icon: 'warning',
-        confirmButtonText: 'Update Now',
-        allowOutsideClick: false
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = "<?php echo e(session('profile_update_route')); ?>";
-        }
-    });
+			title: 'Profile Update Required',
+			text: 'Kindly update your profile.',
+			icon: 'warning',
+			confirmButtonText: 'Update Now',
+			cancelButtonText: 'Skip',
+        	showCancelButton: true,
+			allowOutsideClick: false
+		}).then((result) => {
+			if (result.isConfirmed) {
+				window.location.href = "<?php echo e(session('profile_update_route')); ?>";
+			}
+		});
     });
 </script>
 <?php endif; ?>
+
+
 
 <div class="container">
     <div class="t-mrg">
@@ -295,6 +300,7 @@
     </script>
   <?php endif; ?>
 <?php endif; ?>
+
 
 
 <script >

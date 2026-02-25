@@ -280,7 +280,7 @@
 
 			const sendUpdateRequest = () => {
 				$.ajax({
-					url: "{{ url('update-profile') }}/" + userId,
+					url: "{{ url('update-profile') }}",
 					type: "POST",
 					data: formData,
 					beforeSend: function () {
