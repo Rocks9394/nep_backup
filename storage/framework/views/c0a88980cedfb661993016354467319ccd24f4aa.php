@@ -828,7 +828,7 @@
 
 
                     <?php $__currentLoopData = $FmsReportData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $reportData): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <tr> <td style="height: 20px;"></td> </tr>                    
+                    <tr> <td style="height: 10px;"></td> </tr>                    
                     <tr>
                         <td style="padding: 1px 10px 3px 10px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;"><?php echo e($key); ?></td>
                     </tr>
@@ -863,7 +863,7 @@
 
                                                 <td style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
                                                     <?php if($data['current_count'] !== null && $data['current_count'] > 0): ?>
-                                                        <img src="<?php echo e(asset('public/assets/imgs/'.$data['current_count'].'smiles.png')); ?>" height="20" style="padding-left:5px; padding-right:5px;">
+                                                        <img src="<?php echo e(public_path('assets/imgs/'.$data['current_count'].'smiles.png')); ?>" height="20" style="padding-left:2px; padding-right:2px;">
                                                     <?php else: ?>
                                                         NA
                                                     <?php endif; ?>
@@ -871,7 +871,7 @@
 
                                                 <td style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
                                                     <?php if($data['previous_count'] !== null && $data['previous_count'] > 0): ?>
-                                                        <img src="<?php echo e(asset('public/assets/imgs/'.$data['previous_count'].'smiles.png')); ?>" height="20" style="padding-left:5px; padding-right:5px;">
+                                                        <img src="<?php echo e(public_path('assets/imgs/'.$data['previous_count'].'smiles.png')); ?>" height="20" style="padding-left:2px; padding-right:2px;">
                                                     <?php else: ?>
                                                         NA
                                                     <?php endif; ?>
@@ -946,7 +946,7 @@
                                     <td style="text-align:left; padding: 0px 0px 0px 30px;">
                                         <div style="float:left; text-align:center; position:relative;">
                                             <p style="color:#666; font-size:10px; position:absolute; top:-17px; width:100%; text-align:center;">powered  by</p>
-                                            <img src="<?php echo e(asset('public/assets/reports/fitness365-logo-web.png')); ?>" alt="fitness365 logo" style="height:28px;">
+                                            <img src="<?php echo e(public_path('assets/reports/fitness365-logo-web.png')); ?>" alt="fitness365 logo" style="height:28px;">
                                         </div> 
                                     </td>
 
@@ -962,7 +962,7 @@
                         <td style="width:74px;">
                             <div style="float: right; position: relative; width: 60px;">
                                 <span style="position: absolute; left: 50%; top:50%; transform: translate(-50%, 0); color: #fff; z-index: 1; display: inline-block; padding: 2px 20px 0 0px; font-size: 13px; font-weight: 600;"></span>
-                                <img src="<?php echo e(asset('public/assets/reports/footer-bg2.png')); ?>" alt="" style="width: inherit;">
+                                <img src="<?php echo e(public_path('assets/reports/footer-bg2.png')); ?>" alt="" style="width: inherit;">
                             </div>
                         </td>
 

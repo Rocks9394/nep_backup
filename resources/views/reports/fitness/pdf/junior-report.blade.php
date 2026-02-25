@@ -820,7 +820,7 @@
 
 
                     @foreach($FmsReportData  as $key => $reportData)
-                    <tr> <td style="height: 20px;"></td> </tr>                    
+                    <tr> <td style="height: 10px;"></td> </tr>                    
                     <tr>
                         <td style="padding: 1px 10px 3px 10px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;">{{ $key }}</td>
                     </tr>
@@ -855,7 +855,7 @@
 
                                                 <td style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
                                                     @if($data['current_count'] !== null && $data['current_count'] > 0)
-                                                        <img src="{{ asset('public/assets/imgs/'.$data['current_count'].'smiles.png') }}" height="20" style="padding-left:5px; padding-right:5px;">
+                                                        <img src="{{ public_path('assets/imgs/'.$data['current_count'].'smiles.png') }}" height="20" style="padding-left:2px; padding-right:2px;">
                                                     @else
                                                         NA
                                                     @endif
@@ -863,7 +863,7 @@
 
                                                 <td style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
                                                     @if($data['previous_count'] !== null && $data['previous_count'] > 0)
-                                                        <img src="{{ asset('public/assets/imgs/'.$data['previous_count'].'smiles.png') }}" height="20" style="padding-left:5px; padding-right:5px;">
+                                                        <img src="{{ public_path('assets/imgs/'.$data['previous_count'].'smiles.png') }}" height="20" style="padding-left:2px; padding-right:2px;">
                                                     @else
                                                         NA
                                                     @endif
@@ -937,7 +937,7 @@
                                     <td style="text-align:left; padding: 0px 0px 0px 30px;">
                                         <div style="float:left; text-align:center; position:relative;">
                                             <p style="color:#666; font-size:10px; position:absolute; top:-17px; width:100%; text-align:center;">powered  by</p>
-                                            <img src="{{ asset('public/assets/reports/fitness365-logo-web.png')}}" alt="fitness365 logo" style="height:28px;">
+                                            <img src="{{ public_path('assets/reports/fitness365-logo-web.png')}}" alt="fitness365 logo" style="height:28px;">
                                         </div> 
                                     </td>
 
@@ -953,7 +953,7 @@
                         <td style="width:74px;">
                             <div style="float: right; position: relative; width: 60px;">
                                 <span style="position: absolute; left: 50%; top:50%; transform: translate(-50%, 0); color: #fff; z-index: 1; display: inline-block; padding: 2px 20px 0 0px; font-size: 13px; font-weight: 600;"></span>
-                                <img src="{{ asset('public/assets/reports/footer-bg2.png')}}" alt="" style="width: inherit;">
+                                <img src="{{ public_path('assets/reports/footer-bg2.png')}}" alt="" style="width: inherit;">
                             </div>
                         </td>
 
@@ -1539,7 +1539,7 @@
                         <td style="border: 1px solid transparent; width:50%;">
                             <div style="padding: 10px 0px; height: 63px; background-color: #fff; border-right: 3px solid #fff;">
                                 <div style="margin: 10px 0 0 0; text-align:center;">
-                                    <img src="{{ asset('/public/assets/imgs/rashmi_stamp.jpg')}}" alt="" style="height: 70px;">
+                                    <img src="{{ public_path('assets/imgs/rashmi_stamp.jpg')}}" alt="" style="height: 70px;">
                                 </div>
                             </div>
                              <p style="text-align: center; font-weight: 600;">Issued by</p>
@@ -1549,7 +1549,7 @@
                             <div style="padding: 10px 0px; height: 63px; background-color: #fff; border-left: 3px solid #fff;">
                                 @if($studentsData->signature)
                                     <div style="margin: 10px 0 0 0; text-align:center;">
-                                        <img src="{{ public_path('/assets/uploads/signatures/' . $studentsData->signature) }}" alt="" style="height: 70px;">
+                                        <img src="{{ public_path('assets/uploads/signatures/' . $studentsData->signature) }}" alt="" style="height: 70px;">
                                     </div>
                                 @endif
                             </div>

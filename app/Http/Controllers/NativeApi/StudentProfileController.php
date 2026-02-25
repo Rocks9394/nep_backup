@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\BelongsTo;
 use App\Helpers\Helper;
 
-
 use App\Models\StudentDashboard;
 use App\Models\ClassModel;
 use App\Models\StudentInfo;
@@ -37,12 +36,13 @@ class StudentProfileController extends Controller
 {
     use ReportHelperTrait;
 
+
     public function show(Request $request) {
          
         $student = Auth::guard('student-api')->user();
-        $student->load(['school', 'class']);           
+        $student->load(['school', 'class']);
 
-        // 3. Build the normalized data object
+        $className = Helper::getClassAndSection($student->custom_class_id);
         $normalizedData = [
             'user_id'      => $student->id,
             'name'         => $student->student_name,
@@ -62,7 +62,7 @@ class StudentProfileController extends Controller
 
             'metadata'     => [
                 'dob'           => $student->dob,
-                'qualification' => Helper::getClassAndSection($student->class_id) ?? null,
+                'qualification' => $className ?? null,
                 'rollno'    => $student->rollno,
 
             ]
@@ -78,7 +78,6 @@ class StudentProfileController extends Controller
     public function dashboard(){
 
         $studentId = Auth::guard('student-api')->user()->id;
-
         $currentDate = Carbon::now()->format('Y/m/d');
            
         $studentData = DB::table('students')        
@@ -134,24 +133,18 @@ class StudentProfileController extends Controller
         $class = DB::table('custom_classes')
         ->join('class','class.id','=','custom_classes.class_id')
         ->select('custom_classes.id','class_id','section',
-
             DB::raw("CASE 
                 WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
                 THEN custom_classes.nomenclature 
                 ELSE class.name 
             END AS classname")
-
-            // 'class.name AS classname'
         )
         ->where('class.id', $classId)
         ->Where('school_id', $SchoolId)
         ->orderBy('custom_classes.orders', 'ASC')
         ->get();
 
-        $fmsApplicable = DB::table('class_fitness_tests')
-            ->where('class_id', $classId)
-            ->pluck('test_type_id')
-            ->toArray();
+        $fmsApplicable = DB::table('class_fitness_tests')->where('class_id', $classId)->pluck('test_type_id')->toArray();
 
         $fmsTestData = DB::table('TestTypeMaster')
         ->join('skill_reports', 'skill_reports.TestTypeMasterID', '=', 'TestTypeMaster.TestTypeID')
@@ -173,9 +166,6 @@ class StudentProfileController extends Controller
             'skill_reports.icons'
         )
         ->get();
-
-
-        // dd($fmsTestData);
 
         
         foreach ($fmsTestData as $item) {
@@ -224,13 +214,15 @@ class StudentProfileController extends Controller
             'L7' => "Excellent",
             'L8' => "Beyond L7",
         ];
+        
+        $fitnessTest->map(function ($item) use ($levelLabels) {
+            $num = (int) str_replace('L', '', $item->level);
+            $next = 'L' . ($num + 1);
+            $item->levelOutcome = $levelLabels[$item->level] ?? 'Unknown';
+            $item->nextLevel = isset($levelLabels[$next])  ? ['level' => $next, 'outcome' => $levelLabels[$next]] : null;
+            return $item;
+        });
 
-
-        /* Creating N+1 problems */
-        foreach ($fitnessTest as $item) {    
-            $level = $item->level;
-            $item->levelOutcome = $levelLabels[$level] ?? 'Unknown';
-        }
 
         $categories_id2 = [];
         $categoty = "";
@@ -245,7 +237,6 @@ class StudentProfileController extends Controller
         }else{
             $categoty = "Girls";
         }
-        
 
         $getFitnessBenchmark = $this->getBenchmark($studentAge, $categoty, $categories_id2);
 
@@ -269,7 +260,7 @@ class StudentProfileController extends Controller
             ->whereDate('term_end_date', '>=', $today)
             ->first();
 
-            $selectedTerm = session('term_id', $currentTerm->id);
+        $selectedTerm = session('term_id', $currentTerm->id);
 
         return response()->json([
             'status' => true,
@@ -287,7 +278,6 @@ class StudentProfileController extends Controller
                 'getFitnessBenchmark' => $getFitnessBenchmark
             ]
         ], 200);
-
     }
 
 }

@@ -220,7 +220,7 @@ class Helper
 					if (Session::has('SelectSchoolId')) {
 						$schoolId = Session::get('SelectSchoolId');
 					} elseif (count($schoolId) === 1) {
-						$schoolId = $schoolIds[0];
+						$schoolId = $schoolId[0];
 					} else{
 						$schoolId = null;
 					}

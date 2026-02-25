@@ -6,6 +6,7 @@ use App\Http\Controllers\NativeApi\AuthController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\NativeApi\TrainerProfileController;
 use App\Http\Controllers\NativeApi\StudentProfileController;
+use App\Http\Controllers\NativeApi\ReportController;
 
 
 
@@ -13,10 +14,10 @@ use App\Http\Controllers\NativeApi\StudentProfileController;
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:student-api')->group(function () {
-
     Route::get('/student/profile', [StudentProfileController::class, 'show']);
     Route::get('/student/dashboard', [StudentProfileController::class,'dashboard'])->name('students.dashboard');
-  
+
+    Route::get('/reports-download', [ReportController::class, 'downloadFitnessReport']);
 });
 
 
