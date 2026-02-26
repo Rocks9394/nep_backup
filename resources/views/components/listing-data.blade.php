@@ -63,6 +63,7 @@ $(function () {
     const enableStatusFilter = @json($enableStatusFilter ?? false);
     const enableClassSectionFilter = @json($enableClassSectionFilter ?? false);
     const enableSchoolTermsFilter = @json($enableSchoolTermsFilter ?? false);
+    const enableSportsFilter = @json($enableSportsFilter ?? false);
 
     const enableLengthMenu = @json($enableLengthMenu ?? true);
     const pageLength = @json($pageLength ?? 100);
@@ -147,6 +148,7 @@ $(function () {
             url: "{{ $ajaxUrl }}",
             data: function (d) {
                 d.selectedOnlyClass = $('#filter-only-class').val();
+                d.enableSportsFilter = $('#filter-sports').val();
                 $('[id^="filter-"]').each(function () {
                     const name = $(this).attr('id').replace('filter-', '');
                     d[name] = $(this).val();
@@ -319,6 +321,23 @@ $(function () {
                     $statusDiv.insertBefore($skillDiv);
                 }
             }
+            if(enableSportsFilter){
+                console.log('filter enabled');
+                const sportsList = @json($sports ?? []);
+                const $sportsDropdown = $('<select class="form-select form-select-sm ms-2" id="filter-sports" style="font-size: 13px;color: #2c2d78;"></select>');               
+                $sportsDropdown.append(new Option('All Sports', ''));
+                sportsList.forEach(option => {
+                    const displayText = option.name;
+                    const value = option.id;
+                    $sportsDropdown.append(new Option(displayText, value, false));
+                });
+
+                const $sportsFilter = $('<div class="pull-right"></div>').append($sportsDropdown);
+                $sportsFilter.appendTo(`${tableId}_wrapper .top`).next('.dt-length').addClass("pull-right"); 
+                
+            }
+
+
             $('[id^="filter-"]').on('change', function () {
                 table.ajax.reload();
             });

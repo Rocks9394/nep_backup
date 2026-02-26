@@ -3622,6 +3622,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	                's.section_id',
 					'custom_classes.orders as class_order',
 	                's.rollno',
+					'sms.sports_id',
 	                DB::raw("CASE WHEN sp.name IS NULL THEN '---' ELSE sp.name END as sport_name"),
 	                DB::raw("CASE WHEN u.name IS NULL THEN '---' ELSE u.name END as submitted_by"),
 	                DB::raw("CASE WHEN sms.created_at IS NULL THEN '---' ELSE DATE_FORMAT(sms.created_at, '%d-%m-%Y') END as mapped_on"),
@@ -3648,6 +3649,13 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 	            if (!empty($section_id)) {
 	                $query->where('s.section_id', $section_id);
+	            }
+	        }
+            if ($request->filled('sports')) {
+	            $sportsId = $request->input('sports');
+
+	            if (!empty($sportsId)) {
+	                $query->where('sms.sports_id', $sportsId);
 	            }
 	        }
 	        $filters = [

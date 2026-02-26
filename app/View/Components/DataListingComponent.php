@@ -25,10 +25,12 @@ class DataListingComponent extends Component
     public $enableClassSectionFilter;
     public $enableStatusFilter;
     public $enableSchoolTermsFilter;
+    public $enableSportsFilter;
 
     public $classes;
     public $skillIds;
     public $schoolTerms;
+    public $sports;
 
     public $statuses;
     public $pageLength;
@@ -52,6 +54,7 @@ class DataListingComponent extends Component
         $classes = [],
         $skillIds = [],
         $schoolTerms = [],
+        $sports = [],
 
         $enableClassFilter = false, 
         $enableOnlyClassFilter = false,
@@ -59,6 +62,7 @@ class DataListingComponent extends Component
         $enableClassSectionFilter = false, 
         $enableStatusFilter = false,
         $enableSchoolTermsFilter = null,
+        $enableSportsFilter = false,
 
         $statusModeFlag = 0,
         $enableExportButtons = false,
@@ -86,6 +90,7 @@ class DataListingComponent extends Component
         $this->enableClassSectionFilter = filter_var($enableClassSectionFilter, FILTER_VALIDATE_BOOLEAN);
 
          $this->enableSchoolTermsFilter = filter_var($enableSchoolTermsFilter, FILTER_VALIDATE_BOOLEAN);
+         $this->enableSportsFilter = filter_var($enableSportsFilter, FILTER_VALIDATE_BOOLEAN);
 
         $this->enableExportButtons = filter_var($enableExportButtons, FILTER_VALIDATE_BOOLEAN);
         $this->enableLengthMenu = filter_var($enableLengthMenu, FILTER_VALIDATE_BOOLEAN); 
@@ -101,6 +106,7 @@ class DataListingComponent extends Component
         $this->classes = $this->SchoolClassList();
         $this->skillIds = $this->SkillIds();
         $this->schoolTerms = $this->getSchoolTerms();
+        $this->sports = $this->getSports();
 
         $defaultButtons = $this->enableExportButtons ? [ ['type' => 'excelHtml5', 'text' => 'Excel']] : [];
         $this->exportButtons = array_merge($defaultButtons, $exportButtons ?? []);
@@ -233,6 +239,30 @@ class DataListingComponent extends Component
             ])
             ->values()->toArray();
         });
+    }
+
+    protected function getSports() {
+        $userId = Auth::id();
+        
+		if(Auth::user()->role_id == 3){
+			if(Session::get('SelectSchoolId')){	
+				$schoolId = Session::get('SelectSchoolId');	
+			}else{
+				$schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
+			}
+		}else{
+			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+		}
+
+        $sports = DB::table('student_map_sports')
+        ->join('sports', 'sports.id', '=', 'student_map_sports.sports_id')
+        ->where('school_id',$schoolId)->select('sports.name', 'sports.id')
+        ->groupBy('sports.id', 'sports.name')
+        ->orderBy('sports.name')
+        ->get()
+        ->toArray();
+        return $sports;
+
     }
 
     public function render() {

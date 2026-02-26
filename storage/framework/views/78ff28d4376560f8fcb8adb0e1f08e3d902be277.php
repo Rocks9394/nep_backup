@@ -64,6 +64,7 @@ $(function () {
     const enableStatusFilter = <?php echo json_encode($enableStatusFilter ?? false, 15, 512) ?>;
     const enableClassSectionFilter = <?php echo json_encode($enableClassSectionFilter ?? false, 15, 512) ?>;
     const enableSchoolTermsFilter = <?php echo json_encode($enableSchoolTermsFilter ?? false, 15, 512) ?>;
+    const enableSportsFilter = <?php echo json_encode($enableSportsFilter ?? false, 15, 512) ?>;
 
     const enableLengthMenu = <?php echo json_encode($enableLengthMenu ?? true, 15, 512) ?>;
     const pageLength = <?php echo json_encode($pageLength ?? 100, 15, 512) ?>;
@@ -92,9 +93,8 @@ $(function () {
             buttonsConfig.push({
                 text: '<?php echo e($btn['text']); ?>',
                 action: function (e, dt, node, config) {
-                    if (typeof window['<?php echo e($btn['action'] ?? ''); ?>'] === 'function') {   
+                    if (typeof window['<?php echo e($btn['action'] ?? ''); ?>'] === 'function') {
                         window['<?php echo e($btn['action']); ?>'](e, dt, node, config, Array.from(selectedIds), Array.from(termIds));
-                        selectedIds.clear();
                     } else {
                         console.warn('Custom action not found: <?php echo e($btn['action'] ?? ''); ?>');
                     }
@@ -150,6 +150,7 @@ $(function () {
             url: "<?php echo e($ajaxUrl); ?>",
             data: function (d) {
                 d.selectedOnlyClass = $('#filter-only-class').val();
+                d.enableSportsFilter = $('#filter-sports').val();
                 $('[id^="filter-"]').each(function () {
                     const name = $(this).attr('id').replace('filter-', '');
                     d[name] = $(this).val();
@@ -322,6 +323,23 @@ $(function () {
                     $statusDiv.insertBefore($skillDiv);
                 }
             }
+            if(enableSportsFilter){
+                console.log('filter enabled');
+                const sportsList = <?php echo json_encode($sports ?? [], 15, 512) ?>;
+                const $sportsDropdown = $('<select class="form-select form-select-sm ms-2" id="filter-sports" style="font-size: 13px;color: #2c2d78;"></select>');               
+                $sportsDropdown.append(new Option('All Sports', ''));
+                sportsList.forEach(option => {
+                    const displayText = option.name;
+                    const value = option.id;
+                    $sportsDropdown.append(new Option(displayText, value, false));
+                });
+
+                const $sportsFilter = $('<div class="pull-right"></div>').append($sportsDropdown);
+                $sportsFilter.appendTo(`${tableId}_wrapper .top`).next('.dt-length').addClass("pull-right"); 
+                
+            }
+
+
             $('[id^="filter-"]').on('change', function () {
                 table.ajax.reload();
             });

@@ -33,7 +33,7 @@
                     ['data' => 'sport_name', 'name' => 'sport_name'],
                     ['data' => 'submitted_by', 'name' => 'submitted_by'],
                     ['data' => 'mapped_on', 'name' => 'mapped_on'],
-                ],'ajaxUrl' => ''.e(route('students-sports-mapping')).'','exportButtonText' => 'Bulk Action','pageLength' => 100,'enableClassFilter' => false,'enableClassSectionFilter' => true,'exportButtons' => [
+                ],'ajaxUrl' => ''.e(route('students-sports-mapping')).'','exportButtonText' => 'Bulk Action','pageLength' => 100,'enableClassFilter' => false,'enableClassSectionFilter' => true,'enableSportsFilter' => true,'exportButtons' => [
                     [   
                         'type' => 'custom', 'text' => 'Students Sport Mapping', 'action' => 'ExportStudentSportsMapping'
                     ]

@@ -30,6 +30,7 @@
        			:pageLength="100"                
                 :enable-class-filter="false"
                 :enable-class-section-filter="true"
+                :enable-sports-filter="true"
                 :export-buttons="[
                     [   
                         'type' => 'custom', 'text' => 'Students Sport Mapping', 'action' => 'ExportStudentSportsMapping'
