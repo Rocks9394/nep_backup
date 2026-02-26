@@ -3615,7 +3615,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	            ->leftJoin('users as u', 'sms.submitted_by', '=', 'u.id')
 	            ->where('s.school_code', '=', $school->school_code)
 	            ->select(
-	                's.id',
+	                's.id as student_id',
 	                's.student_name as student_name',
 	                's.class_id',
 	                'c.name as class',

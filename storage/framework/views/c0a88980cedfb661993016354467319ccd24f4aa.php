@@ -1548,7 +1548,7 @@
                         <td style="border: 1px solid transparent; width:50%;">
                             <div style="padding: 10px 0px; height: 63px; background-color: #fff; border-right: 3px solid #fff;">
                                 <div style="margin: 10px 0 0 0; text-align:center;">
-                                    <img src="<?php echo e(asset('/public/assets/imgs/rashmi_stamp.jpg')); ?>" alt="" style="height: 70px;">
+                                    <img src="<?php echo e(public_path('assets/imgs/rashmi_stamp.jpg')); ?>" alt="" style="height: 70px;">
                                 </div>
                             </div>
                              <p style="text-align: center; font-weight: 600;">Issued by</p>
@@ -1558,7 +1558,7 @@
                             <div style="padding: 10px 0px; height: 63px; background-color: #fff; border-left: 3px solid #fff;">
                                 <?php if($studentsData->signature): ?>
                                     <div style="margin: 10px 0 0 0; text-align:center;">
-                                        <img src="<?php echo e(public_path('/assets/uploads/signatures/' . $studentsData->signature)); ?>" alt="" style="height: 70px;">
+                                        <img src="<?php echo e(public_path('assets/uploads/signatures/' . $studentsData->signature)); ?>" alt="" style="height: 70px;">
                                     </div>
                                 <?php endif; ?>
                             </div>

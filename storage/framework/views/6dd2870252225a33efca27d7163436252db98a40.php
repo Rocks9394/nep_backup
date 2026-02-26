@@ -1,7 +1,7 @@
-@extends('layouts.filldart-app') @section('title', $title) @section('content')
+ <?php $__env->startSection('title', $title); ?> <?php $__env->startSection('content'); ?>
 
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <div class="container">
     <div class="t-mrg2">
@@ -9,14 +9,23 @@
         <div class="all-chaptr-cards" style="margin:0px;">
         <!-- Success message -->
         <div>
-            <x-back-button title="{{$title}}"/>
+            <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.back-button','data' => ['title' => ''.e($title).'']]); ?>
+<?php $component->withName('back-button'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['title' => ''.e($title).'']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
         </div>
         
         <div class="container-fluid p-0">
-            <x-data-listing-component
-                id="students-sports-mapping-table"
-                :headers="['Class','Section','Roll No.','Student Name', 'Sport','Mapped By','Mapped Date']"
-                :columns="[
+            <?php if (isset($component)) { $__componentOriginal7d544a56946f4bd747a3eca2075b6198f1e62946 = $component; } ?>
+<?php $component = $__env->getContainer()->make(App\View\Components\DataListingComponent::class, ['id' => 'students-sports-mapping-table','headers' => ['Class','Section','Roll No.','Student Name', 'Sport','Mapped By','Mapped Date'],'columns' => [
                     ['data' => 'display_classname', 'name' => 'display_classname'],
                     ['data' => 'section_id', 'name' => 'section_id'],
                     ['data' => 'rollno', 'name' => 'rollno'],
@@ -24,20 +33,21 @@
                     ['data' => 'sport_name', 'name' => 'sport_name'],
                     ['data' => 'submitted_by', 'name' => 'submitted_by'],
                     ['data' => 'mapped_on', 'name' => 'mapped_on'],
-                ]"
-                ajax-url="{{ route('students-sports-mapping') }}"
-				:exportButtonText="'Bulk Action'"
-       			:pageLength="100"                
-                :enable-class-filter="false"
-                :enable-class-section-filter="true"
-                :export-buttons="[
+                ],'ajaxUrl' => ''.e(route('students-sports-mapping')).'','exportButtonText' => 'Bulk Action','pageLength' => 100,'enableClassFilter' => false,'enableClassSectionFilter' => true,'exportButtons' => [
                     [   
                         'type' => 'custom', 'text' => 'Students Sport Mapping', 'action' => 'ExportStudentSportsMapping'
                     ]
-                ]"
-                
-            >
-            </x-data-listing-component>
+                ]]); ?>
+<?php $component->withName('data-listing-component'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes([]); ?>
+             <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal7d544a56946f4bd747a3eca2075b6198f1e62946)): ?>
+<?php $component = $__componentOriginal7d544a56946f4bd747a3eca2075b6198f1e62946; ?>
+<?php unset($__componentOriginal7d544a56946f4bd747a3eca2075b6198f1e62946); ?>
+<?php endif; ?>
         </div>
 
     </div>
@@ -81,11 +91,11 @@
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                url: "{{ route('expoort.students-sports-mapping') }}",
+                url: "<?php echo e(route('expoort.students-sports-mapping')); ?>",
                 type: 'POST',
                 contentType: "application/json",
                 data: JSON.stringify({
-                    _token: "{{ csrf_token() }}",
+                    _token: "<?php echo e(csrf_token()); ?>",
                     student_ids: selectedIds
                 }),            
                 xhrFields: { responseType: 'blob' },
@@ -136,4 +146,6 @@
 
 
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/school/modules/students-sports-mapping.blade.php ENDPATH**/ ?>

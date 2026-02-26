@@ -93,8 +93,8 @@ $(function () {
                 text: '<?php echo e($btn['text']); ?>',
                 action: function (e, dt, node, config) {
                     if (typeof window['<?php echo e($btn['action'] ?? ''); ?>'] === 'function') {   
-                        console.log('pass')
                         window['<?php echo e($btn['action']); ?>'](e, dt, node, config, Array.from(selectedIds), Array.from(termIds));
+                        selectedIds.clear();
                     } else {
                         console.warn('Custom action not found: <?php echo e($btn['action'] ?? ''); ?>');
                     }

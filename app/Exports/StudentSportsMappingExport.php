@@ -91,16 +91,28 @@ class StudentSportsMappingExport implements FromCollection, WithHeadings, WithEv
                 $sheet->setCellValue('A1', "{$this->schoolName} - Students Sports Mapping List");
 
                 // Style the header
-                $sheet->getStyle('A1')->applyFromArray([
+                $sheet->getStyle('A1:G1')->applyFromArray([
                     'font' => [
                         'bold' => true,
-                        'size' => 14,
+                        'size' => 16,
                         'color' => ['rgb' => '1F497D'],
                     ],
                     'alignment' => [
                         'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                         'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
                     ],
+                ]);
+                $sheet->getStyle('A3:G3')->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'size' => 12,
+                    ],
+                    'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => [
+                        'rgb' => 'D9E1F2', // light blue background
+                    ],
+                ],
                 ]);
             },
         ];

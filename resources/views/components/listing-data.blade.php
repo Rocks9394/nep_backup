@@ -91,8 +91,7 @@ $(function () {
             buttonsConfig.push({
                 text: '{{ $btn['text'] }}',
                 action: function (e, dt, node, config) {
-                    if (typeof window['{{ $btn['action'] ?? '' }}'] === 'function') {   
-                        console.log('pass')
+                    if (typeof window['{{ $btn['action'] ?? '' }}'] === 'function') {
                         window['{{ $btn['action'] }}'](e, dt, node, config, Array.from(selectedIds), Array.from(termIds));
                     } else {
                         console.warn('Custom action not found: {{ $btn['action'] ?? '' }}');
