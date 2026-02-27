@@ -36,7 +36,6 @@
                         'type' => 'custom', 'text' => 'Students Sport Mapping', 'action' => 'ExportStudentSportsMapping'
                     ]
                 ]"
-                
             >
             </x-data-listing-component>
         </div>
@@ -58,7 +57,6 @@
         });
         return;
     }
-
     Swal.fire({
         title: 'Export Selected?',
         text: `You are exporting ${selectedIds.length} student(s). Continue?`,

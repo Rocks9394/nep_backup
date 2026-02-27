@@ -110,7 +110,7 @@ class StudentSportsMappingExport implements FromCollection, WithHeadings, WithEv
                     'fill' => [
                     'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
                     'startColor' => [
-                        'rgb' => 'D9E1F2', // light blue background
+                        'rgb' => 'D9E1F2',
                     ],
                 ],
                 ]);

@@ -42,7 +42,8 @@ class StudentProfileController extends Controller
         $student = Auth::guard('student-api')->user();
         $student->load(['school', 'class']);
 
-        $className = Helper::getClassAndSection($student->custom_class_id);
+        $className = Helper::changeToRoman($student->custom_class_id);
+
         $normalizedData = [
             'user_id'      => $student->id,
             'name'         => $student->student_name,
@@ -186,6 +187,7 @@ class StudentProfileController extends Controller
 
         $fitnessTest = DB::table('SeniorTestResults as str')
             ->join('skill_reports', 'skill_reports.id', '=', 'str.TestTypeID')
+            ->join('TestTypeMaster','TestTypeMaster.TestTypeID','=', 'skill_reports.TestTypeMasterID')
             ->select(
                 'str.SchoolID',
                 'str.StudentID',
@@ -196,7 +198,9 @@ class StudentProfileController extends Controller
                 'str.weight',
                 'str.level',                
                 'skill_reports.skill_name',
-                'skill_reports.icons',            
+                'skill_reports.icons',
+                'TestTypeMaster.ScoreUnit',
+                'TestTypeMaster.ScoreCriteria'          
             )
             ->where('str.StudentID', $studentId)
             ->where('str.TermId', $TermMasterId)
@@ -215,14 +219,6 @@ class StudentProfileController extends Controller
             'L8' => "Beyond L7",
         ];
         
-        $fitnessTest->map(function ($item) use ($levelLabels) {
-            $num = (int) str_replace('L', '', $item->level);
-            $next = 'L' . ($num + 1);
-            $item->levelOutcome = $levelLabels[$item->level] ?? 'Unknown';
-            $item->nextLevel = isset($levelLabels[$next])  ? ['level' => $next, 'outcome' => $levelLabels[$next]] : null;
-            return $item;
-        });
-
 
         $categories_id2 = [];
         $categoty = "";
@@ -238,7 +234,56 @@ class StudentProfileController extends Controller
             $categoty = "Girls";
         }
 
-        $getFitnessBenchmark = $this->getBenchmark($studentAge, $categoty, $categories_id2);
+        $getFitnessBenchmark = $this->getBenchmark($studentAge, $categoty, $categories_id2)->keyBy('skill_name');
+
+    
+
+        $fitnessTest->map(function ($item) use ($levelLabels, $getFitnessBenchmark) {    
+
+            $normalizedScore = $this->formatValue($item->Score, $item->ScoreUnit);
+            $item->Score = $normalizedScore ?? null;
+
+            $currentLevelKey = $item->level;
+            $num = (int) str_replace('L', '', $currentLevelKey);
+            $nextLevelKey = 'L' . ($num + 1);
+
+
+            $item->levelOutcome = $levelLabels[$currentLevelKey] ?? 'Unknown';
+            $item->nextGoal = isset($levelLabels[$nextLevelKey])  ? [
+                'next_level'    => $nextLevelKey, 
+                'next_outcome'  => $levelLabels[$nextLevelKey],
+                'next_score'    =>''
+            ] : null;
+
+            $skillBenchmark = $getFitnessBenchmark->get($item->skill_name);
+
+            if ($skillBenchmark && isset($skillBenchmark->ranges)) {
+                $ranges = $skillBenchmark->ranges;
+                $item->nextGoal['next_score'] = $ranges[$nextLevelKey] ?? 'Already Reached Maximum';
+
+
+                $item->ultimateGoal = [
+                    'ultimate_level' => 'L7', 
+                    'ultimate_goal' => $levelLabels['L7'], 
+                    'ultimate_score' => $ranges['L7'] ?? 'N.A.'
+                ];
+
+            } else {
+                $item->nextLevelScore = 'N.A';
+                $item->ultimate_goal = 'N.A.';
+                $item->ultimate_score = 'N.A.';
+            }
+
+            
+            return $item;
+        });
+
+        // echo "<pre>"; print_r($fitnessTest);exit();
+
+        
+
+
+
 
 
         $year = date('Y');

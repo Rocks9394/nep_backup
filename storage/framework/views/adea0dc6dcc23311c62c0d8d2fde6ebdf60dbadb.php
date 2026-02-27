@@ -1,6 +1,6 @@
-@extends('layouts.filldart-app')
-@section('title', 'Goforfit | ' . $title)
-@section('content')
+
+<?php $__env->startSection('title', 'Goforfit | ' . $title); ?>
+<?php $__env->startSection('content'); ?>
 
 <style>
    .video-card {
@@ -51,8 +51,7 @@
       z-index: 2;
    }
    .video-card:hover img {
-      transform: scale(1.05);
-      transition: 0.4s ease-in-out;
+      transform: scale(1.08);
    }
    .video-card:hover::after {
       opacity: 0.85;
@@ -90,17 +89,11 @@
    .video-card:hover .play-icon {
       transform: translate(-50%, -50%) scale(1.15);
    }
+
+   /* Responsive */
    @media (max-width: 991px) {
       .video-card {
          height: 280px;
-      }
-      .card-content span {
-         font-size: 18px;
-      }
-
-      .play-icon svg {
-         width: 60px;
-         height: 60px;
       }
    }
 
@@ -110,17 +103,17 @@
       }
 
       .card-content span {
-         font-size: 16px;
+         font-size: 18px;
       }
 
       .play-icon svg {
-         width: 50px;
-         height: 50px;
+         width: 60px;
+         height: 60px;
       }
    }
 </style>
 
-@php
+<?php
 $videos = [
     ['id' => 'g1rCLbqosQU', 'title' => 'Balance'],
     ['id' => 'u8jSpu9qceQ', 'title' => 'Abdominal muscular strength and Endurance'],
@@ -136,21 +129,21 @@ $videos = [
     ['id' => 'GX-w7lOUd0c', 'title' => 'Muscular Endurance for 65+'],
     ['id' => 'BxvdqGqeGiY', 'title' => 'Flexibility for 65+'],
 ];
-@endphp
+?>
 
 <div class="container mt-5">
     <div class="row mt-4 mb-5">
 
-        @foreach($videos as $video)
+        <?php $__currentLoopData = $videos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $video): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <div class="col-12 col-sm-6 col-lg-3 mb-3">
             <div class="video-card"
                 data-toggle="modal"
                 data-target="#videoModal"
-                data-video-id="{{ $video['id'] }}"
-                data-video-title="{{ $video['title'] }}">
+                data-video-id="<?php echo e($video['id']); ?>"
+                data-video-title="<?php echo e($video['title']); ?>">
 
-                <img src="https://img.youtube.com/vi/{{ $video['id'] }}/maxresdefault.jpg"
-                    alt="{{ $video['title'] }}">
+                <img src="https://img.youtube.com/vi/<?php echo e($video['id']); ?>/maxresdefault.jpg"
+                    alt="<?php echo e($video['title']); ?>">
 
                <div class="play-icon">
                   <svg width="40" height="40" viewBox="0 0 16 16" fill="#9d9fa8">
@@ -159,14 +152,16 @@ $videos = [
                </div>
 
                <div class="card-content">
-                  <span>{{ $video['title'] }}</span>
+                  <span><?php echo e($video['title']); ?></span>
                </div>
             </div>
         </div>
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
     </div>
 </div>
+
+<!-- Modal Same as Before -->
 <div class="modal fade" id="videoModal" tabindex="-1" area-hidden="true" role="dialog"
      data-backdrop="static"
      data-keyboard="false">
@@ -210,4 +205,5 @@ $(document).ready(function() {
 });
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/parent/getactive.blade.php ENDPATH**/ ?>

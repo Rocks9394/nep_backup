@@ -3621,7 +3621,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	                'c.name as class',
 	                's.section_id',
 					'custom_classes.orders as class_order',
-	                's.rollno',
+	                's.rollno',					
 					'sms.sports_id',
 	                DB::raw("CASE WHEN sp.name IS NULL THEN '---' ELSE sp.name END as sport_name"),
 	                DB::raw("CASE WHEN u.name IS NULL THEN '---' ELSE u.name END as submitted_by"),
@@ -3651,7 +3651,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	                $query->where('s.section_id', $section_id);
 	            }
 	        }
-            if ($request->filled('sports')) {
+			if ($request->filled('sports')) {
 	            $sportsId = $request->input('sports');
 
 	            if (!empty($sportsId)) {
