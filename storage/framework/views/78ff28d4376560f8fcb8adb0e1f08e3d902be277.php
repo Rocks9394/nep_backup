@@ -65,6 +65,9 @@ $(function () {
     const enableClassSectionFilter = <?php echo json_encode($enableClassSectionFilter ?? false, 15, 512) ?>;
     const enableSchoolTermsFilter = <?php echo json_encode($enableSchoolTermsFilter ?? false, 15, 512) ?>;
     const enableSportsFilter = <?php echo json_encode($enableSportsFilter ?? false, 15, 512) ?>;
+    const enableCustomFilter = <?php echo json_encode($enableCustomFilter, 15, 512) ?>;
+    const customFilterOptions = <?php echo json_encode($customFilterOptions ?? [], 15, 512) ?>;
+    const selectedCustomFilter = <?php echo json_encode($selectedCustomFilter ?? null, 15, 512) ?>;
 
     const enableLengthMenu = <?php echo json_encode($enableLengthMenu ?? true, 15, 512) ?>;
     const pageLength = <?php echo json_encode($pageLength ?? 100, 15, 512) ?>;
@@ -151,6 +154,7 @@ $(function () {
             data: function (d) {
                 d.selectedOnlyClass = $('#filter-only-class').val();
                 d.enableSportsFilter = $('#filter-sports').val();
+                d.custom = $('#filter-custom').val();
                 $('[id^="filter-"]').each(function () {
                     const name = $(this).attr('id').replace('filter-', '');
                     d[name] = $(this).val();
@@ -337,6 +341,12 @@ $(function () {
                 const $sportsFilter = $('<div class="pull-right"></div>').append($sportsDropdown);
                 $sportsFilter.appendTo(`${tableId}_wrapper .top`).next('.dt-length').addClass("pull-right"); 
                 
+            }
+            if(enableCustomFilter && customFilterOptions.length>0){
+                const $customDropdown = $('<select class="form-select form-select-sm ms-2" id="filter-custom" style="font-size: 13px;color: #2c2d78;"></select>');
+                customFilterOptions.forEach(opt => { $customDropdown.append(new Option(opt.label, opt.value, false, selectedCustomFilter==opt.value)); });
+                
+                $('<div class="pull-right"></div>').append($customDropdown).appendTo(`${tableId}_wrapper .top`).next('.dt-length').addClass("pull-right"); 
             }
 
 

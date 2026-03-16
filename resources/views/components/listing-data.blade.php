@@ -64,6 +64,9 @@ $(function () {
     const enableClassSectionFilter = @json($enableClassSectionFilter ?? false);
     const enableSchoolTermsFilter = @json($enableSchoolTermsFilter ?? false);
     const enableSportsFilter = @json($enableSportsFilter ?? false);
+    const enableCustomFilter = @json($enableCustomFilter);
+    const customFilterOptions = @json($customFilterOptions ?? []);
+    const selectedCustomFilter = @json($selectedCustomFilter ?? null);
 
     const enableLengthMenu = @json($enableLengthMenu ?? true);
     const pageLength = @json($pageLength ?? 100);
@@ -149,6 +152,7 @@ $(function () {
             data: function (d) {
                 d.selectedOnlyClass = $('#filter-only-class').val();
                 d.enableSportsFilter = $('#filter-sports').val();
+                d.custom = $('#filter-custom').val();
                 $('[id^="filter-"]').each(function () {
                     const name = $(this).attr('id').replace('filter-', '');
                     d[name] = $(this).val();
@@ -335,6 +339,12 @@ $(function () {
                 const $sportsFilter = $('<div class="pull-right"></div>').append($sportsDropdown);
                 $sportsFilter.appendTo(`${tableId}_wrapper .top`).next('.dt-length').addClass("pull-right"); 
                 
+            }
+            if(enableCustomFilter && customFilterOptions.length>0){
+                const $customDropdown = $('<select class="form-select form-select-sm ms-2" id="filter-custom" style="font-size: 13px;color: #2c2d78;"></select>');
+                customFilterOptions.forEach(opt => { $customDropdown.append(new Option(opt.label, opt.value, false, selectedCustomFilter==opt.value)); });
+                
+                $('<div class="pull-right"></div>').append($customDropdown).appendTo(`${tableId}_wrapper .top`).next('.dt-length').addClass("pull-right"); 
             }
 
 

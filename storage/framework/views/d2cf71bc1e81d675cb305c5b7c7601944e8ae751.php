@@ -128,10 +128,12 @@
     }
 
     .star-filled {
+        font-family: DejaVu Sans, 
         color: #ffc107;
     }
 
     .star-empty {
+        font-family: DejaVu Sans, 
         color: #ddd;
     }
 
@@ -180,7 +182,7 @@
                 <div style="position: absolute; top: 0; display: flex; align-items: flex-start; z-index: 10; width: 130px; overflow: hidden;left: 32px;">
                     <div class="logo" style="position: relative; width: inherit;">
                         <span style="position: absolute; top:0; left:0; width: inherit; padding: 20px; box-sizing: border-box; display:inline-block;">
-                            <img src="<?php echo e(public_path('assets/uploads/logos/' . $school->logo)); ?>" alt="" style="width: 95px;margin-top: 0px;">
+                            <img src="<?php echo e(public_path('assets/uploads/logos/' . $school->logo)); ?>" alt="" style="width: 95px; height:70px;margin-top: 0px;">
                         </span>
                         <img src="<?php echo e(public_path('assets/reports/logo-bg.jpg')); ?>" alt="" style="width: 130px;height: 140px;margin-top: -35px;">
                     </div>
@@ -202,7 +204,7 @@
     ?>
 
     <div class="table-wrapper">
-        <table class="student-details">
+        <table class="student-details" cellpadding="0" cellspacing="0" style="width: 100%; border: 0; border-collapse: collapse;">
             <tr>
                 <th>Name</th>
                 <td><?php echo e($student->student_name); ?></td>

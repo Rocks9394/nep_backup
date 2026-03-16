@@ -277,13 +277,20 @@ class ReportController extends Controller {
 	            );
 	    });
 
+		$firstName = strtolower(trim(explode(' ', $studentsData->student_name)[0]));
+        $plainPassword = $firstName . '@' . trim($studentsData->admissionnumber);
+
         $getBmiBenchmark = $this->getBmiBenchmark($ageGender);
+		$isLetterHead = true;
 
         if (in_array($studentsData->class_id, [4,5,6,7,8,9,10,11,12])) {
             [$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport );
 
-            $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact(
-                'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
+            // $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact(
+            //     'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
+            // ));
+            $pdf = Pdf::loadView('reports.fitness.pdf.one-page-senior', compact(
+                'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark','isLetterHead','plainPassword'
             ));
         } else {
 
@@ -291,12 +298,16 @@ class ReportController extends Controller {
                 $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId 
             );
 
-            $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
-                'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
+            // $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
+            //     'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
+            // ));
+            $pdf = Pdf::loadView('reports.fitness.pdf.one-page-junior', compact(
+                'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark','isLetterHead','plainPassword'
             ));
         }
 
 		$filename = 'Fitness_Report_Cards-'.date('d-m-Y_H-i-s').'.pdf';
+		return $pdf->stream($filename);
 		return $pdf->download($filename);
     }
 
@@ -320,6 +331,7 @@ class ReportController extends Controller {
                 ], 400);
             }
 
+			$reportType = $request->input('reportType');
             $studentIds = $request->input('student_ids', []);
             $termIds = $request->input('termIds', []);
             $termId  = $termIds[0] ?? null;
@@ -349,7 +361,7 @@ class ReportController extends Controller {
 			    );
 			}			
 
-            GenerateSchoolReportsMasterJob::dispatch($schoolId, $studentIds, $report_batch->id, $termId)->onQueue('report_generation');
+            GenerateSchoolReportsMasterJob::dispatch($schoolId, $studentIds, $report_batch->id, $termId, $reportType)->onQueue('report_generation');
             return response()->json([
                 'status' => 'queued',
                 'message' => 'Your report card request has been submitted and is being processed. Please return to this page later. Once the report is ready, it will appear under Available Downloads.'
@@ -1293,7 +1305,7 @@ class ReportController extends Controller {
 
 			$fileName = 'Skill_Report_' . $student->student_name . '.pdf';
 
-			// return $pdf->stream($fileName);
+			return $pdf->stream($fileName);
 
 			return $pdf->download($fileName);
 		}

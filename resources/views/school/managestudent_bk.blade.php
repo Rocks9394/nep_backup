@@ -6,8 +6,10 @@
 	$schoolCode = DB::table('schools')->where('id',$schoolsId)->value('school_code'); 
 @endphp
 
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
-<style type="text/css">
+
+<style>
 	.dt-container .top .filter-right {
 		order: 2;
 		margin-right: 8%;
@@ -17,157 +19,57 @@
 	#select_action {
 		margin-right: 15px !important;
 	}
+    .edit-pen-icon {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        cursor: pointer;
+        font-size: 14px;
+        color: grey;
+    }
+    
 
-	#record_table {
-		width: 100%;
-		overflow-x: auto;
-		overflow-y: auto;
-		display: block;
+   /* Force table layout */
+	#studentTableRecords {
+		table-layout: fixed !important;
+		width: 100% !important;
 	}
+	#studentTableRecords col[data-dt-column="0"] { width: 2.6% !important; }
+	#studentTableRecords col[data-dt-column="1"] { width: 3.5% !important; }
+	#studentTableRecords col[data-dt-column="2"] { width: 8.8% !important; }
+	#studentTableRecords col[data-dt-column="3"] { width: 7.0% !important; }
+	#studentTableRecords col[data-dt-column="4"] { width: 7.9% !important; }
+	#studentTableRecords col[data-dt-column="5"] { width: 15.8% !important; }
+	#studentTableRecords col[data-dt-column="6"] { width: 10.5% !important; }
+	#studentTableRecords col[data-dt-column="7"] { width: 15.8% !important; }
+	#studentTableRecords col[data-dt-column="8"] { width: 8.8% !important; }
+	#studentTableRecords col[data-dt-column="9"] { width: 10.5% !important; }
+	#studentTableRecords col[data-dt-column="10"] { width: 8.8% !important; }
 
-	#studentTableRecords thead th {
-		position: sticky;
-		top: 0;
-		box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
-	}
-
-	
-	#studentTableRecords th:nth-child(1),
-	#studentTableRecords td:nth-child(1) {
-		width: 4% !important;
-		min-width: 30px !important;
-	}
-
-	#studentTableRecords th:nth-child(2),
-	#studentTableRecords td:nth-child(2) {
-		width: 6% !important;
-		min-width: 40px !important;
-	}
-
-	#studentTableRecords th:nth-child(3),
-	#studentTableRecords td:nth-child(3) {
-		width: 7% !important;
-		min-width: 60px !important;
-	}
-
-	#studentTableRecords th:nth-child(4),
-	#studentTableRecords td:nth-child(4) {
-		width: 12% !important;
-		min-width: 70px !important;
-	}
-
-	#studentTableRecords th:nth-child(5),
-	#studentTableRecords td:nth-child(5) {
-		width: 8% !important;
-		min-width: 30px !important;
-	}
-
-	#studentTableRecords th:nth-child(6),
-	#studentTableRecords td:nth-child(6) {
-		width: 15% !important;
-		min-width: 150px !important;
-	}
-
-	#studentTableRecords th:nth-child(7),
-	#studentTableRecords td:nth-child(7) {
-		width: 10% !important;
-		min-width: 110px !important;
-	}
-
-	#studentTableRecords th:nth-child(8),
-	#studentTableRecords td:nth-child(8) {
-		width: 18% !important;
-		min-width: 180px !important;
-	}
-
-	#studentTableRecords th:nth-child(9),
-	#studentTableRecords td:nth-child(9) {
-		width: 8% !important;
-		min-width: 95px !important;
-	}
-
-	#studentTableRecords th:nth-child(10),
-	#studentTableRecords td:nth-child(10) {
-		width: 10% !important;
-		min-width: 100px !important;
-	}
-
-	#studentTableRecords th:nth-child(11),
-	#studentTableRecords td:nth-child(11) {
-		width: 9% !important;
-		min-width: 95px !important;
-	}
-
-	#studentTableRecords th:nth-child(12),
-	#studentTableRecords td:nth-child(12) {
-		width: 7% !important;
-		min-width: 70px !important;
-	}
-
-	#studentTableRecords select {
+	#studentTableRecords select,
+	#studentTableRecords input {
 		width: 100% !important;
 		max-width: 100% !important;
-		box-sizing: border-box;
-	}
-
-	#studentTableRecords th:first-child,
-	#studentTableRecords td:first-child,
-	#studentTableRecords th:nth-child(2),
-	#studentTableRecords td:nth-child(2),
-	#studentTableRecords td:last-child {
-		text-align: center;
-	}
-
-	#studentTableRecords th,
-	#studentTableRecords td {
+		box-sizing: border-box !important;
 		white-space: normal !important;
-		word-wrap: break-word;
-		word-break: break-word;
-	}
-	table#studentTableRecords th.dt-orderable-none .dt-column-order {
-	    display: none !important;
-	}
-
-	#studentTableRecords td:last-child {
-		text-align: center;
-	}
-	@media (max-width: 1200px) {
-		#studentTableRecords {
-			font-size: 0.9rem;
-		}
-	}
-
-	@media (max-width: 768px) {
-		#record_table {
-			height: 60vh;
-		}
-		
-		#studentTableRecords {
-			font-size: 0.85rem;
-		}
-
-		.dataTables_wrapper .dataTables_filter,
-		.dataTables_wrapper .dataTables_length,
-		.dataTables_wrapper .dataTables_info,
-		.dataTables_wrapper .dataTables_paginate {
-			font-size: 0.85rem;
-		}
-		
-		.btn-sm {
-			padding: 0.25rem 0.5rem;
-			font-size: 0.75rem;
-		}
-	}
-
-	.invalid-age {
-		background-color: #ffcccc !important;
-		color: #000;
-		font-weight: bold;
+		overflow-wrap: anywhere !important;
+	}	
+	/* #studentTableRecords .no-grey[readonly] {
+		background-color: #fff !important;
+		color: black;
+		opacity: 1;
+		cursor: default
+	} */
+	.form-control[readonly] {
+		background-color: #ffffff;
+		opacity: 1;
 	}
 </style>
 
 <div class="container">
 	<div class="t-mrg2 mb-5 pb-5">
+		<!-- <div class="t-mrg2 mb-5 pb-4"> -->
 		<div class=" all-chaptr-cards" style="margin: 0;">
 			<!-- Success message -->
 			<form method="POST" name="view-trainer-report" id="reportform" action="javascript(0);">
@@ -190,136 +92,43 @@
 					@if($check == 'true')
 					<div class="col-auto col-md-auto" style="color: #ffffff;">
 						<div class="d-flex">
-
 							<a type="button" id="upload_btn" title="Upload Data" class="btn btn-primary custome-btn-i w-100 mr-3" data-toggle="modal" data-target="#uploadbulkdata"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-upload" viewBox="0 0 16 16"> <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z"/></svg><span>Upload Data</span> </a>
-							
-							<a type="button" id="addstudent" title="Add Student" class="btn btn-primary custome-btn-i w-100  mr-3" data-toggle="modal" data-target="#studentRegistrationForm"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg><span>Add Student</span></a>
-
-							@if($logs->isNotEmpty())
-							<a type="button" class="btn btn-primary custome-btn-i w-100" data-toggle="modal" data-target="#exampleModalCenter">
-							 View History
-							</a>
-							@endif
-
-							
+							<a type="button" id="addstudent" title="Add Student" class="btn btn-primary custome-btn-i w-100" data-toggle="modal" data-target="#studentRegistrationForm"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg><span>Add Student</span></a>
 						</div>
 					</div>
 					@endif
 				</div>
 			</form>
 		</div>
-		
-
-		<!-- Modal -->
-		<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-			<div class="modal-dialog modal-lg modal-xl modal-dialog-centered">
-		      <div class="modal-content">
-		         
-		         <div class="modal-header">
-		            <h5 class="modal-title" id="exampleModalLabel1">Upload History</h5>
-		            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-		            <span aria-hidden="true">&times;</span>
-		            </button>
-		         </div>
-
-		        <div class="modal-body">
-				     <p>
-				        <strong>Note:</strong> Upload history is retained for <strong>15 days</strong> only.  
-				        After 15 days, all upload history will be permanently deleted from the system.  
-				        Please ensure that the uploaded file and the uploaded data are correct.
-				    </p>
-				</div>
-
-		          @if($logs->isNotEmpty())   
-		          <div class="row m-1">
-                 <div class="col">
-		          	<table class="table table-bordered table-striped table-hover">
-                           <thead class="table-dark">
-                               <tr>
-                                   <th>#</th>
-                                   <th>Uploaded By</th>
-                                   <th>Upload Time</th>
-                                   <th>Status</th>
-                                   <th>Message</th>
-                                   <th>Completed At</th>
-                                   <th>Uploaded File</th>
-                                   <th>Error File</th>
-                               </tr>
-                           </thead>
-                           <tbody>
-                               @foreach($logs as $index => $log)
-                               <tr>
-                                   <td>{{ $index + 1 }}</td>
-                                   <td>{{ $log->user->name ?? 'N/A' }}</td>
-                                   <td>{{ \Carbon\Carbon::parse($log->created_at)->format('d M Y h:i A') }}</td>
-                                   <td>
-                                       @if($log->status === 'completed')
-                                           <span class="badge bg-success" style="color:#ffffff;">Completed</span>
-                                       @elseif($log->status === 'processing')
-                                           <span class="badge bg-warning text-dark" style="color:#ffffff;">Processing</span>
-                                       @elseif($log->status === 'queued')
-                                           <span class="badge bg-info text-dark" style="color:#ffffff;">Queued</span>
-                                       @else
-                                           <span class="badge bg-danger" style="color:#ffffff;">Failed</span>
-                                       @endif
-                                   </td>
-                                   <td>{!! nl2br(e($log->message)) !!}</td>
-                                   <td>{{ $log->completed_at ? \Carbon\Carbon::parse($log->completed_at)->format('d M Y h:i A') : '-' }}</td>
-                                   
-                                    <td style="text-align: center;">
-                                       @if($log->file_path)
-                                           <a href="{{ route('download.uploadedfile', $log->id) }}" class="btn btn-sm btn-primary">View</a>
-                                       @endif
-                                   </td>
-
-                                   <td style="text-align: center;">
-	                                    @if($log->error_file)
-	                                        <a href="{{ route('download.errorfile', $log->id) }}" class="btn btn-sm btn-primary">View</a>
-	                                    @endif                      
-                                   </td>
-                                 </tr>
-
-                               @endforeach
-                           </tbody>
-                       </table>
-                    </div>
-                 </div>
-		          @endif
-		      </div>
-		   </div>
-		</div>
-
 
 		@if($check == 'false')
 			@include('school.bulkuploadform')
 		@endif
 
 		@if($check == 'true')
-			<div class="container-fluid p-0">
-				<div class="responsive m-0 mt-4 pt-2" id="record_table">
-
-					<table id="studentTableRecords" class="table table-bordered tbl-style" >
-						<thead>
-							<tr>
-								<th scope="col"><input type="checkbox" id="selectAll"></th>
-								<th scope="col" width="4%;">#</th>
-								<th scope="col">Class</th>
-								<th scope="col">Section </th>
-								<th scope="col">Roll No. </th>
-								<th scope="col">Student Name</th>
-								<th scope="col" width="10%;">Admission No.</th>
-								<th scope="col">Student Email</th>
-								<th scope="col">Gender</th>
-								<th scope="col">Birth Date</th>
-								<th scope="col">Status</th>						
-								<th scope="col">Action</th>
-							</tr>
-						</thead>
-						<tbody> </tbody>
-					</table>
-
-				</div>
+		<div class="container-fluid p-0">
+			<div class="responsive m-0 mt-4 pt-2" id="record_table">
+				<table id="studentTableRecords" class="table table-bordered tbl-style" >
+					<thead>
+						<tr>
+							<th><input type="checkbox" id="selectAll"></th>
+							<th scope="col">#</th>
+							<th>Class</th>
+							<th scope="col">Section </th>
+							<th scope="col">Roll No </th>
+							<th scope="col">Student Name</th>
+							<th scope="col">Admission Number</th>
+							<th scope="col">Email</th>
+							<th scope="col">Gender</th>
+							<th scope="col">Birth Date</th>
+							<th scope="col">Status</th>
+							<th scope="col">Login</th>
+						</tr>
+					</thead>
+					<tbody> </tbody>
+				</table>
 			</div>
+		</div>
 		@endif
 
 	</div>
@@ -327,8 +136,8 @@
 
 <!-- Bulk Upload form -->
 <div class="modal fade" id="uploadbulkdata" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel1" aria-hidden="true">
-  
-   <div class="modal-dialog modal-lg modal-xl modal-dialog-centered">
+   <!-- <div class="modal-dialog modal-xl modal-dialog-centered" role="document"> -->
+   	<div class="modal-dialog modal-lg modal-xl modal-dialog-centered">
       <div class="modal-content">
          <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel1">Upload Student Data</h5>
@@ -337,7 +146,7 @@
             </button>
          </div>
          <div class="upload">         
-		 @include('school.bulkuploadform') 
+			@include('school.bulkuploadform')
          </div>
       </div>
    </div>
@@ -345,104 +154,6 @@
 <!-- EndOfTheModal -->
 
 
-{{-- edit student details modal  --}}
-<div class="modal fade" id="editStudentModal" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog modal-lg modal-dialog-centered">
-		<div class="modal-content">
-
-		<div class="modal-header">
-			<h5 class="modal-title">Edit Student</h5>
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-			<span aria-hidden="true">&times;</span>
-			</button>
-		</div>
-
-		<div class="modal-body">
-			<form id="editStudentForm">
-			@csrf
-			<input type="hidden" id="s_id" name="s_id">
-			<input type="hidden" id="school_id" value="{{ $schoolsId }}">
-
-			<div class="form-row"> 
-				<div class="form-group col-md-4">
-				<label for="editStudentAdmissionNo">Admission Number</label>
-				<input type="text" name="editStudentAdmissionNo" id="editStudentAdmissionNo" class="form-control" readonly>
-				</div>
-
-				<div class="form-group col-md-4">
-				<label for="editStudentName">Student Name</label>
-				<input type="text" name="editStudentName" id="editStudentName" class="form-control" placeholder="Enter student name">
-				<span id="editStudentName_errormsg"></span>
-				</div>
-				<div class="form-group col-md-4">
-				<label for="editStudentEmail">Student Email</label>
-				<input type="email" name="editStudentEmail" id="editStudentEmail" class="form-control" placeholder="Enter student email">
-				<span id="editStudentEmail_errormsg"></span>
-				</div>
-			</div>
-
-			<div class="form-row">
-				<div class="form-group col-md-4">
-				<label for="editStudentClass">Class</label>
-				<select name="editStudentClass" id="editStudentClass" class="form-control"></select>
-				<span id="editStudentClass_errormsg"></span>
-			</div>
-				<div class="form-group col-md-4">
-				<label for="editStudentSection">Section</label>
-				<select name="editStudentSection" id="editStudentSection" class="form-control"></select>
-				<span id="editStudentSection_errormsg"></span>
-			</div>
-				<div class="form-group col-md-4">
-				<label for="editStudentRollno">Roll No</label>
-				<input type="text" name="editStudentRollno" id="editStudentRollno" class="form-control" onclick="rollNoSuggestions(this,
-						document.getElementById('editStudentClass').value,
-						document.getElementById('editStudentSection').value
-					)">
-				<span id="editStudentRollno_errormsg"></span>
-				</div>
-			</div>
-
-			<div class="form-row"> 
-				<div class="form-group col-md-4">
-				<label for="editStudentDOB">Date of Birth</label>
-				<input type="date" name="editStudentDOB" id="editStudentDOB" class="form-control">
-				<span id="editStudentDOB_errormsg"></span>
-				</div>
-				<div class="form-group col-md-4">
-				<label for="editStudentGender">Gender</label>
-				<select name="editStudentGender" id="editStudentGender" class="form-control">
-					<option value="">Select Gender</option>
-					<option value="Male">Male</option>
-					<option value="Female">Female</option>
-				</select>
-				</div>
-				<div class="form-group col-md-4">
-					<label for="editStudentStatus">Status</label>
-					<select type="date" name="editStudentStatus" id="editStudentStatus" class="form-control">
-						<option value="active">Active</option>
-						<option value="transfer">Transfer</option>
-					</select>
-				</div>
-
-			</div>
-
-			<div class="modal-footer d-flex justify-content-between align-items-center">
-				<span class="text-danger" id="ageSuggetion" style="opacity: 0.92;"></span>
-				<div>
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-					<button type="submit" class="btn btn-primary">Update</button>
-				</div>
-			</div>
-
-
-			</form>
-		</div>
-		</div>
-	</div>
-</div>
-
-
-{{-- edit student details modal close  --}}
 
 <!-- Registration Form For Students -->
 <div class="modal fade bd-example-modal-lg" id="studentRegistrationForm" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -474,7 +185,7 @@
 						<div class="col-md-4">
 							<div class="form-group">
 								<label for="studentGender">Gender</label>
-								<select class="form-control form-control-sm" name="gender">
+								<select class="form-control form-control-sm" name="gender" id="studentGender">
 									<option value="">Select Gender</option>
 									<option value="Male">Male</option>
 									<option value="Female">Female</option>
@@ -514,7 +225,7 @@
 
 						<div class="col-md-4">
 							<div class="form-group">
-								<label for="studentSection">Section</label>
+								<label for="sectionDropdown">Section</label>
 								<select class="form-control form-control-sm" name="section" id="sectionDropdown">
 									<option value="">Select Section</option>
 								</select>
@@ -595,7 +306,6 @@
 
 
 <script>
-
 	$(document).ready(function() {
 		function setMaxDate() {
 			var today = new Date();
@@ -608,13 +318,13 @@
 		setMaxDate();
 	});
 
+
 	/*** Manipulate the Table with the Student Details.	* */
 
 
 	$(document).ready(function() {
 
 		var table = $('#studentTableRecords').DataTable({
-
 			dom: `<"top"lf><"filter-right"B>rt<"bottom"ip><"clear">`,
 			lengthChange: true,
 			lengthMenu: [
@@ -626,12 +336,13 @@
 			responsive: true,
 			processing: true,
 			serverSide: true,
+
 			ajax: {
 				url: "{{ route('managestudent') }}",
 				data: function(d) {
-               d.class_id = $('#select_class').val();
-               d.status = $('#select_status').val();
-            }
+			d.class_id = $('#select_class').val();
+			d.status = $('#select_status').val();
+			}
 			},
 			columns: [
 				{	
@@ -647,23 +358,99 @@
 					}
 				},
 				{
-	                data: null,
-	                name: 'serial_no',
-	                orderable: false,
-	                searchable: false,
-	                render: function (data, type, row, meta) {
-	                    return meta.row + meta.settings._iDisplayStart + 1;
-	                }
-	            },
+					data: null,
+					orderable: false,
+					searchable: false,
+					className: 'serial-number',
+					defaultContent: '',
+					render: function(data, type, row, meta) {
+						return meta.row + 1;
+					}
+				},
+
 				{	data: 'class_id', name: 'class_id' },
-				{  data: 'section_id', name: 'section_id'	},
-				{	data: 'rollno', name: 'rollno' },
-				{  data: 'student_name', name: 'student_name' },
-	            {  data: 'admissionnumber', name: 'admissionnumber' },
-	            {  data: 'email_id', name: 'email_id' },
+				{  data: 'section_id', name: 'section_id'},
+				{  
+					data: 'rollno', 
+					name: 'rollno', 
+					render: function(data, type, row) {
+						return `
+						<div class="rollno-edit-wrapper position-relative">
+							<input type="number" 
+							class="form-control form-control-sm student-rollno update_rollno" 
+							value="${data}" 
+							data-rollno="${row.rollno}" 
+							data-id="${row.student_id}" 
+							readonly 
+							style="padding-right: 30px;"
+							onmouseenter="fetchTooltipSuggestions(this, ${row.student_id})"
+							>
+							<span class="edit-pen-icon" title="edit">
+							<i class="fa-solid fa-pen"></i>
+							</span>
+						</div>
+						`;
+					}
+				},
+
+				{  
+					data: 'student_name',
+					name: 'student_name',
+					render: function(data, type, row) {
+						return `
+							<div class="name-edit-wrapper position-relative">
+								<input type="text" 
+									class="form-control form-control-sm student-name update_name" 
+									value="${data}" 
+									data-name="${row.student_name}" 
+									data-id="${row.student_id}" 
+									readonly 
+									style="padding-right: 30px;">
+								<span class="edit-pen-icon" title="edit"><i class="fa-solid fa-pen"></i>
+								</span>
+							</div>
+							`;
+					}
+				},
+				{  data: 'registration_no', name: 'registration_no',
+					render: function(data, type, row) {
+						return `
+							<div class="uid-edit-wrapper position-relative">
+								<input type="text" 
+									class="form-control form-control-sm student-uid update_uid" 
+									value="${data}" 
+									data-uid="${row.student_uid}" 
+									data-id="${row.student_id}" 
+									readonly 
+									style="padding-right: 30px;">
+								<span class="edit-pen-icon" title="edit"><i class="fa-solid fa-pen"></i>
+								</span>
+							</div>
+							`;
+					}						
+				},
+				{
+					data: 'email',
+					name: 'email',
+					render: function(data, type, row) {
+						return `
+							<div class="email-edit-wrapper position-relative">
+								<input type="email" 
+									class="form-control form-control-sm student-email update_email" 
+									value="${data}" 
+									data-email="${row.email_id}" 
+									data-id="${row.student_id}" 
+									readonly 
+									style="padding-right: 30px;">
+								<span class="edit-pen-icon" title="edit"><i class="fa-solid fa-pen"></i>
+								</span>
+							</div>
+							`;
+					}
+				},					
 				{ 	data: 'gender', name: 'gender' },
 				{	data: 'dob', name: 'dob' },
-				{	data: 'status', name: 'status'},							
+				{	data: 'status', name: 'status'},
 				{
 					data: null,
 					orderable: false,
@@ -672,45 +459,65 @@
 					defaultContent: '',
 					render: function(data, type, row) {
 						return `
-						<div class="d-flex align-items-center gap-4">
-							<button class="btn btn-sm mx-1 edit-student" 
-									data-id="${row.student_id}" 
-									title="edit ${row.student_name} details" style="background:#8f8f8f;">
-								<i class="fas fa-edit"></i>
-							</button>
-
-							<button class="btn btn-sm btn-primary mx-1 login-as-student" 
+							<button class="btn btn-sm btn-primary login-as-student" 
 									data-id="${row.student_id}" 
 									title="Login as ${row.student_name}">
 								<i class="fa-solid fa-right-to-bracket"></i>
 							</button>
-						</div>
 						`;
 					}
-				},
+				},			
 			],
-						
-			createdRow: function(row, data, dataIndex) {
-				const hasDobError = $(row).find('input[data-dob-error="true"]').length > 0;
-				
-				if (hasDobError) {
-					$(row).addClass('invalid-age');
-				}
-			},
-
 			columnDefs: [
-		        { targets: 0, orderable: false, searchable: false, className: 'no-sort text-center dt-' }
-		    ],
+				{ targets: 0, orderable: false, className: 'no-sort' }
+			],
+			searchDelay: 2000,
 
-			"initComplete": function() {
-            $('.dt-search input[type="search"]').attr('placeholder', 'Search here...');
+			order: [[2, 'asc'], [3, 'asc'], [4, 'asc']],
+
+
+			"initComplete": function() { 
+			$('.dt-search input[type="search"]').attr('placeholder', 'Search here...');
+
+				var classList = @json($classList);
+			const $dropdown = $('<select class="form-control" id="select_class"></select>');
+			classList.forEach(option => {
+				const section = option.section ? ` - ${option.section}` : '';
+				const displayText = option.name + section;
+				const value = option.class_id + '-' + option.section;
+				$dropdown.append(new Option(displayText, value));
+			});
+
+			$('<div class="pull-right"></div>').append($dropdown).appendTo("#studentTableRecords_wrapper .top").next('.dt-length').addClass("pull-right");
+			$dropdown.on('change', function() {
+			table.ajax.reload();
+			});
+
+
+				var status = [
+					{ name: 'Select Status', status: '',},
+					{ name: 'Active', status: 'active', },
+					{ name: 'Transfer', status: 'transfer', },
+				];
+				const $dropdown1 = $('<select class="form-control" id="select_status"></select>');
+				status.forEach(option => {
+					const section = option.status ? ` - ${option.status}` : '';
+					const displayText = option.name;
+					const value = option.status;
+
+					$dropdown1.append(new Option(displayText, value));
+				});
+			$('<div class="pull-right"></div>').append($dropdown1).appendTo("#studentTableRecords_wrapper .top").next('.dt-length').addClass("pull-right");
+			$dropdown1.on('change', function() {
+			table.ajax.reload();
+			});
 
 			const $dropdown2 = $('<select class="form-control" id="select_action"></select>');
 
 			var status = [
 				{ name: 'Bulk Action', status: '',},
 				{ name: 'Delete', status: 'delete', },
-				{ name: 'Promote', status: 'promote', },
+				// { name: 'Promote', status: 'promote', },
 			];
 			status.forEach(option => {
 			    const section = option.status ? ` - ${option.status}` : '';
@@ -718,6 +525,8 @@
 			    const value = option.status;
 			    $dropdown2.append(new Option(displayText, value));
 			});
+
+			// $('<div class="pull-right"></div>').append($dropdown2).appendTo("#studentTableRecords_wrapper .top").next('.dt-length').addClass("pull-right");
 
             $('<div class="filter-right"></div>').append($dropdown2).appendTo("#studentTableRecords_wrapper .top").next('.dt-length').addClass("pull-right");
 
@@ -818,45 +627,14 @@
 					}
 				});
             });
-
-
-			var classList = @json($classList);
-            const $dropdown = $('<select class="form-control" id="select_class"></select>');
-
-            classList.forEach(option => {
-                const section = option.section ? ` - ${option.section}` : '';
-                const displayText = option.name + section ;
-                const value = option.class_id + '-' + option.section;
-                $dropdown.append(new Option(displayText, value));
-            });
-
-            $('<div class="pull-right"></div>').append($dropdown).appendTo("#studentTableRecords_wrapper .top").next('.dt-length').addClass("pull-right");
-            $dropdown.on('change', function() {
-               table.ajax.reload();
-            });
-
-
-				var status = [
-					{ name: 'Select Status', status: '',},
-					{ name: 'Active', status: 'active', },
-					{ name: 'Transfer', status: 'transfer', },
-				];
-				const $dropdown1 = $('<select class="form-control" id="select_status"></select>');
-				status.forEach(option => {
-				    const section = option.status ? ` - ${option.status}` : '';
-				    const displayText = option.name;
-				    const value = option.status;
-
-				    $dropdown1.append(new Option(displayText, value));
-				});
-            $('<div class="pull-right"></div>').append($dropdown1).appendTo("#studentTableRecords_wrapper .top").next('.dt-length').addClass("pull-right");
-            $dropdown1.on('change', function() {
-               table.ajax.reload();
-            });
-        },
+		},
 
 
 			drawCallback: function(settings) {
+				// Update select all checkbox state
+				var allChecked = $('#studentTableRecords tbody input.row-select').length === 
+							$('#studentTableRecords tbody input.row-select:checked').length;
+				$('#selectAll').prop('checked', allChecked);
 
 				$('#studentTableRecords tbody tr').removeClass('highlight-row');
 				$('#studentTableRecords tbody tr').each(function() {
@@ -943,10 +721,12 @@
 						orientation: 'landscape',
 						pageSize: 'A4', 
 						action: function (e, dt, button, config) {
+							// Check if any students are selected
 							if (!hasSelectedStudents()) {
 								showNoSelectionAlert('export to PDF');
 								return;
 							}
+							// Proceed with PDF export
 							$.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
 						},
 						exportOptions: {
@@ -963,39 +743,69 @@
 							}
 						}
 					},
-					{
-						text: 'Parents Login-Credentials',
-						action: function ( e, dt, node, config ) {							
-							generateClassSectionCredentials();
-						}
-					},
+
 					{
 						text: 'Generate I-Cards',
 						action: function ( e, dt, node, config ) {							
 							generateICards();
 						}
 					},
+
+					{
+						text: 'Generate Login-Credentials',
+						action: function ( e, dt, node, config ) {							
+							generateClassSectionCredentials();
+						}
+					}
+
 				],
 			}]
 		});
+		
+
+	table.on('preXhr.dt', function() {
+			Swal.fire({
+					icon : 'info',
+				title: 'Loading Students...',
+				html: 'Please wait while data is being loaded.',
+				allowOutsideClick: false,
+				didOpen: () => {
+					Swal.showLoading();
+				}
+			});
+	});
+
+	table.on('xhr.dt', function() {
+			Swal.close();
+	});
 
 
-		table.on('draw', function () {
-	     
-	        $('#select-all').off('click').on('click', function () {
-	            var isChecked = $(this).is(':checked');
-	            $('.row-checkbox').prop('checked', isChecked);
-	        });
+		// When DataTable finishes drawing rows
+		$('#studentTableRecords').on('draw.dt', function () {
+			attachPenClickHandlers();
+		});
 
-	        $('.row-checkbox').on('change', function () {
-	            var total = $('.row-checkbox').length;
-	            var checked = $('.row-checkbox:checked').length;
-	            $('#select-all').prop('checked', total === checked);
-	        });
-	    });
+		function attachPenClickHandlers() {
+			document.querySelectorAll('.edit-pen-icon').forEach(icon => {
+				icon.onclick = function () {
+					const input = this.previousElementSibling;
 
+					if (input.hasAttribute('readonly')) {
+						input.removeAttribute('readonly');
+						input.focus();
+					} else {
+						input.setAttribute('readonly', true);
+					}
+				};
+			});
+		}
+
+		attachPenClickHandlers();
+
+		// Enable row selection for DataTables
 		table.select.style('api');
 
+		// Handle row selection when checkboxes are clicked
 		$('#studentTableRecords').on('change', '.row-select', function() {
 			var $row = $(this).closest('tr');
 			var row = table.row($row);
@@ -1006,15 +816,20 @@
 				row.deselect();
 			}
 			
+			// Update select all checkbox state
 			var allChecked = $('#studentTableRecords tbody input.row-select').length === 
 						$('#studentTableRecords tbody input.row-select:checked').length;
 			$('#selectAll').prop('checked', allChecked);
 		});
 
+		// Handle select all functionality
 		$('#selectAll').on('click', function() {
 			var checked = this.checked;
+			
+			// Update all checkboxes
 			$('#studentTableRecords tbody input.row-select').prop('checked', checked);
 			
+			// Update DataTables selection
 			if (checked) {
 				table.rows().select();
 			} else {
@@ -1022,10 +837,12 @@
 			}
 		});
 
+		// Function to check if any students are selected
 		function hasSelectedStudents() {
 			return $('#studentTableRecords tbody input.row-select:checked').length > 0;
 		}
 
+		// Function to show no selection alert
 		function showNoSelectionAlert(actionType) {
 			Swal.fire({
 				icon: 'warning',
@@ -1035,7 +852,6 @@
 				confirmButtonColor: '#3085d6'
 			});
 		}
-
 
 		function processExportData(data, row, column, node) {
 			var $node = $(node);
@@ -1082,328 +898,7 @@
 			return `Students Record ${day}-${month}-${year}`;
 		}
 
-		$('#studentTableRecords').on('click', '.edit-student', function() {
-			let studentId = $(this).data('id');
-			let classes = @json($classes);
-			console.log(classes); 
-			let sections = @json($data); 
-			let students = @json($studentsDetails);
-			let student = students.find(s => s.student_id == studentId);
-			
-			$('#s_id').val(student.student_id);
-			$('#editStudentName').val(student.student_name);
-			$('#editStudentEmail').val(student.email_id);
-			$('#editStudentGender').val(student.gender);
-			$('#editStudentDOB').val(student.dob);
-
-			let selectClass = document.getElementById('editStudentClass');
-			selectClass.innerHTML = '';
-
-			classes.forEach(cls => {
-				let option = document.createElement('option');
-				option.value = cls.id;
-				option.textContent = cls.className;
-				if(cls.id == student.class_id) {
-					option.selected = true;
-				}
-				selectClass.appendChild(option);
-			});
-			
-			let selectSection = document.getElementById('editStudentSection');
-			selectSection.innerHTML = '';
-
-			sections.forEach(sec => {
-				if (sec.class_id == student.class_id) { 
-					let option = document.createElement('option');
-					option.value = sec.section;
-					option.textContent = sec.section;
-
-					if (sec.section === student.section_id) {
-						option.selected = true;
-					}
-
-					selectSection.appendChild(option);
-				}
-			});
-			$('#editStudentClass').val(student.class_id);
-			$('#editStudentSection').val(student.section_id);
-			$('#editStudentRollno').val(student.rollno);
-			$('#editStudentAdmissionNo').val(student.admissionnumber);
-			$('#editStudentStatus').val(student.status);
-
-			$('#editStudentModal').modal('show');
-		});
-
-		// to reset modal errors 
-		$('#editStudentModal').on('hidden.bs.modal', function () {
-			$(this).find('form')[0].reset();
-			$('#editStudentForm').find('span').html("");
-		});
-		$('#editStudentModal').on('hide.bs.modal', function () {
-			document.activeElement.blur();
-		});
-
-
-		$(document).ready(function () {
-			$('#editStudentForm').on('submit', function (e) {
-				e.preventDefault();
-				submitForm($(this));
-			});
-
-			function submitForm(form, forceUpdate = false) {
-
-				let formData = form.serialize();
-
-				if (forceUpdate) {
-					formData += '&force_update=1';
-				}
-
-				submitLoader();
-
-				$.ajax({
-					headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-					url: "{{ route('edit.student.details') }}",
-					type: 'POST',
-					data: formData,
-					dataType: 'json',
-
-					success: function(response) {
-
-						Swal.close();
-
-						// AGE WARNING
-						if (response.status === 'age_warning') {
-
-							Swal.fire({
-								title: 'Age Mismatch',
-								text: response.message,
-								icon: 'warning',
-								showCancelButton: true,
-								confirmButtonText: 'Proceed',
-								cancelButtonText: 'Cancel'
-							}).then((result) => {
-								if (result.isConfirmed) {
-									submitForm(form, true);
-								}
-							});
-
-							return;
-						}
-
-						// SUCCESS
-						if (response.status === 'success') {
-
-							Swal.fire({
-								title: 'Success',
-								text: response.message,
-								icon: 'success',
-								allowOutsideClick: false
-							});
-
-							$('#editStudentModal').modal('hide');
-							$('#studentTableRecords').DataTable().ajax.reload();
-							return;
-						}
-						if (response.status === 'fail' && response.error) {
-
-							form.find('input, select, textarea').each(function() {
-								let name = $(this).attr('name');
-								$('#' + name + '_errormsg').empty();
-							});
-
-							$.each(response.error, function(key, value) {
-								let errorHtml = '';
-								$.each(value, function(index, errormsg) {
-									errorHtml += `<p class="alert alert-danger">${errormsg}</p>`;
-								});
-								$('#' + key + '_errormsg').html(errorHtml);
-							});
-
-							return;
-						}
-
-						if (response.status === 'fail') {
-							Swal.fire('Error', response.message, 'error');
-						}
-					},
-
-					error: function() {
-						Swal.close();
-						Swal.fire('Error', 'Something went wrong! Please try again.', 'error');
-					}
-				});
-			}
-
-		});
-
-		$('#studentTableRecords').on('click', '.login-as-student', function() {
-			const studentId = $(this).data('id');
-			console.log(studentId);
-
-			$.ajax({
-				url: "{{ route('school.loginAsStudent')}}",
-				method: 'POST',
-				data: {
-					student_id: studentId,
-					_token: $('meta[name="csrf-token"]').attr('content')
-				},
-				success: function(response) {
-					if (response.success) {
-						window.location.href = response.redirect_url;
-					} else {
-						Swal.fire({
-							title: 'Login failed',
-							icon: 'warning',
-							text: response.message,
-							allowOutsideClick: false,
-							confirmButtonText: 'OK'
-						});
-					}
-				},
-				error: function() {
-					Swal.fire({
-						title: '',
-						icon: 'warning',
-						text: response.error,
-						allowOutsideClick: false,
-						confirmButtonText: 'OK'
-					});
-				}
-			});
-		});
-
-		function generateICards() {
-			var studentIds = [];
-			$('#studentTableRecords tbody input.row-select:checked').each(function() {
-				studentIds.push($(this).data('id'));
-			});
-
-			if (studentIds.length === 0) {
-				Swal.fire({
-					icon: 'warning',
-					title: 'No students selected',
-					text: 'Please select at least one student to generate I-Cards.'
-				});
-				return;
-			}
-
-			Swal.fire({
-				title: 'Loading...',
-				text: 'Analyzing class-section structure',
-				allowOutsideClick: false,
-				didOpen: () => { Swal.showLoading(); }
-			});
-
-			$.ajax({
-				url: "{{ route('get.class.section.summary') }}",
-				method: "POST",
-				contentType: "application/json",
-				data: JSON.stringify({
-					_token: "{{ csrf_token() }}",
-					student_ids: studentIds
-				}),
-				success: function(response) {
-					Swal.close();
-					generateIcardsFiles(studentIds, response.class_summary);
-				},
-				error: function(xhr, status, error) {
-					Swal.close();
-					Swal.fire({
-						icon: 'error',
-						title: 'Error',
-						text: 'Failed to analyze student data'
-					});
-				}
-			});
-
-		}
-
-		function generateIcardsFiles(studentIds, clsses) {
-
-			Swal.fire({
-				icon: 'info',
-				title: "Creating Class-wise Folders",
-				html: `Generating I-cards for ${clsses.length} classes in a ZIP file...<br>This may take a moment.`,
-				allowOutsideClick: false,
-				didOpen: () => Swal.showLoading()
-			});
-
-			$.ajax({
-				url: "{{ route('generatecard') }}",
-				method: "POST",
-				contentType: "application/json",
-				data: JSON.stringify({
-					_token: "{{ csrf_token() }}",
-					student_ids: studentIds
-				}),
-				xhrFields: {
-					responseType: "blob"
-				},
-				success: function (data, textStatus, xhr) {
-					Swal.close();
-
-					let filename = 'students-Icards-class-wise.zip';
-					let successMessage = 'Class-wise I-cards downloaded successfully!';
-
-					const disposition = xhr.getResponseHeader('Content-Disposition');
-					if (disposition && disposition.indexOf('attachment') !== -1) {
-						const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
-						if (matches && matches[1]) {
-							filename = matches[1].replace(/['"]/g, '');
-						}
-					}
-
-					const blob = new Blob([data], { type: 'application/zip' });
-					const downloadUrl = window.URL.createObjectURL(blob);
-					const link = document.createElement('a');
-					link.href = downloadUrl;
-					link.download = filename;
-					document.body.appendChild(link);
-					link.click();
-					document.body.removeChild(link);
-					window.URL.revokeObjectURL(downloadUrl);
-
-					Swal.fire({
-						icon: "success",
-						title: "Download Complete!",
-						text: successMessage,
-						showConfirmButton: true
-					});
-				},
-
-				error: function (xhr) {
-					Swal.close();
-
-					let errorMessage = "An error occurred while generating I-cards.";
-
-					if (xhr.response instanceof Blob) {
-						const reader = new FileReader();
-						reader.onload = function () {
-							try {
-								const response = JSON.parse(reader.result);
-								errorMessage = response.message || errorMessage;
-							} catch (e) {
-								// fallback message
-							}
-
-							Swal.fire({
-								icon: 'error',
-								title: 'Generation Failed',
-								text: errorMessage
-							});
-						};
-						reader.readAsText(xhr.response);
-					} else {
-						Swal.fire({
-							icon: 'error',
-							title: 'Generation Failed',
-							text: errorMessage
-						});
-					}
-				}
-			});
-		}
-
+			// Add this function to your existing JavaScript
 		function generateClassSectionCredentials() {
 			var studentIds = [];
 			$('#studentTableRecords tbody input.row-select:checked').each(function() {
@@ -1562,6 +1057,127 @@
 				}
 			});
 		}
+
+		function generateICards() {
+			var studentIds = [];
+			$('#studentTableRecords tbody input.row-select:checked').each(function() {
+				studentIds.push($(this).data('id'));
+			});
+
+			if (studentIds.length === 0) {
+				Swal.fire({
+					icon: 'warning',
+					title: 'No students selected',
+					text: 'Please select at least one student to generate I-Cards.'
+				});
+				return;
+			}
+
+			Swal.fire({
+				title: 'Loading...',
+				text: 'Analyzing class-section structure',
+				allowOutsideClick: false,
+				didOpen: () => { Swal.showLoading(); }
+			});
+
+			$.ajax({
+				url: "{{ route('get.class.section.summary') }}",
+				method: "POST",
+				contentType: "application/json",
+				data: JSON.stringify({
+					_token: "{{ csrf_token() }}",
+					student_ids: studentIds
+				}),
+				success: function(response) {
+					Swal.close();
+					generateIcardsFiles(studentIds, response.class_summary);
+				},
+				error: function(xhr, status, error) {
+					Swal.close();
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: 'Failed to analyze student data'
+					});
+				}
+			});
+
+		}
+
+		function generateIcardsFiles(studentIds, clsses) {
+			
+			Swal.fire({
+				icon: 'info',
+				title: "Creating Class-wise Folders",
+				html: `Generating I-cards for ${clsses.length} classes in .zip file...<br>This may take a moment.`,
+				allowOutsideClick: false,
+				didOpen: () => { Swal.showLoading(); }
+			});
+
+			$.ajax({
+				url: "{{ route('generatecard') }}",
+				method: "POST",
+				contentType: "application/json",
+				data: JSON.stringify({
+					_token: "{{ csrf_token() }}",
+					student_ids: studentIds,
+				}),
+				xhrFields: { 
+					responseType: "blob" 
+				},
+				success: function (data, textStatus, xhr) {
+					Swal.close();
+						filename = 'students-Icards-class-wise.zip';
+						successMessage = `Class-wise Icards downloaded!`;
+						
+					// Try to get filename from response headers
+					const disposition = xhr.getResponseHeader('Content-Disposition');
+					if (disposition && disposition.indexOf('attachment') !== -1) {
+						const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+						const matches = filenameRegex.exec(disposition);
+						if (matches != null && matches[1]) {
+							filename = matches[1].replace(/['"]/g, '');
+						}
+					}
+
+					const blob = new Blob([data]);
+					const downloadUrl = window.URL.createObjectURL(blob);
+					const link = document.createElement('a');
+					link.href = downloadUrl;
+					link.download = filename;
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+					window.URL.revokeObjectURL(downloadUrl);
+					
+					Swal.fire({
+						icon: "success",
+						title: "Download Complete!",
+						html: successMessage,
+						showConfirmButton: true,
+						allowOutsideClick: false,
+					});
+				},
+				error: function(xhr, status, error) {
+					Swal.close();
+					let errorMessage = "An error occurred while generating files.";
+					
+					try {
+						const response = JSON.parse(xhr.responseText);
+						errorMessage = response.message || errorMessage;
+					} catch (e) {
+						// Use default error message
+					}
+					
+					Swal.fire({
+						icon: 'error',
+						title: 'Generation Failed',
+						text: 'No active students'
+					});
+				}
+			});
+		}
+
 	});
 
 	const swalWithBootstrapButtons = Swal.mixin({
@@ -1572,8 +1188,18 @@
 		buttonsStyling: false
 	});
 
+	// reusable debounce for 
 
-	function updateContent(event, olddata = '', newdata = '', studentId = '', classId = '', section = '', newDate = '', status = '', gender) {
+	function debounce(func, delay) {
+		let timer;
+		return function(...args) {
+			clearTimeout(timer);
+			timer = setTimeout(() => func.apply(this, args), delay);
+		};
+	}
+
+
+	function updateContent(event, olddata = '', newdata = '', studentId = '', classId = '', section = '', newDate = '', newEmail = '', status = '', gender, $input = null) {
 
 		swalWithBootstrapButtons.fire({
 			title: `Are you sure want to change ${event} from ${olddata} to ${newdata}? `,
@@ -1597,10 +1223,22 @@
 						updateDate(studentId, newDate);
 						break;
 					case 'status':
-						updatestatus(studentId, status);
+						updatestatus(studentId, newdata);
 						break;
 					case 'gender':
-						changegender(studentId, gender);
+						changegender(studentId, newdata);
+						break;
+					case 'email':
+						updateEmail(studentId, newdata)
+						break;
+					case 'rollno':
+						updateRollno(studentId, newdata, $input)
+						break;
+					case 'name':
+						updateName(studentId, newdata)
+						break;
+					case 'UID':
+						updateAdmissionNo(studentId, newdata)
 						break;
 					default:
 						console.log('nothing is selected');
@@ -1610,7 +1248,255 @@
 		});
 	}
 
-	$(document).on('change', '#section', function() {
+	// login as student 
+	$('#studentTableRecords').on('click', '.login-as-student', function() {
+		const studentId = $(this).data('id');
+		console.log(studentId);
+
+		$.ajax({
+			url: "{{ route('school.loginAsStudent')}}",
+			method: 'POST',
+			data: {
+				student_id: studentId,
+				_token: $('meta[name="csrf-token"]').attr('content')
+			},
+			success: function(response) {
+				if (response.success) {
+					window.location.href = response.redirect_url;
+				} else {
+					Swal.fire({
+						title: 'Login failed',
+						icon: 'warning',
+						text: response.message,
+						allowOutsideClick: false,
+						confirmButtonText: 'OK'
+					});
+				}
+			},
+			error: function() {
+				Swal.fire({
+					title: '',
+					icon: 'warning',
+					text: response.error,
+					allowOutsideClick: false,
+					confirmButtonText: 'OK'
+				});
+			}
+		});
+	});
+
+	
+	// to update name 
+
+	const debouncedUpdateName = debounce(function($input) {
+		const newName = $input.val().trim();
+		const olddata = $input.attr('data-name');
+		const studentId = $input.attr('data-id');
+
+		const validChar = /^[a-zA-Z][a-zA-Z\s.']*$/u;
+
+		if (!validChar.test(newName)) {
+			Swal.fire({
+				icon: 'warning',
+				title: 'Invalid Name',
+				text: 'Please enter a valid name (letters, spaces, dots, and apostrophes only).',
+				allowOutsideClick: false,
+				confirmButtonText: 'OK'
+			}).then(() => {
+				$input.val(olddata);
+			});
+			return;
+		}
+
+		if (newName && newName !== olddata) {
+			const event = 'name';
+			updateContent(event, olddata, newName, studentId, '', '');
+		}
+	}, 2000);
+
+	
+	$(document).on('keyup', '.student-name', function () {
+		debouncedUpdateName($(this));
+	});
+
+	// to update email 
+
+	const debouncedUpdateEmail = debounce(function($input) {
+		const newEmail = $input.val().trim();
+		const olddata = $input.attr('data-email');
+		const studentId = $input.attr('data-id');
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+		if (!emailRegex.test(newEmail)) {
+			$input.addClass('is-invalid');
+			return;
+		} else {
+			$input.removeClass('is-invalid');
+		}
+
+		if (newEmail && newEmail !== olddata) {
+			const event = 'email';
+			updateContent(event, olddata, newEmail, studentId, '', '');
+		}
+	}, 2000);
+
+	
+	$(document).on('keyup', '.student-email', function () {
+		debouncedUpdateEmail($(this));
+	});
+
+	// to update roll no 
+	function fetchTooltipSuggestions(elem, studentId) {
+		if ($(elem).data('tooltip-loaded')) return;
+
+		$.ajax({
+			url: 'rollNoSuggestion',
+			type: 'POST',
+			data: {
+			student_id: studentId
+			},
+			headers: {
+			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			success: function(response) {
+			const suggestions = response.suggested_roll_numbers;
+			const tooltipText = suggestions.length 
+				? "Suggestion: " + suggestions.join(', ') 
+				: 'No suggestions';
+
+			$(elem)
+				.attr('title', tooltipText)
+				.data('tooltip-loaded', true);
+			$(elem).tooltip?.('dispose')?.tooltip?.();
+			},
+				error: function(xhr, status, error) {
+				console.error('Error fetching roll number suggestions:', error);
+			}
+		});
+	}
+
+	
+	const debouncedUpdateRollno = debounce(function($input) {
+		const roll_number = $input.val().trim();
+		const olddata = $input.attr('data-rollno');
+		const studentId = $input.attr('data-id');
+		const newRollno = roll_number === "" ? null : roll_number;
+
+		if (newRollno===null || newRollno < 1) {
+			Swal.fire({
+				title: '',
+				text: "Invalid roll number",
+				icon: 'warning'
+			});
+			return;
+		}
+		if (newRollno && newRollno !== olddata) {
+			const event = 'rollno';
+			// updateContent(event, olddata, newRollno, studentId, '', '');
+			updateContent(event, olddata, newRollno, studentId, '', '', '', '', '', '', $input);
+		}
+	}, 1000);
+
+	
+	$(document).on('keyup', '.student-rollno', function () {
+		debouncedUpdateRollno($(this));
+	});
+
+	// update admission number 
+
+	const debouncedupdateAdmissionNo = debounce(function($input) {
+		const newUID = $input.val().trim();
+		const olddata = $input.attr('data-uid');
+		const studentId = $input.attr('data-id');
+		
+		const invalidChars = /[^a-zA-Z0-9\-\/]/g;
+		
+		if (invalidChars.test(newUID)) {
+			$input.val(olddata);
+			$input.focus();
+			return;
+		}
+		
+		console.log(olddata);
+		if (newUID && newUID !== olddata) {
+			const event = 'UID';
+			updateContent(event, olddata, newUID, studentId, '', '');
+		}
+	}, 2000);
+
+	$(document).on('keyup', '.student-uid', function () {
+		const $input = $(this);
+		const newUID = $input.val();
+		
+		const invalidChars = /[^a-zA-Z0-9\-\/]/g;
+		
+		if (invalidChars.test(newUID)) {
+			$input.addClass('is-invalid');
+			$input.attr('title', 'Only A-Z, 0-9, -, / are allowed');
+			return;
+		} else {
+			$input.removeClass('is-invalid');
+			$input.removeAttr('title');
+			
+			debouncedupdateAdmissionNo($input);
+		}
+	});
+
+
+	// update dob 
+
+	const debouncedupdateDOB = debounce(function($input) {
+		const studentId = $input.attr('data-id');
+		const newDate = $input.val(); 
+		const olddob = $input.attr('data-dob');
+
+		if (!newDate) return; 
+
+		const date = new Date(newDate);
+		const day = ('0' + date.getDate()).slice(-2);
+		const month = ('0' + (date.getMonth() + 1)).slice(-2);
+		const year = date.getFullYear();
+		const newdata = `${day}-${month}-${year}`;
+		date.setHours(0, 0, 0, 0);
+
+		const today = new Date();
+		const minAllowYear = today.getFullYear() - 2;
+		const currentInputYear = date.getFullYear();
+
+		if (currentInputYear > minAllowYear) {
+			Swal.fire({
+				title: 'Warning',
+				text: "Student's age can't be less than 2 years.",
+				icon: 'warning',
+				confirmButtonText: 'OK',
+				allowOutsideClick: false,
+				allowEscapeKey: false,
+			}).then(() => {
+				$input.val(formatToInputDate(olddob));
+			});
+			return;
+		}
+
+		updateContent('DOB', olddob, newdata, studentId, '', '', newDate);
+
+	}, 2000);
+
+	$(document).on('change', '.datepicker', function() {
+		debouncedupdateDOB($(this));
+	});
+
+	// to revert old dob format 
+	function formatToInputDate(ddmmyyyy) {
+		const parts = ddmmyyyy.split('-'); // ["12", "07", "2022"]
+		const yyyy = parts[2];
+		const mm = parts[1];
+		const dd = parts[0];
+		return `${yyyy}-${mm}-${dd}`; // "2022-07-12"
+	}
+
+	// to update section 
+
+	$(document).on('change', '.section', function() {
 		var option = $(this).find('option:selected');
 		var studentId = $(this).attr('data-id');
 		
@@ -1625,31 +1511,7 @@
 
 
 
-	$(document).on('change', '.datepicker', function() {
-
-		var studentId = $(this).attr('data-id');
-		var newDate = $(this).val();
-
-		var event = 'DOB';
-		var olddob = $(this).attr('data-dob');
-		var olddata = `${olddob}`;
-
-
-		var date = new Date(newDate);
-		var day = ('0' + date.getDate()).slice(-2);
-		var month = ('0' + (date.getMonth() + 1)).slice(-2);
-		var year = date.getFullYear();
-		dateValue = day + '-' + month + '-' + year;
-
-
-		var newdata = `${dateValue}`;
-		updateContent(event, olddata, newdata, studentId, classId = '', section = '', newDate);
-		//updateDate(studentId, newDate);
-	});
-
-
-
-	$(document).on('change', '#studentStatus', function() {
+	$(document).on('change', '.studentStatus', function() {
 		var option = $(this).find('option:selected');
 		var studentId = $(this).attr('data-id');
 		var status = option.val();
@@ -1664,7 +1526,7 @@
 
 
 
-	$(document).on('change', '#studentGender', function() {
+	$(document).on('change', '.studentGender', function() {
 		var option = $(this).find('option:selected');
 		var studentId = $(this).attr('data-id');
 		var gender = option.val();
@@ -1682,21 +1544,12 @@
 	 * 26-07-2024
 	 * Change Section Based on selected classs.
 	 * */
-	$(document).on('change', '#editStudentSection', function () {
-		var stdRollno = document.getElementById('editStudentRollno');
-		stdRollno.value = '';
-	});
 
-	$(document).on('change', '#studentClass, #editStudentClass', function () {
+	$(document).on('change', '#studentClass', function() {
+		var option = $(this).find('option:selected');
+		var classId = option.val();
 
-		var classId = $(this).val();
-		var stdRollno = document.getElementById('editStudentRollno');
-		stdRollno.value = '';
-		var targetDropdown = ($(this).attr('id') === 'studentClass') 
-			? '#sectionDropdown' 
-			: '#editStudentSection';
-
-		$(targetDropdown).empty().append('<option value="">Select Section</option>');
+		$('#sectionDropdown').empty().append('<option value="">Select Section</option>');
 
 		$.ajax({
 			headers: {
@@ -1707,22 +1560,13 @@
 			data: {
 				classId: classId,
 			},
-			success: function (response) {
-				$(targetDropdown).empty().append('<option value="">Select Section</option>');
-				$.each(response.data, function (index, value) {
-					$(targetDropdown).append(`<option value="${value.section}">${value.section}</option>`);
+			success: function(response) {
+				$.each(response.data, function(index, value) {
+					$('#sectionDropdown').append('<option value="' + value.section + '">' + value.section + '</option>');
 				});
-
-				if (response.suggestion && response.suggestion.length === 2) {
-					$('#ageSuggetion').html(
-						`<strong>Note:</strong> Student age should be between ${response.suggestion[0]} and ${response.suggestion[1]} years for Class ${classId}.`
-					);
-
-				}
 			},
-
-			error: function (xhr) {
-				console.error(xhr.responseText);
+			error: function(xhr, status, error) {
+				// console.error(xhr.responseText);
 			}
 		});
 	});
@@ -1732,6 +1576,7 @@
 	 * Update student Active/Transfer status.
 	 * */
 	function updatestatus(studentId, status) {
+		console.log(status);
 		$.ajax({
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -1750,7 +1595,7 @@
 				});
 			},
 			error: function(xhr, status, error) {
-				console.error(xhr.responseText);
+				// console.error(xhr.responseText);
 			}
 		});
 	}
@@ -1788,7 +1633,8 @@
 	/**
 	 * Function to udpate DOB of student. 
 	 * */
-	function updateDate(studentId, newDate, forceUpdate = false) {
+	
+	function updateDate(studentId, newDate) {
 		$.ajax({
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -1797,64 +1643,140 @@
 			method: 'POST',
 			data: {
 				student_id: studentId,
-				new_date: newDate,
-				force_update: forceUpdate ? 1 : 0
+				new_date: newDate
 			},
 			success: function(response) {
+				Swal.fire({
+					title: "success!",
+					text: response,
+					icon: "success"
+				});
+			},
+			error: function(xhr, status, error) {
+				console.error(xhr.responseText);
+			}
+		});
+	}
+	
+	// Function to update Email
 
-				if (response.status === 'age_warning') {
+	function updateEmail(studentId, newEmail) {
+		$.ajax({
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			url: 'updateEmail',
+			method: 'POST',
+			data: {
+				student_id: studentId,
+				newEmail: newEmail
+			},
+			success: function(response) {
+				Swal.fire({
+					title: "success!",
+					text: response,
+					icon: "success"
+				});
+			},
+			error: function(xhr, status, error) {
+				console.error(xhr.responseText);
+			}
+		});
+	}
 
-					Swal.fire({
-						title: 'Age Mismatch',
-						text: response.message,
-						icon: 'warning',
-						showCancelButton: true,
-						confirmButtonText: 'Proceed',
-						cancelButtonText: 'Cancel'
-					}).then((result) => {
-
-						if (result.isConfirmed) {
-							updateDate(studentId, newDate, true);
-						}
-
-					});
-
-					return;
-				}
-
-				if (response.status === 'success') {
-
-					$('#updated_date').val(newDate);
-
-					Swal.fire({
-						title: "Success!",
-						text: response.message,
-						icon: "success"
-					});
-
-					return;
-				}
-
-				if (response.status === 'fail') {
-
-					Swal.fire({
-						title: "Error!",
-						text: response.message,
-						icon: "error"
-					});
+	// to update roll no 
+	function updateRollno(studentId, newRollno, $input = null) {
+		$.ajax({
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			url: 'updateRollNo',
+			method: 'POST',
+			data: {
+				student_id: studentId,
+				newRollno: newRollno
+			},
+			success: function(response) {
+				Swal.fire({
+					title: "success!",
+					text: response,
+					icon: "success"
+				});
+				if ($input) {
+					$input.removeAttr('title').removeData('tooltip-loaded');
+					fetchTooltipSuggestions($input, studentId);
 				}
 			},
-
-			error: function() {
-
+			error: function(xhr, status, error) {
 				Swal.fire({
-					title: "Error!",
-					text: "Something went wrong. Please try again.",
+					title: "",
+					text: xhr.responseJSON.message,
 					icon: "error"
 				});
 			}
 		});
 	}
+
+
+	function updateName(studentId, newName) {
+		$.ajax({
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			url: 'updateName',
+			method: 'POST',
+			data: {
+				student_id: studentId,
+				newName: newName
+			},
+			success: function(response) {
+				Swal.fire({
+					title: "success!",
+					text: response,
+					icon: "success"
+				});
+			},
+			error: function(xhr, status, error) {
+				Swal.fire({
+					title: "",
+					text: xhr.responseJSON.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+	// update UID/Registration Number
+	function updateAdmissionNo(studentId, newUID) {
+		console.log(newUID);
+		$.ajax({
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			url: 'updateAdmissionNo',
+			method: 'POST',
+			data: {
+				student_id: studentId,
+				newUID: newUID
+			},
+			success: function(response) {
+				Swal.fire({
+					title: "success!",
+					text: response,
+					icon: "success"
+				});
+			},
+			error: function(xhr, status, error) {
+				Swal.fire({
+					title: "",
+					text: xhr.responseJSON.message,
+					icon: "error"
+				});
+			}
+		});
+	}
+
+
 
 	/**
 	 * Function to Update the Student's Class Section.
@@ -1970,7 +1892,7 @@
 			error: function(xhr, status, error) {
 				$('#validation-errors').html('');
 				$.each(xhr.responseJSON.errors, function(key, value) {
-					console.log(key + value);
+					// console.log(key + value);
 					$('#validation-errors').append('<div class="alert alert-danger">' + value + '</div');
 				});
 			},
@@ -1993,7 +1915,7 @@
 				}, 1500);
 			})
 			.catch(function(err) {
-				console.error('Unable to copy to clipboard', err);
+				// console.error('Unable to copy to clipboard', err);
 				copyButton.text('Copy');
 			});
 	}
@@ -2011,7 +1933,7 @@
       
 	   Swal.fire({
 	        title: 'Processing...',
-	        text: 'Please wait while the data is being imported. This may take some time.',
+	        text: 'Please wait while the data is being imported.',
 	        allowOutsideClick: false,
 	        showConfirmButton: false,
 	        didOpen: () => {
@@ -2028,33 +1950,20 @@
          success: function(response) {      
          Swal.close();   
        		if (response.error) {
-
-       			Swal.fire({
-					  icon: response.icon,
-					  title: response.title,
-					  html: response.summary
-					}).then(function(result){
-						location.reload();
-					});
-
-
-
-       			/*$('#error_msg').show();
+       			$('#error_msg').show();
 					$('#error_msg').html(response.error);
-					$('#import_msg').text('');*/
-
+					$('#import_msg').text('');
 				}else{
 					$('#error_msg').hide();
 					$('#import_msg').text('');
 
 					Swal.fire({
-					   title: response.title,
+					   title: "Ready to Import!",
 					   html: ` <div> ${response.summary} </div> `,
 					   icon: response.icon,
 					   showCancelButton: true,
 					   confirmButtonText: response.cnfmText,
 					   cancelButtonText: "Cancel!",
-
 					   customClass: {
                     confirmButton: response.btnclass || 'btn-import',
                     cancelButton: 'btn-cancel',
@@ -2111,7 +2020,7 @@
 		
 	    Swal.fire({
 	        title: 'Processing...',
-	        text: 'Please wait while the data is being imported. This may take some time.',
+	        text: 'Please wait while the data is being imported.',
 	        allowOutsideClick: false,
 	        showConfirmButton: false,
 	        didOpen: () => {
@@ -2134,39 +2043,23 @@
 
 				Swal.fire({
 					title: "Thank you for uploading the data.",
-				   html: ` <div> ${response.summary} </div> `,
+				    html: ` <div> ${response.summary} </div> `,
 				   icon: "success",
 				   allowOutsideClick: false
 				}).then(function(result){
 					location.reload();
 				});
 			},
-			
 			error: function(jqXHR, textStatus, errorThrown) {
-			    Swal.close();
-
-			    let message = 'An unexpected error occurred while importing data. Please try again later.';
-
-			    if (jqXHR.status === 524) {
-			        // Cloudflare timeout
-			        message = 'The server is still processing your data in the background due to the large file size. Please wait and do not close this window. You will be notified once complete.';
-			    } else if (textStatus === 'timeout') {
-			        // Browser-side AJAX timeout
-			        message = 'The server is taking longer than expected. Your data is still being processed in the background. Please wait...';
-			    } else if (textStatus === 'error') {
-			        // Server not reachable
-			        message = 'Unable to connect to the server. Please try again after some time.';
-			    } else if (jqXHR.status === 500) {
-			        message = jqXHR.responseJSON?.message || 'Internal server error occurred.';
-			    }
-
-			    Swal.fire({
-			        title: "Notice",
-			        text: message,
-			        icon: 'warning',
-			        confirmButtonText: 'OK'
-			    });
-			}
+        
+            Swal.close();
+            Swal.fire({
+                title: "Error!",
+                text: 'An unexpected error occurred while importing data.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
 
 		});
 	}
@@ -2177,44 +2070,53 @@
 		$('#error_msg').hide();
 	});
 
-	function rollNoSuggestions(elem, cls_id, sec_id) {
 
-		let schoolId = document.getElementById('school_id').value;
 
-		$(elem).tooltip('dispose').removeAttr('data-original-title');
-		$(elem).removeAttr('data-original-title');
-		
+
+	$(document).on('click', '.student-login', function() {
+	    const studentId = $(this).data('id');
+	    const schools_id = $(this).data('schools_id');
+
+	     const url = '{{ route("student.dashboard") }}?student_id=' + studentId + '&schools_id=' + schools_id;
+	    // Create a temporary link and click it
+	    const link = document.createElement('a');
+	    link.href = url;
+	    link.target = '_blank';
+	    link.rel = 'noopener noreferrer';
+	    link.click();
+	});
+
+
+
+	{{--
+	$(document).on('click', '.student-login', function() {
+		const studentId = $(this).data('id');
+		console.log(studentId);
+
 		$.ajax({
-			url: 'rollNoSuggestion',
+			url: '{{ route("auth.login.test") }}', 
 			type: 'POST',
-			data: { 
-				schoolId: schoolId,
-				class_id: cls_id,
-				section_id: sec_id,
-			 },
-			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			data: {
+				student_id: studentId,
+				_token: '{{ csrf_token() }}'
+			},
 			success: function(response) {
-				const suggestions = response.suggested_roll_numbers;
-				const tooltipText = suggestions.length 
-					? "Available rolls: " + suggestions.join(', ') 
-					: 'No suggestions';
 
-				$(elem).tooltip('dispose');
-				$(elem).removeAttr('data-original-title');
+				console.log(response)
 
-				$(elem).attr('title', tooltipText);
-				$(elem).tooltip({
-					trigger: 'focus',
-					placement: 'top'
-				});
-				$(elem).tooltip('show');				
+				if (response.success) {
+					window.open('{{ route("student.dashboard") }}?student_id=' + studentId, 'studentLoginWindow', 'width=800,height=600');
+				} else {
+					alert('Login failed. Please try again.');
+				}
 			},
 			error: function(xhr, status, error) {
-				console.error('Error fetching roll number suggestions:', error);
+				alert('An error occurred. Please try again.');
 			}
 		});
-	}
+	});
 
+	--}}
 </script>
 
 @endsection

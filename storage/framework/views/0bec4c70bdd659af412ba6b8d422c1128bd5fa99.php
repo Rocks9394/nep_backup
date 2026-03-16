@@ -61,9 +61,15 @@
 			        ['data' => 'testStatus',        'name' => 'test_status',       'orderable' => false],
 			        ['data' => 'viewReport',        'name' => 'id',                'orderable' => false],
 			        ['data' => 'downloadReport',    'name' => 'id', 			   'orderable' => false],
-			    ],'ajaxUrl' => ''.e(route('fitness.report')).'','enableExportButtons' => false,'enableLengthMenu' => true,'exportButtonText' => 'Bulk Action','pageLength' => 100,'enableClassFilter' => false,'enableClassSectionFilter' => true,'enableSchoolTermsFilter' => true,'enableStatusFilter' => true,'searchPlaceholder' => 'Students Name | Admission','exportButtons' => [
+			    ],'ajaxUrl' => ''.e(route('fitness.report')).'','enableExportButtons' => false,'enableLengthMenu' => true,'exportButtonText' => 'Bulk Action','pageLength' => 100,'enableClassFilter' => false,'enableClassSectionFilter' => true,'enableSchoolTermsFilter' => true,'enableStatusFilter' => true,'enableCustomFilter' => true,'customFilterOptions' => [
+					['value' => 'detailed', 'label' => 'Detailed Report'],
+					['value' => 'summary',  'label' => 'One-Page Report']
+				],'selectedCustomFilter' => 'detailed','searchPlaceholder' => 'Students Name | Admission','exportButtons' => [
                     [   
                         'type' => 'custom', 'text' => 'Request Report Cards', 'action' => 'generateFitnessReportCard'
+                    ],
+					[   
+                        'type' => 'custom', 'text' => 'One-Page Report Cards', 'action' => 'generateFitnessReportCard'
                     ]
                 ]]); ?>
 <?php $component->withName('data-listing-component'); ?>
@@ -90,7 +96,7 @@
 
 	function generateFitnessReportCard(e, dt, node, config, selectedIds, termIds) {
 		
-
+		const reportType = $('#filter-custom').val();
 		if (!selectedIds || !termIds || selectedIds.length === 0) {   		
 
 		    Swal.fire({
@@ -102,6 +108,7 @@
 		    });
 		    return; 
 		}
+		
 
 		Swal.fire({
 	        title: 'Are you sure?',
@@ -124,6 +131,7 @@
 		            contentType: "application/json",            
 		            data: JSON.stringify({
 		                _token: "<?php echo e(csrf_token()); ?>",
+						reportType: reportType,
 		                student_ids: selectedIds,
 		                termIds : termIds,
 		            }), 

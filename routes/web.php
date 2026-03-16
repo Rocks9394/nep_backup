@@ -335,14 +335,12 @@ Route::prefix('school')->group(function(){
 
 	
 
-	Route::get('manage-student', [SchoolRecordController::class,'ManageStudents'])->name('managestudent')->middleware('module_access:managestudent');	
-	Route::post('updatedob', [SchoolRecordController::class,'updatedob'])->name('updatedob');
-	Route::post('updateEmail', [SchoolRecordController::class,'updateEmail'])->name('updateEmail');
-	Route::post('updateName', [SchoolRecordController::class,'updateName'])->name('updateName');
-	Route::post('updateRollNo', [SchoolRecordController::class,'updateRollNo'])->name('updateRollNo');
-	Route::post('updateAdmissionNo', [SchoolRecordController::class,'updateAdmissionNo'])->name('updateAdmissionNo');
+	Route::get('manage-student', [SchoolRecordController::class,'ManageStudents'])->name('managestudent')->middleware('module_access:managestudent');
+	
+	Route::post('edit-student-details', [SchoolRecordController::class, 'EditStudentDetails'])->name('edit.student.details'); 
 	Route::post('rollNoSuggestion', [SchoolRecordController::class,'rollNoSuggestion'])->name('rollNoSuggestion');
-
+	
+	Route::post('updatedob', [SchoolRecordController::class,'updatedob'])->name('updatedob');
 	Route::post('updatesection', [SchoolRecordController::class,'UpdateSection'])->name('updatesection');
 	Route::post('addstudent',[SchoolRecordController::class, 'addStudent'])->name('addstudent');
 	Route::post('getclasssection', [SchoolRecordController::class, 'getClassSection'])->name('getclasssection');

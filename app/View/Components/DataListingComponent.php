@@ -26,6 +26,9 @@ class DataListingComponent extends Component
     public $enableStatusFilter;
     public $enableSchoolTermsFilter;
     public $enableSportsFilter;
+    public $enableCustomFilter;   // Boolean: whether to show the filter
+    public $customFilterOptions;  // Array: options for dropdown
+    public $selectedCustomFilter;
 
     public $classes;
     public $skillIds;
@@ -63,6 +66,9 @@ class DataListingComponent extends Component
         $enableStatusFilter = false,
         $enableSchoolTermsFilter = null,
         $enableSportsFilter = false,
+        $enableCustomFilter = false, 
+        $customFilterOptions = [],
+        $selectedCustomFilter = null,
 
         $statusModeFlag = 0,
         $enableExportButtons = false,
@@ -91,6 +97,9 @@ class DataListingComponent extends Component
 
          $this->enableSchoolTermsFilter = filter_var($enableSchoolTermsFilter, FILTER_VALIDATE_BOOLEAN);
          $this->enableSportsFilter = filter_var($enableSportsFilter, FILTER_VALIDATE_BOOLEAN);
+        $this->enableCustomFilter = filter_var($enableCustomFilter, FILTER_VALIDATE_BOOLEAN);
+        $this->customFilterOptions = $customFilterOptions;
+        $this->selectedCustomFilter = $selectedCustomFilter;    
 
         $this->enableExportButtons = filter_var($enableExportButtons, FILTER_VALIDATE_BOOLEAN);
         $this->enableLengthMenu = filter_var($enableLengthMenu, FILTER_VALIDATE_BOOLEAN); 

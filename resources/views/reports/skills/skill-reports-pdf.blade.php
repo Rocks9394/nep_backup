@@ -128,10 +128,12 @@
     }
 
     .star-filled {
+        font-family: DejaVu Sans, 
         color: #ffc107;
     }
 
     .star-empty {
+        font-family: DejaVu Sans, 
         color: #ddd;
     }
 
@@ -202,7 +204,7 @@
     @endphp
 
     <div class="table-wrapper">
-        <table class="student-details">
+        <table class="student-details" cellpadding="0" cellspacing="0" style="width: 100%; border: 0; border-collapse: collapse;">
             <tr>
                 <th>Name</th>
                 <td>{{ $student->student_name }}</td>

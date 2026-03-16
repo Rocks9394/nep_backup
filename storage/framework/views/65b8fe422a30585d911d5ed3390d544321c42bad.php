@@ -10,6 +10,27 @@
 	<strong>Important Notice: </strong><span>Kindly update your profile details (email, mobile number etc.) in the Edit Profile section. If all details are already updated, please ignore this notice.</span>
 </marquee>
 
+
+<?php if(session('show_profile_update_popup')): ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        Swal.fire({
+			title: 'Profile Update Required',
+			text: 'Kindly update your profile.',
+			icon: 'warning',
+			confirmButtonText: 'Update Now',
+			cancelButtonText: 'Skip',
+        	showCancelButton: true,
+			allowOutsideClick: false
+		}).then((result) => {
+			if (result.isConfirmed) {
+				window.location.href = "<?php echo e(session('profile_update_route')); ?>";
+			}
+		});
+    });
+</script>
+<?php endif; ?>
+
 <div class="container">
     <div class="t-mrg">
 

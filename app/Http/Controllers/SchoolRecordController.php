@@ -707,7 +707,6 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
     }
 
 
-// 23-Jan-2026 school profile update function 
 
 	public function viewProfile(){
 
@@ -1114,7 +1113,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
      * Method used to get all the school's student details.
      * */
 
-    public function ManageStudents(Request $request){
+    public function ManageStudents_bk(Request $request){
 
     	$userId = Auth::user()->id;
 		$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
@@ -1332,72 +1331,297 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		return view('school.managestudent', compact('title','studentsDetails','check','classes','classList'));
 	} 
 
+	// updated 26 Feb
 
-   	/**
-   	 * Upadte in manage students of the students
-   	 * */
-
+	public function ManageStudents(Request $request){
 
 
-   	public function updateName(Request $request){
+    	$userId = Auth::user()->id;
+		$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+		$data = ScustomClass::where('school_id', $schoolId)->select('class_id','section')->get()->toArray();
+		$customClass1 = array();
 
-		try {
-			$studentId = $request->post('student_id');
-			$newName = $request->post('newName');
-	        DB::table('students')->where('id', $studentId)->update([ 'student_name' => $newName]);
-	        echo 'Student Name updated sucessfully';
-	    } catch (\Exception $e) {
-		    return $e->getMessage();
-		}
-   	}
+		foreach($data as $value){
 
-	
-   	public function updateRollNo(Request $request){
-   		   
-		$studentData = DB::table('students')
-			->select('student_name', 'school_id', 'custom_class_id', 'section_id')
-			->where('id', $request->student_id)
-			->first();
+			$class = $value['class_id'];
+			$section = $value['section'];
 
-		$existedRollNo = DB::table('students')
-			->where('rollno', $request->newRollno)
-			->where('school_id', $studentData->school_id)
-			->where('custom_class_id', $studentData->custom_class_id)
-			->where('section_id', $studentData->section_id)
-			->exists();
-
-		if($existedRollNo){
-			return response()->json([
-				'status' => false,
-				'message' => 'Roll number is already assigned to another student in the same class and section.',
-			], 409);
-		}else{
-			try {
-				$studentId = $request->post('student_id');
-				$newRollno = $request->post('newRollno');
-			    DB::table('students')->where('id', $studentId)->update([ 'rollno' => $newRollno]);
-			    echo 'Roll no. updated sucessfully';
-			} catch (\Exception $e) {
-			    return $e->getMessage();
+			if(!isset($customClass1[$class])){
+				$customClass1[$class] = [];
 			}
 
+			$customClass1[$class][] = $section;
 		}
-   	}
 
+
+		$school = School::find($schoolId);
+		$classList = $school->getClasses;
+		foreach ($classList as $class) {
+
+		    $originalClass = Sclass::where('id', $class->class_id)->orderBy('orders')->first();
+		    $class->name = !empty($class->nomenclature) 
+		        ? $class->nomenclature 
+		        : ($originalClass ? $originalClass->name : null);
+
+		}
+		$classList = $classList->sortBy('orders')->values();
+		$classList->prepend((object)[
+	        'class_id' => '',
+	        'name' => 'Select Class',
+	        'section' => ''
+	    ]);
+			
+		$sub = DB::table('custom_classes')
+		    ->select(DB::raw('MIN(id) as min_id'))
+		    ->where('school_id', $schoolId)
+		    ->groupBy('class_id');
+
+		$classes = DB::table('custom_classes')
+	    ->join('class', 'class.id', '=', 'custom_classes.class_id')
+	    ->join('schools', 'schools.id', '=', 'custom_classes.school_id')
+	    ->whereIn('custom_classes.id', $sub)
+	    ->select(
+	        'schools.id as schools_id',
+	        'custom_classes.id as custom_class_id',
+	        'custom_classes.class_id as id',
+	        'custom_classes.section',
+	        DB::raw("
+	            CASE 
+	                WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
+	                THEN custom_classes.nomenclature 
+	                ELSE class.name 
+	            END AS className
+	        ")
+	    )
+	    ->orderBy('school_id')->orderby('custom_classes.orders')
+	    ->get();
+
+		//echo "<pre>"; print_r($classes);exit();
+
+		$studentsQuery = DB::table('schools')
+		->join('students', 'students.school_id', '=' , 'schools.id')
+		->leftJoin('class', 'students.class_id', '=', 'class.id')
+    	->leftJoin('custom_classes', 'students.custom_class_id', '=', 'custom_classes.id')
+		->select(
+			'schools.id as schools_id',
+			'schools.school_code as school_code',
+			'students.id as student_id',
+			'students.student_uid as admissionnumber',
+			'students.student_name as student_name',
+			'students.gender',
+			'students.class_id',
+			'students.section_id',
+			'students.custom_class_id',
+			'students.dob',
+			'students.email_id',
+			'students.rollno',
+			'students.status',
+			DB::raw("CASE 
+                    WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
+                    THEN custom_classes.nomenclature 
+                    ELSE class.name 
+                 END AS display_classname"),
+        	'custom_classes.section',
+
+        	DB::raw("TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) AS age"),
+		
+			DB::raw("
+		        CASE 
+		            WHEN 
+		                (
+		                    (students.class_id = 1 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 4 AND 9) OR
+		                    (students.class_id = 2 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 5 AND 10) OR
+		                    (students.class_id = 3 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 6 AND 11) OR
+		                    (students.class_id = 4 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 7 AND 12) OR
+		                    (students.class_id = 5 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 8 AND 13) OR
+		                    (students.class_id = 6 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 9 AND 14) OR
+		                    (students.class_id = 7 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 10 AND 15) OR
+		                    (students.class_id = 8 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 11 AND 16) OR
+		                    (students.class_id = 9 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 12 AND 17) OR
+		                    (students.class_id = 10 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 13 AND 18) OR
+		                    (students.class_id = 11 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 14 AND 19) OR
+		                    (students.class_id = 12 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 15 AND 20) OR
+							(students.class_id = 14 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 3 AND 5) OR
+							(students.class_id = 17 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 3 AND 5) OR
+							(students.class_id = 18 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 3 AND 5) OR
+							(students.class_id = 22 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 3 AND 6) OR
+							(students.class_id = 23 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 4 AND 7) 
+		                )
+		            THEN 1
+		            ELSE 0
+		        END AS isValidAge
+		    ")
+		)
+		->where('students.school_code', $school->school_code)
+		->orderBy('custom_classes.orders', 'asc')
+		->orderBy('custom_classes.section', 'asc')
+		->orderBy('students.rollno', 'asc');;
+
+
+		if ($request->has('class_id')) {
+	        $classFilter = $request->input('class_id');
+	        list($class_id, $section_id) = explode('-', $classFilter, 2);
+	        if (!empty($class_id)) {
+	            $studentsQuery->where('students.class_id', $class_id);
+	        }
+	        if (!empty($section_id)) {
+	            $studentsQuery->where('students.section_id', $section_id);
+	        }
+	    }
+
+        if ($request->has('status')) {
+	        $status = $request->input('status');
+	        if (!empty($status)) {
+	        	$studentsQuery->where('students.status', $status);
+	        }
+	    }
+	    $studentsDetails = $studentsQuery->get();
+
+
+    	if($request->ajax()){
+
+			return Datatables::of($studentsDetails)
+	        ->addIndexColumn()
+
+			->addColumn('checkbox', function($row) {
+		        return '<input type="checkbox" class="row-select" value="'.$row->student_id.'">';
+		    })
+
+	        ->addColumn('class_id', function($row) {
+	        	return $row->display_classname;
+                // return \App\Helpers\Helper::className($row->class_id);
+            })
+
+	        ->addColumn('section_id', function($row) use ($customClass1){
+	        	$html = '<select class="form-control mx-0 w-100" name="section_id" data-section="'.$row->section_id.'" data-id= '.$row->student_id.' id="section" value="'.$row->class_id.'" >
+	                <option value="">Section</option>';
+                	foreach ($customClass1[$row->class_id] as $section) {
+					    $html .= '<option value="' . $row->class_id . '"';
+					    if ($row->section_id == $section) {
+					        $html .= ' selected';
+					    }
+					    $html .= '>' . $section . '</option>';
+					}
+	        	$html .= '</select>';
+                return $html;
+            })
+
+            ->addColumn('gender' , function($row) {
+            	$gender = ['Male','Female'];
+            	$genderHtml = '<select class="form-control form-control-sm" name="gender" id="studentGender" data-gender="'.$row->gender.'" data-id="'.$row->student_id.'" >
+	                <option value="">Select Gender</option>';
+					foreach ($gender as $data) {
+						$genderHtml .= '<option value="' . $data . '"';
+						if ($data == $row->gender) {
+							$genderHtml .= ' selected';
+						}
+						$genderHtml .= '>' . $data . '</option>';
+					}
+				$genderHtml .= '</select>';
+            	return $genderHtml;
+            })
+
+	        ->addColumn('dob', function($row) {
+
+	        	$formatted_date = null;
+		        if (!empty($row->dob)) {
+		            $timestamp = strtotime($row->dob);
+		            if ($timestamp !== false) {
+		                $formatted_date = date('Y-m-d', $timestamp);
+		            } else {
+		                $formatted_date = 'Fill date';
+		            }
+		        } else {
+		            $formatted_date = 'No date provided';
+		        }
+
+		   		$datehtml = '';
+				$hasDobError = false;
+
+				if ((isset($row->isValidAge) && $row->isValidAge === 0) || $formatted_date == 'Fill date') {
+					$hasDobError = true;
+				}
+
+
+				if ($hasDobError) {
+					return '<input class="datepicker has-dob-error" data-dob-error="true" data-dob="'.date('d-m-Y', strtotime($row->dob)).'" data-id="'.$row->student_id.'" type="date" name="birth_date" value="'.$formatted_date.'" id="updated_date">';
+				}
+		        else{
+		    		$datehtml .= '<input class="datepicker" data-dob="'.date('d-m-Y', strtotime($row->dob)).'" data-id="'.$row->student_id.'" type="date" name="birth_date" value="'.$formatted_date.'" id="updated_date">';
+		        } 
+
+                return $datehtml;
+            })
+
+	        ->addColumn('status', function($row){
+	        	$status = ['active','transfer'];
+            	$statusHtml = '<select class="form-control" name="status" id="studentStatus" data-status="'.$row->status.'" data-id="'.$row->student_id.'" >
+	                <!--option value="">Select Status</option-->';
+					foreach ($status as $data) {
+						$statusHtml .= '<option value="' . $data . '"';
+						if ($data == $row->status) {
+							$statusHtml .= ' selected';
+						}
+						$statusHtml .= '>' . ucfirst($data) . '</option>';
+					}
+				$statusHtml .= '</select>';
+            	return $statusHtml;
+            })
+
+            ->rawColumns(['checkbox','gender','class_id','section_id','dob','status'])
+	        ->toJson();
+        }
+
+
+        if($studentsDetails->count() > 0){
+        	$check  = 'true';
+        }else{
+        	$check = 'false';
+        	$classList = Sclass::select('id','name')->where('status', 1)->orderBy('orders')->get();
+        }
+
+        $logs = \App\Models\StudentImportLog::with('user')
+        ->where('user_id', Auth::id())->where('is_active', 'active')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+		$title = 'Manage Students';
+		return view('school.managestudent', compact('title','studentsDetails','classes','check','classList','logs', 'data'));
+	} 	
+
+		// for age validation
+    private function isValidAge($class, $age){
+
+		$classDetails = DB::table('class')->where('id', $class)->first();
+
+		if (!$classDetails) {
+			return false; 
+		}
+
+		$minAge = $classDetails->min_age;
+		$maxAge = $classDetails->max_age;
+
+		return ($age >= $minAge && $age <= $maxAge);
+	}
+
+	private function ageSuggestion($class){
+		$classDetails = DB::table('class')->where('id', $class)->first();
+
+		$suggestions = [];
+ 		$suggestions = [$classDetails->min_age, $classDetails->max_age];
+		
+		return $suggestions;
+
+	}
+
+		// roll number suggestions 
 	public function rollNoSuggestion(Request $request){
-		$studentId = $request->student_id;
-		// $studentId = "6824";
-		// dd("hello");
 
-		$studentData = DB::table('students')
-			->select('student_name', 'school_id', 'custom_class_id', 'section_id', 'rollno')
-			->where('id', $studentId)
-			->first();
 
 		$assignedRollNumbers = DB::table('students')
-			->where('school_id', $studentData->school_id)
-			->where('custom_class_id', $studentData->custom_class_id)
-			->where('section_id', $studentData->section_id)
+			->where('school_id', $request->schoolId)
+			->where('class_id', $request->class_id)
+			->where('section_id', $request->section_id)
 			->whereNotNull('rollno')
 			->pluck('rollno')
 			->map(function ($num) {
@@ -1408,9 +1632,9 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		$maxAssigned = !empty($assignedRollNumbers) ? max($assignedRollNumbers) : 0;
 
 		$studentCount = DB::table('students')
-			->where('school_id', $studentData->school_id)
-			->where('custom_class_id', $studentData->custom_class_id)
-			->where('section_id', $studentData->section_id)
+			->where('school_id', $request->schoolId)
+			->where('class_id', $request->class_id)
+			->where('section_id', $request->section_id)
 			->count();
 
 		$maxRange = max($maxAssigned, $studentCount);
@@ -1437,59 +1661,170 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		]);
 	}
 
-   	public function updateAdmissionNo(Request $request){
+	// to edit student details 
 
-		$studentData = DB::table('students')
-			->select('student_name', 'school_id')
-			->where('id', $request->student_id)
-			->first();
+	public function EditStudentDetails(Request $request){
+		try {
 
-		$existedUID = DB::table('students')
-			->where('student_uid', $request->newUID)
-			->where('school_id', $studentData->school_id)
-			->where('id', '!=', $request->student_id)
-			->exists();
-
-		if($existedUID){
-			return response()->json([
-				'status' => false,
-				'message' => 'Admission Number is already assigned to another student.',
-			], 409);
-		}else{
-			try {
-				$studentId = $request->post('student_id');
-				$newUID = $request->post('newUID');
-			    DB::table('students')->where('id', $studentId)->update([ 'student_uid' => $newUID]);
-			    echo 'Admission Number updated sucessfully';
-			} catch (\Exception $e) {
-			    return $e->getMessage();
+			$student = DB::table('students')->where('id', $request->s_id)->first();
+			if (!$student) {
+				return response()->json(['status' => 'fail', 'message' => 'Student not found.']);
 			}
+
+			$rules = [
+				'editStudentName' => 'required|string|max:100|regex:/^[a-zA-Z][a-zA-Z\s.]*$/u',
+				'editStudentEmail' => 'required|email:rfc,dns|max:255',
+				'editStudentSection' => 'required',
+				'editStudentGender' => 'required|in:Male,Female',
+				'editStudentRollno' => [
+					'required',
+					'numeric',
+					'min:1',
+					'max:9999',
+					function ($attribute, $value, $fail) use ($request, $student) {
+						$exists = Sstudent::where('class_id', $request->input('editStudentClass'))
+							->where('school_id', $student->school_id)
+							->where('section_id', $request->editStudentSection)
+							->where('rollno', $value)
+							->where('id', '!=', $request->s_id)
+							->value('student_name');
+
+						if ($exists) {
+							$fail('The roll number is already assigned to : ' . $exists);
+						}
+					}
+				],
+				'editStudentDOB' => 'required|date',
+			];
+
+			$customMessages = [
+				'editStudentName.required' => 'Please enter student name.',
+				'editStudentName.regex' => 'Name should contain only letters, spaces, and dots.',
+				'editStudentName.max' => 'Maximum character length is 100.',
+				'editStudentEmail.required' => 'Email address is required!',
+				'editStudentEmail.email' => 'Please provide a valid email address.',
+				'editStudentGender.required' => 'Please select gender.',
+				'editStudentDOB.required' => 'Please select student\'s birth date.',
+				'editStudentSection.required' => 'Please select section.',
+				'editStudentRollno.required' => 'Please assign a roll number to the student.',
+				'editStudentRollno.numeric' => 'Roll number must be a number.',
+				'editStudentRollno.min' => 'Roll number must be at least 1.',
+				'editStudentRollno.max' => 'Roll number cannot exceed 9999.',
+			];
+
+			$validator = Validator::make($request->all(), $rules, $customMessages);
+
+			if ($validator->fails()) {
+				return response()->json([
+					'status' => 'fail',
+					'error' => $validator->errors()
+				]);
+			}
+
+			$age = \Carbon\Carbon::parse($request->editStudentDOB)->age;
+			$isValidAge = $this->isValidAge($request->editStudentClass, $age);
+
+			if (!$isValidAge && !$request->has('force_update')) {
+
+				$classDetails = DB::table('class')
+					->where('id', $request->editStudentClass)
+					->first();
+
+				return response()->json([
+					'status' => 'age_warning',
+					'message' => "Age should be between {$classDetails->min_age} to {$classDetails->max_age} years for Class-{$request->editStudentClass}. Do you want to proceed?"
+				]);
+			}
+
+			$custom_class_id = DB::table('custom_classes')
+				->where('school_id', $student->school_id)
+				->where('class_id', $request->editStudentClass)
+				->where('section', $request->editStudentSection)
+				->value('id');
+
+			if (!$custom_class_id) {
+				return response()->json([
+					'status' => 'fail',
+					'message' => 'Custom class not found.'
+				]);
+			}
+
+			$words = explode(" ", $request->editStudentName);
+			$namefirstletter = $words[0];
+			$password = strtolower($namefirstletter) . '@' . $request->editStudentAdmissionNo;
+
+			DB::table('students')->where('id', $request->s_id)->update([
+				'student_name' => $request->editStudentName,
+				'email_id' => $request->editStudentEmail,
+				'gender' => $request->editStudentGender,
+				'password' => Hash::make($password),
+				'dob' => $request->editStudentDOB,
+				'class_id' => $request->editStudentClass,
+				'custom_class_id' => $custom_class_id,
+				'section_id' => $request->editStudentSection,
+				'rollno' => $request->editStudentRollno,
+				'status' => $request->editStudentStatus,
+			]);
+			Helper::auditLog('Student profile', 'Student profile updated by School');
+
+			return response()->json([
+				'status' => 'success',
+				'message' => 'Student details updated successfully.'
+			]);
+
+		} catch (\Exception $e) {
+
+			return response()->json([
+				'status' => 'fail',
+				'message' => 'Something went wrong. Please try again.'
+			]);
 		}
-   	}
+	}
 
 
    	public function updatedob(Request $request){
 
 		try {
+
 			$studentId = $request->post('student_id');
 			$newDate = $request->post('new_date');
-	        DB::table('students')->where('id', $studentId)->update([ 'dob' => $newDate]);
-	        echo 'DOB updated sucessfully';
-	    } catch (\Exception $e) {
-		    return $e->getMessage();
-		}
-   	}
 
-	public function updateEmail(Request $request){
-		try {
-			$studentId = $request->post('student_id');
-			$newEmail = $request->post('newEmail');
-	        DB::table('students')
+			$student = DB::table('students')->where('id', $studentId)->first();
+
+			$age = \Carbon\Carbon::parse($newDate)->age;
+
+			$isValidAge = $this->isValidAge($student->class_id, $age);
+
+			// dd($request->has('force_update'));
+
+			if (!$isValidAge && !$request->boolean('force_update')) {
+
+				$classDetails = DB::table('class')
+					->where('id', $student->class_id)
+					->first();
+
+				return response()->json([
+					'status' => 'age_warning',
+					'message' => "Age should be between {$classDetails->min_age} to {$classDetails->max_age} years for Class-{$student->class_id}. Do you want to proceed?"
+				]);
+			}
+
+			// Update DOB
+			DB::table('students')
 				->where('id', $studentId)
-				->update(['email_id' => $newEmail]);
-			echo 'Email updated sucessfully';
-	    } catch (\Exception $e) {
-		    return $e->getMessage();
+				->update(['dob' => $newDate]);
+
+			return response()->json([
+				'status' => 'success',
+				'message' => 'DOB updated successfully.'
+			]);
+
+		} catch (\Exception $e) {
+
+			return response()->json([
+				'status' => 'fail',
+				'message' => 'Something went wrong. Please try again.'
+			]);
 		}
    	}
 
@@ -1811,11 +2146,16 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 					'message' => 'No active students found for promotion.'
 				], 404);
 			}
+			$classes = DB::table('class')->orderBy('orders')->get();
+			$nextClassMap = [];
+			for ($i = 0; $i < $classes->count() - 1; $i++) {
+				$nextClassMap[$classes[$i]->id] = $classes[$i + 1]->id;
+			}
 
-			$nextClassPairs = $students->map(function ($student) {
+			$nextClassPairs = $students->map(function ($student) use ($nextClassMap) {
 				return [
-					'next_class_id' => $student->class_id + 1,
-					'section_id' => $student->section_id
+					'next_class_id' => $nextClassMap[$student->class_id] ?? null,
+					'section_id'    => $student->section_id,
 				];
 			})->unique();
 
@@ -1827,7 +2167,6 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				->keyBy(function ($item) {
 					return $item->class_id . '_' . $item->section;
 				});
-
 			$year = date('Y');
 			$month = date('m');
 

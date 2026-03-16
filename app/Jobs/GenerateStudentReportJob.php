@@ -25,12 +25,13 @@ class GenerateStudentReportJob implements ShouldQueue
     public string $sectionId;
     public int $studentId;
     public int $termIds;
+    public $reportType;
     public $timeout = 900;
     public $tries = 3;
 
     public $report_batch;
 
-    public function __construct(int $schoolId, int $classId, string $sectionId, int $studentId, $report_batch, $termIds) {
+    public function __construct(int $schoolId, int $classId, string $sectionId, int $studentId, $report_batch, $termIds, $reportType) {
 
         $this->schoolId = $schoolId;
         $this->classId = $classId;
@@ -38,6 +39,7 @@ class GenerateStudentReportJob implements ShouldQueue
         $this->studentId = $studentId;
         $this->report_batch = $report_batch;
         $this->termIds = $termIds;
+        $this->reportType = $reportType;
     }
 
     public function handle() {
@@ -54,7 +56,7 @@ class GenerateStudentReportJob implements ShouldQueue
             $disk->makeDirectory($relativePath);
         }
         $tmpDir = $disk->path($relativePath);
-
+        
         try {
 
             $pdfFile = $this->generateStudentPdfById($this->studentId, $tmpDir, $this->termIds);
@@ -117,19 +119,36 @@ class GenerateStudentReportJob implements ShouldQueue
                         : 'Previous_Term'
                 );
         });
+        $firstName = strtolower(trim(explode(' ', $studentsData->student_name)[0]));
+        $plainPassword = $firstName . '@' . trim($studentsData->admissionnumber);
+        $isLetterHead = true;
 
         $getBmiBenchmark = $this->getBmiBenchmark($ageGender);
 
         if (in_array($studentsData->class_id, [4,5,6,7,8,9,10,11,12])) {
 
             [$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport);
-            $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
-            ));
+            if($this->reportType == 'summary'){
+                $pdf = Pdf::loadView('reports.fitness.pdf.one-page-senior', compact(
+                    'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark','isLetterHead','plainPassword'
+                ));
+            }else{
+                $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'));
+            }
         } else {
             [$orderedReportData, $FmsReportData, $getFitnessBenchmark] = $this->getJuniorReportData($studentsData->class_id, $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId 
             );
-            $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact('studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
+            if($this->reportType == 'summary'){
+                $pdf = Pdf::loadView('reports.fitness.pdf.one-page-junior', compact(
+                'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark','isLetterHead','plainPassword'
             ));
+            }else{
+
+                $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact('studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
+                ));
+            }
+
+
         }
 
         $pdfFile = $batchDir . "/student_{$studentId}.pdf";

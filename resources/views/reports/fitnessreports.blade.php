@@ -59,17 +59,26 @@
                 :order="[ [0, 'asc']]"
                 :enable-export-buttons="false"
                 :enableLengthMenu="true"
-				:exportButtonText="'Bulk Action'"
+				:exportButtonText="'Bulk Download'"
        			:pageLength="100"                
                 :enable-class-filter="false"
                 :enable-class-section-filter="true"
                 :enable-school-terms-filter="true"
                 {{-- :selectedClass="1" --}}
                 :enable-status-filter="true"
+				:enable-custom-filter="false"
+				:custom-filter-options="[
+					['value' => 'detailed', 'label' => 'Detailed Report'],
+					['value' => 'summary',  'label' => 'One-Page Report']
+				]"
+				:selected-custom-filter="'detailed'"
                 searchPlaceholder="Students Name | Admission"
                 :export-buttons="[
                     [   
-                        'type' => 'custom', 'text' => 'Request Report Cards', 'action' => 'generateFitnessReportCard'
+                        'type' => 'custom', 'text' => 'Detailed Report Cards', 'action' => 'detailedReportCard'
+                    ],
+					[   
+                        'type' => 'custom', 'text' => 'One-Page Report Cards', 'action' => 'summaryReportCard'
                     ]
                 ]"
                
@@ -88,9 +97,18 @@
 
 	const currentTermId = {{ $current_term_id }};
 
-	function generateFitnessReportCard(e, dt, node, config, selectedIds, termIds) {
-		
+	function detailedReportCard(e, dt, node, config, selectedIds, termIds){
+		const reportType = 'detailed';
+		generateFitnessReportCard(e, dt, node, config, selectedIds, termIds, reportType);
+	}
+	function summaryReportCard(e, dt, node, config, selectedIds, termIds){
+		const reportType = 'summary';
+		generateFitnessReportCard(e, dt, node, config, selectedIds, termIds, reportType);
+	}
 
+	function generateFitnessReportCard(e, dt, node, config, selectedIds, termIds, reportType) {
+		
+		// const reportType = $('#filter-custom').val();
 		if (!selectedIds || !termIds || selectedIds.length === 0) {   		
 
 		    Swal.fire({
@@ -102,6 +120,7 @@
 		    });
 		    return; 
 		}
+		
 
 		Swal.fire({
 	        title: 'Are you sure?',
@@ -124,6 +143,7 @@
 		            contentType: "application/json",            
 		            data: JSON.stringify({
 		                _token: "{{ csrf_token() }}",
+						reportType: reportType,
 		                student_ids: selectedIds,
 		                termIds : termIds,
 		            }), 
