@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Sstudent;
+use Illuminate\Support\Str;
+
 class AuthController extends Controller {
   
     // LOGIN
@@ -45,10 +47,16 @@ class AuthController extends Controller {
             // $student->withAccessToken($student->createToken('StudentToken', ['student'])->accessToken);
             $token = $student->createToken('StudentToken', ['student'])->accessToken;
 
+            if(empty($student->remember_token)){
+                $student->remember_token = Str::random(60);
+                $student->save();
+            }
+
             return response()->json([
                 'status'       => true,
                 'account_type' => 'student',
                 'token'        => $token,
+                'bridge_token' => $student->remember_token,
                 'student'      => $student,
             ], 200);
         }
@@ -59,8 +67,6 @@ class AuthController extends Controller {
         ], 401);
     }
 
-
-    // LOGOUT
     public function logout(Request $request) {
 
         $request->user()->token()->revoke();

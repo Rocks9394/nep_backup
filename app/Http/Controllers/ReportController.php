@@ -277,20 +277,13 @@ class ReportController extends Controller {
 	            );
 	    });
 
-		$firstName = strtolower(trim(explode(' ', $studentsData->student_name)[0]));
-        $plainPassword = $firstName . '@' . trim($studentsData->admissionnumber);
-
         $getBmiBenchmark = $this->getBmiBenchmark($ageGender);
-		$isLetterHead = true;
 
         if (in_array($studentsData->class_id, [4,5,6,7,8,9,10,11,12])) {
             [$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport );
 
-            // $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact(
-            //     'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
-            // ));
-            $pdf = Pdf::loadView('reports.fitness.pdf.one-page-senior', compact(
-                'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark','isLetterHead','plainPassword'
+            $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact(
+                'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
             ));
         } else {
 
@@ -298,16 +291,12 @@ class ReportController extends Controller {
                 $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId 
             );
 
-            // $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
-            //     'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
-            // ));
-            $pdf = Pdf::loadView('reports.fitness.pdf.one-page-junior', compact(
-                'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark','isLetterHead','plainPassword'
+            $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
+                'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
             ));
         }
 
 		$filename = 'Fitness_Report_Cards-'.date('d-m-Y_H-i-s').'.pdf';
-		return $pdf->stream($filename);
 		return $pdf->download($filename);
     }
 
@@ -1305,7 +1294,7 @@ class ReportController extends Controller {
 
 			$fileName = 'Skill_Report_' . $student->student_name . '.pdf';
 
-			return $pdf->stream($fileName);
+			// return $pdf->stream($fileName);
 
 			return $pdf->download($fileName);
 		}

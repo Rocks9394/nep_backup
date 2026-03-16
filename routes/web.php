@@ -34,6 +34,11 @@ use App\Http\Controllers\FillDartController;
 
 use App\Http\Controllers\Auth\PasswordRecoveryControlller;
 use App\Http\Controllers\Auth\ChangePasswordController;
+
+use Illuminate\Support\Facades\Auth;
+use App\Models\Sstudent;
+use Illuminate\Http\Request;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -44,6 +49,24 @@ use App\Http\Controllers\Auth\ChangePasswordController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+
+
+Route::get('/webview-auth-bridge', function (Request $request) {
+    $bridgeToken = $request->query('token');
+
+    $targetPath = $request->query('redirect');
+    
+    $student = Sstudent::where('remember_token', $bridgeToken)->first();
+
+
+    if ($student) {
+        Auth::guard('sstudent')->login($student);
+        return redirect('/' . ltrim($targetPath, '/'));
+    }
+
+    return abort(401, "Invalid Bridge Session");
+});
 
 
 Route::get('/debug', function () {
@@ -332,15 +355,14 @@ Route::prefix('school')->group(function(){
 	
 	//Route::get('dashboard', [SchoolRecordController::class,'SchoolDashboard'])->name('schoolDashboard');
 	//Route::get('viewdart', [SchoolRecordController::class,'viewSchoolDart'])->name('viewschooldart');
-
 	
-
 	Route::get('manage-student', [SchoolRecordController::class,'ManageStudents'])->name('managestudent')->middleware('module_access:managestudent');
 	
 	Route::post('edit-student-details', [SchoolRecordController::class, 'EditStudentDetails'])->name('edit.student.details'); 
 	Route::post('rollNoSuggestion', [SchoolRecordController::class,'rollNoSuggestion'])->name('rollNoSuggestion');
 	
 	Route::post('updatedob', [SchoolRecordController::class,'updatedob'])->name('updatedob');
+
 	Route::post('updatesection', [SchoolRecordController::class,'UpdateSection'])->name('updatesection');
 	Route::post('addstudent',[SchoolRecordController::class, 'addStudent'])->name('addstudent');
 	Route::post('getclasssection', [SchoolRecordController::class, 'getClassSection'])->name('getclasssection');
@@ -680,5 +702,9 @@ Route::get('/battery-of-test', [App\Http\Controllers\GeneralController::class, '
 
 Route::get('generatepdf', [App\Http\Controllers\GeneratePDF::class, 'generateActivityPDFshow'])->name('generateactivitypdfview');
 Route::post('generatepdf', [App\Http\Controllers\GeneratePDF::class, 'generateActivityPDF'])->name('generateactivitypdf');
+
+
+
+
 URL::forceScheme('https');
 

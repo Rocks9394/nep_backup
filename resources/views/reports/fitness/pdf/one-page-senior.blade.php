@@ -168,28 +168,22 @@
                                                     <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
                                                         <tr style="font-size: 13px; line-height: 1rem;">
                                                             <td style="border: 1px solid #0A87CD; border-bottom: none; padding: 0 15px; vertical-align: middle;">
-
                                                                 <ul style="margin: 8px 0; padding-left: 20px;">
                                                                     <li>Height recorded in cm and mm</li>
                                                                     <li>Weight will be recorded in kilogram (kg) and grams(gms)</li>
                                                                 </ul>
-
                                                             </td>
 
                                                             <td style="border: 1px solid #0A87CD; border-left: none; border-bottom: none; padding: 0 15px; vertical-align: middle;">
-
                                                                 <table border="0" cellpadding="0" cellspacing="0" style="margin: 0;">
                                                                     <tr>
                                                                         <td style="padding-right: 10px; white-space: nowrap;">Body Mass Index =</td>
                                                                         <td style="padding: 0;">
-
                                                                             <p style="border-bottom: 1px solid #c5c5c5; padding-bottom: 2px; margin: 0; white-space: nowrap;">Weight (in kg)</p>
                                                                             <p style="padding-top: 0; margin: 0; white-space: nowrap;">Height (in m)<sup>2</sup></p>
-
                                                                         </td>
                                                                     </tr>
                                                                 </table>
-
                                                             </td>
                                                         </tr>
                                                         <tr>
@@ -214,6 +208,7 @@
 
                                                                 </table>
                                                             </td>
+
                                                             <td style="width: 50%;">
                                                                 <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
                                                                     <tr style="background-color: #fecd0a;">
@@ -325,51 +320,52 @@
         <!-- Signature -->
     <div class="signature-footer">
 
-        <table border="0" cellpadding="0" cellspacing="0" 
-        style="width: 100%; font-size: 14px; border-collapse: collapse; color:#000;">
+        <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; font-size: 14px; border-collapse: collapse; color:#000;">
 
-        <tr>
-        <td style="width:50%; text-align:center;">
+            <tr>
+               
+                <td style="width:50%; padding-left:30px; vertical-align:bottom;">
+                    @if($studentsData->signature)
+                    <div style="padding-left:60px;">
+                        <img src="{{ public_path('/assets/uploads/signatures/' . $studentsData->signature) }}"  style="height:60px;">
+                    </div>
+                    <p style="font-weight:600; margin:2px 0 0 0; text-align:left;">  Signature of Principal with Stamp  </p>
+                    @endif
+                </td>
 
-        @if($studentsData->signature)
-        <img src="{{ public_path('/assets/uploads/signatures/' . $studentsData->signature) }}" 
-        style="height:60px;">
-        @endif
+                <td style="width:50%; text-align:center;">
 
-        <p style="font-weight:600;">Signature of Principal with Stamp</p>
+                <div style="height:60px;"></div>
+                <!-- <p style="font-weight:600;">Parent's Signature</p> -->
 
-        </td>
+                </td>
+            </tr>
 
-        <td style="width:50%; text-align:center;">
+            <tr>
+                <td colspan=2 style="text-align:left; padding-left:30px;">
+                    <span style="font-size:12px;">
+                        Go to <strong>https://fitness365.me</strong>. Login as <strong>PARENT</strong> with Username: {{ $studentsData->user_id }} and Password: {{$plainPassword}} for reports and activities
+                    </span>
+                </td>
+            </tr>
+            
+            @if(!$isLetterHead)
+            <tr>
+                <td style="background:#E60A00;height:40px;padding:0 30px;color:#fff;">
+                Physical Health and Fitness Assessment
+                </td>
 
-        <div style="height:60px;"></div>
-        <!-- <p style="font-weight:600;">Parent's Signature</p> -->
-
-        </td>
-        </tr>
-        <tr style="text-align:center;">
-            <td colspan=2>
-                <span style="font-size:12px;">
-                    Go to <strong>https://fitness365.me</strong>. Login as <strong>PARENT</strong> with Username: {{ $studentsData->admissionnumber }} and Password: {{$plainPassword}} for reports and activities
-                </span>
-            </td>
-        </tr>
-        @if(!$isLetterHead)
-        <tr>
-            <td style="background:#E60A00;height:40px;padding:0 30px;color:#fff;">
-            Physical Health and Fitness Assessment
-            </td>
-
-            <td style="background:#00A923;height:40px;padding:0 30px;text-align:right;color:#fff;">
-            powered by <strong>fitness365.me</strong>
-            </td>
-        </tr>
-        @else
-        <div style="height:30px;"></div>
-        @endif
+                <td style="background:#00A923;height:40px;padding:0 30px;text-align:right;color:#fff;">
+                powered by <strong>fitness365.me</strong>
+                </td>
+            </tr>
+            @else
+            <div style="height:30px;"></div>
+            @endif
 
         </table>
 
-        </div>
+    </div>
 </body>
+
 </html>

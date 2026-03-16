@@ -33,7 +33,7 @@ trait ReportHelperTrait
                 'students.id as student_id','students.student_uid as admissionnumber',
                 'students.student_name as student_name','students.gender',
                 'students.class_id','students.section_id','students.custom_class_id',
-                'students.dob','students.email_id','students.rollno','students.status', 'usermetas.signature',
+                'students.dob','students.email_id','students.rollno','students.status', 'usermetas.signature',  'students.user_id',
                 DB::raw("CASE 
                     WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
                     THEN custom_classes.nomenclature ELSE class.name END AS display_classname"),

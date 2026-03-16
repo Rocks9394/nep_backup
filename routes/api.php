@@ -7,7 +7,21 @@ use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\NativeApi\TrainerProfileController;
 use App\Http\Controllers\NativeApi\StudentProfileController;
 use App\Http\Controllers\NativeApi\ReportController;
+use App\Http\Controllers\NativeApi\ActivityController;
 
+
+
+
+Route::get('/app-version', function () {
+    return response()->json([
+        'latestVersion' => '1.3.4',
+        'minVersion'    => '1.0.0', // Fixed syntax and set to a logical number
+        'apkUrl'        => 'https://nep.goforfit.in/public/downloads/apk/app-release.apk',
+        'releaseNotes'  => 'New updates are ready! Tap download to stay fit with our latest features.', 
+     // 'releaseNotes'  => "• Bug fixes\n• Performance improvements\n• New dashboard",
+        'forceUpdate'   => false
+    ]);
+});
 
 
 
@@ -16,8 +30,12 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:student-api')->group(function () {
     Route::get('/student/profile', [StudentProfileController::class, 'show']);
     Route::get('/student/dashboard', [StudentProfileController::class,'dashboard'])->name('students.dashboard');
-
     Route::get('/reports-download', [ReportController::class, 'downloadFitnessReport']);
+    Route::get('daily-tracker', [StudentProfileController::class,'dailyreport']);
+    Route::get('activity-detail', [ActivityController::class,'ActivityDetail']);
+
+    Route::get('school-records', [ActivityController::class,'schoolRecords']);
+
 });
 
 

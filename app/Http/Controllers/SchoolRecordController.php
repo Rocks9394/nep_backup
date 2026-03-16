@@ -707,6 +707,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
     }
 
 
+// 23-Jan-2026 school profile update function 
 
 	public function viewProfile(){
 
@@ -1109,229 +1110,9 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 
     /**
-     * 05-08-2024
-     * Method used to get all the school's student details.
+     * 16-03-2026
+     * Manage students.
      * */
-
-    public function ManageStudents_bk(Request $request){
-
-    	$userId = Auth::user()->id;
-		$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
-		$data = ScustomClass::where('school_id', $schoolId)->select('class_id','section')->get()->toArray();
-		$customClass1 = array();
-
-		foreach($data as $value){
-
-			$class = $value['class_id'];
-			$section = $value['section'];
-
-			if(!isset($customClass1[$class])){
-				$customClass1[$class] = [];
-			}
-
-			$customClass1[$class][] = $section;
-		}
-
-
-		$school = School::find($schoolId);
-		$classList = $school->getClasses;
-		foreach ($classList as $class) {
-
-		    $originalClass = Sclass::where('id', $class->class_id)->orderBy('orders')->first();
-		    $class->name = !empty($class->nomenclature) 
-		        ? $class->nomenclature 
-		        : ($originalClass ? $originalClass->name : null);
-
-		}
-		$classList = $classList->sortBy('orders')->values();
-		$classList->prepend((object)[
-	        'class_id' => '',
-	        'name' => 'Select Class',
-	        'section' => ''
-	    ]);
-			
-		$sub = DB::table('custom_classes')
-		    ->select(DB::raw('MIN(id) as min_id'))
-		    ->where('school_id', $schoolId)
-		    ->groupBy('class_id');
-
-		$classes = DB::table('custom_classes')
-	    ->join('class', 'class.id', '=', 'custom_classes.class_id')
-	    ->join('schools', 'schools.id', '=', 'custom_classes.school_id')
-	    ->whereIn('custom_classes.id', $sub)
-	    ->select(
-	        'schools.id as schools_id',
-	        'custom_classes.id as custom_class_id',
-	        'custom_classes.class_id as id',
-	        'custom_classes.section',
-	        DB::raw("
-	            CASE 
-	                WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-	                THEN custom_classes.nomenclature 
-	                ELSE class.name 
-	            END AS className
-	        ")
-	    )
-	    ->orderBy('school_id')->orderby('custom_classes.orders')
-	    ->get();
-
-
-
-		$studentsQuery = DB::table('schools')
-		->join('students', 'students.school_id', '=' , 'schools.id')
-		->leftJoin('class', 'students.class_id', '=', 'class.id')
-    	->leftJoin('custom_classes', 'students.custom_class_id', '=', 'custom_classes.id')
-		->select(
-			'schools.id as schools_id',
-			'schools.school_code as school_code',
-			'students.student_uid',
-			'students.id as student_id',
-			'students.student_name as student_name',
-			'students.gender',
-			'students.class_id',
-			'students.section_id',
-			'students.custom_class_id',
-			'students.dob',
-			'students.email_id',
-			'students.rollno',
-			'students.status',
-			DB::raw("CASE 
-                    WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-                    THEN custom_classes.nomenclature 
-                    ELSE class.name 
-                 END AS display_classname"),
-			'custom_classes.section'
-			)
-		->where('schools.id', $schoolId)
-		->orderBy('display_classname', 'asc')
-		->orderBy('custom_classes.section', 'asc')
-		->orderBy('students.rollno', 'asc');
-
-
-		if ($request->has('class_id')) {
-	        $classFilter = $request->input('class_id');
-	        list($class_id, $section_id) = explode('-', $classFilter);
-	        if (!empty($class_id)) {
-	            $studentsQuery->where('students.class_id', $class_id);
-	        }
-	        if (!empty($section_id)) {
-	            $studentsQuery->where('students.section_id', $section_id);
-	        }
-	    }
-
-        if ($request->has('status')) {
-	        $status = $request->input('status');
-	        if (!empty($status)) {
-	        	$studentsQuery->where('students.status', $status);
-	        }
-	    }
-
-	    $studentsDetails = $studentsQuery->get();
-
-	
-    	if($request->ajax()){
-
-			return Datatables::of($studentsDetails)
-	        ->addIndexColumn()
-	        ->addColumn('class_id', function($row) {
-	        	return $row->display_classname;
-            })
-
-            ->addColumn('registration_no', function($row){
-            	return $row->student_uid;
-            })	
-
-			->addColumn('email', function($row){
-				// $emailHtml = '<input class="form-control email-input" type="email" name="email" data-id="' . htmlspecialchars($row->email_id) . '" value="' . htmlspecialchars($row->email_id) . '">';
-            	return $row->email_id;
-            	// return $emailHtml;
-            })
-            ->addColumn('rollno', function($row){
-            	return $row->rollno;
-            })	
-
-	        ->addColumn('section_id', function($row) use ($customClass1){
-	        	$html = '<select class="form-control mx-0 section" name="section_id" data-section="'.$row->section_id.'" data-id= '.$row->student_id.' value="'.$row->class_id.'" >
-	                <option value="">Section</option>';
-                	foreach ($customClass1[$row->class_id] as $section) {
-					    $html .= '<option value="' . $row->class_id . '"';
-					    if ($row->section_id == $section) {
-					        $html .= ' selected';
-					    }
-					    $html .= '>' . $section . '</option>';
-					}
-	        	$html .= '</select>';
-                return $html;
-            })
-
-            ->addColumn('gender' , function($row) {
-            	$gender = ['Male','Female'];
-            	$genderHtml = '<select class="form-control form-control-sm studentGender" name="gender" data-gender="'.$row->gender.'" data-id="'.$row->student_id.'" >
-	                <option value="">Select Gender</option>';
-					foreach ($gender as $data) {
-						$genderHtml .= '<option value="' . $data . '"';
-						if ($data == $row->gender) {
-							$genderHtml .= ' selected';
-						}
-						$genderHtml .= '>' . $data . '</option>';
-					}
-				$genderHtml .= '</select>';
-            	return $genderHtml;
-            })
-
-	        ->addColumn('dob', function($row) {
-	        	$formatted_date = null;
-		        if (!empty($row->dob)) {
-		            $timestamp = strtotime($row->dob);
-		            if ($timestamp !== false) {
-		                $formatted_date = date('Y-m-d', $timestamp);
-		            } else {
-		                $formatted_date = 'Fill date';
-		            }
-		        } else {
-		            $formatted_date = 'No date provided';
-		        }
-
-		   		$datehtml = '';
-		        if($formatted_date !== 'Fill date'){
-		    		$datehtml .= '<input class="datepicker updated_date" data-dob="'.date('d-m-Y', strtotime($row->dob)).'" data-id="'.$row->student_id.'" type="date" name="birth_date" value="'.$formatted_date.'">';
-		        } else {
-					$datehtml .= '<input class="datepicker" data-dob="'.date('d-m-Y', strtotime($row->dob)).'" data-id="' . $row->student_id . '" type="text" name="birth_date" placeholder="Fill date" onfocus="this.type=\'date\'" onblur="this.type=\'text\'" id="date" value="Fill date">';
-				}
-
-                return $datehtml;
-            })
-
-	        ->addColumn('status', function($row){
-	        	$status = ['active','transfer'];
-            	$statusHtml = '<select class="form-control studentStatus" name="status" data-status="'.$row->status.'" data-id="'.$row->student_id.'" >
-	                <option value="">Select Status</option>';
-					foreach ($status as $data) {
-						$statusHtml .= '<option value="' . $data . '"';
-						if ($data == $row->status) {
-							$statusHtml .= ' selected';
-						}
-						$statusHtml .= '>' . ucfirst($data) . '</option>';
-					}
-				$statusHtml .= '</select>';
-            	return $statusHtml;
-            })
-
-            ->rawColumns(['rollno','registration_no','gender','class_id','section_id','dob','status'])
-	        ->toJson();
-        }
-
-        if($studentsDetails->count() > 0){
-        	$check  = 'true';
-        }else{
-        	$check = 'false';
-        }
-
-		$title = 'Manage Students';
-		return view('school.managestudent', compact('title','studentsDetails','check','classes','classList'));
-	} 
-
-	// updated 26 Feb
 
 	public function ManageStudents(Request $request){
 
@@ -2180,7 +1961,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			$transferredCount = 0;
 
 			foreach ($students as $student) {
-				if ($student->class_id >= 12) {
+				if ($student->class_id == 12) {
 					$student->update([
 						'status' => 'transfer',
 					]);

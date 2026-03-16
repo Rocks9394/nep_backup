@@ -18,8 +18,6 @@ class ReportController extends Controller
 
     public function downloadFitnessReport($id = null, $term_id = null) {
 
-    	
-
 		if($id){
 			$studentId = Crypt::decryptString($id);
 		}else{
@@ -86,4 +84,8 @@ class ReportController extends Controller
 		$filename = 'Fitness_Report_Cards-'.date('d-m-Y_H-i-s').'.pdf';
 		return $pdf->download($filename);
     }
+
+    
+
+
 }

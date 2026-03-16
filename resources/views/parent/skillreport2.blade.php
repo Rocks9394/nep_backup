@@ -57,8 +57,8 @@
                   <div class=" student-info">
                      <div class="container-fluid">
                         <div class="row">
-                           <div class="col-12 col-md-4 col-lg">
-                              <span class="lb">Name:</span><span>{{ $reportDetail['studentProfile']['name'] }}</span>
+                           <div class="col-12 col-md-4 col-lg " style="text-align: left;">
+                              <span class="lb" >Name:</span><span>{{ $reportDetail['studentProfile']['name'] }}</span>
                            </div>
                            <div class="col-6 col-md-4 col-lg">
                               <span class="lb">Class:</span><span>{{ $reportDetail['studentProfile']['class']  }} - {{$reportDetail['studentProfile']['section'] ?? '' }}</span>
