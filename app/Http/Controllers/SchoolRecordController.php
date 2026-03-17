@@ -1974,6 +1974,20 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 				$customClassId = $customClasses[$key]->id ?? null;
 
+				if (!$customClassId) {
+
+					$customClassId = DB::table('custom_classes')->insertGetId([
+						'school_id'   => $schoolId,
+						'class_id'    => $nextClassId,
+						'section'     => $student->section_id,
+						'status'      => 1,
+					]);
+
+					$customClasses[$key] = (object)[
+						'id' => $customClassId
+					];
+				}
+
 				$student->update([
 					'class_id'			=> $nextClassId,
 					'custom_class_id'	=> $customClassId,

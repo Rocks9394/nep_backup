@@ -38,14 +38,28 @@
         position: fixed;
         bottom: 0;
         left: 0;
+        vertical-align: bottom;
         width: 100%;
     }
+    .signature-footer p {
+        margin: 0;
+    }
+
     .page1-footer{
-        text-align:right;
-        font-size:12px;
+        text-align:center;
+       /* font-size:12px;
         margin-right:40px;
         margin-top:120px;
+*/
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        vertical-align: bottom;
+        width: 100%;
+
     }
+
+
 </style>
 </head>
 
@@ -217,12 +231,17 @@
                 </table> 
             </td>
         </tr>
+
+
+        <?php if(!in_array($studentsData->class_id, [14, 18, 22, 23])): ?>
+            <div class="page1-footer">
+                Page 1 of 2
+            </div>
+        <?php endif; ?>
+
     </table>
-    <?php if(!in_array($studentsData->class_id, [14, 18, 22, 23])): ?>
-        <div class="page1-footer">
-            Page 1 of 2
-        </div>
-    <?php endif; ?>
+
+    
 
     <!-- fitness test score  -->
     <?php if(!in_array($studentsData->class_id, [14, 18, 22, 23])): ?>
@@ -306,57 +325,47 @@
                                     <?php if($key === 'Body Composition (BMI)'): ?>
                                         <tr>
                                             <td>
-                                                <table cellpadding="0" cellspacing="0"
-                                                    style="width: 100%; border: 0; border-collapse: collapse;">
+                                                <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0; border-collapse: collapse;">
                                                     <tr>
                                                         <td style="vertical-align: top;">
-                                                            <table border="0" cellpadding="0" cellspacing="0"
-                                                                style="width: 100%;">
-                                                                <tr style="font-size: 13px; line-height: 0.8rem;">
-                                                                    <td
-                                                                        style="border-top: 1px solid #0A87CD; border-left: 1px solid #0A87CD; border-right: 1px solid #0A87CD; border-bottom: 0px solid transparent; border-collapse: collapse; padding:5px 15px; vertical-align: middle;">
-                                                                        <ul style="margin-left: 15px;">
+                                                            <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+                                                                <tr style="font-size: 13px; line-height: 1rem;">
+                                                                    <td style="border: 1px solid #0A87CD; border-bottom: none; padding: 0 15px; vertical-align: middle;">
+                                                                        <ul style="margin: 8px 0; padding-left: 20px;">
                                                                             <li>Height recorded in cm and mm</li>
                                                                             <li>Weight will be recorded in kilogram (kg) and grams(gms)</li>
                                                                         </ul>
                                                                     </td>
-                                                                    <td style="border-top: 1px solid #0A87CD; border-right: 1px solid #0A87CD; border-bottom: 0px solid transparent; border-collapse: collapse; padding:5px 15px; vertical-align: top; padding-bottom:10px;">
-                                                                        <table border="0" cellpadding="0"
-                                                                            cellspacing="0">
+
+                                                                    <td style="border: 1px solid #0A87CD; border-left: none; border-bottom: none; padding: 0 15px; vertical-align: middle;">
+                                                                        <table border="0" cellpadding="0" cellspacing="0" style="margin: 0;">
                                                                             <tr>
-                                                                                <td>Body Mass Index =</td>
-                                                                                <td style="padding:0 10px;">
-                                                                                    <p style="border-bottom: 1px solid #c5c5c5; padding-bottom: 2px; margin:0;">
-                                                                                        Weight (in kg)</p>
-                                                                                    <p  style="padding-top: 0px; margin:0;"> Height (in m)2</p>
+                                                                                <td style="padding-right: 10px; white-space: nowrap;">Body Mass Index =</td>
+                                                                                <td style="padding: 0;">
+                                                                                    <p style="border-bottom: 1px solid #c5c5c5; padding-bottom: 2px; margin: 0; white-space: nowrap;">Weight (in kg)</p>
+                                                                                    <p style="padding-top: 0; margin: 0; white-space: nowrap;">Height (in m)<sup>2</sup></p>
                                                                                 </td>
                                                                             </tr>
                                                                         </table>
-
                                                                     </td>
                                                                 </tr>
+                                                                
                                                                 <tr>
                                                                     <td style="width: 50%;">
-                                                                        <table border="1" cellpadding="0"
-                                                                            cellspacing="0"
-                                                                            style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
+                                                                        <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
                                                                             <tr style="background-color: #fecd0a;">
-                                                                                <td style="width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center; font-weight: bold;"
-                                                                                    rowspan="2">Current Term</td>
-                                                                                <td style="width: 20%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
-                                                                                    Date</td>
-                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
-                                                                                    Weight (kg)</td>
-                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
-                                                                                    Height (cm)</td>
-                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
-                                                                                    BMI</td>
-                                                                                <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">
-                                                                                    Level</td>
+                                                                                <td style="width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Current Term</td>
+                                                                                <td style="width: 28%; padding: 4px 0px 4px 0px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
+                                                                                <td style="width: 25%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Weight (kg)</td>
+                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Height (cm)</td>
+                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">BMI</td>
+                                                                                <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Level</td>
                                                                             </tr>
 
                                                                             <tr>
-                                                                                <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center; width:40%"><?php echo e($value['Current_Term'][0]['created_at'] ?? '---'); ?>
+
+
+                                                                                <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center;"><?php echo e($value['Current_Term'][0]['created_at'] ?? '---'); ?>
 
                                                                                 </td>
                                                                                 <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"><?php echo e($value['Current_Term'][0]['weight'] ?? '---'); ?> </td>
@@ -367,28 +376,21 @@
 
                                                                         </table>
                                                                     </td>
+
                                                                     <td style="width: 50%;">
-                                                                        <table border="1" cellpadding="0"
-                                                                            cellspacing="0"
-                                                                            style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
+                                                                        <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
                                                                             <tr style="background-color: #fecd0a;">
-                                                                                <td style="width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center; font-weight: bold;"
-                                                                                    rowspan="2">Previous Term</td>
-                                                                                <td style="width: 25%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
-                                                                                    Date</td>
-                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
-                                                                                    Weight (kg)</td>
-                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
-                                                                                    Height (cm)</td>
-                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
-                                                                                    BMI</td>
-                                                                                <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">
-                                                                                    Level</td>
+                                                                                <td style="width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Previous Term</td>
+                                                                                <td style="width: 28%; padding: 4px 0px 4px 0px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
+                                                                                <td style="width: 25%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Weight (kg)</td>
+                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Height (cm)</td>
+                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">BMI</td>
+                                                                                <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Level</td>
                                                                             </tr>
 
                                                                             <tr>
                                                                                 <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center;"><?php echo e($value['Previous_Term'][0]['created_at']  ?? '---'); ?></td>
-                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> <?php echo e($value['Previous_Term'][0]['weight'] ?? '---'); ?></td>
+                                                                                <td style="padding: 4px 0px 4px 0px; text-align: center; border: 1px solid orange;"> <?php echo e($value['Previous_Term'][0]['weight'] ?? '---'); ?></td>
                                                                                 <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> <?php echo e($value['Previous_Term'][0]['height'] ?? '---'); ?></td>
                                                                                 <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> <?php echo e($value['Previous_Term'][0]['score'] ?? '---'); ?></td>
                                                                                 <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> <?php echo e($value['Previous_Term'][0]['Level'] ?? '---'); ?></td>
@@ -508,66 +510,65 @@
     </table>
     <?php endif; ?>
     
-        <!-- Signature -->
-    <div class="signature-footer">
+    <!-- Signature -->
+    <div class="signature-footer" >
 
-        <table border="0" cellpadding="0" cellspacing="0" 
-        style="width: 100%; font-size: 14px; border-collapse: collapse; color:#000;">
+        <table border="0" cellpadding="0" cellspacing="0" style="width:100%; font-size:14px; border-collapse:collapse; color:#000;">
+            <tr>
 
-        <tr>
-            <td style="width:50%; text-align:center;">
+                <td style="width:50%; padding-left:30px; vertical-align:bottom;">
+                    <?php if($studentsData->signature): ?>
 
-            <?php if($studentsData->signature): ?>
-            <img src="<?php echo e(public_path('/assets/uploads/signatures/' . $studentsData->signature)); ?>" 
-            style="height:70px;">
+                    <div style="padding-left:60px;">
+                        <img src="<?php echo e(public_path('/assets/uploads/signatures/' . $studentsData->signature)); ?>"  style="height:70px;">
+                    </div>
+                    <p style="font-weight:600; margin:2px 0 0 0; text-align:left;">  Signature of Principal with Stamp  </p>
+
+                    <?php endif; ?>
+                </td>
+
+                <td style="width:50%; text-align:center;">
+
+                <!-- <div style="height:70px;"></div> -->
+                <!-- <p style="font-weight:600;">Parent's Signature</p> -->
+
+                </td>
+            </tr>
+
+            <tr>
+               <td colspan="2" style="text-align:left; padding:5px 30px; font-size:12px;">
+                    Go to <strong>https://fitness365.me</strong>. Login as <strong>PARENT</strong> with Username: <?php echo e($studentsData->user_id); ?> and Password: <?php echo e($plainPassword); ?> for reports and activities
+                </td>
+            </tr>
+
+            <?php if(!in_array($studentsData->class_id, [14, 18, 22, 23])): ?>
+            <tr>
+                <td colspan="2" style="text-align:center; font-size:12px; padding:2px 0;">
+                    Page 2 of 2
+                </td>
+            </tr>
             <?php endif; ?>
 
-            <p style="font-weight:600;">Signature of Principal with Stamp</p>
+        
 
-            </td>
+            <?php if(!$isLetterHead): ?>
+            <tr>
+                <td style="background:#E60A00;height:40px;padding:0 30px;color:#fff;">
+                Physical Health and Fitness Assessment
+                </td>
 
-            <td style="width:50%; text-align:center;">
-
-            <div style="height:70px;"></div>
-            <!-- <p style="font-weight:600;">Parent's Signature</p> -->
-
-            </td>
-        </tr>
-        <tr style="text-align:center;">
-            <td colspan=2>
-                <span style="font-size:12px;">
-                    Go to <strong>https://fitness365.me</strong>. Login as <strong>PARENT</strong> with Username: <?php echo e($studentsData->admissionnumber); ?> and Password: <?php echo e($plainPassword); ?> for reports and activities
-                </span>
-            </td>
-        </tr>
-        <?php if(!in_array($studentsData->class_id, [14, 18, 22, 23])): ?>
-        <tr>
-            <td colspan=2>
-                 <div class="page1-footer">
-                    Page 2 of 2
-                </div>
-            </td>
-        </tr>
-           
-        <?php endif; ?>
-
-        <?php if(!$isLetterHead): ?>
-        <tr>
-            <td style="background:#E60A00;height:40px;padding:0 30px;color:#fff;">
-            Physical Health and Fitness Assessment
-            </td>
-
-            <td style="background:#00A923;height:40px;padding:0 30px;text-align:right;color:#fff;">
-            powered by <strong>fitness365.me</strong>
-            </td>
-        </tr>
-        <?php else: ?>
-        <div style="height:30px;"></div>
-        <?php endif; ?>
+                <td style="background:#00A923;height:40px;padding:0 30px;text-align:right;color:#fff;">
+                powered by <strong>fitness365.me</strong>
+                </td>
+            </tr>
+            <?php else: ?>
+            <!-- <div style="height:30px;"></div> -->
+            <?php endif; ?>
 
         </table>
 
     </div>
+
 </body>
 </html>
 <?php /**PATH C:\xampp\htdocs\nep\resources\views/reports/fitness/pdf/one-page-junior.blade.php ENDPATH**/ ?>

@@ -61,15 +61,15 @@
 			        ['data' => 'testStatus',        'name' => 'test_status',       'orderable' => false],
 			        ['data' => 'viewReport',        'name' => 'id',                'orderable' => false],
 			        ['data' => 'downloadReport',    'name' => 'id', 			   'orderable' => false],
-			    ],'ajaxUrl' => ''.e(route('fitness.report')).'','enableExportButtons' => false,'enableLengthMenu' => true,'exportButtonText' => 'Bulk Action','pageLength' => 100,'enableClassFilter' => false,'enableClassSectionFilter' => true,'enableSchoolTermsFilter' => true,'enableStatusFilter' => true,'enableCustomFilter' => true,'customFilterOptions' => [
+			    ],'ajaxUrl' => ''.e(route('fitness.report')).'','enableExportButtons' => false,'enableLengthMenu' => true,'exportButtonText' => 'Bulk Download','pageLength' => 100,'enableClassFilter' => false,'enableClassSectionFilter' => true,'enableSchoolTermsFilter' => true,'enableStatusFilter' => true,'enableCustomFilter' => false,'customFilterOptions' => [
 					['value' => 'detailed', 'label' => 'Detailed Report'],
 					['value' => 'summary',  'label' => 'One-Page Report']
 				],'selectedCustomFilter' => 'detailed','searchPlaceholder' => 'Students Name | Admission','exportButtons' => [
                     [   
-                        'type' => 'custom', 'text' => 'Request Report Cards', 'action' => 'generateFitnessReportCard'
+                        'type' => 'custom', 'text' => 'Detailed Report Cards', 'action' => 'detailedReportCard'
                     ],
 					[   
-                        'type' => 'custom', 'text' => 'One-Page Report Cards', 'action' => 'generateFitnessReportCard'
+                        'type' => 'custom', 'text' => 'One-Page Report Cards', 'action' => 'summaryReportCard'
                     ]
                 ]]); ?>
 <?php $component->withName('data-listing-component'); ?>
@@ -94,9 +94,18 @@
 
 	const currentTermId = <?php echo e($current_term_id); ?>;
 
-	function generateFitnessReportCard(e, dt, node, config, selectedIds, termIds) {
+	function detailedReportCard(e, dt, node, config, selectedIds, termIds){
+		const reportType = 'detailed';
+		generateFitnessReportCard(e, dt, node, config, selectedIds, termIds, reportType);
+	}
+	function summaryReportCard(e, dt, node, config, selectedIds, termIds){
+		const reportType = 'summary';
+		generateFitnessReportCard(e, dt, node, config, selectedIds, termIds, reportType);
+	}
+
+	function generateFitnessReportCard(e, dt, node, config, selectedIds, termIds, reportType) {
 		
-		const reportType = $('#filter-custom').val();
+		// const reportType = $('#filter-custom').val();
 		if (!selectedIds || !termIds || selectedIds.length === 0) {   		
 
 		    Swal.fire({

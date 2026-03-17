@@ -276,27 +276,37 @@ class ReportController extends Controller {
 	                    : 'Previous_Term'
 	            );
 	    });
+		$firstName = strtolower(trim(explode(' ', $studentsData->student_name)[0]));
+        $plainPassword = $firstName . '@' . trim($studentsData->admissionnumber);
+        $isLetterHead = true;
 
         $getBmiBenchmark = $this->getBmiBenchmark($ageGender);
 
         if (in_array($studentsData->class_id, [4,5,6,7,8,9,10,11,12])) {
             [$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport );
 
-            $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact(
-                'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
-            ));
+            // $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact(
+            //     'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
+            // ));
+			$pdf = Pdf::loadView('reports.fitness.pdf.one-page-senior', compact(
+                    'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark','isLetterHead','plainPassword'
+                ));
         } else {
 
             [$orderedReportData, $FmsReportData, $getFitnessBenchmark] = $this->getJuniorReportData( $studentsData->class_id,
                 $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId 
             );
 
-            $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
-                'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
+            // $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
+            //     'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
+            // ));
+			$pdf = Pdf::loadView('reports.fitness.pdf.one-page-junior', compact(
+                'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark','isLetterHead','plainPassword'
             ));
         }
 
 		$filename = 'Fitness_Report_Cards-'.date('d-m-Y_H-i-s').'.pdf';
+		return $pdf->stream($filename);
 		return $pdf->download($filename);
     }
 
