@@ -236,6 +236,7 @@ class DataListingComponent extends Component
         }
 
         $cacheKey = "school_terms_{$schoolId}";
+        // Cache::forget($cacheKey);
         return Cache::remember($cacheKey, now()->addHours(6), function () use ($schoolId) {
             return School::find($schoolId)
             ->getTerms()      
@@ -244,6 +245,7 @@ class DataListingComponent extends Component
             ->map(fn ($term) => [
                 'term_id'   => $term->id,
                 'school_id' => $term->school_id,
+                'academic_year' => $term->academic_year,
                 'term_name' => $term->term_name,
             ])
             ->values()->toArray();

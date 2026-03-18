@@ -16,7 +16,7 @@
             line-height: 1.15;
             margin: 0;
             padding: 0;
-            /* background-image: url("<?php echo e(public_path('/assets/uploads/letterhead.png')); ?>"); */
+            background-image: url("<?php echo e(public_path('/assets/uploads/letterhead.png')); ?>");
             background-repeat: no-repeat;
             background-position: top center;
             background-size: contain;

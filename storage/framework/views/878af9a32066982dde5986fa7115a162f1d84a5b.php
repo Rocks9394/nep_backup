@@ -10,28 +10,58 @@
         $user = auth()->guard('sstudent')->user();
     }
 ?>
-
-
-
-<?php if(Auth::user()->role_id == '4'): ?>
-
-    <marquee behavior="scroll" direction="left" scrollamount="5" onmouseover="this.stop()" onmouseout="this.start()" style="font-size: 16px;
-    font-weight: 500;
+<style>
+	.marquee-container {
+    width: 100%;
+    overflow: hidden;
+    background: #f5f5f5;
+    padding: 10px 0;
+	font-weight: 500;
     background-color: #ff8000;
     color: #fff;
-    padding: 4px;">
-	  <strong>Important Notice: </strong><span>Please check the highlighted students in the Manage Student module and update their details.</span>
-	</marquee>
+    padding: 4px;
+}
 
+.marquee {
+    display: inline-block;
+    white-space: nowrap;
+    animation: scroll-left 15s linear infinite;
+	
+}
 
+.marquee span {
+    display: inline-block;
+    padding-left: 100%;
+}
+
+/* Animation */
+@keyframes  scroll-left {
+    0% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* Pause on hover */
+.marquee-container:hover .marquee {
+    animation-play-state: paused;
+}
+</style>
+
+<?php if(Auth::user()->role_id == '4'): ?>
+	<div class="marquee-container">
+		<div class="marquee">
+		<span><strong>Important Notice: </strong>Please check the highlighted students in the Manage Student module and update their details.</span>
+		</div>
+	</div>
 <?php elseif(Auth::user()->role_id == '3'): ?>
-	<marquee behavior="scroll" direction="left" scrollamount="5" onmouseover="this.stop()" onmouseout="this.start()" style="font-size: 16px;
-	font-weight: 500;
-	background-color: #ff8000;
-	color: #fff;
-	padding: 4px;">
-	<strong>Important Notice: </strong><span>Kindly update your profile details (email, mobile number, and date of birth) in the Edit Profile section. If all details are already updated, please ignore this notice.</span>
-</marquee>
+	<div class="marquee-container">
+		<div class="marquee">
+		<span><strong>Important Notice: </strong>Kindly update your profile details (email, mobile number, and date of birth) in the Edit Profile section. If all details are already updated, please ignore this notice.</span>
+		</div>
+	</div>
 <?php endif; ?>
 
 

@@ -1975,18 +1975,18 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				$customClassId = $customClasses[$key]->id ?? null;
 
 				if (!$customClassId) {
+                    $maxValue = ScustomClass::max('orders') ?? 0;
 
-					$customClassId = DB::table('custom_classes')->insertGetId([
-						'school_id'   => $schoolId,
-						'class_id'    => $nextClassId,
-						'section'     => $student->section_id,
-						'status'      => 1,
-					]);
+                    $customClass = ScustomClass::create([
+                        'school_id' => $schoolId,
+                        'class_id'  => $nextClassId,
+                        'section'   => $student->section_id,
+                        'orders'    => $maxValue + 1,
+                        'status'    => 1,
+                    ]);
 
-					$customClasses[$key] = (object)[
-						'id' => $customClassId
-					];
-				}
+                    $customClassId = $customClass->id;
+                }
 
 				$student->update([
 					'class_id'			=> $nextClassId,

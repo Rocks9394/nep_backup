@@ -206,11 +206,11 @@ $(function () {
             if(enableSchoolTermsFilter){
 
 
-                const TermList = <?php echo json_encode($schoolTerms ?? [], 15, 512) ?>;      
+                const TermList = <?php echo json_encode($schoolTerms ?? [], 15, 512) ?>;  
                 const $dropdown = $('<select class="form-select form-select-sm ms-2" id="filter-school-terms" style="font-size: 13px;color: #2c2d78;"></select>');               
 
                 TermList.forEach(option => {
-                    const displayText = option.term_name;
+                    const displayText = `${option.academic_year} | ${option.term_name}`;
                     const value = option.term_id;
         
                     const isSelected = (value == currentTermId); 
