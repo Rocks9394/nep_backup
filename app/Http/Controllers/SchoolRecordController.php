@@ -1239,16 +1239,13 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		->orderBy('students.rollno', 'asc');;
 
 
-		if ($request->has('class_id')) {
-	        $classFilter = $request->input('class_id');
-	        list($class_id, $section_id) = explode('-', $classFilter, 2);
-	        if (!empty($class_id)) {
-	            $studentsQuery->where('students.class_id', $class_id);
-	        }
-	        if (!empty($section_id)) {
-	            $studentsQuery->where('students.section_id', $section_id);
-	        }
-	    }
+		if ($request->filled('class_id')) {
+			$studentsQuery->where('students.class_id', $request->class_id);
+		}
+
+		if ($request->filled('section_id')) {
+			$studentsQuery->where('students.section_id', $request->section_id);
+		}
 
         if ($request->has('status')) {
 	        $status = $request->input('status');

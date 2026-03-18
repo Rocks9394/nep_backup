@@ -4,7 +4,7 @@
     
 <link href="https://nep.goforfit.in/resources/css/demo.css" rel="Stylesheet" />
 <link href="https://nep.goforfit.in/resources/css/jquery-tilesgallery.css" rel="Stylesheet" />
-<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="Stylesheet" />
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="Stylesheet" />
 
 <!-- <link href="https://cdn.jsdelivr.net/npm/lightgallery@2.0.0-beta.3/css/lightgallery.css" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/lightgallery@2.0.0-beta.3/css/lg-zoom.css" rel="stylesheet"/> -->
@@ -110,6 +110,66 @@
         display: none;
     }
 
+    /* Dark modal background */
+    .lightbox-content {
+        background: transparent;
+        border: none;
+    }
+    .modal-backdrop.show {
+        opacity: 1 !important;
+        background-color: rgba(0, 0, 0, 0.8) !important;  /* darker overlay */
+    }
+
+    /* Extra smooth animation */
+    .modal.fade .modal-dialog {
+        transition: transform 0.3s ease-in-out;
+    }
+
+    /* Image styling */
+    .lightboxImage {
+        max-height: 80vh;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+    }
+
+    /* Navigation buttons */
+    .mg-prev,
+    .mg-next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 60px;
+        height: 60px;
+        background: rgba(0,0,0,0.6);
+        color: #fff;
+        font-size: 32px;
+        font-weight: bold;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        user-select: none;
+    }
+
+    /* Position */
+    .mg-prev { left: -70px; }
+    .mg-next { right: -70px; }
+
+    /* Hover effect */
+    .mg-prev:hover,
+    .mg-next:hover {
+        background: #ffffff;
+        color: #000;
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+    .mg-prev { left: 10px; }
+    .mg-next { right: 10px; }
+    }
     
 
 
@@ -133,14 +193,10 @@
                         </div>
                     </div>
                     <div class="col-auto">
-                        <button type="button" class="btn btn-link d-flex align-items-center" data-toggle="modal" data-target="#exampleModalLong" style="gap:10px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-upload" viewBox="0 0 16 16">
-                                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
-                                <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z"/>
-                            </svg>
-                            <span>Upload</span>
-                        </button>
-                       
+                        <a type="button" id="upload_btn" class="btn btn-primary text-light text-center custome-btn-i w-100 mr-2"
+                        data-toggle="modal" data-target="#exampleModalLong">
+                        <i class="fa-solid fa-upload"></i>Upload
+                        </a>                       
                     </div>
                 </div>
             </div>
@@ -948,27 +1004,28 @@
                 $(".lightboxImage").attr("src", $(next).attr("src"));
                 },
                 createLightBox(gallery, lightboxId, navigation) {
-                gallery.append(`<div class="modal fade" id="${
-                    lightboxId ? lightboxId : "galleryLightbox"
-                }" tabindex="-1" role="dialog" aria-labelledby="lightboxModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-body">
-                                        ${
-                                        navigation
-                                            ? '<div class="mg-prev" style="cursor:pointer;position:absolute;top:50%;left:-15px;background:white;">prev</div>'
-                                            : '<span style="display:none;" />'
-                                        }
-                                        <img class="lightboxImage img-fluid" />
-                                        ${
-                                        navigation
-                                            ? '<div class="mg-next" style="cursor:pointer;position:absolute;top:50%;right:-15px;background:white;}">next</div>'
-                                            : '<span style="display:none;" />'
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`);
+                gallery.append(`
+                    <div class="modal fade" id="${lightboxId ? lightboxId : "galleryLightbox"}" 
+                        tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                        <div class="modal-content lightbox-content">
+                        <div class="modal-body position-relative text-center">
+
+                            ${navigation 
+                            ? '<div class="mg-prev">&#10094;</div>' 
+                            : ''}
+
+                            <img class="lightboxImage img-fluid rounded" />
+
+                            ${navigation 
+                            ? '<div class="mg-next">&#10095;</div>' 
+                            : ''}
+
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                    `);
                 },
                 showItemTags(gallery, position, tags) {
                 var tagItems =
@@ -1035,6 +1092,3 @@
 
 
 @endpush 
-
-
-

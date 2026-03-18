@@ -51,7 +51,8 @@
       z-index: 2;
    }
    .video-card:hover img {
-      transform: scale(1.08);
+      transform: scale(1.05);
+      transition: 0.4s ease-in-out;
    }
    .video-card:hover::after {
       opacity: 0.85;
@@ -89,11 +90,17 @@
    .video-card:hover .play-icon {
       transform: translate(-50%, -50%) scale(1.15);
    }
-
-   /* Responsive */
    @media (max-width: 991px) {
       .video-card {
          height: 280px;
+      }
+      .card-content span {
+         font-size: 18px;
+      }
+
+      .play-icon svg {
+         width: 60px;
+         height: 60px;
       }
    }
 
@@ -103,12 +110,12 @@
       }
 
       .card-content span {
-         font-size: 18px;
+         font-size: 16px;
       }
 
       .play-icon svg {
-         width: 60px;
-         height: 60px;
+         width: 50px;
+         height: 50px;
       }
    }
 </style>
@@ -160,8 +167,6 @@ $videos = [
 
     </div>
 </div>
-
-<!-- Modal Same as Before -->
 <div class="modal fade" id="videoModal" tabindex="-1" area-hidden="true" role="dialog"
      data-backdrop="static"
      data-keyboard="false">

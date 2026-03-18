@@ -95,6 +95,14 @@
             left: 0;
             width: 100%;
         }
+        .page1-footer{
+            text-align:right;
+            position: fixed;
+            bottom: 40px;
+            left: 0;
+            vertical-align: bottom;
+            width: 100%;
+        }
     </style>
 </head>
 
@@ -330,6 +338,12 @@ $levelColor = [
     </table>
 </div>
 <?php if(!in_array($studentsData->class_id, [14, 18, 22, 23])): ?>
+<div style="text-align:right; color: #ccc; margin-top:150px;">
+    Page 1 of 2
+</div>
+<?php endif; ?>
+
+<?php if(!in_array($studentsData->class_id, [14, 18, 22, 23])): ?>
     <!-- FITNESS SCORE TABLE -->
     <div style="width:98%;margin:auto;padding:10px; page-break-before: always;">
         <hr>
@@ -549,102 +563,106 @@ $levelColor = [
         </div>
     </div>
 <?php endif; ?>
-<div style="width:98%;margin:auto;padding:0 10px;">
-    <table cellpadding="0" cellspacing="0" style="border:1px solid #ccc; width:100%;margin-bottom:5px; margin-top:5px; border-collapse:collapse; font-size:11px;">
-        <tbody>
-            <!-- Diet Section -->
+    <div style="width:98%;margin:auto;padding:0 10px;">
+        <table cellpadding="0" cellspacing="0" style="border:1px solid #ccc; width:100%;margin-bottom:5px; margin-top:5px; border-collapse:collapse; font-size:11px;">
+            <tbody>
+                <!-- Diet Section -->
+                <tr>
+                    <td style="padding:1px 4px; font-weight:bold;">
+                        Diet Recommendations:
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 10px;">
+                        a. Calorie - Need to be decreased.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 10px;">
+                        b. Food Restrictions - Need to restrict food with extra fat.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 10px;">
+                        c. Healthier Choices - Replace fast foods and synthetic food items with natural and healthier choices like natural juices instead of sugar coated or aerated drinks.
+                    </td>
+                </tr>
+                <!-- Lifestyle Section -->
+                <tr>
+                    <td style="padding:1px 4px; font-weight:bold;">
+                        Active Lifestyle to be pursued
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 10px;">
+                        a. Exercise - Regular exercise is essential and recommended on daily basis.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 10px;">
+                        b. Physical Activity - Keep moving is the most efficient way to burn calories and shed excess weight, any extra movement helps burn calories. Involve in household chores and do other basic activities yourself.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:1px 10px;">
+                        c. Sports Participation - Regular sports participation is important. Involve in more of endurance sports.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SIGNATURE -->
+
+    <div class="signature-footer">
+
+        <table style="width:100%;font-size:14px">
+
             <tr>
-                <td style="padding:1px 4px; font-weight:bold;">
-                    Diet Recommendations:
+
+                <td style="width:50%;padding-left:30px">
+
+                    <?php if($studentsData->signature): ?>
+
+                        <img src="<?php echo e(public_path('/assets/uploads/signatures/'.$studentsData->signature)); ?>" style="height:60px">
+
+                        <p style="font-weight:600;margin:2px 0">
+                            Signature of Principal with Stamp
+                        </p>
+
+                    <?php endif; ?>
+
                 </td>
+
+                <td style="width:50%;text-align:center">
+                    <div style="height:60px"></div>
+                </td>
+
             </tr>
+
             <tr>
-                <td style="padding:1px 10px;">
-                    a. Calorie - Need to be decreased.
+
+                <td colspan="2" style="padding-left:30px">
+
+                    <span style="font-size:12px">
+
+                        Go to <b>https://fitness365.me</b>.  
+                        Login as <b>PARENT</b> with Username:
+                        <?php echo e($studentsData->user_id); ?> and Password: <?php echo e($plainPassword); ?>
+
+
+                    </span>
+
                 </td>
+
             </tr>
-            <tr>
-                <td style="padding:1px 10px;">
-                    b. Food Restrictions - Need to restrict food with extra fat.
-                </td>
-            </tr>
-            <tr>
-                <td style="padding:1px 10px;">
-                    c. Healthier Choices - Replace fast foods and synthetic food items with natural and healthier choices like natural juices instead of sugar coated or aerated drinks.
-                </td>
-            </tr>
-            <!-- Lifestyle Section -->
-            <tr>
-                <td style="padding:1px 4px; font-weight:bold;">
-                    Active Lifestyle to be pursued
-                </td>
-            </tr>
-            <tr>
-                <td style="padding:1px 10px;">
-                    a. Exercise - Regular exercise is essential and recommended on daily basis.
-                </td>
-            </tr>
-            <tr>
-                <td style="padding:1px 10px;">
-                    b. Physical Activity - Keep moving is the most efficient way to burn calories and shed excess weight, any extra movement helps burn calories. Involve in household chores and do other basic activities yourself.
-                </td>
-            </tr>
-            <tr>
-                <td style="padding:1px 10px;">
-                    c. Sports Participation - Regular sports participation is important. Involve in more of endurance sports.
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+        </table>
+        <?php if(!in_array($studentsData->class_id, [14, 18, 22, 23])): ?>
+        <div style="text-align:right; color: #ccc;">
+            Page 2 of 2
+        </div>
+        <?php endif; ?>
 
-<!-- SIGNATURE -->
-
-<div class="signature-footer">
-
-    <table style="width:100%;font-size:14px">
-
-        <tr>
-
-            <td style="width:50%;padding-left:30px">
-
-                <?php if($studentsData->signature): ?>
-
-                    <img src="<?php echo e(public_path('/assets/uploads/signatures/'.$studentsData->signature)); ?>" style="height:60px">
-
-                    <p style="font-weight:600;margin:2px 0">
-                        Signature of Principal with Stamp
-                    </p>
-
-                <?php endif; ?>
-
-            </td>
-
-            <td style="width:50%;text-align:center">
-                <div style="height:60px"></div>
-            </td>
-
-        </tr>
-
-        <tr>
-
-            <td colspan="2" style="padding-left:30px">
-
-                <span style="font-size:12px">
-
-                    Go to <b>https://fitness365.me</b>.  
-                    Login as <b>PARENT</b> with Username:
-                    <?php echo e($studentsData->user_id); ?> and Password: <?php echo e($plainPassword); ?>
-
-
-                </span>
-
-            </td>
-
-        </tr>
-
-    </table>
-
-</div>
+    </div>
 </body>
 </html><?php /**PATH C:\xampp\htdocs\nep\resources\views/reports/fitness/pdf/one-page-junior.blade.php ENDPATH**/ ?>

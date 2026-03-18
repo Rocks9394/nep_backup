@@ -630,6 +630,7 @@
 				url: "<?php echo e(route('managestudent')); ?>",
 				data: function(d) {
                d.class_id = $('#select_class').val();
+               d.section_id = $('#select_section').val();
                d.status = $('#select_status').val();
             }
 			},
@@ -821,34 +822,60 @@
 
 
 			var classList = <?php echo json_encode($classList, 15, 512) ?>;
-            const $dropdown = $('<select class="form-control" id="select_class"></select>');
 
-            classList.forEach(option => {
-                const section = option.section ? ` - ${option.section}` : '';
-                const displayText = option.name + section ;
-                const value = option.class_id + '-' + option.section;
-                $dropdown.append(new Option(displayText, value));
-            });
+			const $classDropdown = $('<select class="form-control" id="select_class"></select>');
+			const $sectionDropdown = $('<select class="form-control" id="select_section"><option value="">Select Section</option></select>');
 
-            $('<div class="pull-right"></div>').append($dropdown).appendTo("#studentTableRecords_wrapper .top").next('.dt-length').addClass("pull-right");
-            $dropdown.on('change', function() {
-               table.ajax.reload();
-            });
+			const classMap = {};
 
+			classList.forEach(item => {
+				if (!classMap[item.class_id]) {
+					classMap[item.class_id] = item.name;
+					$classDropdown.append(new Option(item.name, item.class_id));
+				}
+			});
 
-				var status = [
-					{ name: 'Select Status', status: '',},
-					{ name: 'Active', status: 'active', },
-					{ name: 'Transfer', status: 'transfer', },
-				];
-				const $dropdown1 = $('<select class="form-control" id="select_status"></select>');
-				status.forEach(option => {
-				    const section = option.status ? ` - ${option.status}` : '';
-				    const displayText = option.name;
-				    const value = option.status;
+			$classDropdown.on('change', function () {
+				const selectedClassId = $(this).val();
 
-				    $dropdown1.append(new Option(displayText, value));
+				// reset section dropdown
+				$sectionDropdown.empty().append('<option value="">Select Section</option>');
+
+				classList.forEach(item => {
+					if (item.class_id == selectedClassId && item.section) {
+						$sectionDropdown.append(new Option(item.section, item.section));
+					}
 				});
+
+				table.ajax.reload();
+			});
+
+			$sectionDropdown.on('change', function () {
+				table.ajax.reload();
+			});
+			const $filterWrapper = $('<div class="pull-right d-flex" style="gap:10px;"></div>');
+
+			$filterWrapper
+				.append($classDropdown)
+				.append($sectionDropdown)
+				.appendTo("#studentTableRecords_wrapper .top");
+
+			$("#studentTableRecords_wrapper .top .dt-length").addClass("pull-right");
+
+
+			var status = [
+				{ name: 'Select Status', status: '',},
+				{ name: 'Active', status: 'active', },
+				{ name: 'Transfer', status: 'transfer', },
+			];
+			const $dropdown1 = $('<select class="form-control" id="select_status"></select>');
+			status.forEach(option => {
+				const section = option.status ? ` - ${option.status}` : '';
+				const displayText = option.name;
+				const value = option.status;
+
+				$dropdown1.append(new Option(displayText, value));
+			});
             $('<div class="pull-right"></div>').append($dropdown1).appendTo("#studentTableRecords_wrapper .top").next('.dt-length').addClass("pull-right");
             $dropdown1.on('change', function() {
                table.ajax.reload();
