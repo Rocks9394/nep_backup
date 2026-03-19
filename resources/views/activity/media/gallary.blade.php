@@ -8,7 +8,7 @@
 
 <!-- <link href="https://cdn.jsdelivr.net/npm/lightgallery@2.0.0-beta.3/css/lightgallery.css" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/lightgallery@2.0.0-beta.3/css/lg-zoom.css" rel="stylesheet"/> -->
-
+<?php $sty1 = 'display:block'; ?>
 
 <style>
 
@@ -218,374 +218,124 @@
                                 <div class="media-grid mb-5">
                                     
                                     <div class="gallery-container">
-                                        <div class="media-row gallery" style="display:none;">
-                                                <div class="list">
-                                                    <div class="card p-0">
-                                                        <div class="cover-photo">
-                                                            <img data-gallery-tag="women" class="gallery-item" src="{{ asset('/public/assets/media/photo-001.jpg')}}" />
-                                                        </div>
-                                                        <div class="card-body text-left">
-                                                            <h5 class="card-title">Activity Title</h5>
-                                                            <div class="card-text d-flex justify-content-between">
-                                                                <span>Date: 24 Aug 2025</span>
-                                                                <span>Class: VI</span>
-                                                            </div>
+                                        <div class="media-row gallery">
+                                            <div class="list">
+                                                <div class="card p-0">
+                                                    <div class="cover-photo">
+                                                        <img data-gallery-tag="women" class="gallery-item" src="{{ asset('/public/assets/media/photo-001.jpg')}}" onclick="openMedia(this, 'image')" />
+                                                    </div>
+                                                    <div class="card-body text-left">
+                                                        <h5 class="card-title">Activity Title</h5>
+                                                        <div class="card-text d-flex justify-content-between">
+                                                            <span>Date: 24 Aug 2025</span>
+                                                            <span>Class: VI</span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="list">
-                                                    <div class="card p-0">
-                                                        <div class="cover-photo">
-                                                            <img data-gallery-tag="women" class="gallery-item" src="{{ asset('/public/assets/media/photo-002.jpg')}}" />
-                                                        </div>
-                                                        <div class="card-body text-left">
-                                                            <h5 class="card-title">Activity Title</h5>
-                                                            <div class="card-text d-flex justify-content-between">
-                                                                <span>Date: 24 Aug 2025</span>
-                                                                <span>Class: VI</span>
-                                                            </div>
+                                            </div>
+                                            <div class="list">
+                                                <div class="card p-0">
+                                                    <div class="cover-photo">
+                                                        <img data-gallery-tag="women" class="gallery-item" src="{{ asset('/public/assets/media/photo-001.jpg')}}" onclick="openMedia(this, 'image')" />
+                                                    </div>
+                                                    <div class="card-body text-left">
+                                                        <h5 class="card-title">Activity Title</h5>
+                                                        <div class="card-text d-flex justify-content-between">
+                                                            <span>Date: 24 Aug 2025</span>
+                                                            <span>Class: VI</span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="list">
-                                                    <div class="card p-0">
-                                                        <div class="cover-photo">
-                                                            <img data-gallery-tag="women" class="gallery-item" src="{{ asset('/public/assets/media/photo-003.jpg')}}" />
-                                                        </div>
-                                                        <div class="card-body text-left">
-                                                            <h5 class="card-title">Activity Title</h5>
-                                                            <div class="card-text d-flex justify-content-between">
-                                                                <span>Date: 24 Aug 2025</span>
-                                                                <span>Class: VI</span>
-                                                            </div>
+                                            </div>
+                                            <div class="list">
+                                                <div class="card p-0">
+                                                    <div class="cover-photo">
+                                                        <img data-gallery-tag="women" class="gallery-item" src="{{ asset('/public/assets/media/photo-001.jpg')}}" onclick="openMedia(this, 'image')" />
+                                                    </div>
+                                                    <div class="card-body text-left">
+                                                        <h5 class="card-title">Activity Title</h5>
+                                                        <div class="card-text d-flex justify-content-between">
+                                                            <span>Date: 24 Aug 2025</span>
+                                                            <span>Class: VI</span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="list">
-                                                    <div class="card p-0">
-                                                        <div class="cover-photo">
-                                                            <img data-gallery-tag="women" class="gallery-item" src="{{ asset('/public/assets/media/photo-004.jpg')}}" />
-                                                        </div>
-                                                        <div class="card-body text-left">
-                                                            <h5 class="card-title">Activity Title</h5>
-                                                            <div class="card-text d-flex justify-content-between">
-                                                                <span>Date: 24 Aug 2025</span>
-                                                                <span>Class: VI</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="list">
-                                                    <div class="card p-0">
-                                                        <div class="cover-photo">
-                                                            <img data-gallery-tag="women" class="gallery-item" src="{{ asset('/public/assets/media/photo-005.jpg')}}" />
-                                                        </div>
-                                                        <div class="card-body text-left">
-                                                            <h5 class="card-title">Activity Title</h5>
-                                                            <div class="card-text d-flex justify-content-between">
-                                                                <span>Date: 24 Aug 2025</span>
-                                                                <span>Class: VI</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="list">
-                                                    <div class="card p-0">
-                                                        <div class="cover-photo">
-                                                            <img data-gallery-tag="women" class="gallery-item" src="{{ asset('/public/assets/media/photo-006.jpg')}}" />
-                                                        </div>
-                                                        <div class="card-body text-left">
-                                                            <h5 class="card-title">Activity Title</h5>
-                                                            <div class="card-text d-flex justify-content-between">
-                                                                <span>Date: 24 Aug 2025</span>
-                                                                <span>Class: VI</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="list">
-                                                    <div class="card p-0">
-                                                        <div class="cover-photo">
-                                                            <img data-gallery-tag="women" class="gallery-item" src="{{ asset('/public/assets/media/photo-007.jpg')}}" />
-                                                        </div>
-                                                        <div class="card-body text-left">
-                                                            <h5 class="card-title">Activity Title</h5>
-                                                            <div class="card-text d-flex justify-content-between">
-                                                                <span>Date: 24 Aug 2025</span>
-                                                                <span>Class: VI</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="list">
-                                                    <div class="card p-0">
-                                                        <div class="cover-photo">
-                                                            <img data-gallery-tag="women" class="gallery-item" src="{{ asset('/public/assets/media/photo-008.jpg')}}" />
-                                                        </div>
-                                                        <div class="card-body text-left">
-                                                            <h5 class="card-title">Activity Title</h5>
-                                                            <div class="card-text d-flex justify-content-between">
-                                                                <span>Date: 24 Aug 2025</span>
-                                                                <span>Class: VI</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="list">
-                                                    <div class="card p-0">
-                                                        <div class="cover-photo">
-                                                            <img data-gallery-tag="women" class="gallery-item" src="{{ asset('/public/assets/media/photo-009.jpg')}}" />
-                                                        </div>
-                                                        <div class="card-body text-left">
-                                                            <h5 class="card-title">Activity Title</h5>
-                                                            <div class="card-text d-flex justify-content-between">
-                                                                <span>Date: 24 Aug 2025</span>
-                                                                <span>Class: VI</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="list">
-                                                    <div class="card p-0">
-                                                        <div class="cover-photo">
-                                                            <img data-gallery-tag="women" class="gallery-item" src="{{ asset('/public/assets/media/photo-010.jpg')}}" />
-                                                        </div>
-                                                        <div class="card-body text-left">
-                                                            <h5 class="card-title">Activity Title</h5>
-                                                            <div class="card-text d-flex justify-content-between">
-                                                                <span>Date: 24 Aug 2025</span>
-                                                                <span>Class: VI</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="list">
-                                                    <div class="card p-0">
-                                                        <div class="cover-photo">
-                                                            <img data-gallery-tag="women" class="gallery-item" src="{{ asset('/public/assets/media/photo-011.jpg')}}" />
-                                                        </div>
-                                                        <div class="card-body text-left">
-                                                            <h5 class="card-title">Activity Title</h5>
-                                                            <div class="card-text d-flex justify-content-between">
-                                                                <span>Date: 24 Aug 2025</span>
-                                                                <span>Class: VI</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="list">
-                                                    <div class="card p-0">
-                                                        <div class="cover-photo">
-                                                            <img data-gallery-tag="women" class="gallery-item" src="{{ asset('/public/assets/media/photo-012.jpg')}}" />
-                                                        </div>
-                                                        <div class="card-body text-left">
-                                                            <h5 class="card-title">Activity Title</h5>
-                                                            <div class="card-text d-flex justify-content-between">
-                                                                <span>Date: 24 Aug 2025</span>
-                                                                <span>Class: VI</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                            </div>
+                                                
 
                                         </div>
-
-                                        <!-- <ul class="media-row">
-                                            <li class="list">
-                                                
-                                                    
-                                                        <a href="#" class="thumbnail" data-toggle="modal" data-target="#lightbox">
-                                                            <img src="{{ asset('/public/assets/media/photo-001.jpg')}}" class="img-fluid">
-                                                        </a>
-                                                    
-                                                    <div class="card-body text-left">
-                                                        <h5 class="card-title">Activity Title</h5>
-                                                        <div class="card-text d-flex justify-content-between">
-                                                            <span>Date: 24 Aug 2025</span>
-                                                            <span>Class: VI</span>
-                                                        </div>
-                                                    </div>
-                                                
-                                            </li>
-                                            <li class="list">
-                                               
-                                                        <a href="#" class="thumbnail" data-toggle="modal" data-target="#lightbox">
-                                                            <img src="{{ asset('/public/assets/media/photo-002.jpg')}}" class="img-fluid">
-                                                        </a>
-                                                    
-                                                    <div class="card-body text-left">
-                                                        <h5 class="card-title">Activity Title</h5>
-                                                        <div class="card-text d-flex justify-content-between">
-                                                            <span>Date: 24 Aug 2025</span>
-                                                            <span>Class: VI</span>
-                                                        </div>
-                                                    </div>
-                                                
-                                            </li>
-                                            <li class="list">
-                                                <div class="card p-0">
-                                                    <div class="cover-photo">
-                                                        <img src="{{ asset('/public/assets/media/photo-003.jpg')}}" class="img-fluid">
-                                                    </div>
-                                                    <div class="card-body text-left">
-                                                        <h5 class="card-title">Activity Title</h5>
-                                                        <div class="card-text d-flex justify-content-between">
-                                                            <span>Date: 24 Aug 2025</span>
-                                                            <span>Class: VI</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li class="list">
-                                                <div class="card p-0">
-                                                    <div class="cover-photo">
-                                                        <img src="{{ asset('/public/assets/media/photo-004.jpg')}}" class="img-fluid">
-                                                    </div>
-                                                    <div class="card-body text-left">
-                                                        <h5 class="card-title">Activity Title</h5>
-                                                        <div class="card-text d-flex justify-content-between">
-                                                            <span>Date: 24 Aug 2025</span>
-                                                            <span>Class: VI</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li class="list">
-                                                <div class="card p-0">
-                                                    <div class="cover-photo">
-                                                        <img src="{{ asset('/public/assets/media/photo-005.jpg')}}" class="img-fluid">
-                                                    </div>
-                                                    <div class="card-body text-left">
-                                                        <h5 class="card-title">Activity Title</h5>
-                                                        <div class="card-text d-flex justify-content-between">
-                                                            <span>Date: 24 Aug 2025</span>
-                                                            <span>Class: VI</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li class="list">
-                                                <div class="card p-0">
-                                                    <div class="cover-photo">
-                                                        <img src="{{ asset('/public/assets/media/photo-006.jpg')}}" class="img-fluid">
-                                                    </div>
-                                                    <div class="card-body text-left">
-                                                        <h5 class="card-title">Activity Title</h5>
-                                                        <div class="card-text d-flex justify-content-between">
-                                                            <span>Date: 24 Aug 2025</span>
-                                                            <span>Class: VI</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li class="list">
-                                                <div class="card p-0">
-                                                    <div class="cover-photo">
-                                                        <img src="{{ asset('/public/assets/media/photo-007.jpg')}}" class="img-fluid">
-                                                    </div>
-                                                    <div class="card-body text-left">
-                                                        <h5 class="card-title">Activity Title</h5>
-                                                        <div class="card-text d-flex justify-content-between">
-                                                            <span>Date: 24 Aug 2025</span>
-                                                            <span>Class: VI</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li class="list">
-                                                <div class="card p-0">
-                                                    <div class="cover-photo">
-                                                        <img src="{{ asset('/public/assets/media/photo-008.jpg')}}" class="img-fluid">
-                                                    </div>
-                                                    <div class="card-body text-left">
-                                                        <h5 class="card-title">Activity Title</h5>
-                                                        <div class="card-text d-flex justify-content-between">
-                                                            <span>Date: 24 Aug 2025</span>
-                                                            <span>Class: VI</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li class="list">
-                                                <div class="card p-0">
-                                                    <div class="cover-photo">
-                                                        <img src="{{ asset('/public/assets/media/photo-009.jpg')}}" class="img-fluid">
-                                                    </div>
-                                                    <div class="card-body text-left">
-                                                        <h5 class="card-title">Activity Title</h5>
-                                                        <div class="card-text d-flex justify-content-between">
-                                                            <span>Date: 24 Aug 2025</span>
-                                                            <span>Class: VI</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </li>
-
-                                        </ul> -->
                                     </div>
                                 </div>
                             </div>
                             <div class="tab-pane fade" id="pills-videos" role="tabpanel" aria-labelledby="pills-videos-tab">
                                 <div class="media-grid">
                                     <div class="gallery-container">
-                                        <ul class="media-row">
-                                            <li class="list">
-                                                <video controls>
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/mp4">
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/ogg">
-                                                </video>
-                                            </li>
-                                            <li class="list">
-                                                <video controls>
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/mp4">
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/ogg">
-                                                </video>
-                                            </li>
-                                            <li class="list">
-                                                <video controls>
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/mp4">
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/ogg">
-                                                </video>
-                                            </li>
-                                            <li class="list">
-                                                <video controls>
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/mp4">
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/ogg">
-                                                </video>
-                                            </li>
-                                            <li class="list">
-                                                <video controls>
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/mp4">
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/ogg">
-                                                </video>
-                                            </li>
-                                            <li class="list">
-                                                <video controls>
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/mp4">
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/ogg">
-                                                </video>
-                                            </li>
-                                            <li class="list">
-                                                <video controls>
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/mp4">
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/ogg">
-                                                </video>
-                                            </li>
-                                            <li class="list">
-                                                <video controls>
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/mp4">
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/ogg">
-                                                </video>
-                                            </li>
-                                            <li class="list">
-                                                <video controls>
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/mp4">
-                                                    <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/ogg">
-                                                </video>
-                                            </li>
-
-                                        </ul>
+                                        <div class="media-row gallery">
+                                            <div class="list">
+                                                <div class="card p-0">
+                                                    <div class="cover-photo">
+                                                        <video controls class="gallery-item" onclick="openMedia(this, 'video')">
+                                                            <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/mp4" >
+                                                        </video>    
+                                                    </div>
+                                                    <div class="card-body text-left">
+                                                        <h5 class="card-title">Activity Title</h5>
+                                                        <div class="card-text d-flex justify-content-between">
+                                                            <span>Date: 24 Aug 2025</span>
+                                                            <span>Class: VI</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="list">
+                                                <div class="card p-0">
+                                                    <div class="cover-photo">
+                                                        <video controls class="gallery-item" onclick="openMedia(this, 'video')">
+                                                            <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/mp4" >
+                                                        </video>    
+                                                    </div>
+                                                    <div class="card-body text-left">
+                                                        <h5 class="card-title">Activity Title</h5>
+                                                        <div class="card-text d-flex justify-content-between">
+                                                            <span>Date: 24 Aug 2025</span>
+                                                            <span>Class: VI</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="list">
+                                                <div class="card p-0">
+                                                    <div class="cover-photo">
+                                                        <video controls class="gallery-item" onclick="openMedia(this, 'video')">
+                                                            <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/mp4" >
+                                                        </video>    
+                                                    </div>
+                                                    <div class="card-body text-left">
+                                                        <h5 class="card-title">Activity Title</h5>
+                                                        <div class="card-text d-flex justify-content-between">
+                                                            <span>Date: 24 Aug 2025</span>
+                                                            <span>Class: VI</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="list">
+                                                <div class="card p-0">
+                                                    <div class="cover-photo">
+                                                        <video controls class="gallery-item" onclick="openMedia(this, 'video')">
+                                                            <source src="{{ asset('/public/assets/media/dummy-video.mp4')}}" type="video/mp4" >
+                                                        </video>    
+                                                    </div>
+                                                    <div class="card-body text-left">
+                                                        <h5 class="card-title">Activity Title</h5>
+                                                        <div class="card-text d-flex justify-content-between">
+                                                            <span>Date: 24 Aug 2025</span>
+                                                            <span>Class: VI</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -604,59 +354,144 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLongTitle">Media Library</h5>
-        <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button> -->
       </div>
 
       <div class="modal-body p-4">
         <div class="uploadfiels drop_box">
             <!-- <h5 class="card-title mb-3">Upload files</h4>   -->
              <div class="from-group mb-4">
-                <form class="form-row">
-                    <div class="col-2">
-                        <div class="form-group">
-                            <label for="fordate">Activity Date</label>
-                            <input type="text" class="form-control" id="dateInput" placeholder="00/00/0000">
-                        </div>
-                    </div>
-                    <div class="col-2">
-                        <div class="form-group">
-                            <label for="exampleFormControlSelect1">Class</label>
-                            <select class="form-control" id="exampleFormControlSelect1">
-                                <option>Select</option>
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-2">
-                        <div class="form-group">
-                            <label for="exampleFormControlSelect1">Period</label>
-                            <select class="form-control" id="exampleFormControlSelect1">
-                                <option>Select</option>
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label for="exampleFormControlSelect1">Activity</label>
-                            <select class="form-control" id="exampleFormControlSelect1">
-                                <option>Select</option>
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                            </select>
+                <form class="row" method="POST" name="fill_dart_data_submit" id="fill_dart_submit" action="{{ route('fill.dart.data.submit') }}" >
+                {{method_field('post')}}
+                @csrf
+                    <div class="col-12">
+                        <div id="activity_from_div" class="sports-filtr overlay" style="<?= $sty1 ?>">
+                            <?php
+                                $sclasses = '<option value="">Class</option>';
+
+                                if (!empty($classes)) {
+                                    foreach ($classes as $cls) {
+
+                                        $sclasses .= '<option value="' . $cls->id . '-' . $cls->class_id . '" ';
+                                        if (!empty($_GET['sclass'])) {
+                                            if ($cls->id == $_GET['sclass']) {
+                                                $sclasses .= ' selected';
+                                                $sclsname = $cls->name;
+                                            }
+                                        }
+                                        $sclasses .= ' >' . $cls->classname . '-' . $cls->section . '</option>';
+                                    }
+                                }
+                                $askillarea = '<option value="">Skill Area</option>';
+                                if (!empty($skillareas)) {
+                                    foreach ($skillareas as $skillarea) {
+
+                                        $kselect = (!empty($_REQUEST['skillarea']) && ($_REQUEST['skillarea'] == $skillarea->id) ? 'selected="selected"' : '');
+
+                                        $askillarea .= '<option value="' . $skillarea->id . '" ' . $kselect . '>' . $skillarea->name . '</option>';
+                                    }
+                                    $askillarea .= '<option value="1000" ' . $kselect . '>Sports for all</option>';
+                                }
+                                $asportskills = '<option value="">Skill/Sports</option>';
+                                if (!empty($sportskills)) {
+                                    foreach ($sportskills as $sportskill) {
+                                        $spselect = (!empty($_REQUEST['skillsports']) && ($_REQUEST['skillsports'] == $sportskill->id) ? 'selected="selected"' : '');
+                                        $asportskills .= '<option value="' . $sportskill->id . '" ' . $spselect . '>' . $sportskill->name . '</option>';
+                                    }
+                                }
+                                $atechniques = '<option value="">Technique</option>';
+                                if (!empty($techniques)) {
+                                    foreach ($techniques as $technique) {
+                                        $tselect = (!empty($_REQUEST['technique']) && ($_REQUEST['technique'] == $technique->id) ? 'selected="selected"' : '');
+                                        $atechniques .= '<option value="' . $technique->id . '" ' . $tselect . '>' . $technique->name . '</option>';
+                                    }
+                                }
+                                $getact = '<option value="">Activity</option>';
+                                if (!empty($act)) {
+                                    foreach ($act as $ac) {
+                                        $sclasses .= '<option value="' . $ac->id . '" ';
+                                        $getact .= ' >' . $ac->title . '</option>';
+                                    }
+                                }
+                            ?>
+                            <div class="form-row">
+                                <div class="col-12 col-md-3 mb-3">
+                                    <label for="Date">Date</label><br>
+                                    <input class="form-control mx-0 w-100" type="date" max="<?php echo date("Y-m-d"); ?>" id="date" name="date">
+                                </div>
+
+                                <?php 
+                                ?>
+
+                                <input type="hidden" name="school_id" id="school_id" value="{{ $schoolId }}">
+
+                                <div class="col-6 col-md-3 mb-3">
+                                    <label for="Class">Class</label><br>
+                                    <select class="form-control mx-0 w-100" name="sclass" id="sclass0" >
+                                        <?= $sclasses ?>
+                                    </select>
+                                </div>
+                                <input type="hidden" name="custm_cls_id" id="custm_cls_id">
+
+                                <div class="col-6 col-md-3 mb-3">
+                                    <label for="Period">Period</label><br>
+                                    <select class="form-control mx-0 w-100" name="period" id="period_id" onchange="getFillDARTskillarea(0,this.value)">
+                                        <option value="">Period</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                    </select>
+
+                                </div>
+
+                            </div>
+                            <div class="form-row">
+                                <div class="col-12 col-md-3 mb-3">
+                                    <label for="skillarea">Skill Area</label><br>
+                                    <select class="form-control mx-0 w-100" id="skillarea0" name="skillarea" onchange="getskillsports(0,this.value)">
+                                        <option value="">Skill Area</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12 col-md-3 mb-3">
+                                    <label for="sports">Skill/Sports</label><br>
+                                    <select class="form-control selctopt" id="skillsports0" name="skillsports" onchange="gettechnique(0,this.value)">
+                                        <option value="">Skill/Sports</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12 col-md-3 mb-3">
+                                    <label for="technique">Technique</label><br>
+                                    <select class="form-control selctopt" id="technique0" name="technique" onchange="getactivity(0,this.value)">
+                                        <option value="">Technique</option>
+                                    </select>
+                                </div>
+
+
+                                <div class="col-12 col-md-3 mb-3">
+                                    <label for="activity">Activity</label><br>
+                                    <div class="activity-info">
+                                    
+                                    <a href="#a" id="anchor-id" data-toggle="modal" data-target="#activityDetailId"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle-fill" viewBox="0 0 16 16">
+                                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2" />
+                                        </svg>
+                                    </a>
+                                        <select class="form-control mx-0 w-100" name="activity" id="activity_id" onchange="getstudents(0,this.value)">
+                                            <option value="">Activity</option>
+                                        </select>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -794,301 +629,25 @@
   </div>
 </div>
 
+<!-- VIEW MODAL -->
+<div class="modal fade" id="mediaModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-body text-center position-relative">
+
+                <button class="btn btn-light position-absolute" style="left:10px;top:50%" onclick="prevMedia()">‹</button>
+                <button class="btn btn-light position-absolute" style="right:10px;top:50%" onclick="nextMedia()">›</button>
+
+                <img id="modalImage" class="img-fluid d-none" style="max-height:80vh;">
+                <video id="modalVideo" controls class="w-100 d-none" style="max-height:80vh;"></video>
+
+            </div>
+        </div>
+    </div>
+</div>
 
 @endsection
 
 @push('scripts')
-
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous" ></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous" ></script>
-    <script
-      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous" ></script>
-
-    <script>
-        (function($) {
-            $.fn.mauGallery = function(options) {
-                var options = $.extend($.fn.mauGallery.defaults, options);
-                var tagsCollection = [];
-                return this.each(function() {
-                $.fn.mauGallery.methods.createRowWrapper($(this));
-                if (options.lightBox) {
-                    $.fn.mauGallery.methods.createLightBox(
-                    $(this),
-                    options.lightboxId,
-                    options.navigation
-                    );
-                }
-                $.fn.mauGallery.listeners(options);
-
-                $(this)
-                    .children(".gallery-item")
-                    .each(function(index) {
-                    $.fn.mauGallery.methods.responsiveImageItem($(this));
-                    $.fn.mauGallery.methods.moveItemInRowWrapper($(this));
-                    $.fn.mauGallery.methods.wrapItemInColumn($(this), options.columns);
-                    var theTag = $(this).data("gallery-tag");
-                    if (
-                        options.showTags &&
-                        theTag !== undefined &&
-                        tagsCollection.indexOf(theTag) === -1
-                    ) {
-                        tagsCollection.push(theTag);
-                    }
-                    });
-
-                if (options.showTags) {
-                    $.fn.mauGallery.methods.showItemTags(
-                    $(this),
-                    options.tagsPosition,
-                    tagsCollection
-                    );
-                }
-
-                $(this).fadeIn(500);
-                });
-            };
-            $.fn.mauGallery.defaults = {
-                columns: 3,
-                lightBox: true,
-                lightboxId: null,
-                showTags: true,
-                tagsPosition: "bottom",
-                navigation: true
-            };
-            $.fn.mauGallery.listeners = function(options) {
-                $(".gallery-item").on("click", function() {
-                if (options.lightBox && $(this).prop("tagName") === "IMG") {
-                    $.fn.mauGallery.methods.openLightBox($(this), options.lightboxId);
-                } else {
-                    return;
-                }
-                });
-
-                $(".gallery").on("click", ".nav-link", $.fn.mauGallery.methods.filterByTag);
-                $(".gallery").on("click", ".mg-prev", () =>
-                $.fn.mauGallery.methods.prevImage(options.lightboxId)
-                );
-                $(".gallery").on("click", ".mg-next", () =>
-                $.fn.mauGallery.methods.nextImage(options.lightboxId)
-                );
-            };
-            $.fn.mauGallery.methods = {
-                createRowWrapper(element) {
-                if (
-                    !element
-                    .children()
-                    .first()
-                    .hasClass("row")
-                ) {
-                    element.append('<div class="gallery-items-row row"></div>');
-                }
-                },
-                wrapItemInColumn(element, columns) {
-                if (columns.constructor === Number) {
-                    element.wrap(
-                    `<div class='item-column mb-4 col-${Math.ceil(12 / columns)}'></div>`
-                    );
-                } else if (columns.constructor === Object) {
-                    var columnClasses = "";
-                    if (columns.xs) {
-                    columnClasses += ` col-${Math.ceil(12 / columns.xs)}`;
-                    }
-                    if (columns.sm) {
-                    columnClasses += ` col-sm-${Math.ceil(12 / columns.sm)}`;
-                    }
-                    if (columns.md) {
-                    columnClasses += ` col-md-${Math.ceil(12 / columns.md)}`;
-                    }
-                    if (columns.lg) {
-                    columnClasses += ` col-lg-${Math.ceil(12 / columns.lg)}`;
-                    }
-                    if (columns.xl) {
-                    columnClasses += ` col-xl-${Math.ceil(12 / columns.xl)}`;
-                    }
-                    element.wrap(`<div class='item-column mb-4${columnClasses}'></div>`);
-                } else {
-                    console.error(
-                    `Columns should be defined as numbers or objects. ${typeof columns} is not supported.`
-                    );
-                }
-                },
-                moveItemInRowWrapper(element) {
-                element.appendTo(".gallery-items-row");
-                },
-                responsiveImageItem(element) {
-                if (element.prop("tagName") === "IMG") {
-                    element.addClass("img-fluid");
-                }
-                },
-                openLightBox(element, lightboxId) {
-                $(`#${lightboxId}`)
-                    .find(".lightboxImage")
-                    .attr("src", element.attr("src"));
-                $(`#${lightboxId}`).modal("toggle");
-                },
-                prevImage() {
-                let activeImage = null;
-                $("img.gallery-item").each(function() {
-                    if ($(this).attr("src") === $(".lightboxImage").attr("src")) {
-                    activeImage = $(this);
-                    }
-                });
-                let activeTag = $(".tags-bar a.active-tag").data("images-toggle");
-                let imagesCollection = [];
-                if (activeTag === "all") {
-                    $(".item-column").each(function() {
-                    if ($(this).children("img").length) {
-                        imagesCollection.push($(this).children("img"));
-                    }
-                    });
-                } else {
-                    $(".item-column").each(function() {
-                    if (
-                        $(this)
-                        .children("img")
-                        .data("gallery-tag") === activeTag
-                    ) {
-                        imagesCollection.push($(this).children("img"));
-                    }
-                    });
-                }
-                let index = 0,
-                    next = null;
-
-                $(imagesCollection).each(function(i) {
-                    if ($(activeImage).attr("src") === $(this).attr("src")) {
-                    index = i - 1;
-                    }
-                });
-                next =
-                    imagesCollection[index] ||
-                    imagesCollection[imagesCollection.length - 1];
-                $(".lightboxImage").attr("src", $(next).attr("src"));
-                },
-                nextImage() {
-                let activeImage = null;
-                $("img.gallery-item").each(function() {
-                    if ($(this).attr("src") === $(".lightboxImage").attr("src")) {
-                    activeImage = $(this);
-                    }
-                });
-                let activeTag = $(".tags-bar a.active-tag").data("images-toggle");
-                let imagesCollection = [];
-                if (activeTag === "all") {
-                    $(".item-column").each(function() {
-                    if ($(this).children("img").length) {
-                        imagesCollection.push($(this).children("img"));
-                    }
-                    });
-                } else {
-                    $(".item-column").each(function() {
-                    if (
-                        $(this)
-                        .children("img")
-                        .data("gallery-tag") === activeTag
-                    ) {
-                        imagesCollection.push($(this).children("img"));
-                    }
-                    });
-                }
-                let index = 0,
-                    next = null;
-
-                $(imagesCollection).each(function(i) {
-                    if ($(activeImage).attr("src") === $(this).attr("src")) {
-                    index = i + 1;
-                    }
-                });
-                next = imagesCollection[index] || imagesCollection[0];
-                $(".lightboxImage").attr("src", $(next).attr("src"));
-                },
-                createLightBox(gallery, lightboxId, navigation) {
-                gallery.append(`
-                    <div class="modal fade" id="${lightboxId ? lightboxId : "galleryLightbox"}" 
-                        tabindex="-1" role="dialog" aria-hidden="true">
-                    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                        <div class="modal-content lightbox-content">
-                        <div class="modal-body position-relative text-center">
-
-                            ${navigation 
-                            ? '<div class="mg-prev">&#10094;</div>' 
-                            : ''}
-
-                            <img class="lightboxImage img-fluid rounded" />
-
-                            ${navigation 
-                            ? '<div class="mg-next">&#10095;</div>' 
-                            : ''}
-
-                        </div>
-                        </div>
-                    </div>
-                    </div>
-                    `);
-                },
-                showItemTags(gallery, position, tags) {
-                var tagItems =
-                    '<li class="nav-item"><a class="nav-link active active-tag" href="#" data-images-toggle="all">all</a></li>';
-                $.each(tags, function(index, value) {
-                    tagItems += `<li class="nav-item active">
-                            <a class="nav-link" href="#" data-images-toggle="${value}">${value}</a></li>`;
-                });
-                var tagsRow = `<ul class="my-4 tags-bar nav nav-pills">${tagItems}</ul>`;
-
-                if (position === "bottom") {
-                    gallery.append(tagsRow);
-                } else if (position === "top") {
-                    gallery.prepend(tagsRow);
-                } else {
-                    console.error(`Unknown tags position: ${position}`);
-                }
-                },
-                filterByTag() {
-                if ($(this).hasClass("active-tag")) {
-                    return;
-                }
-                $(".active.active-tag").removeClass("active active-tag");
-                $(this).addClass("active-tag active");
-
-                var tag = $(this).data("images-toggle");
-
-                $(".gallery-item").each(function() {
-                    $(this)
-                    .parents(".item-column")
-                    .hide();
-                    if (tag === "all") {
-                    $(this)
-                        .parents(".item-column")
-                        .show(300);
-                    } else if ($(this).data("gallery-tag") === tag) {
-                    $(this)
-                        .parents(".item-column")
-                        .show(300);
-                    }
-                });
-                }
-            };
-            })(jQuery);
-
-    </script>
-    <script>
-        $(document).ready(function() {
-            $('.gallery').mauGallery({
-                columns: {
-                    xs: 1,
-                    sm: 2,
-                    md: 3,
-                    lg: 4,
-                    xl: 6
-                },
-                lightBox: true,
-                lightboxId: 'myAwesomeLightbox',
-                showTags: true,
-                tagsPosition: 'top'
-            });
-        });
-    </script>
-
 
 @endpush 

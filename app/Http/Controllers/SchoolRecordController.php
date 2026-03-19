@@ -37,6 +37,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ImportStudentProfile;
 use App\Exports\ExportImproperData;
 use App\Models\Sport; 
+use App\Models\Technique; 
 use App\Models\ViewDart;
 use App\Models\Teacher;
 use App\Models\State;
@@ -3117,7 +3118,50 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	public function ActivityGallary(){
 
 		$title = 'Activities Gallary';
-		return view('activity.media.gallary', compact('title'));
+		$userId  = Auth::id();
+
+		if(Auth::user()->role_id == 3){
+			if(Session::get('SelectSchoolId')){	
+				$schoolId = Session::get('SelectSchoolId');	
+			}else{
+				$schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
+			}
+		}else{
+			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+		}
+		
+		$sportskills = Sport::orderBY('name','ASC')->get();
+		$techniques  = Technique::orderBY('name','ASC')->get();	
+		
+		$classes = DB::table('custom_classes')
+		->join('class','class.id','=','custom_classes.class_id')
+		->select('custom_classes.id','custom_classes.class_id','custom_classes.section',
+
+			DB::raw("CASE 
+	            WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
+	            THEN custom_classes.nomenclature 
+	            ELSE class.name 
+	          END AS classname")
+		)
+		->WhereIn('custom_classes.school_id', array($schoolId))
+		->groupBy(
+			'custom_classes.id',
+			'custom_classes.class_id',
+			'custom_classes.section',
+			'custom_classes.nomenclature',
+			'class.name',
+			DB::raw("CASE 
+				WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
+				THEN custom_classes.nomenclature 
+				ELSE class.name 
+			END")
+		)
+		->orderBy('custom_classes.orders', 'ASC')
+		->get();
+		// dd($classes);
+
+
+		return view('activity.media.gallary', compact('title','classes','schoolId'));
 	}
 
 	/**
