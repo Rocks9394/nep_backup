@@ -453,48 +453,7 @@ $levelColor = [
 <div style="width:95%;margin:auto;padding:0 10px; border:1px solid #ccc;">
     <table cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse; font-size:11px;">
         <tbody>
-            <!-- Diet Section -->
-            <tr>
-                <td style="padding:1px 4px; font-weight:bold;">
-                    Diet Recommendations:
-                </td>
-            </tr>
-            <tr>
-                <td style="padding:1px 10px;">
-                    a. Calorie - Need to be decreased.
-                </td>
-            </tr>
-            <tr>
-                <td style="padding:1px 10px;">
-                    b. Food Restrictions - Need to restrict food with extra fat.
-                </td>
-            </tr>
-            <tr>
-                <td style="padding:1px 10px;">
-                    c. Healthier Choices - Replace fast foods and synthetic food items with natural and healthier choices like natural juices instead of sugar coated or aerated drinks.
-                </td>
-            </tr>
-            <!-- Lifestyle Section -->
-            <tr>
-                <td style="padding:1px 4px; font-weight:bold;">
-                    Active Lifestyle to be pursued
-                </td>
-            </tr>
-            <tr>
-                <td style="padding:1px 10px;">
-                    a. Exercise - Regular exercise is essential and recommended on daily basis.
-                </td>
-            </tr>
-            <tr>
-                <td style="padding:1px 10px;">
-                    b. Physical Activity - Keep moving is the most efficient way to burn calories and shed excess weight, any extra movement helps burn calories. Involve in household chores and do other basic activities yourself.
-                </td>
-            </tr>
-            <tr>
-                <td style="padding:1px 10px;">
-                    c. Sports Participation - Regular sports participation is important. Involve in more of endurance sports.
-                </td>
-            </tr>
+            {<?php echo $message; ?>}
         </tbody>
     </table>
 </div>
