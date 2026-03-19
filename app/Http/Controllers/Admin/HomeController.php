@@ -19,7 +19,55 @@ class HomeController extends Controller
     
     public function index()
     {
-        return view('admin.home');
+
+		$title = 'CISCE Dashboard';
+        $excludedSchools = ['AK001', 'AK002', 'AK003'];
+
+        $baseQuery = DB::table('schools_assessment as s')
+            ->whereNotIn('s.school_code', $excludedSchools);
+        
+        $regSchools = $baseQuery->count('s.school_code');
+        $regTrainers = DB::table('users')->where('role_id', 3)->count('id');
+
+        $completedSchools = (clone $baseQuery)
+            ->whereColumn('s.registered_students', 's.completed')
+            ->where('s.registered_students', '>', 0)
+            ->count();
+
+        $ongoingSchools = (clone $baseQuery)
+            ->where('s.ongoing', '>', 0)
+            ->count();
+
+        $yetToStartSchools = (clone $baseQuery)
+            ->whereColumn('s.registered_students', 's.yet_to_start')
+            ->where('s.registered_students', '>', 0)
+            ->count();
+
+        $totals = (clone $baseQuery)
+            ->selectRaw('
+                COALESCE(SUM(s.registered_students),0) as total_students,
+                COALESCE(SUM(s.completed),0) as total_completed,
+                COALESCE(SUM(s.ongoing),0) as total_ongoing,
+                COALESCE(SUM(s.yet_to_start),0) as total_yet_to_start
+            ')
+            ->first();
+
+        $topSchools = (clone $baseQuery)
+            ->get();
+
+        return view('admin.home', [
+            'title' => $title,
+            'regSchools' => $regSchools,
+            'regTrainers' => $regTrainers,
+            'completedSchools' => $completedSchools,
+            'ongoingSchools' => $ongoingSchools,
+            'yetToStartSchools' => $yetToStartSchools,
+            'totalStudents' => $totals->total_students,
+            'totalCompleted' => $totals->total_completed,
+            'totalOngoing' => $totals->total_ongoing,
+            'totalYetToStart' => $totals->total_yet_to_start,
+            'topSchools' => $topSchools
+        ]);
     }
 
     public function gets_subject(Request $request){

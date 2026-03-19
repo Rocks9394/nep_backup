@@ -1,7 +1,6 @@
-@extends('admin.layouts.app')
-@section('title', 'Goforfit - Admin Dashboard')
+<?php $__env->startSection('title', 'Goforfit - Admin Dashboard'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 
 <style>
@@ -33,7 +32,7 @@
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>             
+              <li class="breadcrumb-item"><a href="<?php echo e(route('admin.dashboard')); ?>">Home</a></li>             
 			        <li class="breadcrumb-item active">Dashboard</li>
             </ol>
           </div>
@@ -44,26 +43,26 @@
       <div class="container-fluid">
         <div class="col pt-4 pb-4">
           <!-- TOP CARDS -->
-          <div class="row g-3 mb-4">
+          <div class="row g-3 mb-4 text-center">
 
             <div class="col-12 col-md-4">
               <div class="card-modern gradient-green text-center">
                   <div class="card-title">Registered Schools</div>
-                  <div class="counter" data-target="{{ $regSchools }}">0</div>
+                  <div class="counter" data-target="<?php echo e($regSchools); ?>">0</div>
               </div>
             </div>
 
             <div class="col-12 col-md-4">
               <div class="card-modern gradient-orange text-center">
                   <div class="card-title">Registered Trainers</div>
-                  <div class="counter" data-target="{{ $regTrainers }}">0</div>
+                  <div class="counter" data-target="<?php echo e($regTrainers); ?>">0</div>
               </div>
             </div>
 
             <div class="col-12 col-md-4">
               <div class="card-modern gradient-blue text-center">
                   <div class="card-title">Registered Students</div>
-                  <div class="counter" data-target="{{ $totalStudents }}">0</div>
+                  <div class="counter" data-target="<?php echo e($totalStudents); ?>">0</div>
               </div>
             </div>
           </div>
@@ -128,9 +127,10 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     const doughnutData = [
-        {{ $completedSchools ?? 0 }},
-        {{ $ongoingSchools ?? 0 }},
-        {{ $yetToStartSchools ?? 0 }}
+        <?php echo e($completedSchools ?? 0); ?>,
+        <?php echo e($ongoingSchools ?? 0); ?>,
+        <?php echo e($yetToStartSchools ?? 0); ?>
+
     ];
 
     new Chart(document.getElementById('schoolStatusChart'), {
@@ -174,10 +174,11 @@ document.addEventListener("DOMContentLoaded", function () {
             datasets: [{
                 label: 'Students',
                 data: [
-                    {{ $totalStudents }},
-                    {{ $totalCompleted }},
-                    {{ $totalOngoing }},
-                    {{ $totalYetToStart }}
+                    <?php echo e($totalStudents); ?>,
+                    <?php echo e($totalCompleted); ?>,
+                    <?php echo e($totalOngoing); ?>,
+                    <?php echo e($totalYetToStart); ?>
+
                 ],
                 backgroundColor: ['#396afc', '#28a745', '#ffcb08', '#ec0000']
             }]
@@ -185,7 +186,7 @@ document.addEventListener("DOMContentLoaded", function () {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
     });
 
-    const allSchools = @json($topSchools);
+    const allSchools = <?php echo json_encode($topSchools, 15, 512) ?>;
 
     function getTop5(type) {
         return [...allSchools]
@@ -268,4 +269,5 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/admin/home.blade.php ENDPATH**/ ?>

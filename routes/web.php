@@ -185,8 +185,7 @@ Route::group(['middleware'=>'auth.auth_student'],function()
 Route::namespace("Admin")->prefix('admin')->group(function(){
 	Route::get('/', [App\Http\Controllers\Admin\HomeController::class, 'index'])->name('admin');
 	
-	Route::namespace('Auth')->group(function(){				
-		Route::get('/home', [App\Http\Controllers\Admin\HomeController::class, 'index'])->name('admin.home');
+	Route::namespace('Auth')->group(function(){		
 		Route::get('/dashboard', [App\Http\Controllers\Admin\HomeController::class, 'index'])->name('admin.dashboard');
 		Route::get('/login', [App\Http\Controllers\Admin\Auth\LoginController::class, 'showLoginForm'])->name('admin.login');
 		Route::post('/login', [App\Http\Controllers\Admin\Auth\LoginController::class, 'login'])->name('admin.postlogin');

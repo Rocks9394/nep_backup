@@ -1,13 +1,13 @@
-@extends('admin.layouts.app')
-@section('title', 'Goforfit Admin Activity')
-@section('content')
+
+<?php $__env->startSection('title', 'Goforfit Admin Activity'); ?>
+<?php $__env->startSection('content'); ?>
     <div class="content-wrapper">
         <section class="content-header">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-2">
                         <h1 class="act-header">Activity</h1>
-                        <a href="{{ route('admin.activities.create') }}" class="create-btn"> <input type="submit"
+                        <a href="<?php echo e(route('admin.activities.create')); ?>" class="create-btn"> <input type="submit"
                                 value="Add" class="btn btn-sm btn-success "></a>
                     </div>
                     <div class="col-md-10">
@@ -30,11 +30,11 @@
             </div>
         </section>
 
-        @if ($message = Session::get('success'))
+        <?php if($message = Session::get('success')): ?>
             <div class="alert alert-success">
-                <p>{{ $message }}</p>
+                <p><?php echo e($message); ?></p>
             </div>
-        @endif
+        <?php endif; ?>
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
@@ -44,7 +44,7 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <form class="form-inline fltr-row " type="get"
-                                            action="{{ route('admin.activities.index') }}">
+                                            action="<?php echo e(route('admin.activities.index')); ?>">
                                             <input type="hidden" id="filterbyelem" name="filterby"
                                                 value="<?php if (!empty($_GET['filterby'])) {
                                                     echo $_GET['filterby'];
@@ -189,12 +189,12 @@
                                                     echo 'style="display:none"';
                                                 } ?>>
 
-                                                @if (!empty($classes))
+                                                <?php if(!empty($classes)): ?>
                                                     <select class="form-control selctopt" name="sclass" id="sclass0"
                                                         style="width:125px" onchange="getskillarea(0,this.value)">
                                                         <?= $sclasses ?>
                                                     </select>
-                                                @endif
+                                                <?php endif; ?>
 
                                                 <select class="form-control selctopt" id="skillarea0" name="skillarea"
                                                     onchange="getskillsports(0,this.value)" style="width:125px">
@@ -289,7 +289,7 @@
                             <div class="row">
                                 <div class="col-12 div-count">
                                     <div class="fltr-count">Activities Found: <span
-                                            class="no-counts">{{ $count }}<span></div>
+                                            class="no-counts"><?php echo e($count); ?><span></div>
                                 </div>
                             </div>
 
@@ -302,9 +302,9 @@
                                             <th scope="col">Image</th>
                                             <th scope="col">Title</th>
                                             <th scope="col">Teaching Through</th>
-                                            @if (Auth::user()->role_id == '1' or Auth::user()->role_id == '4')
+                                            <?php if(Auth::user()->role_id == '1' or Auth::user()->role_id == '4'): ?>
                                                 <th scope="col">Action</th>
-                                            @endif
+                                            <?php endif; ?>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -321,13 +321,13 @@
                                                     $mystring = $val->image;
                                                     if(strpos($mystring, $word)!== false){
                                                 ?>
-                                                <img src="{{ preg_replace('/[^(\x20-\x7F)\x0A\x0D]*/', '', $val->image) }}"
+                                                <img src="<?php echo e(preg_replace('/[^(\x20-\x7F)\x0A\x0D]*/', '', $val->image)); ?>"
                                                     width="100" height="100">
                                                 <?php } else if (file_exists('public/uploads/'.$val->image)){ ?>
-                                                <img src="{{ asset('public/uploads') . '/' . $val->image }}" alt=""
+                                                <img src="<?php echo e(asset('public/uploads') . '/' . $val->image); ?>" alt=""
                                                     width="100" height="100">
                                                 <?php } else{ ?>
-                                                <img src="{{ asset('public/uploads') . '/' . 'images.jpg' }}" width="100"
+                                                <img src="<?php echo e(asset('public/uploads') . '/' . 'images.jpg'); ?>" width="100"
                                                     height="100">
                                                 <?php }  ?>
                                             </td>
@@ -342,13 +342,13 @@
                                                 }
                                                 ?>
                                             </td>
-                                            @if (Auth::user()->role_id == '1' or Auth::user()->role_id == '4')
+                                            <?php if(Auth::user()->role_id == '1' or Auth::user()->role_id == '4'): ?>
                                                 <td>
                                                     <a class="btn btn-info btn-xs copy-btn pull-left" alt="Copy"
-                                                        title="Copy" href="{{ url('copy/' . $val->id) }}"> <i
+                                                        title="Copy" href="<?php echo e(url('copy/' . $val->id)); ?>"> <i
                                                             class="fa fa-copy"></i></a>
                                                     <a class="btn btn-info btn-xs edit-btn pull-left" title="Update"
-                                                        href="{{ route('admin.activities.edit', $val->id) }}"> <i
+                                                        href="<?php echo e(route('admin.activities.edit', $val->id)); ?>"> <i
                                                             class="fa fa-pencil-alt"></i></a>
                                                     <?php /* 
 					   <form action="{{ route('admin.activities.destroy', $val->id) }}" class="pull-right" method="POST">
@@ -359,11 +359,11 @@
                                                     ?>
 
                                                 </td>
-                                            @endif
+                                            <?php endif; ?>
 
-                                            <?php/* @if(Auth::user()->role_id == '1' OR Auth::user()->role_id == '4') */?>
+                                            <?php/* <?php if(Auth::user()->role_id == '1' OR Auth::user()->role_id == '4'): ?> */?>
 
-                                            <?php/* @endif */?>
+                                            <?php/* <?php endif; ?> */?>
                                         </tr>
 
 
@@ -379,7 +379,7 @@
 
 
                                 <div class="d-flex justify-content-center">
-                                    {{ $posts->appends(request()->input())->links() }}</div>
+                                    <?php echo e($posts->appends(request()->input())->links()); ?></div>
                             </div>
                         </div>
                     </div>
@@ -415,4 +415,6 @@
 
         }
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('admin.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/admin/activities/index.blade.php ENDPATH**/ ?>

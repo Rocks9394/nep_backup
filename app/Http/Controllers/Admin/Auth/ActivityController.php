@@ -111,14 +111,12 @@ class ActivityController extends Controller
 		$skillareas = Skill::orderBy('name', 'ASC')->get();
 		$sportskills = Sport::orderBy('name', 'ASC')->get();
 		$techniques = Technique::orderBy('name', 'ASC')->get();
-		
+
 		if(!empty($request->filterby)){
-			
 			if(!empty($request->actname)){
 				$posts = Activity::where('title', 'LIKE',"%{$request->actname}%");
 				$count = $posts->count();
-				$posts = $posts->paginate(100);
-				
+				$posts = $posts->paginate(100);				
 			}else{
 				
 				if($request->filterby == 'academy'){
@@ -169,8 +167,7 @@ class ActivityController extends Controller
 		}else{
 			
 			$count = Activity::count();
-			$posts = Activity::orderBy('activity.id','DESC')->paginate(100);
-			
+			$posts = Activity::orderBy('activity.id','ASC')->paginate(100);
 			return view('admin.activities.index',compact('posts','classes','teaching','subjects', 'skillareas' , 'sportskills' , 'techniques', 'count'));
 		}		
 		
