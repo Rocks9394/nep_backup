@@ -6,7 +6,7 @@
     <title>Student Report</title>
 
     <style>
-        @page {
+        @page  {
             margin: 0;
         }
 
@@ -16,7 +16,7 @@
             line-height: 1.15;
             margin: 0;
             padding: 0;
-            background-image: url("{{ public_path('/assets/uploads/letterhead.png') }}");
+            background-image: url("<?php echo e(public_path('/assets/uploads/letterhead.png')); ?>");
             background-repeat: no-repeat;
             background-position: top center;
             background-size: contain;
@@ -100,7 +100,7 @@
 
 <body>
 
-@php
+<?php
 use Carbon\Carbon;
 
 $dob = Carbon::parse($studentsData->dob);
@@ -137,7 +137,7 @@ $levelColor = [
     7 => '#388e3c',
     8 => '#2e7d32'
 ];
-@endphp
+?>
 
 <!-- STUDENT DETAILS -->
 <div class="students-detail">
@@ -149,23 +149,23 @@ $levelColor = [
             <table style="width:100%">
                 <tr>
                     <td><b>Name:</b></td>
-                    <td>{{ $studentsData->student_name }} ({{ $studentsData->admissionnumber }})</td>
+                    <td><?php echo e($studentsData->student_name); ?> (<?php echo e($studentsData->admissionnumber); ?>)</td>
                 </tr>
                 <tr>
                     <td><b>Class:</b></td>
-                    <td>{{ $studentsData->display_classname.'-'.$studentsData->section }}</td>
+                    <td><?php echo e($studentsData->display_classname.'-'.$studentsData->section); ?></td>
                 </tr>
                 <tr>
                     <td><b>Roll No:</b></td>
-                    <td>{{ $studentsData->rollno }}</td>
+                    <td><?php echo e($studentsData->rollno); ?></td>
                 </tr>
                 <tr>
                     <td><b>DOB/Gender:</b></td>
-                    <td>{{ $formattedDob }} ({{ $age }} Yrs {{ $gender }})</td>
+                    <td><?php echo e($formattedDob); ?> (<?php echo e($age); ?> Yrs <?php echo e($gender); ?>)</td>
                 </tr>
                 <tr>
                     <td><b>School:</b></td>
-                    <td>{{ $studentsData->school_name }} ({{ $studentsData->school_code }})</td>
+                    <td><?php echo e($studentsData->school_name); ?> (<?php echo e($studentsData->school_code); ?>)</td>
                 </tr>
             </table>
         </div>
@@ -175,12 +175,12 @@ $levelColor = [
             <div style="width:100%; max-width:600px; margin:auto; font-family: 'Roboto Condensed', sans-serif; font-size:10px;">
                 <!-- Overall Fitness Bar -->
                 <div class="progress-bar">
-                    @php
+                    <?php
                         $overallWidth = ($avgLevel / 8) * 100;
                         $overallColor = $levelColor[ceil($avgLevel)];
-                    @endphp
-                    <div class="progress-fill" style="width:{{ $overallWidth }}%; background:grey"></div>
-                    <!-- <div class="progress-fill" style="width:{{ $overallWidth }}%; background:{{ $overallColor }};"></div> -->
+                    ?>
+                    <div class="progress-fill" style="width:<?php echo e($overallWidth); ?>%; background:grey"></div>
+                    <!-- <div class="progress-fill" style="width:<?php echo e($overallWidth); ?>%; background:<?php echo e($overallColor); ?>;"></div> -->
                 </div>
                 <div class="fitness-indicator">
                     <div style="display:flex; justify-content: space-around; font-size:10px;">
@@ -209,24 +209,24 @@ $levelColor = [
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($orderedReportData as $key => $value)
-                        @if($key === 'Body Composition (BMI)')
+                    <?php $__currentLoopData = $orderedReportData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if($key === 'Body Composition (BMI)'): ?>
                             <tr>
                                 <td><strong>Current</strong></td>
-                                <td>{{ $value['Current_Term'][0]['created_at'] ?? '---' }}</td>
-                                <td>{{ $value['Current_Term'][0]['weight'] ?? '---' }}</td>
-                                <td>{{ $value['Current_Term'][0]['height'] ?? '---' }}</td>
-                                <td>{{ $value['Current_Term'][0]['score'] ?? '---' }} ({{ $value['Current_Term'][0]['Level'] ?? '---' }})</td>
+                                <td><?php echo e($value['Current_Term'][0]['created_at'] ?? '---'); ?></td>
+                                <td><?php echo e($value['Current_Term'][0]['weight'] ?? '---'); ?></td>
+                                <td><?php echo e($value['Current_Term'][0]['height'] ?? '---'); ?></td>
+                                <td><?php echo e($value['Current_Term'][0]['score'] ?? '---'); ?> (<?php echo e($value['Current_Term'][0]['Level'] ?? '---'); ?>)</td>
                             </tr>
                             <tr>
                                 <td><strong>Previous</strong></td>
-                                <td>{{ $value['Previous_Term'][0]['created_at'] ?? '---' }}</td>
-                                <td>{{ $value['Previous_Term'][0]['weight'] ?? '---' }}</td>
-                                <td>{{ $value['Previous_Term'][0]['height'] ?? '---' }}</td>
-                                <td>{{ $value['Previous_Term'][0]['score'] ?? '---' }} ({{ $value['Previous_Term'][0]['Level'] ?? '---' }})</td>
+                                <td><?php echo e($value['Previous_Term'][0]['created_at'] ?? '---'); ?></td>
+                                <td><?php echo e($value['Previous_Term'][0]['weight'] ?? '---'); ?></td>
+                                <td><?php echo e($value['Previous_Term'][0]['height'] ?? '---'); ?></td>
+                                <td><?php echo e($value['Previous_Term'][0]['score'] ?? '---'); ?> (<?php echo e($value['Previous_Term'][0]['Level'] ?? '---'); ?>)</td>
                             </tr>
-                        @endif
-                    @endforeach
+                        <?php endif; ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
@@ -255,8 +255,8 @@ $levelColor = [
             </tr>
         </thead>
         <tbody style="padding:0;">
-            @foreach($orderedReportData as $key => $value)
-                @php
+            <?php $__currentLoopData = $orderedReportData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php
                     $displayKey = str_contains($key, 'Body Composition')
                         ? str_replace('Body Composition (BMI)', 'BMI (Body Mass Index)', $key)
                         : $key;
@@ -268,51 +268,51 @@ $levelColor = [
                     $prevCurrlevelText = $value['Previous_Term'][0]['Level'] ?? null;
                     preg_match('/L(\d+)/', $prevCurrlevelText, $matchPrev);
                     $prevLevel = !empty($matchPrev) ? (int)$matchPrev[1] : 0;
-                @endphp
+                ?>
 
-                @if($key != 'Body Composition (BMI)')
+                <?php if($key != 'Body Composition (BMI)'): ?>
                     <!-- Current -->
                     <tr>
-                        <td rowspan="2"><b>{{ $displayKey }}</b></td>
+                        <td rowspan="2"><b><?php echo e($displayKey); ?></b></td>
                         <td>Current</td>
                         <td colspan="7">
                             <div class="progress-bar">
-                                @php
+                                <?php
                                     $currentWidth = ($currentLevel / 8) * 100;
                                     $overallColor = $levelColor[ceil($currentLevel)];
-                                @endphp
-                                <div class="progress-fill" style="width:{{ $currentWidth }}%; background:grey;"></div>
-                                <!-- <div class="progress-fill" style="width:{{ $currentWidth }}%; background:{{ $overallColor }};"></div> -->
+                                ?>
+                                <div class="progress-fill" style="width:<?php echo e($currentWidth); ?>%; background:grey;"></div>
+                                <!-- <div class="progress-fill" style="width:<?php echo e($currentWidth); ?>%; background:<?php echo e($overallColor); ?>;"></div> -->
                             </div>
                         </td>
-                        <td style="text-align:center">{{ $value['Current_Term'][0]['score'] ?? '---' }}</td>
-                        <td style="text-align:center">{{ $value['Current_Term'][0]['Level'] ?? '---' }}</td>
-                        <td style="padding-left:8px;">&bull; {{ $value['Current_Term'][0]['recommendation'] ?? '---' }}</td>
+                        <td style="text-align:center"><?php echo e($value['Current_Term'][0]['score'] ?? '---'); ?></td>
+                        <td style="text-align:center"><?php echo e($value['Current_Term'][0]['Level'] ?? '---'); ?></td>
+                        <td style="padding-left:8px;">&bull; <?php echo e($value['Current_Term'][0]['recommendation'] ?? '---'); ?></td>
                     </tr>
                     <!-- Previous -->
                     <tr>
                         <td>Previous</td>
                         <td colspan="7">
                             <div class="progress-bar">
-                                @php
+                                <?php
                                     $previousWidth = ($prevLevel / 8) * 100;
                                     $overallColor = $levelColor[ceil($prevLevel)];
-                                @endphp
-                                <div class="progress-fill" style="width:{{ $previousWidth }}%; background:grey;"></div>
-                                <!-- <div class="progress-fill" style="width:{{ $previousWidth }}%; background:{{ $overallColor }};"></div> -->
+                                ?>
+                                <div class="progress-fill" style="width:<?php echo e($previousWidth); ?>%; background:grey;"></div>
+                                <!-- <div class="progress-fill" style="width:<?php echo e($previousWidth); ?>%; background:<?php echo e($overallColor); ?>;"></div> -->
                             </div>
                         </td>
-                        <td style="text-align:center">{{ $value['Previous_Term'][0]['score'] ?? '---' }}</td>
-                        <td style="text-align:center">{{ $value['Previous_Term'][0]['Level'] ?? '---' }}</td>
-                        <td style="padding-left:8px;">&bull; {{ $value['Previous_Term'][0]['recommendation'] ?? '---' }}</td>
+                        <td style="text-align:center"><?php echo e($value['Previous_Term'][0]['score'] ?? '---'); ?></td>
+                        <td style="text-align:center"><?php echo e($value['Previous_Term'][0]['Level'] ?? '---'); ?></td>
+                        <td style="padding-left:8px;">&bull; <?php echo e($value['Previous_Term'][0]['recommendation'] ?? '---'); ?></td>
                     </tr>
                     <tr>
                         <td colspan="12">
                             <hr style="border:0; border-top:1px solid #ccc; margin:0;">
                         </td>
                     </tr>
-                @endif
-            @endforeach
+                <?php endif; ?>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </tbody>
     </table>
     <!-- Fitness Benchmarks  -->
@@ -320,7 +320,8 @@ $levelColor = [
         <tbody>
             <tr>
                 <td colspan="7"style="padding:4px 6px; font-size:12px; font-weight:bold; border:1px solid #ccc;">
-                    Benchmarks for {{ $age }} years {{ $gender }}
+                    Benchmarks for <?php echo e($age); ?> years <?php echo e($gender); ?>
+
                 </td>
             </tr>
             <tr style="font-weight:bold; background-color:#ccc; color:#000; text-align:center;">
@@ -364,8 +365,8 @@ $levelColor = [
                     <td style="border:1px solid #ccc;text-align:center;">Height</td>
                     <td style="border:1px solid #ccc;">BMI</td>
                 </tr>
-                @foreach($orderedReportData as $key => $value)
-                    @php
+                <?php $__currentLoopData = $orderedReportData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
                         $CurrlevelText = strtolower($value['Current_Term'][0]['Level'] ?? '');
                         $PrevlevelText = strtolower($value['Previous_Term'][0]['Level'] ?? '');
                         $currWidth = 0;
@@ -388,32 +389,32 @@ $levelColor = [
                         } elseif (str_contains($PrevlevelText, 'ob')) {
                             $prevWidth = 100;
                         }
-                    @endphp
-                    @if($key === 'Body Composition (BMI)')
+                    ?>
+                    <?php if($key === 'Body Composition (BMI)'): ?>
                         <tr>
                             <td style="padding:2px; font-size:10px;"><strong>Current</strong></td>
                             <td colspan="4">
                                 <div class="bmi-bar">
-                                    <div class="bmi-fill"  style="background:grey; width:{{ $currWidth }}%;"></div>
+                                    <div class="bmi-fill"  style="background:grey; width:<?php echo e($currWidth); ?>%;"></div>
                                 </div>
                             </td>
-                            <td style="text-align:center;">{{ $value['Current_Term'][0]['weight'] ?? '---' }}</td>
-                            <td style="text-align:center;">{{ $value['Current_Term'][0]['height'] ?? '---' }}</td>
-                            <td>{{ $value['Current_Term'][0]['score'] ?? '---' }} ({{ $value['Current_Term'][0]['Level'] ?? '---' }})</td>
+                            <td style="text-align:center;"><?php echo e($value['Current_Term'][0]['weight'] ?? '---'); ?></td>
+                            <td style="text-align:center;"><?php echo e($value['Current_Term'][0]['height'] ?? '---'); ?></td>
+                            <td><?php echo e($value['Current_Term'][0]['score'] ?? '---'); ?> (<?php echo e($value['Current_Term'][0]['Level'] ?? '---'); ?>)</td>
                         </tr>
                         <tr>
                             <td style="padding:2px; font-size:10px;"><strong>Previous</strong></td>
                             <td colspan="4">
                                 <div class="bmi-bar">
-                                    <div class="bmi-fill"  style="background:grey; width:{{ $prevWidth }}%;"></div>
+                                    <div class="bmi-fill"  style="background:grey; width:<?php echo e($prevWidth); ?>%;"></div>
                                 </div>
                             </td>
-                            <td style="text-align:center;">{{ $value['Previous_Term'][0]['weight'] ?? '---' }}</td>
-                            <td style="text-align:center;">{{ $value['Previous_Term'][0]['height'] ?? '---' }}</td>
-                            <td>{{ $value['Previous_Term'][0]['score'] ?? '---' }} ({{ $value['Previous_Term'][0]['Level'] ?? '---' }})</td>
+                            <td style="text-align:center;"><?php echo e($value['Previous_Term'][0]['weight'] ?? '---'); ?></td>
+                            <td style="text-align:center;"><?php echo e($value['Previous_Term'][0]['height'] ?? '---'); ?></td>
+                            <td><?php echo e($value['Previous_Term'][0]['score'] ?? '---'); ?> (<?php echo e($value['Previous_Term'][0]['Level'] ?? '---'); ?>)</td>
                         </tr>
-                    @endif
-                @endforeach
+                    <?php endif; ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </tbody>
         </table>
     </div>
@@ -426,7 +427,8 @@ $levelColor = [
 
                 <tr>
                     <td colspan="4" style="padding:3px 6px; font-size:12px; font-weight:bold;border:1px solid #ccc;">
-                        BMI Benchmarks for {{ $age }} years {{ $gender }}
+                        BMI Benchmarks for <?php echo e($age); ?> years <?php echo e($gender); ?>
+
                     </td>
                 </tr>
 
@@ -438,10 +440,10 @@ $levelColor = [
                 </tr>
 
                 <tr style="text-align:center;">
-                    <td style="border:1px solid #ccc;">{{ $getBmiBenchmark['UW'] ?? 'N/A' }}</td>
-                    <td style="border:1px solid #ccc;">{{ $getBmiBenchmark['N'] ?? 'N/A' }}</td>
-                    <td style="border:1px solid #ccc;">{{ $getBmiBenchmark['OW'] ?? 'N/A' }}</td>
-                    <td style="border:1px solid #ccc;">{{ $getBmiBenchmark['OB'] ?? 'N/A' }}</td>
+                    <td style="border:1px solid #ccc;"><?php echo e($getBmiBenchmark['UW'] ?? 'N/A'); ?></td>
+                    <td style="border:1px solid #ccc;"><?php echo e($getBmiBenchmark['N'] ?? 'N/A'); ?></td>
+                    <td style="border:1px solid #ccc;"><?php echo e($getBmiBenchmark['OW'] ?? 'N/A'); ?></td>
+                    <td style="border:1px solid #ccc;"><?php echo e($getBmiBenchmark['OB'] ?? 'N/A'); ?></td>
                 </tr>
 
             </tbody>
@@ -452,9 +454,10 @@ $levelColor = [
     <table cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse; font-size:11px;">
         <tbody>
             <tr>
-                <td style="padding:1px 4px; font-weight:bold;">{{ $result['message'] }}</td>
+                <td style="padding:1px 4px; font-weight:bold;"><?php echo e($result['message']); ?></td>
             </tr>
-            {!! $result['html'] !!}
+            <?php echo $result['html']; ?>
+
         </tbody>
     </table>
 </div>
@@ -469,15 +472,15 @@ $levelColor = [
 
             <td style="width:50%;padding-left:30px">
 
-                @if($studentsData->signature)
+                <?php if($studentsData->signature): ?>
 
-                    <img src="{{ public_path('/assets/uploads/signatures/'.$studentsData->signature) }}" style="height:60px">
+                    <img src="<?php echo e(public_path('/assets/uploads/signatures/'.$studentsData->signature)); ?>" style="height:60px">
 
                     <p style="font-weight:600;margin:2px 0">
                         Signature of Principal with Stamp
                     </p>
 
-                @endif
+                <?php endif; ?>
 
             </td>
 
@@ -495,7 +498,8 @@ $levelColor = [
 
                     Go to <b>https://fitness365.me</b>.  
                     Login as <b>PARENT</b> with Username:
-                    {{ $studentsData->user_id }} and Password: {{ $plainPassword }}
+                    <?php echo e($studentsData->user_id); ?> and Password: <?php echo e($plainPassword); ?>
+
 
                 </span>
 
@@ -507,4 +511,4 @@ $levelColor = [
 
 </div>
 </body>
-</html>
+</html><?php /**PATH C:\xampp\htdocs\nep\resources\views/reports/fitness/pdf/one-page-senior-f365.blade.php ENDPATH**/ ?>

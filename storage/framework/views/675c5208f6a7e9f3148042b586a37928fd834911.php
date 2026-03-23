@@ -566,7 +566,11 @@ $levelColor = [
     <div style="width:95%;margin:auto;padding:0 10px; border:1px solid #ccc;">
         <table cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse; font-size:11px;">
             <tbody>
-                {<?php echo $message; ?>}
+                <tr>
+                    <td style="padding:1px 4px; font-weight:bold;"><?php echo e($result['message']); ?></td>
+                </tr>
+                <?php echo $result['html']; ?>
+
             </tbody>
         </table>
     </div>

@@ -249,4 +249,211 @@ class Helper
 		return $SchoolDetails;
 	}
 
+	// for weight msg and instructions 
+    private function getBmiMessage($orderedReportData, $ageGender){
+
+        $bmiData = $orderedReportData['Body Composition (BMI)']['Current_Term'][0] ?? null;
+
+        // Default response
+        $response = [
+            'message' => '',
+            'html' => ''
+        ];
+
+        if (!$bmiData) {
+            $response['message'] = "You need to maintain your weight by doing regular Physical Activity and having Balanced diet.";
+
+            $response['html'] = $this->getNormalHtml();
+            return $response;
+        }
+
+        $weight = $bmiData['weight'] ?? null;
+        $height = ($bmiData['height'] ?? 0) / 100;
+        $level  = $bmiData['Level'] ?? null;
+
+        $value = $this->getBmiBenchmark($ageGender)['N'];
+        preg_match_all('/\d+(\.\d+)?/', $value, $matches);
+
+        $minBMI = (float)$matches[0][0];
+        $maxBMI = (float)$matches[0][1];
+
+        $minWeight = $minBMI * ($height * $height);
+        $maxWeight = $maxBMI * ($height * $height);
+
+        if ($level == 'Normal') {
+            $response['message'] = "You need to maintain your weight by doing regular Physical Activity and having Balanced diet.";
+            $response['html'] = $this->getNormalHtml();
+        }
+
+        if ($level == 'UW') {
+            $diff = round($minWeight - $weight, 1);
+
+            $response['message'] = "You can increase your weight by {$diff} Kg by improving your lifestyle and increasing regular Physical Activities.";
+            $response['html'] = $this->getUnderWeightHtml($diff);
+        }
+
+        if ($level == 'OW' || $level == 'OB') {
+            $diff = round($weight - $maxWeight, 1);
+
+            $response['message'] = "You can reduce your weight by {$diff} Kg by improving your lifestyle and increasing regular Physical Activities.";
+            $response['html'] = $this->getOverWeightHtml($diff);
+        }
+
+        return $response;
+    }
+
+    private function getNormalHtml(){
+        return "
+            <tr>
+                <td style='padding:1px 4px; font-weight:bold;'>
+                    Diet Recommendations:
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    a. Calorie - Need to be maintained regularly.
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    b. Food Restrictions - Choose variety of food with avoidance of extra fat.
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    c. Healthier Choices - Maintain the healthier diet practice with natural and healthier choices and avoidance of artificial food.
+                </td>
+            </tr>
+            
+            <tr>
+                <td style='padding:1px 4px; font-weight:bold;'>
+                    Active Lifestyle to be pursued:
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    a. Exercise - Additional exercises with increase in load and intensity can be initiated.
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    b. Physical Activity - Stretch your level of physical activity with additional indoor and outdoor recreational, household and sports activities.
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    c. Sport Participation - Add your choice of participation in sports activities and additional sports of various nature and abilities.
+                </td>
+            </tr>
+        ";
+    }
+    private function getUnderWeightHtml($diff){
+        return "
+            <tr>
+                <td style='padding:1px 4px; font-weight:bold;'>
+                    Diet Recommendations:
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    a. Calorie - Need to be increased.
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    b. Food Restrictions - Not required, instead choose variety of food.
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    c. Healthier Choices - Make overall diet healthier, eat more plant-based foods, such as fruits, vegetables and whole-grain carbohydrates.
+                </td>
+            </tr>
+            
+            <tr>
+                <td style='padding:1px 4px; font-weight:bold;'>
+                    Active Lifestyle to be pursued:
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    a. Exercise - Regular exercise without getting fatique is important. Don\'t over exert.
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    b. Physical Activity - Physical activity is recommended but with adequate rest and recovery.
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    c. Sport Participation - Participation in sports activity is helpful. Team sports and individual sports are beneficial.
+                </td>
+            </tr>
+        ";
+    }
+    private function getOverWeightHtml($diff){
+        return "
+            <tr>
+                <td style='padding:1px 4px; font-weight:bold;'>
+                    Diet Recommendations:
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    a. Calorie - Need to be decreased.
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    b. Food Restrictions - Need to restrict food with extra fat.
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    c. Healthier Choices - Replace fast foods and synthetic food items with natural and healthier choices like natural juices instead of sugar coted or aerated drinks.
+                </td>
+            </tr>
+            
+            <tr>
+                <td style='padding:1px 4px; font-weight:bold;'>
+                    Active Lifestyle to be pursued:
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    a. Exercise - Regular exercise is essential and recommended on daily basis.
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    b. Physical Activity - Keep moving is the most efficient way to burn calories and shed excess weight, any extra movement helps burn calories. Involve in household chores and do other basic activities yourself.
+                </td>
+            </tr>
+
+            <tr>
+                <td style='padding:1px 10px;'>
+                    c. Sport Participation - Regular sports participation is important. Involve in more of endurance sports.
+                </td>
+            </tr>
+        ";
+    }
+
 }
