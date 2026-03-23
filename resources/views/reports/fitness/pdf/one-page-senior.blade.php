@@ -1,507 +1,376 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <meta charset="UTF-8">
-    <title>Student Report</title>
+<meta charset="UTF-8">
+<title>Student Report</title>
 
-    <style>
-        @page {
-            margin: 0;
-        }
+<style>
+    @page {
+        margin: 0;
+    }
+    body {
+        font-family:"Roboto Condensed", sans-serif;
+        font-size: 12px;
+        margin: 0;
+        padding: 0;
+        background-image: url("{{ public_path('/assets/uploads/letterhead.png') }}");
+        background-repeat: no-repeat;
+        background-position: top center;
+        background-size: contain;
+        background-attachment: fixed;
+    }
+    .student-details {
+        width: 94% !important;
+        margin: 0 auto;
+        border-collapse: collapse;
+        border: 1px solid orange;
+        margin-bottom:5px;
+    }
 
-        body {
-            font-family: "Roboto Condensed", sans-serif;
-            font-size: 10px;
-            line-height: 1.15;
-            margin: 0;
-            padding: 0;
-            background-image: url("{{ public_path('/assets/uploads/letterhead.png') }}");
-            background-repeat: no-repeat;
-            background-position: top center;
-            background-size: contain;
-            background-attachment: fixed;
+    .student-details th,
+    .student-details td {
+        border: 1px solid orange;
+        padding: 4px;
+        text-align: left;
+    }
 
-            padding-top: 100px;
-        }
+    .student-details th {
+        background-color: #007BFF;
+        color: #ffffff;
+    }
 
-        h3 {
-            margin: 4px 0;
-            font-size: 14px;
-        }
-        .students-detail{
-            width:98%;
-            margin:auto;
-            padding:0 10px 5px 10px;
-        }
-
-        .students-detail table td {
-            padding: 2px 4px;
-        }
-
-        .fitness-title {
-            text-align: center;
-            font-weight: bold;
-            margin: 4px 0;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #ddd;
-            border-radius: 1px;
-            overflow: hidden;
-        }        
-
-        .progress-fill {
-            height: 100%;
-        }
-
-        .bmi-bar {
-            width: 100%;
-            height: 8px;
-            background: #ddd;
-            border-radius: 1px;
-            overflow: hidden;
-        }
-
-        .bmi-fill {
-            height: 100%;
-        }
-
-        .fitness-indicator {
-            display: flex;
-            justify-content: space-between;
-            font-size: 10px;
-            margin-top: 2px;
-        }
-
-        .fitness-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 3px;
-        }
-
-        .fitness-table th,
-        .fitness-table td {
-            border-bottom: 1px solid #ccc;
-            padding: 3px 4px;
-            font-size: 10px;
-        }
-
-        .signature-footer {
-            position: fixed;
-            bottom: 40px;
-            left: 0;
-            width: 100%;
-        }
-    </style>
+    .signature-footer {
+        position: fixed;
+        bottom: 5px;
+        left: 0;
+        width: 100%;
+    }
+</style>
 </head>
 
 <body>
+    
+    <!-- STUDENT DETAILS -->
+    @php
+        use Carbon\Carbon;
 
-@php
-use Carbon\Carbon;
+        $dob = Carbon::parse($studentsData->dob); 
+        $formattedDob = $dob->format('d M Y'); // 05 Jul 2019
+        $age = $dob->age; // will calculate age automatically
 
-$dob = Carbon::parse($studentsData->dob);
-$formattedDob = $dob->format('d M Y');
-$age = $dob->age;
 
-$gender = strtolower($studentsData->gender) === 'male' ? 'Boy' : 'Girl';
-$totalLevel = 0;
-$totalTests = 0;
-
-foreach($orderedReportData as $key => $value){
-    if($key != 'Body Composition (BMI)'){
-        $currentCurrlevelText = $value['Current_Term'][0]['Level'] ?? '';
-        preg_match('/L(\d+)/', $currentCurrlevelText, $match);
-        $currentLevel = !empty($match) ? (int)$match[1] : 0;
-        if($currentLevel > 0){
-            $totalLevel += $currentLevel;
-            $totalTests++;
+        if (strtolower($studentsData->gender) === 'male') {
+            $gender = 'Boy';
+        } else {
+            $gender = 'Girl';
         }
-    }
-}
+    @endphp
+    
 
-$avgLevel = $totalTests > 0 ? round($totalLevel / $totalTests, 1) : 0;
-$avgPercent = round(($avgLevel / 8) * 100, 0);
-
-$levelColor = [
-    0 => '#ffffff',
-    1 => '#f44336',
-    2 => '#ff5722',
-    3 => '#ff9800',
-    4 => '#ffc107',
-    5 => '#8bc34a',
-    6 => '#4caf50',
-    7 => '#388e3c',
-    8 => '#2e7d32'
-];
-@endphp
-
-<!-- STUDENT DETAILS -->
-<div class="students-detail">
-    <h3 style="text-align:center;font-size:16px;">Fitness Assessment Report</h3>
-    <div style="width:100%;display:table;border-bottom:1px solid grey;">
-
-        <!-- LEFT SIDE -->
-        <div style="display:table-cell;width:50%;padding-right:5px;vertical-align:top">
-            <table style="width:100%">
-                <tr>
-                    <td><b>Name:</b></td>
-                    <td>{{ $studentsData->student_name }} ({{ $studentsData->admissionnumber }})</td>
-                </tr>
-                <tr>
-                    <td><b>Class:</b></td>
-                    <td>{{ $studentsData->display_classname.'-'.$studentsData->section }}</td>
-                </tr>
-                <tr>
-                    <td><b>Roll No:</b></td>
-                    <td>{{ $studentsData->rollno }}</td>
-                </tr>
-                <tr>
-                    <td><b>DOB/Gender:</b></td>
-                    <td>{{ $formattedDob }} ({{ $age }} Yrs {{ $gender }})</td>
-                </tr>
-                <tr>
-                    <td><b>School:</b></td>
-                    <td>{{ $studentsData->school_name }} ({{ $studentsData->school_code }})</td>
-                </tr>
-            </table>
-        </div>
-
-        <!-- RIGHT SIDE -->
-        <div style="display:table-cell;width:50%;padding:0 0 5px 5px;vertical-align:top">
-            <div style="width:100%; max-width:600px; margin:auto; font-family: 'Roboto Condensed', sans-serif; font-size:10px;">
-                <!-- Overall Fitness Bar -->
-                <div class="progress-bar">
-                    @php
-                        $overallWidth = ($avgLevel / 8) * 100;
-                        $overallColor = $levelColor[ceil($avgLevel)];
-                    @endphp
-                    <div class="progress-fill" style="width:{{ $overallWidth }}%; background:grey"></div>
-                    <!-- <div class="progress-fill" style="width:{{ $overallWidth }}%; background:{{ $overallColor }};"></div> -->
+    @if(!$isLetterHead)
+    <table width="100%" cellpadding="0" cellspacing="0" 
+        style="width:94%; border-collapse: collapse; font-family: Roboto Condensed, sans-serif; background-color: #0A87CD; margin:auto;">
+        
+        <tr>
+            <!-- Left Logo -->
+            <td width="10%" align="left" style="padding:10px;">
+                <div style="background-color:#ffffff; border:5px solid orange; display:inline-block; padding:5px;">
+                    <img src="{{ public_path('assets/reports/seqfast-logo.png') }}" 
+                        style="width:90px; height:50px; display:block;">
                 </div>
-                <div class="fitness-indicator">
-                    <div style="display:flex; justify-content: space-around; font-size:10px;">
-                        <span style="margin-right:32px;">L0</span>
-                        <span style="margin-right:32px;">L1</span>
-                        <span style="margin-right:32px;">L2</span>
-                        <span style="margin-right:32px;">L3</span>
-                        <span style="margin-right:32px;">L4</span>
-                        <span style="margin-right:32px;">L5</span>
-                        <span style="margin-right:32px;">L6</span>
-                        <span style="margin-right:32px;">L7</span>
-                    </div>
+            </td>
+
+            <!-- Title -->
+            <td width="80%" align="center">
+                <div style="font-size:22px; font-weight:bold; color:#fff; text-transform:uppercase; letter-spacing:1px;">
+                    Physical Health and Fitness Assessment
                 </div>
-            </div>
+            </td>
 
-            <div class="fitness-title" style="font-size:12px;">My Fitness Indicator</div>
-
-            <table class="fitness-table">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th style="text-align:left">Period</th>
-                        <th style="text-align:left">Weight</th>
-                        <th style="text-align:left">Height</th>
-                        <th style="text-align:left">BMI</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($orderedReportData as $key => $value)
-                        @if($key === 'Body Composition (BMI)')
-                            <tr>
-                                <td><strong>Current</strong></td>
-                                <td>{{ $value['Current_Term'][0]['created_at'] ?? '---' }}</td>
-                                <td>{{ $value['Current_Term'][0]['weight'] ?? '---' }}</td>
-                                <td>{{ $value['Current_Term'][0]['height'] ?? '---' }}</td>
-                                <td>{{ $value['Current_Term'][0]['score'] ?? '---' }} ({{ $value['Current_Term'][0]['Level'] ?? '---' }})</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Previous</strong></td>
-                                <td>{{ $value['Previous_Term'][0]['created_at'] ?? '---' }}</td>
-                                <td>{{ $value['Previous_Term'][0]['weight'] ?? '---' }}</td>
-                                <td>{{ $value['Previous_Term'][0]['height'] ?? '---' }}</td>
-                                <td>{{ $value['Previous_Term'][0]['score'] ?? '---' }} ({{ $value['Previous_Term'][0]['Level'] ?? '---' }})</td>
-                            </tr>
-                        @endif
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<!-- FITNESS SCORE TABLE -->
-<div style="width:98%;margin:auto;padding:0 10px;">
-    <h3>My Fitness Score</h3>
-    <hr>
-    <table style="width:100%;border-collapse:collapse;font-size:10px; margin:auto;">
-        <thead style="border-bottom:1px solid">
-            <tr>
-                <th style="width:15%;text-align:left">Test</th>
-                <th style="width:6%;text-align:left">Term</th>
-                <th style="width:2%;text-align:left">L1</th>
-                <th style="width:2%;text-align:left">L2</th>
-                <th style="width:2%;text-align:left">L3</th>
-                <th style="width:2%;text-align:left">L4</th>
-                <th style="width:2%;text-align:left">L5</th>
-                <th style="width:2%;text-align:left">L6</th>
-                <th style="width:2%;text-align:left">L7</th>
-                <th style="width:10%;text-align:center">My Score</th>
-                <th style="width:10%;text-align:center">Indicator</th>
-                <th style="width:45%;padding-left:10px;text-align:left">Feedback</th>
-            </tr>
-        </thead>
-        <tbody style="padding:0;">
-            @foreach($orderedReportData as $key => $value)
-                @php
-                    $displayKey = str_contains($key, 'Body Composition')
-                        ? str_replace('Body Composition (BMI)', 'BMI (Body Mass Index)', $key)
-                        : $key;
-
-                    $currentCurrlevelText = $value['Current_Term'][0]['Level'] ?? null;
-                    preg_match('/L(\d+)/', $currentCurrlevelText, $match);
-                    $currentLevel = !empty($match) ? (int)$match[1] : 0;
-
-                    $prevCurrlevelText = $value['Previous_Term'][0]['Level'] ?? null;
-                    preg_match('/L(\d+)/', $prevCurrlevelText, $matchPrev);
-                    $prevLevel = !empty($matchPrev) ? (int)$matchPrev[1] : 0;
-                @endphp
-
-                @if($key != 'Body Composition (BMI)')
-                    <!-- Current -->
-                    <tr>
-                        <td rowspan="2"><b>{{ $displayKey }}</b></td>
-                        <td>Current</td>
-                        <td colspan="7">
-                            <div class="progress-bar">
-                                @php
-                                    $currentWidth = ($currentLevel / 8) * 100;
-                                    $overallColor = $levelColor[ceil($currentLevel)];
-                                @endphp
-                                <div class="progress-fill" style="width:{{ $currentWidth }}%; background:grey;"></div>
-                                <!-- <div class="progress-fill" style="width:{{ $currentWidth }}%; background:{{ $overallColor }};"></div> -->
-                            </div>
-                        </td>
-                        <td style="text-align:center">{{ $value['Current_Term'][0]['score'] ?? '---' }}</td>
-                        <td style="text-align:center">{{ $value['Current_Term'][0]['Level'] ?? '---' }}</td>
-                        <td style="padding-left:8px;">&bull; {{ $value['Current_Term'][0]['recommendation'] ?? '---' }}</td>
-                    </tr>
-                    <!-- Previous -->
-                    <tr>
-                        <td>Previous</td>
-                        <td colspan="7">
-                            <div class="progress-bar">
-                                @php
-                                    $previousWidth = ($prevLevel / 8) * 100;
-                                    $overallColor = $levelColor[ceil($prevLevel)];
-                                @endphp
-                                <div class="progress-fill" style="width:{{ $previousWidth }}%; background:grey;"></div>
-                                <!-- <div class="progress-fill" style="width:{{ $previousWidth }}%; background:{{ $overallColor }};"></div> -->
-                            </div>
-                        </td>
-                        <td style="text-align:center">{{ $value['Previous_Term'][0]['score'] ?? '---' }}</td>
-                        <td style="text-align:center">{{ $value['Previous_Term'][0]['Level'] ?? '---' }}</td>
-                        <td style="padding-left:8px;">&bull; {{ $value['Previous_Term'][0]['recommendation'] ?? '---' }}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="12">
-                            <hr style="border:0; border-top:1px solid #ccc; margin:0;">
-                        </td>
-                    </tr>
-                @endif
-            @endforeach
-        </tbody>
+            <!-- Right Logo -->
+            <td width="10%" align="right" style="padding:10px;">
+                <div style="background-color:#ffffff; border:5px solid orange; display:inline-block; padding:5px;">
+                    <img src="{{ public_path('assets/uploads/logos/' . $studentsData->logo) }}" 
+                        style="width:90px; height:50px; display:block;">
+                </div>
+            </td>
+        </tr>
     </table>
-    <!-- Fitness Benchmarks  -->
-    <table cellpadding="0" cellspacing="0" style="border:1px solid #ccc; width:100%; margin-top:5px; border-collapse:collapse; font-size:10px;">
-        <tbody>
+    @else
+    <div style="height:100px;"></div>
+    @endif
+
+
+    <table border="0" cellpadding="0" cellspacing="0" style="width:100%; margin-top:20px;">
+        <tr>
+            <td>
+                <table width="100%" border="0" cellpadding="8" cellspacing="0" 
+                    style="width:94%; margin:auto; border-collapse:collapse;border: 1px solid orange; font-size: 13px;">
+
+                    <tr>
+                        <td style="background:#0A87CD; color:#fff; font-weight:500; padding:2px 10px;">Name</td>
+                        <td style="font-weight:500; border:1px solid orange; padding:2px 10px;">{{ $studentsData->student_name }} ({{ $studentsData->admissionnumber }})</td>
+
+                        <td style="background:#0A87CD; color:#fff; font-weight:500; padding:2px 10px;">Class</td>
+                        <td style="font-weight:500; border:1px solid orange; padding:2px 10px;">{{ $studentsData->display_classname.'-'.$studentsData->section }}</td>
+
+                        <td style="background:#0A87CD; color:#fff; font-weight:500; padding:2px 10px;">Roll No</td>
+                        <td style="font-weight:500; border:1px solid orange; padding:2px 10px;">{{ $studentsData->rollno }} </td>
+                    </tr>   
+                    <tr>
+                        <td style="background:#0A87CD; color:#fff; font-weight:500; padding:2px 10px;">DOB</td>
+                        <td style="font-weight:500; border:1px solid orange; padding:2px 10px;">{{ $formattedDob }} ({{ $age }} Yrs  {{ $gender }})</td>
+
+                        <td style="background:#0A87CD; color:#fff; font-weight:500; padding:2px 10px;">School Code</td>
+                        <td style="font-weight:500; border:1px solid orange; padding:2px 10px;">{{ $studentsData->school_code }}</td>
+
+                        <td style="background:#0A87CD; color:#fff; font-weight:500; padding:2px 10px;">School</td>
+                        <td style="font-weight:500; border:1px solid orange; padding:2px 10px;">{{ $studentsData->school_name }}</td>
+                        
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    
+        <tr>
+            <td>
+                    <!-- Inner page Content (Page 2) -->
+                <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            <table cellpadding="0" cellspacing="0" style="width: 94%; border: 0; border-collapse: collapse; margin: auto;">
+                                <tr> <td style="height: 10px;"></td> </tr>
+                                <tr>
+                                    <td style="border-bottom: 3px solid #E60A00;">
+                                            <div style="align-items: center; color: #fff; font-size: 18px; font-weight: 600; overflow:hidden; height: 32px;">
+                                            <div style="float:left; padding: 1px 10px 3px 10px; background: #E60A00; margin-bottom: 0px;">Physical Fitness Assessment for {{ $studentsData->class }}-{{ $studentsData->section }}</div>
+
+                                            <div style="float:left; transform: skew(25deg,0deg); display:inline-block; width: 20px; height: 32px; background: #E60A00; position: relative; right: 10px;"></div>
+                                        </div>
+                                    </td>
+                                </tr>                               
+                                @foreach($orderedReportData as $key => $value)
+                                <tr> <td style="height: 3px;"></td> </tr>
+                                @php
+
+                                    $displayKey = str_contains($key, 'Body Composition')  
+                                        ? str_replace('Body Composition (BMI)', 'BMI (Body Mass Index)', $key) 
+                                        : $key;
+                                @endphp
+                                
+                                
+                                <tr>
+                                    <td style="padding: 6px 10px 6px 0px; color:#000; font-size: 16px; font-weight: 600;">{{ $displayKey }}</td>
+                                </tr>
+                            
+                                @if($key === 'Body Composition (BMI)')
+                                <tr>
+                                    <td>
+                                        <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0; border-collapse: collapse;">
+                                            <tr>
+                                                <td style="vertical-align: top;">
+                                                    <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+                                                        <tr style="font-size: 13px; line-height: 1rem;">
+                                                            <td style="border: 1px solid #0A87CD; border-bottom: none; padding: 0 15px; vertical-align: middle;">
+                                                                <ul style="margin: 8px 0; padding-left: 20px;">
+                                                                    <li>Height recorded in cm and mm</li>
+                                                                    <li>Weight will be recorded in kilogram (kg) and grams(gms)</li>
+                                                                </ul>
+                                                            </td>
+
+                                                            <td style="border: 1px solid #0A87CD; border-left: none; border-bottom: none; padding: 0 15px; vertical-align: middle;">
+                                                                <table border="0" cellpadding="0" cellspacing="0" style="margin: 0;">
+                                                                    <tr>
+                                                                        <td style="padding-right: 10px; white-space: nowrap;">Body Mass Index =</td>
+                                                                        <td style="padding: 0;">
+                                                                            <p style="border-bottom: 1px solid #c5c5c5; padding-bottom: 2px; margin: 0; white-space: nowrap;">Weight (in kg)</p>
+                                                                            <p style="padding-top: 0; margin: 0; white-space: nowrap;">Height (in m)<sup>2</sup></p>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="width: 50%;">
+                                                                <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
+                                                                    <tr style="background-color: #fecd0a;">
+                                                                        <td style="width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Current Term</td>
+                                                                        <td style="width: 28%; padding: 4px 0px 4px 0px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
+                                                                        <td style="width: 25%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Weight (kg)</td>
+                                                                        <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Height (cm)</td>
+                                                                        <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">BMI</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Level</td>
+                                                                    </tr>
+
+                                                                    <tr>
+                                                                        <td style="padding: 4px 0px 4px 0px; font-weight: 500; color:#000; text-align: center;">{{ $value['Current_Term'][0]['created_at'] ?? '---'}}</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> {{ $value['Current_Term'][0]['weight'] ?? '---'}}</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">  {{ $value['Current_Term'][0]['height'] ?? '---'}}</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Current_Term'][0]['score'] ?? '---'}}</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Current_Term'][0]['Level'] ?? '---'}}</td>
+                                                                    </tr>
+
+                                                                </table>
+                                                            </td>
+
+                                                            <td style="width: 50%;">
+                                                                <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
+                                                                    <tr style="background-color: #fecd0a;">
+                                                                        <td style="width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Previous Term</td>
+                                                                        <td style="width: 28%; padding: 4px 0px 4px 0px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
+                                                                        <td style="width: 25%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Weight (kg)</td>
+                                                                        <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Height (cm)</td>
+                                                                        <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">BMI</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Level</td>
+                                                                    </tr>   
+
+                                                                    <tr>
+                                                                        <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center;">{{ $value['Previous_Term'][0]['created_at']  ?? '---'}}</td>
+                                                                        <td style="padding: 4px 0px 4px 0px;  text-align: center; border: 1px solid orange;">{{ $value['Previous_Term'][0]['weight'] ?? '---'}} </td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Previous_Term'][0]['height'] ?? '---'}} </td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> {{ $value['Previous_Term'][0]['score'] ?? '---'}} </td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Previous_Term'][0]['Level'] ?? '---'}}</td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+
+                                                    </table>
+
+                                                </td>
+                                            </tr>
+
+                                        </table>
+                                    </td>
+                                </tr>
+                                @else
+                                <tr>
+                                    <td>
+                                        <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0; border-collapse: collapse;">
+                                            <tr>
+                                                <td style="vertical-align: top;">
+                                                    <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+                                                        <tr>
+                                                            <td style="width: 50%;">
+                                                                <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
+                                                                    <tr style="background-color: #fecd0a;">
+                                                                        <td style="width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Current Term</td>
+                                                                        <td style="width: 22%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
+                                                                        <td style="width: 31%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Score</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Level</td>
+                                                                    </tr>
+
+                                                                    <tr>
+                                                                        <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Current_Term'][0]['created_at'] ?? '---'}}</td>
+                                                                        <td style="text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Current_Term'][0]['score'] ?? '---'}}</td>
+                                                                        <td style="text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Current_Term'][0]['Level'] ?? '---'}}</td>
+
+                                                                    </tr>
+
+                                                                </table>
+                                                            </td>
+                                                            <td style="width: 50%;">
+                                                                <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
+                                                                    <tr style="background-color: #fecd0a;">
+                                                                        <td style="font-weight: 500; width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center;" rowspan="2">Previous Term</td>
+                                                                        <td style="font-weight: 500; width: 22%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
+                                                                        <td style="font-weight: 500; width: 31%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Score</td>
+                                                                        <td style="font-weight: 500; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Level</td>
+                                                                    </tr>
+
+                                                                    <tr>
+                                                                        <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Previous_Term'][0]['created_at'] ?? '---'}}</td>
+                                                                        <td style="text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Previous_Term'][0]['score'] ?? ''}}</td>
+                                                                        <td style="text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">{{ $value['Previous_Term'][0]['Level'] ?? '---'}}</td>
+
+                                                                    </tr>
+
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+
+                                                    </table>
+
+                                                </td>
+
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border-top: 1px solid transparent; border-left: 1px solid #00A923; border-right: 1px solid #00A923; border-bottom: 1px solid #00A923; font-size: 13px; border-collapse: collapse; color:#333;">
+                                                        <tr>
+                                                            <td style="border-top: 1px solid #00A923; background-color: #00A923; padding: 0px 4px 2px 4px; padding: 0px 10px 3px 10px; color: #fff; text-align: center; width: 100px; font-weight: bold;">Recommendation</td>
+                                                            <td style="padding:0px 4px 2px 8px; line-height:14px; font-size:13px;">{{ $value['Current_Term'][0]['recommendation'] ?? '---' }}</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+
+                                </tr>
+
+                                @endif
+                                
+                                @endforeach
+
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>        
+    </table>
+    
+        <!-- Signature -->
+    <div class="signature-footer">
+
+        <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; font-size: 14px; border-collapse: collapse; color:#000;">
+
             <tr>
-                <td colspan="7"style="padding:4px 6px; font-size:12px; font-weight:bold; border:1px solid #ccc;">
-                    Benchmarks for {{ $age }} years {{ $gender }}
+               
+                <td style="width:50%; padding-left:30px; vertical-align:bottom;">
+                    @if($studentsData->signature)
+                    <div style="padding-left:60px;">
+                        <img src="{{ public_path('/assets/uploads/signatures/' . $studentsData->signature) }}"  style="height:60px;">
+                    </div>
+                    <p style="font-weight:600; margin:2px 0 0 0; text-align:left;">  Signature of Principal with Stamp  </p>
+                    @endif
+                </td>
+
+                <td style="width:50%; text-align:center;">
+
+                <div style="height:60px;"></div>
+                <!-- <p style="font-weight:600;">Parent's Signature</p> -->
+
                 </td>
             </tr>
-            <tr style="font-weight:bold; background-color:#ccc; color:#000; text-align:center;">
-                <th style="border:1px solid #ccc;">L7(>90)</th>
-                <th style="border:1px solid #ccc;">L6(>80)</th>
-                <th style="border:1px solid #ccc;">L5(>70)</th>
-                <th style="border:1px solid #ccc;">L4(>60)</th>
-                <th style="border:1px solid #ccc;">L3(>40)</th>
-                <th style="border:1px solid #ccc;">L2(>20)</th>
-                <th style="border:1px solid #ccc;">L1(>10)</th>
+
+            <tr>
+                <td colspan=2 style="text-align:left; padding-left:30px;">
+                    <span style="font-size:12px;">
+                        Go to <strong>https://fitness365.me</strong>. Login as <strong>PARENT</strong> with Username: {{ $studentsData->user_id }} and Password: {{$plainPassword}} for reports and activities
+                    </span>
+                </td>
             </tr>
+            
+            @if(!$isLetterHead)
+            <tr>
+                <td style="background:#E60A00;height:40px;padding:0 30px;color:#fff;">
+                Physical Health and Fitness Assessment
+                </td>
 
-            <!-- Values -->
-            <tr style="text-align:center;">                
-                <td style="border:1px solid #ccc;">Sports Fit</td>
-                <td style="border:1px solid #ccc;">Athletic</td>
-                <td style="border:1px solid #ccc;">Very Good</td>
-                <td style="border:1px solid #ccc;">Good</td>
-                <td style="border:1px solid #ccc;">Can do Better</td>
-                <td style="border:1px solid #ccc;">Must Improve</td>
-                <td style="border:1px solid #ccc;">Work Harder</td>
+                <td style="background:#00A923;height:40px;padding:0 30px;text-align:right;color:#fff;">
+                powered by <strong>fitness365.me</strong>
+                </td>
             </tr>
+            @else
+            <div style="height:30px;"></div>
+            @endif
 
-        </tbody>
-    </table>
-
-</div>  
-<div style="display:table;table-layout:fixed;width:98%;margin:auto;padding:5px 2px;">
-
-    <!-- LEFT SIDE -->
-    <div style="display:table-cell;width:60%;margin:auto;vertical-align:middle;padding-right:8px;">
-        <table style="width:100%;border-collapse:collapse;font-size:10px;border:1px solid #ccc;">
-            <tbody>
-                <tr style="font-size:12px; font-weight:bold; background:#ccc;">
-                    <td style="padding:1px 2px; border:1px solid #ccc;"></td>
-                    <td style="border:1px solid #ccc;text-align:center;">UW</td>
-                    <td style="border:1px solid #ccc;text-align:center;">N</td>
-                    <td style="border:1px solid #ccc;text-align:center;">OW</td>
-                    <td style="border:1px solid #ccc;text-align:center;">OB</td>
-                    <td style="border:1px solid #ccc;text-align:center;">Weight</td>
-                    <td style="border:1px solid #ccc;text-align:center;">Height</td>
-                    <td style="border:1px solid #ccc;">BMI</td>
-                </tr>
-                @foreach($orderedReportData as $key => $value)
-                    @php
-                        $CurrlevelText = strtolower($value['Current_Term'][0]['Level'] ?? '');
-                        $PrevlevelText = strtolower($value['Previous_Term'][0]['Level'] ?? '');
-                        $currWidth = 0;
-                        $prevWidth = 0;
-                        if (str_contains($CurrlevelText, 'uw')) {
-                            $currWidth = 25;
-                        } elseif (str_contains($CurrlevelText, 'normal')) {
-                            $currWidth = 50;
-                        } elseif (str_contains($CurrlevelText, 'ow')) {
-                            $currWidth = 75;
-                        } elseif (str_contains($CurrlevelText, 'ob')) {
-                            $currWidth = 100;
-                        }
-                        if (str_contains($PrevlevelText, 'uw')) {
-                            $prevWidth = 25;
-                        } elseif (str_contains($PrevlevelText, 'normal')) {
-                            $prevWidth = 50;
-                        } elseif (str_contains($PrevlevelText, 'ow')) {
-                            $prevWidth = 75;
-                        } elseif (str_contains($PrevlevelText, 'ob')) {
-                            $prevWidth = 100;
-                        }
-                    @endphp
-                    @if($key === 'Body Composition (BMI)')
-                        <tr>
-                            <td style="padding:2px; font-size:10px;"><strong>Current</strong></td>
-                            <td colspan="4">
-                                <div class="bmi-bar">
-                                    <div class="bmi-fill"  style="background:grey; width:{{ $currWidth }}%;"></div>
-                                </div>
-                            </td>
-                            <td style="text-align:center;">{{ $value['Current_Term'][0]['weight'] ?? '---' }}</td>
-                            <td style="text-align:center;">{{ $value['Current_Term'][0]['height'] ?? '---' }}</td>
-                            <td>{{ $value['Current_Term'][0]['score'] ?? '---' }} ({{ $value['Current_Term'][0]['Level'] ?? '---' }})</td>
-                        </tr>
-                        <tr>
-                            <td style="padding:2px; font-size:10px;"><strong>Previous</strong></td>
-                            <td colspan="4">
-                                <div class="bmi-bar">
-                                    <div class="bmi-fill"  style="background:grey; width:{{ $prevWidth }}%;"></div>
-                                </div>
-                            </td>
-                            <td style="text-align:center;">{{ $value['Previous_Term'][0]['weight'] ?? '---' }}</td>
-                            <td style="text-align:center;">{{ $value['Previous_Term'][0]['height'] ?? '---' }}</td>
-                            <td>{{ $value['Previous_Term'][0]['score'] ?? '---' }} ({{ $value['Previous_Term'][0]['Level'] ?? '---' }})</td>
-                        </tr>
-                    @endif
-                @endforeach
-            </tbody>
         </table>
+
     </div>
-
-
-    <!-- RIGHT SIDE -->
-    <div style="display:table-cell;width:40%;vertical-align:middle;padding-left:8px;">
-        <table style="width:100%;border-collapse:collapse;font-size:10px;">
-            <tbody>
-
-                <tr>
-                    <td colspan="4" style="padding:3px 6px; font-size:12px; font-weight:bold;border:1px solid #ccc;">
-                        BMI Benchmarks for {{ $age }} years {{ $gender }}
-                    </td>
-                </tr>
-
-                <tr style="background:#ccc;text-align:center;font-weight:bold;">
-                    <td style="border:1px solid #ccc;">UW</td>
-                    <td style="border:1px solid #ccc;">N</td>
-                    <td style="border:1px solid #ccc;">OW</td>
-                    <td style="border:1px solid #ccc;">OB</td>
-                </tr>
-
-                <tr style="text-align:center;">
-                    <td style="border:1px solid #ccc;">{{ $getBmiBenchmark['UW'] ?? 'N/A' }}</td>
-                    <td style="border:1px solid #ccc;">{{ $getBmiBenchmark['N'] ?? 'N/A' }}</td>
-                    <td style="border:1px solid #ccc;">{{ $getBmiBenchmark['OW'] ?? 'N/A' }}</td>
-                    <td style="border:1px solid #ccc;">{{ $getBmiBenchmark['OB'] ?? 'N/A' }}</td>
-                </tr>
-
-            </tbody>
-        </table>
-    </div>
-</div>
-<div style="width:95%;margin:auto;padding:0 10px; border:1px solid #ccc;">
-    <table cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse; font-size:11px;">
-        <tbody>
-            {{!! $message !!}}
-        </tbody>
-    </table>
-</div>
-
-<!-- SIGNATURE -->
-
-<div class="signature-footer">
-
-    <table style="width:100%;font-size:14px">
-
-        <tr>
-
-            <td style="width:50%;padding-left:30px">
-
-                @if($studentsData->signature)
-
-                    <img src="{{ public_path('/assets/uploads/signatures/'.$studentsData->signature) }}" style="height:60px">
-
-                    <p style="font-weight:600;margin:2px 0">
-                        Signature of Principal with Stamp
-                    </p>
-
-                @endif
-
-            </td>
-
-            <td style="width:50%;text-align:center">
-                <div style="height:60px"></div>
-            </td>
-
-        </tr>
-
-        <tr>
-
-            <td colspan="2" style="padding-left:30px">
-
-                <span style="font-size:12px">
-
-                    Go to <b>https://fitness365.me</b>.  
-                    Login as <b>PARENT</b> with Username:
-                    {{ $studentsData->user_id }} and Password: {{ $plainPassword }}
-
-                </span>
-
-            </td>
-
-        </tr>
-
-    </table>
-
-</div>
 </body>
+
 </html>

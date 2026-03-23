@@ -171,7 +171,7 @@ class ActivityController extends Controller
 			return view('admin.activities.index',compact('posts','classes','teaching','subjects', 'skillareas' , 'sportskills' , 'techniques', 'count'));
 		}		
 		
-    }   
+    }     
     
     
 	public function create()

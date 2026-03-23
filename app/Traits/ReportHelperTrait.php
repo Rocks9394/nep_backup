@@ -448,8 +448,7 @@ trait ReportHelperTrait
                     $currentCount === 1 => 'Emerging',
                     $currentCount === 2 => 'Developing',
                     $currentCount === 3 => 'Acquired',
-                    $currentCount === 4  => 'Advanced',
-                    $currentCount === 5  => 'Accomplished',
+                    $currentCount >= 4  => 'Accomplished',
                     default             => 'N.A.',
                 };
 

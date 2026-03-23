@@ -201,8 +201,9 @@ class AssessorAppController extends Controller
 	}
 
 
-    public function FMSTypes($TestTypeId, $SeniorBMI = false) {
-	
+    public function FMSTypes($TestTypeId, $SeniorBMI = false) 
+	{
+		
 		$skillReport = DB::table('skill_reports')->select('id','skill_name','TestTypeMasterID')->where('TestTypeMasterID',$TestTypeId)->first();
 		$skillTypes = DB::table('skill_types')->where('skill_report_id',$skillReport->id)->where('status', 1)->get();
 
@@ -419,6 +420,7 @@ class AssessorAppController extends Controller
 		}
 		elseif($skillReport->skill_name == 'Push Ups')
 		{
+
 			$classes = $seniorclasses;
 			
 			$title = $skillReport->skill_name;

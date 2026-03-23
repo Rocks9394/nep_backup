@@ -10,6 +10,8 @@
         $user = auth()->guard('sstudent')->user();
     }
 @endphp
+
+
 <style>
 	.marquee-container {
     width: 100%;
@@ -290,7 +292,7 @@
 					@if(Auth::user()->id == 974 || Auth::user()->id == 995)
 						<!-- href="{{ route('activity.gallary') }}?p=2" -->
 						<div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4" id="activity_gallary">
-							<a  href="{{ route('activity.gallary') }}" class="box" ><div>
+							<a  href="javascript:void(0);"  class="box" ><div>
 							<img class="img-fluid" alt="" src="{{asset('public/uploads/icons/age-report.svg') }}"></div><span>Activity Gallery</span></a>
 						</div>
 

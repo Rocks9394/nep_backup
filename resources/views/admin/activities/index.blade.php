@@ -318,9 +318,9 @@
                                         <tr>
                                             <td>
                                                 <?php  $word = "wp-content"; 
-                                                    $mystring = $val->image;
+                                                $mystring = $val->image;
                                                     if(strpos($mystring, $word)!== false){
-                                                ?>
+                                                    ?>
                                                 <img src="{{ preg_replace('/[^(\x20-\x7F)\x0A\x0D]*/', '', $val->image) }}"
                                                     width="100" height="100">
                                                 <?php } else if (file_exists('public/uploads/'.$val->image)){ ?>

@@ -8,17 +8,18 @@ use App\Http\Controllers\NativeApi\TrainerProfileController;
 use App\Http\Controllers\NativeApi\StudentProfileController;
 use App\Http\Controllers\NativeApi\ReportController;
 use App\Http\Controllers\NativeApi\ActivityController;
+use App\Http\Controllers\ExerciseResultController;
 
 
 
 
 Route::get('/app-version', function () {
     return response()->json([
-        'latestVersion' => '1.3.4',
-        'minVersion'    => '1.0.0', // Fixed syntax and set to a logical number
+        'latestVersion' => '1.4.9',
+        'minVersion'    => '1.0.0', // Fixed syntax and set to a logical number   
         'apkUrl'        => 'https://nep.goforfit.in/public/downloads/apk/app-release.apk',
         'releaseNotes'  => 'New updates are ready! Tap download to stay fit with our latest features.', 
-     // 'releaseNotes'  => "• Bug fixes\n• Performance improvements\n• New dashboard",
+        // 'releaseNotes'  => "• Bug fixes\n• Performance improvements\n• New dashboard",
         'forceUpdate'   => false
     ]);
 });
@@ -32,8 +33,9 @@ Route::middleware('auth:student-api')->group(function () {
     Route::get('/student/dashboard', [StudentProfileController::class,'dashboard'])->name('students.dashboard');
     Route::get('/reports-download', [ReportController::class, 'downloadFitnessReport']);
     Route::get('daily-tracker', [StudentProfileController::class,'dailyreport']);
-    Route::get('activity-detail', [ActivityController::class,'ActivityDetail']);
+    Route::get('skill-report', [StudentProfileController::class,'SkillReports']);
 
+    Route::get('activity-detail', [ActivityController::class,'ActivityDetail']);
     Route::get('school-records', [ActivityController::class,'schoolRecords']);
 
 });
@@ -43,6 +45,10 @@ Route::middleware('auth:user-api')->group(function () {
     Route::get('/user/profile', [TrainerProfileController::class, 'show']);
     
 });
+
+
+// This creates the URL: https://nep.goforfit.in/api/save-exercise-result
+Route::post('/save-exercise-result', [ExerciseResultController::class, 'store']);
 
 
 

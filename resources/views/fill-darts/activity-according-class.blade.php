@@ -426,6 +426,7 @@
 
                     console.log('--------------new resource of ----');
 
+                    //console.log(response.ActivityAlreadyDone);
                     console.log(response.activitieslist);
                     $.each(response.activitieslist, function(key, val) {
 

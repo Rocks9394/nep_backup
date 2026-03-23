@@ -13,18 +13,23 @@
         font-size: 12px;
         margin: 0;
         padding: 0;
+        background-image: url("{{ public_path('/assets/uploads/letterhead.png') }}");
+        background-repeat: no-repeat;
+        background-position: top center;
+        background-size: contain;
+        background-attachment: fixed;
     }
     .student-details {
         width: 94% !important;
         margin: 0 auto;
         border-collapse: collapse;
-        border: 1px solid orange;
+        border: 1px solid #8a8a8a;
         margin-bottom:5px;
     }
 
     .student-details th,
     .student-details td {
-        border: 1px solid orange;
+        border: 1px solid #8a8a8a;
         padding: 4px;
         text-align: left;
     }
@@ -36,7 +41,7 @@
 
     .signature-footer {
         position: fixed;
-        bottom: 0;
+        bottom: 35px;
         left: 0;
         vertical-align: bottom;
         width: 100%;
@@ -47,12 +52,9 @@
 
     .page1-footer{
         text-align:center;
-       /* font-size:12px;
-        margin-right:40px;
-        margin-top:120px;
-*/
         position: fixed;
-        bottom: 0;
+        color:#ccc;
+        bottom: 35px;
         left: 0;
         vertical-align: bottom;
         width: 100%;
@@ -83,12 +85,12 @@
     
     @if(!$isLetterHead)
     <table width="100%" cellpadding="0" cellspacing="0" 
-        style="width:94%; border-collapse: collapse; font-family: Roboto Condensed, sans-serif; background-color: #0A87CD; margin:auto;">
+        style="width:94%; border-collapse: collapse; font-family: Roboto Condensed, sans-serif; background-color: #ccc; margin:auto;">
         
         <tr>
             <!-- Left Logo -->
             <td width="10%" align="left" style="padding:10px;">
-                <div style="background-color:#ffffff; border:5px solid orange; display:inline-block; padding:5px;">
+                <div style="background-color:#ffffff; border:5px solid #8a8a8a; display:inline-block; padding:5px;">
                     <img src="{{ public_path('assets/reports/seqfast-logo.png') }}" 
                         style="width:90px; height:50px; display:block;">
                 </div>
@@ -103,7 +105,7 @@
 
             <!-- Right Logo -->
             <td width="10%" align="right" style="padding:10px;">
-                <div style="background-color:#ffffff; border:5px solid orange; display:inline-block; padding:5px;">
+                <div style="background-color:#ffffff; border:5px solid #8a8a8a; display:inline-block; padding:5px;">
                     <img src="{{ public_path('assets/uploads/logos/' . $studentsData->logo) }}" 
                         style="width:90px; height:50px; display:block;">
                 </div>
@@ -115,31 +117,31 @@
     @endif
 
 
-    <table border="0" cellpadding="0" cellspacing="0" style="width:100%; margin-top:10px;">
+    <table border="0" cellpadding="0" cellspacing="0" style="width:100%; margin-top:20px;">
         <tr>
             <td>
                 <table width="100%" border="0" cellpadding="8" cellspacing="0" 
-                    style="width:94%; margin:auto; border-collapse:collapse;border: 1px solid orange; font-size: 13px;">
+                    style="width:94%; margin:auto; border-collapse:collapse;border: 1px solid #8a8a8a; font-size: 13px;">
 
                     <tr>
-                        <td style="background:#0A87CD; color:#fff; font-weight:500; padding:2px 10px;">Name</td>
-                        <td style="font-weight:500; border:1px solid orange; padding:2px 10px;">{{ $studentsData->student_name }} ({{ $studentsData->admissionnumber }})</td>
+                        <td style="background:#ccc; font-weight:500; padding:2px 10px;">Name</td>
+                        <td style="font-weight:500; border:1px solid #8a8a8a; padding:2px 10px;">{{ $studentsData->student_name }} ({{ $studentsData->admissionnumber }})</td>
 
-                        <td style="background:#0A87CD; color:#fff; font-weight:500; padding:2px 10px;">Class</td>
-                        <td style="font-weight:500; border:1px solid orange; padding:2px 10px;">{{ $studentsData->display_classname.'-'.$studentsData->section }}</td>
+                        <td style="background:#ccc; font-weight:500; padding:2px 10px;">Class</td>
+                        <td style="font-weight:500; border:1px solid #8a8a8a; padding:2px 10px;">{{ $studentsData->display_classname.'-'.$studentsData->section }}</td>
 
-                        <td style="background:#0A87CD; color:#fff; font-weight:500; padding:2px 10px;">Roll No</td>
-                        <td style="font-weight:500; border:1px solid orange; padding:2px 10px;">{{ $studentsData->rollno }} </td>
+                        <td style="background:#ccc; font-weight:500; padding:2px 10px;">Roll No</td>
+                        <td style="font-weight:500; border:1px solid #8a8a8a; padding:2px 10px;">{{ $studentsData->rollno }} </td>
                     </tr>   
                     <tr>
-                        <td style="background:#0A87CD; color:#fff; font-weight:500; padding:2px 10px;">DOB</td>
-                        <td style="font-weight:500; border:1px solid orange; padding:2px 10px;">{{ $formattedDob }} ({{ $age }} Yrs  {{ $gender }})</td>
+                        <td style="background:#ccc; font-weight:500; padding:2px 10px;">DOB</td>
+                        <td style="font-weight:500; border:1px solid #8a8a8a; padding:2px 10px;">{{ $formattedDob }} ({{ $age }} Yrs  {{ $gender }})</td>
 
-                        <td style="background:#0A87CD; color:#fff; font-weight:500; padding:2px 10px;">School Code</td>
-                        <td style="font-weight:500; border:1px solid orange; padding:2px 10px;">{{ $studentsData->school_code }}</td>
+                        <td style="background:#ccc; font-weight:500; padding:2px 10px;">School Code</td>
+                        <td style="font-weight:500; border:1px solid #8a8a8a; padding:2px 10px;">{{ $studentsData->school_code }}</td>
 
-                        <td style="background:#0A87CD; color:#fff; font-weight:500; padding:2px 10px;">School</td>
-                        <td style="font-weight:500; border:1px solid orange; padding:2px 10px;">{{ $studentsData->school_name }}</td>
+                        <td style="background:#ccc; font-weight:500; padding:2px 10px;">School</td>
+                        <td style="font-weight:500; border:1px solid #8a8a8a; padding:2px 10px;">{{ $studentsData->school_name }}</td>
                         
                     </tr>
 
@@ -152,20 +154,20 @@
             <td>
                 <table border="0" cellpadding="0" cellspacing="0" style="width: 94%; border: 0; border-collapse: collapse; margin: auto; padding-top:10px;">
                     <tr>
-                        <td style="border-bottom: 3px solid #E60A00;">
-                            <div style="align-items: center; color: #fff; font-size: 18px; font-weight: 600; overflow:hidden; height: 32px;">
-                                <div style="float:left; padding: 1px 0px 3px 10px; background: #E60A00; margin-bottom: 0px;">
-                                    Developmental Skills for {{ $studentsData->class }}-{{ $studentsData->section }}</div>
-                                <div style="text-align:right; float:left;"><img src="{{ public_path('assets/reports/heading-band-corder.jpg') }}" alt="" style="width: 39px; position:relative; top:0px;"></div>
+                        <td style="border-bottom: 3px solid #5a5a5a;">
+                                <div style="align-items: center; color: #fff; font-size: 18px; font-weight: 600; overflow:hidden; height: 32px;">
+                                <div style="float:left; padding: 1px 10px 3px 10px; background: #5a5a5a; margin-bottom: 0px;">Developmental Skills for {{ $studentsData->class }}-{{ $studentsData->section }}</div>
+
+                                <div style="float:left; transform: skew(25deg,0deg); display:inline-block; width: 20px; height: 32px; background: #5a5a5a; position: relative; right: 10px;"></div>
                             </div>
                         </td>
-                    </tr>
+                    </tr> 
 
 
                     @foreach($FmsReportData  as $key => $reportData)
                     <tr> <td style="height: 10px;"></td> </tr>                    
                     <tr>
-                        <td style="padding: 1px 10px 3px 10px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;">{{ $key }}</td>
+                        <td style="padding: 1px 10px 3px 10px; background:#ccc; font-size: 16px; font-weight: 600;">{{ $key }}</td>
                     </tr>
 
                     <tr>
@@ -175,28 +177,28 @@
                                 <tr>
                                     <td style="vertical-align: top;">
                                         <table border="0" cellpadding="0" cellspacing="0"
-                                            style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
+                                            style="width: 100%; border: 1px solid #8a8a8a; font-size: 13px; border-collapse: collapse; color:#333;">
                                             
-                                            <tr style="background-color: #fecd0a;">
+                                            <tr style="background-color: #ddd;">
 
                                                 <td 
-                                                style="font-weight: 500; width: 27%; background-color:#fecd0a; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; border: 1px solid orange;"
+                                                style="font-weight: 500; width: 27%; background-color: #ddd; padding: 1px 4px 2px 6px; border: 1px solid #8a8a8a; color: #000; border: 1px solid #8a8a8a;"
                                                 >Skills</td>
                                                 <td
-                                                    style="font-weight: 500; width: 12%; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold; border: 1px solid orange;">
+                                                    style="font-weight: 500; width: 12%; padding: 1px 4px 2px 6px; border: 1px solid #8a8a8a; color: #000; text-align: center; font-weight: bold; border: 1px solid #8a8a8a;">
                                                     Current Term</td>
                                                 <td
-                                                    style="font-weight: 500; width: 14%; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold; border: 1px solid orange;">
+                                                    style="font-weight: 500; width: 14%; padding: 1px 4px 2px 6px; border: 1px solid #8a8a8a; color: #000; text-align: center; font-weight: bold; border: 1px solid #8a8a8a;">
                                                     Previous Term</td>
-                                                <td style="font-weight: 500; padding: 1px 4px 2px 6px; border: 1px solid orange; color:#000; border: 1px solid orange;">Recommendation</td>
+                                                <td style="font-weight: 500; padding: 1px 4px 2px 6px; border: 1px solid #8a8a8a; color:#000; border: 1px solid #8a8a8a;">Recommendation</td>
                                             </tr>
                                            
                                             @foreach($reportData as $data)
                                             <tr>
-                                                <td style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid orange;"> {{ $data['Test_Name'] ?? '' }}</td>
+                                                <td style="padding: 1px 4px 2px 6px; font-weight: 500; color:#000; border: 1px solid #8a8a8a;"> {{ $data['Test_Name'] ?? '' }}</td>
 
 
-                                                <td style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
+                                                <td style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid #8a8a8a;">
                                                     @if($data['current_count'] !== null && $data['current_count'] > 0)
                                                         <img src="{{ public_path('assets/imgs/'.$data['current_count'].'smiles.png') }}" height="20" style="padding-left:2px; padding-right:2px;">
                                                     @else
@@ -204,7 +206,7 @@
                                                     @endif
                                                 </td>
 
-                                                <td style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid orange;">
+                                                <td style="padding: 1px 4px 2px 6px; text-align: center; border: 1px solid #8a8a8a;">
                                                     @if($data['previous_count'] !== null && $data['previous_count'] > 0)
                                                         <img src="{{ public_path('assets/imgs/'.$data['previous_count'].'smiles.png') }}" height="20" style="padding-left:2px; padding-right:2px;">
                                                     @else
@@ -213,7 +215,7 @@
                                                 </td>
 
                                                
-                                                <td style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid orange;">
+                                                <td style="padding: 1px 4px 2px 6px; font-size: 12px; border: 1px solid #8a8a8a;">
                                                     {{ $data['recommendation'] ?? '' }}
                                                 </td>
                                             </tr>
@@ -258,20 +260,14 @@
                             <table border="0" cellpadding="0" cellspacing="0"
                                 style="width: 94%; border: 0; border-collapse: collapse; margin: auto;">
                                 <tr>
-                                    <td style="border-bottom: 3px solid #E60A00;">
-                                        <div
-                                            style="align-items: center; color: #fff; font-size: 18px; font-weight: 600; overflow:hidden; height: 32px;">
-                                            <div
-                                                style="float:left; padding: 1px 0px 3px 10px; background: #E60A00; margin-bottom: 0px;">
-                                                Physical Fitness Assessment for {{ $studentsData->display_classname }}-{{ $studentsData->section }}</div>
-                                            <div style="text-align:right; float:left;"><img
-                                                    src="{{ public_path('assets/reports/heading-band-corder.jpg') }}"
-                                                    alt="" style="width: 39px; position:relative; top:0px;">
-                                            </div>
-                                        </div>
+                                    <td style="border-bottom: 3px solid #5a5a5a;">
+                                            <div style="align-items: center; color: #fff; font-size: 18px; font-weight: 600; overflow:hidden; height: 32px;">
+                                            <div style="float:left; padding: 1px 10px 3px 10px; background: #5a5a5a; margin-bottom: 0px;">Physical Fitness Assessment for {{ $studentsData->class }}-{{ $studentsData->section }}</div>
 
+                                            <div style="float:left; transform: skew(25deg,0deg); display:inline-block; width: 20px; height: 32px; background: #5a5a5a; position: relative; right: 10px;"></div>
+                                        </div>
                                     </td>
-                                </tr>
+                                </tr> 
                                
                                 <tr> <td style="height: 5px;"></td> </tr>
 
@@ -329,14 +325,14 @@
                                                         <td style="vertical-align: top;">
                                                             <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
                                                                 <tr style="font-size: 13px; line-height: 1rem;">
-                                                                    <td style="border: 1px solid #0A87CD; border-bottom: none; padding: 0 15px; vertical-align: middle;">
+                                                                    <td style="border: 1px solid #ccc; border-bottom: none; padding: 0 15px; vertical-align: middle;">
                                                                         <ul style="margin: 8px 0; padding-left: 20px;">
                                                                             <li>Height recorded in cm and mm</li>
                                                                             <li>Weight will be recorded in kilogram (kg) and grams(gms)</li>
                                                                         </ul>
                                                                     </td>
 
-                                                                    <td style="border: 1px solid #0A87CD; border-left: none; border-bottom: none; padding: 0 15px; vertical-align: middle;">
+                                                                    <td style="border: 1px solid #ccc; border-left: none; border-bottom: none; padding: 0 15px; vertical-align: middle;">
                                                                         <table border="0" cellpadding="0" cellspacing="0" style="margin: 0;">
                                                                             <tr>
                                                                                 <td style="padding-right: 10px; white-space: nowrap;">Body Mass Index =</td>
@@ -351,14 +347,14 @@
                                                                 
                                                                 <tr>
                                                                     <td style="width: 50%;">
-                                                                        <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
-                                                                            <tr style="background-color: #fecd0a;">
-                                                                                <td style="width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Current Term</td>
-                                                                                <td style="width: 28%; padding: 4px 0px 4px 0px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
-                                                                                <td style="width: 25%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Weight (kg)</td>
-                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Height (cm)</td>
-                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">BMI</td>
-                                                                                <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Level</td>
+                                                                        <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid #8a8a8a; font-size: 13px; border-collapse: collapse; color:#333;">
+                                                                            <tr style="background-color: #ddd;">
+                                                                                <td style="width: 20%; background-color:#ccc; padding: 0px 4px 2px 6px; border: 1px solid #ccc; text-align: center; font-weight: bold;" rowspan="2">Current Term</td>
+                                                                                <td style="width: 28%; padding: 4px 0px 4px 0px; border: 1px solid #8a8a8a; color:#000; text-align: center; font-weight: bold;">Date</td>
+                                                                                <td style="width: 25%; padding: 0px 4px 2px 6px; border: 1px solid #8a8a8a; color:#000; text-align: center; font-weight: bold;">Weight (kg)</td>
+                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid #8a8a8a; color:#000; text-align: center; font-weight: bold;">Height (cm)</td>
+                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid #8a8a8a; color:#000; text-align: center; font-weight: bold;">BMI</td>
+                                                                                <td style="padding: 0px 4px 2px 6px; border: 1px solid #8a8a8a; color:#000; font-weight: bold; text-align: center;">Level</td>
                                                                             </tr>
 
                                                                             <tr>
@@ -366,32 +362,32 @@
 
                                                                                 <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center;">{{ $value['Current_Term'][0]['created_at'] ?? '---'}}
                                                                                 </td>
-                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Current_Term'][0]['weight'] ?? '---'}} </td>
-                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Current_Term'][0]['height'] ?? '---'}} </td>
-                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Current_Term'][0]['score'] ?? '---'}} </td>
-                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Current_Term'][0]['Level'] ?? '---'}} </td>
+                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid #8a8a8a;">{{ $value['Current_Term'][0]['weight'] ?? '---'}} </td>
+                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid #8a8a8a;">{{ $value['Current_Term'][0]['height'] ?? '---'}} </td>
+                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid #8a8a8a;">{{ $value['Current_Term'][0]['score'] ?? '---'}} </td>
+                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid #8a8a8a;">{{ $value['Current_Term'][0]['Level'] ?? '---'}} </td>
                                                                             </tr>
 
                                                                         </table>
                                                                     </td>
 
                                                                     <td style="width: 50%;">
-                                                                        <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
-                                                                            <tr style="background-color: #fecd0a;">
-                                                                                <td style="width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Previous Term</td>
-                                                                                <td style="width: 28%; padding: 4px 0px 4px 0px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
-                                                                                <td style="width: 25%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Weight (kg)</td>
-                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Height (cm)</td>
-                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">BMI</td>
-                                                                                <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Level</td>
+                                                                        <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid #8a8a8a; font-size: 13px; border-collapse: collapse; color:#333;">
+                                                                            <tr style="background-color: #ddd;">
+                                                                                <td style="width: 20%; background-color:#ccc; padding: 0px 4px 2px 6px; border: 1px solid #ccc; text-align: center; font-weight: bold;" rowspan="2">Previous Term</td>
+                                                                                <td style="width: 28%; padding: 4px 0px 4px 0px; border: 1px solid #8a8a8a; color:#000; text-align: center; font-weight: bold;">Date</td>
+                                                                                <td style="width: 25%; padding: 0px 4px 2px 6px; border: 1px solid #8a8a8a; color:#000; text-align: center; font-weight: bold;">Weight (kg)</td>
+                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid #8a8a8a; color:#000; text-align: center; font-weight: bold;">Height (cm)</td>
+                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid #8a8a8a; color:#000; text-align: center; font-weight: bold;">BMI</td>
+                                                                                <td style="padding: 0px 4px 2px 6px; border: 1px solid #8a8a8a; color:#000; font-weight: bold; text-align: center;">Level</td>
                                                                             </tr>
 
                                                                             <tr>
                                                                                 <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center;">{{ $value['Previous_Term'][0]['created_at']  ?? '---'}}</td>
-                                                                                <td style="padding: 4px 0px 4px 0px; text-align: center; border: 1px solid orange;"> {{ $value['Previous_Term'][0]['weight'] ?? '---'}}</td>
-                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> {{ $value['Previous_Term'][0]['height'] ?? '---'}}</td>
-                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> {{ $value['Previous_Term'][0]['score'] ?? '---'}}</td>
-                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> {{ $value['Previous_Term'][0]['Level'] ?? '---'}}</td>
+                                                                                <td style="padding: 4px 0px 4px 0px; text-align: center; border: 1px solid #8a8a8a;"> {{ $value['Previous_Term'][0]['weight'] ?? '---'}}</td>
+                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid #8a8a8a;"> {{ $value['Previous_Term'][0]['height'] ?? '---'}}</td>
+                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid #8a8a8a;"> {{ $value['Previous_Term'][0]['score'] ?? '---'}}</td>
+                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid #8a8a8a;"> {{ $value['Previous_Term'][0]['Level'] ?? '---'}}</td>
                                                                             </tr>
 
                                                                         </table>
@@ -418,24 +414,24 @@
                                                                     <td style="width: 50%;">
                                                                         <table border="1" cellpadding="0"
                                                                             cellspacing="0"
-                                                                            style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
-                                                                            <tr style="background-color: #fecd0a;">
-                                                                                <td style="width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center; font-weight: bold;"
+                                                                            style="width: 100%; border: 1px solid #8a8a8a; font-size: 13px; border-collapse: collapse; color:#333;">
+                                                                            <tr style="background-color: #ddd;">
+                                                                                <td style="width: 20%; background-color:#ccc; padding: 0px 4px 2px 6px; border: 1px solid #ccc; text-align: center; font-weight: bold;"
                                                                                     rowspan="2">Current Term</td>
-                                                                                <td style="width: 25%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
+                                                                                <td style="width: 25%; padding: 0px 4px 2px 6px; border: 1px solid #8a8a8a; color:#000; text-align: center; font-weight: bold;">
                                                                                     Date</td>
-                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
+                                                                                <td style="width: 28%; padding: 0px 4px 2px 6px; border: 1px solid #8a8a8a; color:#000; text-align: center; font-weight: bold;">
                                                                                     Score</td>
-                                                                                <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">
+                                                                                <td style="padding: 0px 4px 2px 6px; border: 1px solid #8a8a8a; color:#000; font-weight: bold; text-align: center;">
                                                                                     Level</td>
                                                                             </tr>
 
                                                                             <tr>
-                                                                                <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">
+                                                                                <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center; border: 1px solid #8a8a8a; border-bottom: 1px solid #8a8a8a;">
                                                                                     {{ $value['Current_Term'][0]['created_at'] ?? '---' }} </td>
-                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">
+                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid #8a8a8a; border-bottom: 1px solid #8a8a8a;">
                                                                                    {{ $currentScore ?? '---'}} </td>
-                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">
+                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid #8a8a8a; border-bottom: 1px solid #8a8a8a;">
                                                                                     {{ $currentLevel ?? '---'}}
                                                                                 </td>
                                                                             </tr>
@@ -445,24 +441,24 @@
                                                                     <td style="width: 50%;">
                                                                         <table border="1" cellpadding="0"
                                                                             cellspacing="0"
-                                                                            style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
-                                                                            <tr style="background-color: #fecd0a;">
-                                                                                <td style="font-weight: 500; width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid #0A87CD; color:#fff; text-align: center;"
+                                                                            style="width: 100%; border: 1px solid #8a8a8a; font-size: 13px; border-collapse: collapse; color:#333;">
+                                                                            <tr style="background-color: #ddd;">
+                                                                                <td style="font-weight: 500; width: 20%; background-color:#ccc; padding: 0px 4px 2px 6px; border: 1px solid #ccc; text-align: center;"
                                                                                     rowspan="2">Previous Term</td>
-                                                                                <td style="font-weight: 500; width: 25%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
+                                                                                <td style="font-weight: 500; width: 25%; padding: 0px 4px 2px 6px; border: 1px solid #8a8a8a; color:#000; text-align: center; font-weight: bold;">
                                                                                     Date</td>
-                                                                                <td style="font-weight: 500; width: 28%; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">
+                                                                                <td style="font-weight: 500; width: 28%; padding: 0px 4px 2px 6px; border: 1px solid #8a8a8a; color:#000; text-align: center; font-weight: bold;">
                                                                                     Score</td>
-                                                                                <td style="font-weight: 500; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">
+                                                                                <td style="font-weight: 500; padding: 0px 4px 2px 6px; border: 1px solid #8a8a8a; color:#000; font-weight: bold; text-align: center;">
                                                                                     Level</td>
                                                                             </tr>
 
                                                                             <tr>
-                                                                                <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">
+                                                                                <td style="padding: 0px 4px 2px 6px; font-weight: 500; color:#000; text-align: center; border: 1px solid #8a8a8a; border-bottom: 1px solid #8a8a8a;">
                                                                                     {{ $value['Previous_Term'][0]['created_at'] ?? '---'}}</td>
-                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">
+                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid #8a8a8a; border-bottom: 1px solid #8a8a8a;">
                                                                                     {{ $previousScore ?? '---'}}</td>
-                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange; border-bottom: 1px solid #00A923;">
+                                                                                <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid #8a8a8a; border-bottom: 1px solid #8a8a8a;">
                                                                                     {{ $previousLevel ?? '---'}}</td>
                                                                             </tr>
 
@@ -478,10 +474,10 @@
                                                     <tr>
                                                         <td>
                                                             <table border="1" cellpadding="0" cellspacing="0"
-                                                                style="width: 100%; border-top: 1px solid transparent; border-left: 1px solid #00A923; border-right: 1px solid #00A923; border-bottom: 1px solid #00A923; font-size: 13px; border-collapse: collapse; color:#333;">
+                                                                style="width: 100%; border-top: 1px solid transparent; border-left: 1px solid #8a8a8a; border-right: 1px solid #8a8a8a; border-bottom: 1px solid #8a8a8a; font-size: 13px; border-collapse: collapse; color:#333;">
                                                                 <tr>
                                                                     <td
-                                                                        style="border-top: 1px solid #00A923; background-color: #00A923; padding: 0px 4px 2px 4px; padding: 0px 10px 3px 10px; color: #fff; text-align: center; width: 100px; font-weight: bold;">
+                                                                        style="border-top: 1px solid #8a8a8a; background-color: #8a8a8a; padding: 0px 4px 2px 4px; padding: 0px 10px 3px 10px; color: #fff; text-align: center; width: 100px; font-weight: bold;">
                                                                         Recommendation</td>
                                                                     <td
                                                                         style="padding:0px 4px 2px 8px; line-height:14px; font-size:13px;">
@@ -540,7 +536,7 @@
 
             @if(!in_array($studentsData->class_id, [14, 18, 22, 23]))
             <tr>
-                <td colspan="2" style="text-align:center; font-size:12px; padding:2px 0;">
+                <td colspan="2" style="text-align:center; color:#ccc; font-size:12px; padding:2px 0;">
                     Page 2 of 2
                 </td>
             </tr>
@@ -550,11 +546,11 @@
 
             @if(!$isLetterHead)
             <tr>
-                <td style="background:#E60A00;height:40px;padding:0 30px;color:#fff;">
+                <td style="background:#5a5a5a;height:40px;padding:0 30px;color:#fff;">
                 Physical Health and Fitness Assessment
                 </td>
 
-                <td style="background:#00A923;height:40px;padding:0 30px;text-align:right;color:#fff;">
+                <td style="background:#8a8a8a;height:40px;padding:0 30px;text-align:right;color:#fff;">
                 powered by <strong>fitness365.me</strong>
                 </td>
             </tr>

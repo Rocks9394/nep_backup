@@ -17,11 +17,9 @@ class HomeController extends Controller
         $this->middleware('auth:admin');
     }
     
-    public function index()
-    {
+    public function index(){
 
-		$title = 'CISCE Dashboard';
-        $excludedSchools = ['AK001', 'AK002', 'AK003'];
+        $excludedSchools = ['AK001'];
 
         $baseQuery = DB::table('schools_assessment as s')
             ->whereNotIn('s.school_code', $excludedSchools);
@@ -55,8 +53,82 @@ class HomeController extends Controller
         $topSchools = (clone $baseQuery)
             ->get();
 
+		$healthData = DB::table('SeniorTestResults')
+		->join('students','students.id', '=', 'SeniorTestResults.StudentID')
+		->join('class','class.id', '=', 'students.class_id')
+		->join('term_masters','term_masters.school_id', '=', 'SeniorTestResults.SchoolID')
+		->select('LEVEL', DB::raw('COUNT(StudentID) AS Total_Student'))
+		->whereDate('term_start_date', '<=', now())
+		->whereDate('term_end_date', '>=', now())
+		->whereIn('LEVEL', ['UW', 'N', 'OW', 'OB'])
+		->groupBy('LEVEL')
+		->orderByRaw("FIELD(LEVEL, 'UW', 'N', 'OW', 'OB')")
+		->get();
+
+		
+
+		$data = DB::table('SeniorTestResults as str')
+			->join('skill_reports as sr', 'sr.id', '=', 'str.TestTypeID')
+			->join('students', 'students.id', '=', 'str.StudentID')
+			// ->join('term_masters', 'term_masters.school_id', '=', 'str.SchoolID')
+			->select('sr.skill_name', 'str.level', DB::raw('COUNT(StudentID) as total'))
+			// ->whereDate('term_start_date', '<=', now())
+			// ->whereDate('term_end_date', '>=', now())
+			->whereIn('str.TestTypeID', [16, 17, 19, 20, 21, 22, 23])
+			->whereNotNull('str.level')
+			->whereNotIn('str.level', ['', 'N.A.'])
+			->whereRaw("str.level REGEXP '^L[0-8]+$'")
+			->groupBy('sr.skill_name', 'str.level')
+			->orderBy('sr.skill_name')
+			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
+			->get();
+
+		// echo"<pre>";print_r($data);exit();
+
+		$skills = [];
+		$levels = [];
+		$matrix = [];
+
+		foreach ($data as $row) {
+			$skills[$row->skill_name] = true;
+			$levels[$row->level] = true;
+			$matrix[$row->skill_name][$row->level] = (int)$row->total;
+		}
+
+		$categories = array_keys($skills);
+
+		$levelNames = array_keys($levels);
+		usort($levelNames, function ($a, $b) {
+			return (int) substr($a, 1) <=> (int) substr($b, 1);
+		});
+
+		$levelColors = [
+			'L0' => '#01160a',
+			'L1' => '#fe4a5d',
+			'L2' => '#ffaa62',
+			'L3' => '#ffd26e',
+			'L4' => '#74c4d6',
+			'L5' => '#a3d55f',
+			'L6' => '#6bc04b',
+			'L7' => '#00953b',
+			'L8' => '#01160a',
+		];
+
+		// Prepare full chart series for all skills
+		$chartSeries = [];
+		foreach ($levelNames as $level) {
+			$rowData = [];
+			foreach ($categories as $skill) {
+				$rowData[] = $matrix[$skill][$level] ?? 0;
+			}
+			$chartSeries[] = [
+				'name' => $level,
+				'data' => $rowData,
+				'color' => $levelColors[$level] ?? '#000000'
+			];
+		}
+
         return view('admin.home', [
-            'title' => $title,
             'regSchools' => $regSchools,
             'regTrainers' => $regTrainers,
             'completedSchools' => $completedSchools,
@@ -66,7 +138,13 @@ class HomeController extends Controller
             'totalCompleted' => $totals->total_completed,
             'totalOngoing' => $totals->total_ongoing,
             'totalYetToStart' => $totals->total_yet_to_start,
-            'topSchools' => $topSchools
+            'topSchools' => $topSchools,
+			'healthData' => $healthData,
+			'categories' => $categories,
+			'levelNames' => $levelNames,
+			'levelColors' => $levelColors,
+			'chartSeries' => $chartSeries,
+			'matrix' => $matrix,
         ]);
     }
 

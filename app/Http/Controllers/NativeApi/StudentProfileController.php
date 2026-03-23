@@ -178,7 +178,9 @@ class StudentProfileController extends Controller
                 $item->outcome = 'Developing';
             } elseif ($count == 3) {
                 $item->outcome = 'Acquired';
-            } elseif ($count >= 4) {
+            } elseif ($count == 4) {
+                $item->outcome = 'Advanced';
+            } elseif ($count == 5) {
                 $item->outcome = 'Accomplished';
             } else {
                 $item->outcome = 'N.A.';
@@ -461,12 +463,68 @@ class StudentProfileController extends Controller
                 'rollno' => $UserData->rollno,
             ],
             'terms' => $SessionAndTerm,
-            'reportSections' => array_values($sections) // Reset keys for JSON array format
+            'reportSections' => array_values($sections) 
         ]);
     }
 
 
+   public function SkillReports(Request $request) {
 
+        $UserData = Auth::guard('student-api')->user();       
+        $schoolId = $UserData->school_id;
+
+        $SessionAndTerm = TermMaster::where('school_id', $schoolId)->where('is_active',1)->select('id', 'term_name', 'academic_year')->get();
+        $termId = $request->query('term_id') ?? TermMaster::where('school_id', $schoolId) 
+        ->where('is_active', 1)
+        ->whereDate('term_start_date', '<=', today())
+        ->whereDate('term_end_date', '>=', today())
+        ->value('id');
+
+        $studentClassData = DB::table('custom_classes')
+        ->join('class', 'class.id', '=', 'custom_classes.class_id')
+        ->where('custom_classes.id', $UserData->custom_class_id)
+        ->select(DB::raw("CASE 
+                            WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
+                            THEN custom_classes.nomenclature 
+                            ELSE class.name 
+                        END AS class_display_name"),
+                 'custom_classes.section')
+        ->first();
+
+
+        $reportCardDetail = DB::select('CALL getStudentsReportTermWize(?, ?)', [$UserData->id, $termId]);
+        $sections = [];
+        foreach ($reportCardDetail as $data) {
+            $category = $data->skillsport;
+            if (!isset($sections[$category])) {
+                $sections[$category] = [
+                    'title' => $category,
+                    'data' => []
+                ];
+            }
+            
+            // Add item to the section
+            $sections[$category]['data'][] = [
+                'technique' => $data->techniques,
+                'activity' => $data->activity,
+                'level' => (int)$data->level,
+                'level_name' => $data->level_name
+            ];
+        }
+
+        return response()->json([
+            'status' => true,
+            'studentProfile' => [
+                'name' => $UserData->student_name, 
+                'class' => $studentClassData->class_display_name ?? null,
+                'section' => $studentClassData->section ?? null,
+                'rollno' => $UserData->rollno, 
+            ],
+            'availableTerms' => $SessionAndTerm,
+            'selectedTermId' => $termId,
+            'reportSections' => array_values($sections) // Reset keys for JSON array
+        ]);
+    }
 
     
 

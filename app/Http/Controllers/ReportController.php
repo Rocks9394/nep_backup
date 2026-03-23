@@ -276,305 +276,29 @@ class ReportController extends Controller {
 	                    : 'Previous_Term'
 	            );
 	    });
-		$firstName = strtolower(trim(explode(' ', $studentsData->student_name)[0]));
-        $plainPassword = $firstName . '@' . trim($studentsData->admissionnumber);
-        $isLetterHead = true;
 
         $getBmiBenchmark = $this->getBmiBenchmark($ageGender);
 
         if (in_array($studentsData->class_id, [4,5,6,7,8,9,10,11,12])) {
             [$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport );
-			
-			$message = $this->getBmiMessage($orderedReportData, $ageGender);
 
-            // $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact(
-            //     'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
-            // ));
-			$pdf = Pdf::loadView('reports.fitness.pdf.one-page-senior', compact(
-                    'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark','isLetterHead','plainPassword','message'
-                ));
+            $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact(
+                'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
+            ));
         } else {
 
             [$orderedReportData, $FmsReportData, $getFitnessBenchmark] = $this->getJuniorReportData( $studentsData->class_id,
                 $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId 
             );
-			$message = $this->getBmiMessage($orderedReportData, $ageGender);
 
-            // $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
-            //     'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
-            // ));
-			$pdf = Pdf::loadView('reports.fitness.pdf.one-page-junior', compact(
-                'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark','isLetterHead','plainPassword','message'
+            $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
+                'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
             ));
         }
 
 		$filename = 'Fitness_Report_Cards-'.date('d-m-Y_H-i-s').'.pdf';
-		return $pdf->stream($filename);
 		return $pdf->download($filename);
     }
-
-
-	// algorithm to get weight suggestion 
-	private function getBmiMessage($orderedReportData, $ageGender){
-
-		$bmiData = $orderedReportData['Body Composition (BMI)']['Current_Term'][0] ?? null;
-
-		$weight = $bmiData['weight'] ?? null;
-		$height = $bmiData['height']/100 ?? null;
-		$level  = $bmiData['Level'] ?? null;
-		$score  = $bmiData['score'] ?? null;
-		
-		$value = $this->getBmiBenchmark($ageGender)['N'];
-
-		preg_match_all('/\d+(\.\d+)?/', $value, $matches);
-
-		$minBMI = (float)$matches[0][0];
-		$maxBMI = (float)$matches[0][1];
-
-		if ($level == 'Normal') {
-			
-			return '
-				<tr>
-					<td style="padding:1px 4px; font-weight:bold;">
-						You need to maintain your weight by doing regular Physical Activity and having Balanced diet. We recommend you to do the following:.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 4px; font-weight:bold;">
-						Diet Recommendations:
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						a. Calorie - Need to be maintained regularly.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						b. Food Restrictions - Choose variety of food with avoidance of extra fat.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						c. Healthier Choices - Maintain the healthier diet practice with natural and healthier choices and avoidance of artificial food.
-					</td>
-				</tr>
-				
-				<tr>
-					<td style="padding:1px 4px; font-weight:bold;">
-						Active Lifestyle to be pursued:
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						a. Exercise - Additional exercises with increase in load and intensity can be initiated.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						b. Physical Activity - Stretch your level of physical activity with additional indoor and outdoor recreational, household and sports activities.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						c. Sport Participation - Add your choice of participation in sports activities and additional sports of various nature and abilities.
-					</td>
-				</tr>
-			';
-		}
-		
-
-		// Ideal weight range
-		$minWeight = $minBMI * ($height * $height);
-		$maxWeight = $maxBMI * ($height * $height);
-
-		if ($level == 'UW') {
-			$diff = round($minWeight - $weight, 1);
-			return '
-				<tr>
-					<td style="padding:1px 4px; font-weight:bold;">
-						You can increase your weight by '.$diff.' Kg by improving your lifestyle and increasing regular Physical Activities. We recommend you to do the following:.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 4px; font-weight:bold;">
-						Diet Recommendations:
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						a. Calorie - Need to be increased.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						b. Food Restrictions - Not required, instead choose variety of food.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						c. Healthier Choices - Make overall diet healthier, eat more plant-based foods, such as fruits, vegetables and whole-grain carbohydrates.
-					</td>
-				</tr>
-				
-				<tr>
-					<td style="padding:1px 4px; font-weight:bold;">
-						Active Lifestyle to be pursued:
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						a. Exercise - Regular exercise without getting fatique is important. Don\'t over exert.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						b. Physical Activity - Physical activity is recommended but with adequate rest and recovery.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						c. Sport Participation - Participation in sports activity is helpful. Team sports and individual sports are beneficial.
-					</td>
-				</tr>
-			';
-			
-		}
-
-		if ($level == 'OW') {
-			$diff = round($weight - $maxWeight, 1);
-			return '
-				<tr>
-					<td style="padding:1px 4px; font-weight:bold;">
-						You can reduce your weight by '.$diff.' Kg by improving your lifestyle and increasing regular Physical Activities. We recommend you to do the following:
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 4px; font-weight:bold;">
-						Diet Recommendations:
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						a. Calorie - Need to be decreased.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						b. Food Restrictions - Need to restrict food with extra fat.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						c. Healthier Choices - Replace fast foods and synthetic food items with natural and healthier choices like natural juices instead of sugar coted or aerated drinks.
-					</td>
-				</tr>
-				
-				<tr>
-					<td style="padding:1px 4px; font-weight:bold;">
-						Active Lifestyle to be pursued:
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						a. Exercise - Regular exercise is essential and recommended on daily basis.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						b. Physical Activity - Keep moving is the most efficient way to burn calories and shed excess weight, any extra movement helps burn calories. Involve in household chores and do other basic activities yourself.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						c. Sport Participation - Regular sports participation is important. Involve in more of endurance sports.
-					</td>
-				</tr>
-			';
-		}
-
-		if ($level == 'OB') {
-			$diff = round($weight - $maxWeight, 1);
-			return '
-				<tr>
-					<td style="padding:1px 4px; font-weight:bold;">
-						You can reduce your weight by '.$diff.' Kg by improving your lifestyle and increasing regular Physical Activities. We recommend you to do the following:
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 4px; font-weight:bold;">
-						Diet Recommendations:
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						a. Calorie - Need to be decreased.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						b. Food Restrictions - Need to restrict food with extra fat.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						c. Healthier Choices - Replace fast foods and synthetic food items with natural and healthier choices like natural juices instead of sugar coted or aerated drinks.
-					</td>
-				</tr>
-				
-				<tr>
-					<td style="padding:1px 4px; font-weight:bold;">
-						Active Lifestyle to be pursued:
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						a. Exercise - Regular exercise is essential and recommended on daily basis.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						b. Physical Activity - Keep moving is the most efficient way to burn calories and shed excess weight, any extra movement helps burn calories. Involve in household chores and do other basic activities yourself.
-					</td>
-				</tr>
-
-				<tr>
-					<td style="padding:1px 10px;">
-						c. Sport Participation - Regular sports participation is important. Involve in more of endurance sports.
-					</td>
-				</tr>
-			';
-		}
-
-		return "";
-	}
 
 
 	/**
@@ -1680,6 +1404,405 @@ class ReportController extends Controller {
 
 		return Storage::disk('public')->download($report->download_path);
 
+	}
+
+
+	public function downloadFitnessReport_bk($id = null, $term_id = null) {
+
+		if($id){
+			$studentId = Crypt::decryptString($id);
+		}else{
+			$studentId = Auth::guard('sstudent')->user()->id;
+		}
+        
+        $studentsData = $this->getStudentData($studentId);
+        if (!$studentsData) return null;
+
+      
+        if (!empty($term_id)) {
+	        $TermMasterId = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $term_id);
+	    } else {
+	        $selectedTermId = $this->getTermId($studentsData->schools_id);
+
+			$TermMasterId = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $selectedTermId);
+	    }
+
+	    $currentTermId  = $TermMasterId[0] ?? null;
+		$previousTermId = $TermMasterId[1] ?? null;
+
+
+        $dob = \Carbon\Carbon::parse($studentsData->dob);
+        $studentAge = $dob->age;
+        $studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
+        $ageGender = $studentAge . strtolower(substr($studentsData->gender,0,1));
+
+        $reportData = $this->getReportData($studentId, $TermMasterId);
+        $mappedReport = $this->mapReportData($reportData, $studentAge, $studentGender, $ageGender);
+        $groupedReport = $mappedReport->groupBy('Category')
+	    ->map(function ($items) use ($currentTermId, $previousTermId) {
+	        return $items
+	            ->filter(fn ($row) =>
+	                in_array((int) $row['TermId'], [$currentTermId, $previousTermId])
+	            )
+	            ->groupBy(fn ($row) =>
+	                (int) $row['TermId'] === (int) $currentTermId
+	                    ? 'Current_Term'
+	                    : 'Previous_Term'
+	            );
+	    });
+		$firstName = strtolower(trim(explode(' ', $studentsData->student_name)[0]));
+        $plainPassword = $firstName . '@' . trim($studentsData->admissionnumber);
+        $isLetterHead = true;
+
+        $getBmiBenchmark = $this->getBmiBenchmark($ageGender);
+
+        if (in_array($studentsData->class_id, [4,5,6,7,8,9,10,11,12])) {
+            [$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport );
+			
+			$message = $this->getBmiMessage($orderedReportData, $ageGender);
+            // $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact(
+            //     'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
+            // ));
+			$pdf = Pdf::loadView('reports.fitness.pdf.one-page-senior-f365', compact(
+                    'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark','isLetterHead','plainPassword','message'
+                ));
+        } else {
+
+            [$orderedReportData, $FmsReportData, $getFitnessBenchmark] = $this->getJuniorReportData( $studentsData->class_id,
+                $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId 
+            );
+			$message = $this->getBmiMessage($orderedReportData, $ageGender);
+
+            // $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
+            //     'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
+            // ));
+			$pdf = Pdf::loadView('reports.fitness.pdf.one-page-junior-f365', compact(
+                'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark','isLetterHead','plainPassword','message'
+            ));
+        }
+
+		$filename = 'Fitness_Report_Cards-'.date('d-m-Y_H-i-s').'.pdf';
+		// return $pdf->stream($filename);
+		return $pdf->download($filename);
+    }
+
+
+	// algorithm to get weight suggestion 
+	private function getBmiMessage($orderedReportData, $ageGender){
+
+		$bmiData = $orderedReportData['Body Composition (BMI)']['Current_Term'][0] ?? null;
+		if (!$bmiData) {
+			return '
+				<tr>
+					<td style="padding:1px 4px; font-weight:bold;">
+						You need to maintain your weight by doing regular Physical Activity and having Balanced diet. We recommend you to do the following:.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 4px; font-weight:bold;">
+						Diet Recommendations:
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						a. Calorie - Need to be maintained regularly.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						b. Food Restrictions - Choose variety of food with avoidance of extra fat.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						c. Healthier Choices - Maintain the healthier diet practice with natural and healthier choices and avoidance of artificial food.
+					</td>
+				</tr>
+				
+				<tr>
+					<td style="padding:1px 4px; font-weight:bold;">
+						Active Lifestyle to be pursued:
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						a. Exercise - Additional exercises with increase in load and intensity can be initiated.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						b. Physical Activity - Stretch your level of physical activity with additional indoor and outdoor recreational, household and sports activities.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						c. Sport Participation - Add your choice of participation in sports activities and additional sports of various nature and abilities.
+					</td>
+				</tr>
+			';
+		}
+		$weight = $bmiData['weight'] ?? null;
+		$height = $bmiData['height']/100 ?? null;
+		$level  = $bmiData['Level'] ?? null;
+		$score  = $bmiData['score'] ?? null;
+		
+		$value = $this->getBmiBenchmark($ageGender)['N'];
+
+		preg_match_all('/\d+(\.\d+)?/', $value, $matches);
+
+		$minBMI = (float)$matches[0][0];
+		$maxBMI = (float)$matches[0][1];
+
+		if ($level == 'Normal') {
+			
+			return '
+				<tr>
+					<td style="padding:1px 4px; font-weight:bold;">
+						You need to maintain your weight by doing regular Physical Activity and having Balanced diet. We recommend you to do the following:.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 4px; font-weight:bold;">
+						Diet Recommendations:
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						a. Calorie - Need to be maintained regularly.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						b. Food Restrictions - Choose variety of food with avoidance of extra fat.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						c. Healthier Choices - Maintain the healthier diet practice with natural and healthier choices and avoidance of artificial food.
+					</td>
+				</tr>
+				
+				<tr>
+					<td style="padding:1px 4px; font-weight:bold;">
+						Active Lifestyle to be pursued:
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						a. Exercise - Additional exercises with increase in load and intensity can be initiated.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						b. Physical Activity - Stretch your level of physical activity with additional indoor and outdoor recreational, household and sports activities.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						c. Sport Participation - Add your choice of participation in sports activities and additional sports of various nature and abilities.
+					</td>
+				</tr>
+			';
+		}
+		
+
+		// Ideal weight range
+		$minWeight = $minBMI * ($height * $height);
+		$maxWeight = $maxBMI * ($height * $height);
+
+		if ($level == 'UW') {
+			$diff = round($minWeight - $weight, 1);
+			return '
+				<tr>
+					<td style="padding:1px 4px; font-weight:bold;">
+						You can increase your weight by '.$diff.' Kg by improving your lifestyle and increasing regular Physical Activities. We recommend you to do the following:.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 4px; font-weight:bold;">
+						Diet Recommendations:
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						a. Calorie - Need to be increased.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						b. Food Restrictions - Not required, instead choose variety of food.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						c. Healthier Choices - Make overall diet healthier, eat more plant-based foods, such as fruits, vegetables and whole-grain carbohydrates.
+					</td>
+				</tr>
+				
+				<tr>
+					<td style="padding:1px 4px; font-weight:bold;">
+						Active Lifestyle to be pursued:
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						a. Exercise - Regular exercise without getting fatique is important. Don\'t over exert.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						b. Physical Activity - Physical activity is recommended but with adequate rest and recovery.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						c. Sport Participation - Participation in sports activity is helpful. Team sports and individual sports are beneficial.
+					</td>
+				</tr>
+			';
+			
+		}
+
+		if ($level == 'OW') {
+			$diff = round($weight - $maxWeight, 1);
+			return '
+				<tr>
+					<td style="padding:1px 4px; font-weight:bold;">
+						You can reduce your weight by '.$diff.' Kg by improving your lifestyle and increasing regular Physical Activities. We recommend you to do the following:
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 4px; font-weight:bold;">
+						Diet Recommendations:
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						a. Calorie - Need to be decreased.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						b. Food Restrictions - Need to restrict food with extra fat.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						c. Healthier Choices - Replace fast foods and synthetic food items with natural and healthier choices like natural juices instead of sugar coted or aerated drinks.
+					</td>
+				</tr>
+				
+				<tr>
+					<td style="padding:1px 4px; font-weight:bold;">
+						Active Lifestyle to be pursued:
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						a. Exercise - Regular exercise is essential and recommended on daily basis.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						b. Physical Activity - Keep moving is the most efficient way to burn calories and shed excess weight, any extra movement helps burn calories. Involve in household chores and do other basic activities yourself.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						c. Sport Participation - Regular sports participation is important. Involve in more of endurance sports.
+					</td>
+				</tr>
+			';
+		}
+
+		if ($level == 'OB') {
+			$diff = round($weight - $maxWeight, 1);
+			return '
+				<tr>
+					<td style="padding:1px 4px; font-weight:bold;">
+						You can reduce your weight by '.$diff.' Kg by improving your lifestyle and increasing regular Physical Activities. We recommend you to do the following:
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 4px; font-weight:bold;">
+						Diet Recommendations:
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						a. Calorie - Need to be decreased.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						b. Food Restrictions - Need to restrict food with extra fat.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						c. Healthier Choices - Replace fast foods and synthetic food items with natural and healthier choices like natural juices instead of sugar coted or aerated drinks.
+					</td>
+				</tr>
+				
+				<tr>
+					<td style="padding:1px 4px; font-weight:bold;">
+						Active Lifestyle to be pursued:
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						a. Exercise - Regular exercise is essential and recommended on daily basis.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						b. Physical Activity - Keep moving is the most efficient way to burn calories and shed excess weight, any extra movement helps burn calories. Involve in household chores and do other basic activities yourself.
+					</td>
+				</tr>
+
+				<tr>
+					<td style="padding:1px 10px;">
+						c. Sport Participation - Regular sports participation is important. Involve in more of endurance sports.
+					</td>
+				</tr>
+			';
+		}
+
+		return "";
 	}
 
 

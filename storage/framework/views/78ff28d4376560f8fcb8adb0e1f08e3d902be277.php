@@ -204,7 +204,9 @@ $(function () {
             $('#<?php echo e($id); ?>_filter input').attr('placeholder', "<?php echo e($searchPlaceholder); ?>");
 
             if(enableSchoolTermsFilter){
-                const TermList = <?php echo json_encode($schoolTerms ?? [], 15, 512) ?>;  
+
+
+                const TermList = <?php echo json_encode($schoolTerms ?? [], 15, 512) ?>;      
                 const $dropdown = $('<select class="form-select form-select-sm ms-2" id="filter-school-terms" style="font-size: 13px;color: #2c2d78;"></select>');               
 
                 TermList.forEach(option => {

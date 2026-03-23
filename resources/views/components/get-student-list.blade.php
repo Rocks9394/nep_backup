@@ -29,7 +29,13 @@
                         </select>
                     </div>
                 </div>
-            </div>     
+            </div>   
+
+		
+		<button type="button" id="start-exercise-btn" class="btn btn-warning" 
+		onclick="redirectToPython()" style="color: white; font-weight: bold;"> Start AI Exercise</button>
+
+			
             @if(Auth::user()->id == '995')
             <div class="col-4 col-sm-3 col-md-2 col-lg-1">
                 <div class="form mt-1 mt-md-3">
@@ -80,6 +86,50 @@
 </div>
 
 @push('scripts')
+
+
+<script>
+function redirectToPython() 
+{
+    const studentSelect = document.querySelector('select[name="student_id"]');
+    const classSelect = document.querySelector('select[name="class_id"]');
+    
+    // Extract 1011 from https://nep.goforfit.in/assessor-app-fms-skills/1011
+    const pathArray = window.location.pathname.split('/');
+    const exerciseId = pathArray[pathArray.length - 1]; 
+
+    if (!studentSelect || !studentSelect.value || studentSelect.value.includes('Select')) {
+        alert("Please select a student first!");
+        return;
+    }
+
+    const studentId = studentSelect.value;
+    const classSection = classSelect.options[classSelect.selectedIndex].text;
+    const fullText = studentSelect.options[studentSelect.selectedIndex].text;
+    
+    let rollNo = "N/A";
+    let studentName = fullText;
+
+    if (fullText.includes('|')) {
+        const parts = fullText.split('|');
+        rollNo = parts[0].replace('Roll No:', '').trim();
+        studentName = parts[1].replace('Name:', '').trim();
+    }
+
+    // Add exercise_id to the URL parameters
+    const queryParams = new URLSearchParams({
+        id: studentId,
+        name: studentName,
+        roll: rollNo,
+        class_info: classSection,
+        ex_id: exerciseId // Sending 1011
+    });
+
+    window.location.href = `http://103.65.20.129:8000/standard-push-ups.html?${queryParams.toString()}`;
+}
+</script>
+
+
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
     function domReady(fn) {
