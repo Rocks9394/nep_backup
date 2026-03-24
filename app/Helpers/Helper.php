@@ -8,10 +8,13 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
+use App\Traits\ReportHelperTrait;
 use Session;
 
 class Helper
 {
+    use ReportHelperTrait;	
+
     public static function customSection($custom_class_id)
     {
 		return DB::table('custom_classes')->where('id', $custom_class_id)->value('section'); 
@@ -250,11 +253,10 @@ class Helper
 	}
 
 	// for weight msg and instructions 
-    private function getBmiMessage($orderedReportData, $ageGender){
+    public  function getBmiMessage($bmiData, $ageGender){
 
-        $bmiData = $orderedReportData['Body Composition (BMI)']['Current_Term'][0] ?? null;
+        // return $bmiData;
 
-        // Default response
         $response = [
             'message' => '',
             'html' => ''
@@ -280,7 +282,7 @@ class Helper
         $minWeight = $minBMI * ($height * $height);
         $maxWeight = $maxBMI * ($height * $height);
 
-        if ($level == 'Normal') {
+        if ($level == 'Normal' || $level == 'N') {
             $response['message'] = "You need to maintain your weight by doing regular Physical Activity and having Balanced diet.";
             $response['html'] = $this->getNormalHtml();
         }

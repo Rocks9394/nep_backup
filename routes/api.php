@@ -15,7 +15,7 @@ use App\Http\Controllers\ExerciseResultController;
 
 Route::get('/app-version', function () {
     return response()->json([
-        'latestVersion' => '1.4.9',
+        'latestVersion' => '1.5.7',
         'minVersion'    => '1.0.0', // Fixed syntax and set to a logical number   
         'apkUrl'        => 'https://nep.goforfit.in/public/downloads/apk/app-release.apk',
         'releaseNotes'  => 'New updates are ready! Tap download to stay fit with our latest features.', 

@@ -15,7 +15,6 @@ use Carbon\Carbon;
 use App\Models\School;
 use App\Models\Sclass;
 use App\Models\Sstudent;
-use App\Helpers\Helper;
 use App\Traits\ReportHelperTrait;
 
 
@@ -1456,11 +1455,12 @@ class ReportController extends Controller {
         $isLetterHead = true;
 
         $getBmiBenchmark = $this->getBmiBenchmark($ageGender);
+		$helper = new \App\Helpers\Helper();
 
         if (in_array($studentsData->class_id, [4,5,6,7,8,9,10,11,12])) {
             [$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport );
-			
-			$result = Helper::getBmiMessage($orderedReportData, $ageGender);
+			$bmiRecord = $orderedReportData['Body Composition (BMI)']['Current_Term'][0] ?? null;
+			$result = $helper->getBmiMessage($bmiRecord, $ageGender);
             // $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact(
             //     'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
             // ));
@@ -1472,8 +1472,8 @@ class ReportController extends Controller {
             [$orderedReportData, $FmsReportData, $getFitnessBenchmark] = $this->getJuniorReportData( $studentsData->class_id,
                 $studentId, $studentAge, $studentGender, $groupedReport, $TermMasterId 
             );
-			$result = Helper::getBmiMessage($orderedReportData, $ageGender);
-
+			$bmiRecord = $orderedReportData['Body Composition (BMI)']['Current_Term'][0] ?? null;
+			$result = $helper->getBmiMessage($bmiRecord, $ageGender);
             // $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
             //     'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
             // ));
@@ -1486,6 +1486,7 @@ class ReportController extends Controller {
 		return $pdf->stream($filename);
 		return $pdf->download($filename);
     }
+
 
 
 }

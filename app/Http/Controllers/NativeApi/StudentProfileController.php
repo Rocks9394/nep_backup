@@ -119,7 +119,7 @@ class StudentProfileController extends Controller
         $TermMasterId =  $this->getTermId($SchoolId);
 
         $bmiRecord = DB::table('SeniorTestResults as str')
-        ->select('str.height', 'str.weight', 'str.score', 'str.level')
+        ->select('str.height', 'str.weight', 'str.score', 'str.level as Level')
         ->where('str.TestTypeID', 18)
         ->where('str.StudentID', $studentId)
         ->where('str.TermId', $TermMasterId)
@@ -130,6 +130,9 @@ class StudentProfileController extends Controller
         $getBmiBenchmark = $getBmiBenchmark =  $this->getBmiBenchmark($ageGender);
         
         // dd($bmiRecord);
+        $helper = new \App\Helpers\Helper();
+        $bmiData = (array) $bmiRecord;
+        $bmiSuggestion = $helper->getBmiMessage($bmiData, $ageGender);
 
         $class = DB::table('custom_classes')
         ->join('class','class.id','=','custom_classes.class_id')
@@ -156,6 +159,7 @@ class StudentProfileController extends Controller
         })
         ->select(
             'TestTypeMaster.TestTypeID',
+            'skill_reports.id as skillId',
             'skill_reports.skill_name',
             'skill_reports.icons',
             DB::raw('COUNT(sst.id) as score')
@@ -163,10 +167,16 @@ class StudentProfileController extends Controller
         ->whereIn('TestTypeMaster.TestTypeID', $fmsApplicable)
         ->groupBy(
             'TestTypeMaster.TestTypeID',
+            'skill_reports.id',
             'skill_reports.skill_name',
             'skill_reports.icons'
         )
         ->get();
+
+        $fmsRecommendations = DB::table('fms_recommendations')
+        ->select('skill_reports_id', 'outcomes', 'recommendations')
+        ->get()
+        ->groupBy('skill_reports_id');
 
         
         foreach ($fmsTestData as $item) {
@@ -185,6 +195,11 @@ class StudentProfileController extends Controller
             } else {
                 $item->outcome = 'N.A.';
             }
+
+            $item->recommendation = collect($fmsRecommendations[$item->skillId] ?? [])
+            ->firstWhere('outcomes', $item->outcome)
+            ->recommendations ?? 'No recommendation available';
+                
         }
 
         $fitnessTest = DB::table('SeniorTestResults as str')
@@ -202,7 +217,7 @@ class StudentProfileController extends Controller
                 'skill_reports.skill_name',
                 'skill_reports.icons',
                 'TestTypeMaster.ScoreUnit',
-                'TestTypeMaster.ScoreCriteria'          
+                'TestTypeMaster.ScoreCriteria'         
             )
             ->where('str.StudentID', $studentId)
             ->where('str.TermId', $TermMasterId)
@@ -238,9 +253,14 @@ class StudentProfileController extends Controller
 
         $getFitnessBenchmark = $this->getBenchmark($studentAge, $categoty, $categories_id2)->keyBy('skill_name');
 
-    
+        $recommendations = DB::table('fitnessRecommandation')
+            ->select('skill_reports_id', 'level', 'recommendations')
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->skill_reports_id . '_' . $item->level;
+            });
 
-        $fitnessTest->map(function ($item) use ($levelLabels, $getFitnessBenchmark) {    
+        $fitnessTest->map(function ($item) use ($levelLabels, $getFitnessBenchmark, $recommendations) {
 
             $normalizedScore = $this->formatValue($item->Score, $item->ScoreUnit);
             $item->Score = $normalizedScore ?? null;
@@ -249,20 +269,26 @@ class StudentProfileController extends Controller
             $num = (int) str_replace('L', '', $currentLevelKey);
             $nextLevelKey = 'L' . ($num + 1);
 
-
             $item->levelOutcome = $levelLabels[$currentLevelKey] ?? 'Unknown';
-            $item->nextGoal = isset($levelLabels[$nextLevelKey])  ? [
+
+            $item->nextGoal = isset($levelLabels[$nextLevelKey]) ? [
                 'next_level'    => $nextLevelKey, 
                 'next_outcome'  => $levelLabels[$nextLevelKey],
-                'next_score'    =>''
+                'next_score'    => ''
             ] : null;
+
+            $key = $item->TestTypeID . '_' . $currentLevelKey;
+
+            $item->recommendation = $recommendations[$key][0]->recommendations ?? 'No recommendation available';
 
             $skillBenchmark = $getFitnessBenchmark->get($item->skill_name);
 
             if ($skillBenchmark && isset($skillBenchmark->ranges)) {
                 $ranges = $skillBenchmark->ranges;
-                $item->nextGoal['next_score'] = $ranges[$nextLevelKey] ?? 'Already Reached Maximum';
 
+                if ($item->nextGoal) {
+                    $item->nextGoal['next_score'] = $ranges[$nextLevelKey] ?? 'Already Reached Maximum';
+                }
 
                 $item->ultimateGoal = [
                     'ultimate_level' => 'L7', 
@@ -276,7 +302,6 @@ class StudentProfileController extends Controller
                 $item->ultimate_score = 'N.A.';
             }
 
-            
             return $item;
         });
 
@@ -309,7 +334,8 @@ class StudentProfileController extends Controller
                 'age'             => $studentAge,
                 'bmi_report'      => [
                     'latest'    => $bmiRecord,
-                    'bmi_benchmark' => $getBmiBenchmark
+                    'bmi_benchmark' => $getBmiBenchmark,
+                    'bmiSuggestion' => $bmiSuggestion['message'],
                 ],
                 'fms_tests'       => $fmsTestData,
                 'fitness_tests'   => $fitnessTest,

@@ -31,9 +31,12 @@
                 </div>
             </div>   
 
+			@php
+			$userId  = \Auth::id();
+			@endphp
 		
 		<button type="button" id="start-exercise-btn" class="btn btn-warning" 
-		onclick="redirectToPython()" style="color: white; font-weight: bold;"> Start AI Exercise</button>
+		onclick="redirectToPython()" style="color: white; font-weight: bold;"> Start AI Exercise - {{$userId}}</button>
 
 			
             @if(Auth::user()->id == '995')
@@ -89,44 +92,57 @@
 
 
 <script>
-function redirectToPython() 
-{
-    const studentSelect = document.querySelector('select[name="student_id"]');
-    const classSelect = document.querySelector('select[name="class_id"]');
-    
-    // Extract 1011 from https://nep.goforfit.in/assessor-app-fms-skills/1011
-    const pathArray = window.location.pathname.split('/');
-    const exerciseId = pathArray[pathArray.length - 1]; 
+	function redirectToPython() 
+	{
+		const studentSelect = document.querySelector('select[name="student_id"]');
+		const classSelect = document.querySelector('select[name="class_id"]');
+		
+		// Extract exerciseId from the URL (e.g., 1011)
+		const pathArray = window.location.pathname.split('/');
+		const exerciseId = pathArray[pathArray.length - 1]; 
 
-    if (!studentSelect || !studentSelect.value || studentSelect.value.includes('Select')) {
-        alert("Please select a student first!");
-        return;
-    }
+		// Validation
+		if (!studentSelect || !studentSelect.value || studentSelect.value === "") {
+			alert("Please select a student first!");
+			return;
+		}
 
-    const studentId = studentSelect.value;
-    const classSection = classSelect.options[classSelect.selectedIndex].text;
-    const fullText = studentSelect.options[studentSelect.selectedIndex].text;
-    
-    let rollNo = "N/A";
-    let studentName = fullText;
+		// --- CORRECTION HERE ---
+		// Get the selected <option> element
+		const selectedOption = studentSelect.options[studentSelect.selectedIndex];
+		
+		// Extract student_id from 'data-id' attribute
+		const actualStudentId = selectedOption.getAttribute('data-id');
+		// Extract roll_no from the 'value' attribute
+		const rollNoValue = studentSelect.value;
+		
+		const classSection = classSelect ? classSelect.options[classSelect.selectedIndex].text : "N/A";
+		const fullText = selectedOption.text;
+		
+		let rollNo = rollNoValue; // Default to the value field
+		let studentName = fullText;
 
-    if (fullText.includes('|')) {
-        const parts = fullText.split('|');
-        rollNo = parts[0].replace('Roll No:', '').trim();
-        studentName = parts[1].replace('Name:', '').trim();
-    }
+		// Parsing the text: "Roll No: 1 | Name: Abeer Singh"
+		if (fullText.includes('|')) {
+			const parts = fullText.split('|');
+			// If you prefer to parse the text for Roll No:
+			rollNo = parts[0].replace(/Roll No:/i, '').trim();
+			studentName = parts[1].replace(/Name:/i, '').trim();
+		}
 
-    // Add exercise_id to the URL parameters
-    const queryParams = new URLSearchParams({
-        id: studentId,
-        name: studentName,
-        roll: rollNo,
-        class_info: classSection,
-        ex_id: exerciseId // Sending 1011
-    });
+		// Construct URL parameters
+		const queryParams = new URLSearchParams({
+			id: actualStudentId,    // Now sends 9973, 9974, etc.
+			name: studentName,
+			roll: rollNo,           // Sends 1, 2, etc.
+			class_info: classSection,
+			ex_id: exerciseId,
+			trainerId: '{{$userId}}' 
+		});
 
-    window.location.href = `http://103.65.20.129:8000/standard-push-ups.html?${queryParams.toString()}`;
-}
+		// Redirect to your Python/HTML server
+		window.location.href = `http://103.65.20.129:8000/standard-push-ups.html?${queryParams.toString()}`;
+	}
 </script>
 
 
