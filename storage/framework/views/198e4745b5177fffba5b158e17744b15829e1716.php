@@ -1,7 +1,7 @@
-@extends('layouts.filldart-app')
-@section('title', 'Goforfit | ' . $title)
 
-@section('content')
+<?php $__env->startSection('title', 'Goforfit | ' . $title); ?>
+
+<?php $__env->startSection('content'); ?>
 
 <style>
     .card-text { font-size: 29px; text-align: center; margin-top: 20px; }
@@ -56,7 +56,18 @@
         <div class="row">
             <div class="col-12 col-md">
                 <div class="heading-rw mt-0 mt-md-1 mb-0 p-0">                
-                    <x:back-button title="{{$title}}" />
+                    <?php if (isset($component)) { $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4 = $component; } ?>
+<?php $component = $__env->getContainer()->make(Illuminate\View\AnonymousComponent::class, ['view' => 'components.back-button','data' => ['title' => ''.e($title).'']]); ?>
+<?php $component->withName('back-button'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php $component->withAttributes(['title' => ''.e($title).'']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4)): ?>
+<?php $component = $__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4; ?>
+<?php unset($__componentOriginalc254754b9d5db91d5165876f9d051922ca0066f4); ?>
+<?php endif; ?>
                 </div>
             </div>
         </div>
@@ -73,7 +84,8 @@
                         <h5 class="card-title text-center mt-2 mb-3 text-dark">State-wise Fitness Map</h5>
                         <div id="mapChart">
                             <div id="indiaMap">
-                                {!! file_get_contents(public_path('assets/uploads/map.svg')) !!}
+                                <?php echo file_get_contents(public_path('assets/uploads/map.svg')); ?>
+
                             </div>
                             <div id="mapTooltip"></div>
                         </div>
@@ -114,17 +126,17 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         
-        const fitnessLevels  = @json($letnenlevels);
-        const fitnessData    = @json($letnentotals);
-        const fitnessAvg     = @json($ranked_schoolsFitness);
+        const fitnessLevels  = <?php echo json_encode($letnenlevels, 15, 512) ?>;
+        const fitnessData    = <?php echo json_encode($letnentotals, 15, 512) ?>;
+        const fitnessAvg     = <?php echo json_encode($ranked_schoolsFitness, 15, 512) ?>;
 
-        const healthLevels   = @json($healthLevels);
-        const healthData     = @json($healthTotals);
-        const healthAvg      = @json($healthRankData);
+        const healthLevels   = <?php echo json_encode($healthLevels, 15, 512) ?>;
+        const healthData     = <?php echo json_encode($healthTotals, 15, 512) ?>;
+        const healthAvg      = <?php echo json_encode($healthRankData, 15, 512) ?>;
 
-        const skillCategories = @json($categories);
-        const skillSeries     = @json($chartSeries);        
-        const FitnessMap      = @json($FitnessMap);
+        const skillCategories = <?php echo json_encode($categories, 15, 512) ?>;
+        const skillSeries     = <?php echo json_encode($chartSeries, 15, 512) ?>;        
+        const FitnessMap      = <?php echo json_encode($FitnessMap, 15, 512) ?>;
 
         const levelColors = {
             L0:'#01160a', L1:'#fe4a5d', L2:'#ffaa62', L3:'#ffd26e',
@@ -153,7 +165,7 @@
                 const healthCategories = ['UW', 'N', 'OW', 'OB'];
                 const overallHealthData = { UW: 0, N: 0, OW: 0, OB: 0 };
 
-                @json($FitnessMap).forEach(state => {
+                <?php echo json_encode($FitnessMap, 15, 512) ?>.forEach(state => {
                     overallHealthData.UW += state.UW || 0;
                     overallHealthData.N  += state.N  || 0;
                     overallHealthData.OW += state.OW || 0;
@@ -429,4 +441,5 @@
     });
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/school/graph-dashboard.blade.php ENDPATH**/ ?>

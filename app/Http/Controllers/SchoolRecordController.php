@@ -66,278 +66,100 @@ class SchoolRecordController extends Controller
         $this->middleware('auth:web');
     }
 	
-	public function SchoolDashboardGraph() 
-	{
-		
+	public function SchoolDashboardGraph(){
+
 		$title = 'Dashboard Graph';
-		
-		
-		$userId  = Auth::user()->id;
-		$role_id =  \Auth::user()->role_id;
-	
-		$schoolId = 0;
-		
-		if($role_id == 4)
-		{
-			
-			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
-			
-			
-			// i got the active students only [not got the transfer students]
-			$studentscount = DB::table('schools')
-			->join('students', 'students.school_id', '=' , 'schools.id') 
-			->where('schools.id', $schoolId)
-			->where('students.status','=', 'active')
+
+		$user   = Auth::user();
+		$userId = $user->id;
+		$roleId = $user->role_id;
+
+		if ($roleId != 4) {
+			die('--you dont have access for this panel--');
+		}
+
+		$schoolId = DB::table('school_reference')
+			->where('school_user_id', $userId)
+			->where('status', 1)
+			->value('school_id');
+
+		$studentsCount = DB::table('students')
+			->where('school_id', $schoolId)
+			->where('status', 'active')
 			->count();
-			
-			
-		
-			/*
-			
-			//Test1- For Fitness
-			
-			$resultTESTING = DB::table('SeniorTestResults')
-			->join('students','students.id', '=', 'SeniorTestResults.StudentID')
-			->join('class','class.id', '=', 'students.class_id')
-			->join('term_masters','term_masters.school_id', '=', 'SeniorTestResults.SchoolID')
-			->select('LEVEL', DB::raw('COUNT(*) as total'))
-			->where('SeniorTestResults.SchoolID', $schoolId)
-			->whereBetween('class.id', [4, 12])
-			//->where('TermId', 7)
-			->whereDate('term_start_date', '<=', now())
-			->whereDate('term_end_date', '>=', now())
-			//->where('class.id', 3)
-			->whereRaw("LEVEL REGEXP '^L[1-7]+$'")
-			->whereIn('TestTypeID', [19, 20, 21, 22, 23])
-			->groupBy('LEVEL')
-			->orderByRaw("CAST(SUBSTRING(LEVEL, 2) AS UNSIGNED)")
-			->get();
-			
-			
-			
-			*/
-			
-			/**/
-			
-					
-	
-			$result = DB::table('SeniorTestResults')
-			->join('students','students.id', '=', 'SeniorTestResults.StudentID')
-			->join('class','class.id', '=', 'students.class_id')
-			->join('term_masters','term_masters.school_id', '=', 'SeniorTestResults.SchoolID')
-			->select('LEVEL', DB::raw('COUNT(*) as total'))
-			->where('SeniorTestResults.SchoolID', $schoolId)
-			->whereDate('term_start_date', '<=', now())
-			->whereDate('term_end_date', '>=', now())
-			->groupBy('LEVEL');
-			
-			
-			$resultLevel = (clone $result)
-			->whereBetween('class.id', [4, 12])
-			->whereRaw("LEVEL REGEXP '^L[0-8]+$'")
-			->whereIn('TestTypeID', [16, 17, 19, 20, 21, 22, 23])
-			->orderByRaw("CAST(SUBSTRING(LEVEL, 2) AS UNSIGNED)")
-			->get();
-			
-			
-			$graph1levels = [];
-			$percentages = [];
 
-			foreach ($resultLevel as $roww) 
-			{
-				$graph1levels[] = $roww->LEVEL;
-
-				// avoid divide-by-zero drama
-				//$percentage = $studentscount > 0 ? (int) round(($roww->total / $studentscount) * 100): 0;
-				
-				$percentage = $studentscount > 0 ? (int) round($roww->total): 0;
-
-				$percentages[] = $percentage;
-			}
-			
-			
-			$resulthealth = (clone $result)
-			->whereBetween('class.id', [1, 23])
-			//->where('class.id', 14)
-			->whereIn('LEVEL', ['UW', 'N', 'OW', 'OB'])
-			->orderByRaw("FIELD(LEVEL, 'UW', 'N', 'OW', 'OB')")
-			->get();
-			
-			
-			
-			
-					
-			
-			//Test2- For health
-			
-			/*$resultHealthTESTING = DB::table('SeniorTestResults')
-			->join('students','students.id', '=', 'SeniorTestResults.StudentID')
-			->join('class','class.id', '=', 'students.class_id')
-			->join('term_masters','term_masters.school_id', '=', 'SeniorTestResults.SchoolID')
-			->select('LEVEL', DB::raw('COUNT(*) as total'))
-			->where('SeniorTestResults.SchoolID', $schoolId)
-			//->whereBetween('class.id', [4, 12])
-			->where('TermId', 7)
-			//->whereDate('term_start_date', '<=', now())
-			//->whereDate('term_end_date', '>=', now())
-			->where('students.class_id', 1)
-			->whereIn('LEVEL', ['UW', 'N', 'OW', 'OB'])
-			->groupBy('LEVEL')
-			->orderByRaw("FIELD(LEVEL, 'UW', 'N', 'OW', 'OB')")
-			->get();*/
-			
-			
-			/*echo "<pre>";
-			print_r($resultHealthTESTING);
-			die('---change the detail bhawani pilani---');*/
-			
-			
-			
-			
-			$healthLevels = [];
-			$healthPercentages = [];
-
-			foreach ($resulthealth as $rowH) 
-			{
-				$healthLevels[] = $rowH->LEVEL;
-
-				#$percentageHlt = $studentscount > 0 ? (int) round(($rowH->total / $studentscount) * 100): 0;
-				$percentageHlt = (int) round($rowH->total);
-
-				$healthPercentages[] = $percentageHlt;
-			}
-
-		
-	
-			//die('--you are not a teacher. teacher can only access--');
-		}
-		else
-		{
-			die('--you dont have access for this panel. sorry for inconvenation--');
-		}
-		
-			
-		
-	
-		/* 1st graph value */
-		$letnenlevels 	 =  $graph1levels;
-		 $letnentotals   =  $percentages;
-		
-		/* 2nd graph value */
-		$healthLevels    =  $healthLevels;
-		$healthTotals    =  $healthPercentages;
-		
-	
-
-		$resultRRR = DB::table('SeniorTestResults')
-		->join('students','students.id', '=', 'SeniorTestResults.StudentID')
-		->join('class','class.id', '=', 'students.class_id')
-		->join('term_masters','term_masters.school_id', '=', 'SeniorTestResults.SchoolID')
-		->select('LEVEL', DB::raw('COUNT(StudentID) AS Total_Student'))
-		->whereDate('term_start_date', '<=', now())
-		->whereDate('term_end_date', '>=', now())
-		->whereRaw("LEVEL REGEXP '^L[0-8]+$'")
-		->groupBy('LEVEL')
-		->orderByRaw("CAST(SUBSTRING(LEVEL, 2) AS UNSIGNED)")
-		->get();
-
-		// Prepare data for Highcharts
-		$ranked_schoolsFitness = $resultRRR->pluck('Total_Student')->toArray();
-	
-		
-
-		$resultRRRHealth = DB::table('SeniorTestResults')
-		->join('students','students.id', '=', 'SeniorTestResults.StudentID')
-		->join('class','class.id', '=', 'students.class_id')
-		->join('term_masters','term_masters.school_id', '=', 'SeniorTestResults.SchoolID')
-		->select('LEVEL', DB::raw('COUNT(StudentID) AS Total_Student'))
-		->whereDate('term_start_date', '<=', now())
-		->whereDate('term_end_date', '>=', now())
-		->whereIn('LEVEL', ['UW', 'N', 'OW', 'OB'])
-		->groupBy('LEVEL')
-		->orderByRaw("FIELD(LEVEL, 'UW', 'N', 'OW', 'OB')")
-		->get();
-
-		// Prepare data for your Highchart
-		$healthRankData = $resultRRRHealth->pluck('Total_Student')->toArray();
-		
-		
-		
-		
-			/* third graph */
-			
-			/*$data = DB::table('SeniorTestResults as str')
-			->join('skill_reports as sr', 'sr.id', '=', 'str.TestTypeID')
-			->select(
-			'sr.skill_name',
-			'str.level',
-			DB::raw('COUNT(*) as total')
-			)
+		$baseQuery = DB::table('SeniorTestResults as str')
+			->join('students as s', 's.id', '=', 'str.StudentID')
+			->join('schools', 'schools.id', '=', 'str.SchoolID')
+			->join('class as c', 'c.id', '=', 's.class_id')
+			->join('term_masters as tm', 'tm.school_id', '=', 'str.SchoolID')
 			->where('str.SchoolID', $schoolId)
-			->whereIn('str.TestTypeID', [19, 20, 21, 22, 23])
-			->whereNotNull('str.level')
-			->whereNotIn('str.level', ['', 'N.A.'])
-			->whereRaw("LEVEL REGEXP '^L[1-7]+$'")
-			->groupBy('sr.skill_name', 'str.level')
-			->orderBy('sr.skill_name')
+			->whereDate('tm.term_start_date', '<=', now())
+			->whereDate('tm.term_end_date', '>=', now());
+
+		$fitness = (clone $baseQuery)
+			->select('str.level', DB::raw('COUNT(*) as total'))
+			->whereBetween('c.id', [4, 12])
+			->whereRaw("str.level REGEXP '^L[0-8]+$'")
+			->whereIn('str.TestTypeID', [16,17,19,20,21,22,23])
+			->groupBy('str.level')
 			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
 			->get();
-			
-			
-			$levels = [];
-			$series = [];
-
-			foreach ($data as $row) 
-			{
-				$levels[$row->level] = true;
-				$series[$row->skill_name][$row->level] = $row->total;
-			}
-			
 		
-			$categories = array_keys($levels);			
-			sort($categories);
+		$FitnessMap = DB::table('SeniorTestResults as str')
+			->join('students as s', 's.id', '=', 'str.StudentID')
+			->join('schools', 'schools.id', '=', 'str.SchoolID')
+			->join('term_masters as tm', 'tm.school_id', '=', 'str.SchoolID')
+			->whereDate('tm.term_start_date', '<=', now())
+			->whereDate('tm.term_end_date', '>=', now())
+			->where('str.TestTypeID', 18)
+			->groupBy('schools.state')
+			->select(
+				'schools.state as name',
+				DB::raw('COUNT(DISTINCT schools.id) as schools'),
+				DB::raw('COUNT(DISTINCT CASE WHEN s.class_id BETWEEN 1 AND 12 THEN s.id END) as students'),
+				DB::raw("COUNT(DISTINCT CASE WHEN str.level = 'UW' THEN str.StudentID END) as UW"),
+				DB::raw("COUNT(DISTINCT CASE WHEN str.level = 'N' THEN str.StudentID END) as N"),
+				DB::raw("COUNT(DISTINCT CASE WHEN str.level = 'OW' THEN str.StudentID END) as OW"),
+				DB::raw("COUNT(DISTINCT CASE WHEN str.level = 'OB' THEN str.StudentID END) as OB")
+			)
+			->orderBy('schools.state')
+			->get();
 			
+		// echo "<pre>"; print_r($FitnessMap);exit();
 
+		$letnenlevels = $fitness->pluck('level');
+		$letnentotals = $fitness->pluck('total')->map(fn($v) => (int)$v);
 
-			$chartSeries = [];
+		$health = (clone $baseQuery)
+			->select('str.level', DB::raw('COUNT(*) as total'))
+			->whereIn('str.level', ['UW', 'N', 'OW', 'OB'])
+			->groupBy('str.level')
+			->orderByRaw("FIELD(str.level, 'UW','N','OW','OB')")
+			->get();
 
-			foreach ($series as $skill => $values) 
-			{
-				$rowData = [];
-				foreach ($categories as $level) 
-				{
-					$rowData[] = $values[$level] ?? 0; // fill missing levels
-			    }
-			
+		$healthLevels = $health->pluck('level');
+		$healthTotals = $health->pluck('total')->map(fn($v) => (int)$v);
 
-				$chartSeries[] = 
-				[
-					'name' => $skill,
-					'data' => $rowData
-				];
-			}*/
-			
-		
-		
+		$ranked_schoolsFitness = (clone $baseQuery)
+			->select(DB::raw('COUNT(str.StudentID) as total'))
+			->whereRaw("str.level REGEXP '^L[0-8]+$'")
+			->groupBy('str.level')
+			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
+			->pluck('total');
 
-	
-	
-		
-		
-		// -------------------------------------
-		// 1. Fetch data from DB
-		// -------------------------------------
-		$data = DB::table('SeniorTestResults as str')
+		$healthRankData = (clone $baseQuery)
+			->select(DB::raw('COUNT(str.StudentID) as total'))
+			->whereIn('str.level', ['UW','N','OW','OB'])
+			->groupBy('str.level')
+			->orderByRaw("FIELD(str.level, 'UW','N','OW','OB')")
+			->pluck('total');
+
+		$data = (clone $baseQuery)
 			->join('skill_reports as sr', 'sr.id', '=', 'str.TestTypeID')
-			->join('students','students.id', '=', 'str.StudentID')
-			->join('class','class.id', '=', 'students.class_id')
-			->join('term_masters','term_masters.school_id', '=', 'str.SchoolID')
-			->select('sr.skill_name','str.level',DB::raw('COUNT(*) as total'))
-			->where('str.SchoolID', $schoolId)
-			->whereBetween('class.id', [4, 12])
-			->whereDate('term_start_date', '<=', now())
-			->whereDate('term_end_date', '>=', now())
-			->whereIn('str.TestTypeID', [16, 17, 19, 20, 21, 22, 23])
+			->select('sr.skill_name', 'str.level', DB::raw('COUNT(*) as total'))
+			->whereBetween('c.id', [4, 12])
+			->whereIn('str.TestTypeID', [16,17,19,20,21,22,23])
 			->whereNotNull('str.level')
 			->whereNotIn('str.level', ['', 'N.A.'])
 			->whereRaw("str.level REGEXP '^L[0-8]+$'")
@@ -345,98 +167,49 @@ class SchoolRecordController extends Controller
 			->orderBy('sr.skill_name')
 			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
 			->get();
-			
-			
-			#echo "<pre>";
-			#print_r($data);
-			#die('---change the detail---');
 
-
-		// -------------------------------------
-		// 2. Prepare containers
-		// -------------------------------------
+		// Prepare matrix
 		$skills = [];
 		$levels = [];
 		$matrix = [];
 
-
-		// -------------------------------------
-		// 3. Normalize data
-		//    matrix[skill][level] = total
-		// -------------------------------------
 		foreach ($data as $row) {
 			$skills[$row->skill_name] = true;
 			$levels[$row->level] = true;
-			$matrix[$row->skill_name][$row->level] = (int) $row->total;
+			$matrix[$row->skill_name][$row->level] = (int)$row->total;
 		}
 
-
-		// -------------------------------------
-		// 4. X-axis categories (skills)
-		// -------------------------------------
 		$categories = array_keys($skills);
 
-
-		// -------------------------------------
-		// 5. Sort levels L1 → L7
-		// -------------------------------------
 		$levelNames = array_keys($levels);
-		usort($levelNames, function ($a, $b) {
-			return (int) substr($a, 1) <=> (int) substr($b, 1);
-		});
+		usort($levelNames, fn($a, $b) => (int)substr($a,1) <=> (int)substr($b,1));
 
-
-		// -------------------------------------
-		// 6. Define colors per level
-		// -------------------------------------
 		$levelColors = [
-			'L0' => '#01160a',
-			'L1' => '#fe4a5d',
-			'L2' => '#ffaa62',
-			'L3' => '#ffd26e',
-			'L4' => '#74c4d6',
-			'L5' => '#a3d55f',
-			'L6' => '#6bc04b',
-			'L7' => '#00953b',
-			'L8' => '#01160a',
-			
+			'L0'=>'#01160a','L1'=>'#fe4a5d','L2'=>'#ffaa62','L3'=>'#ffd26e',
+			'L4'=>'#74c4d6','L5'=>'#a3d55f','L6'=>'#6bc04b','L7'=>'#00953b','L8'=>'#01160a'
 		];
 
-
-		// -------------------------------------
-		// 7. Build Highcharts series
-		//    SERIES = LEVEL WISE (IMPORTANT FIX)
-		// -------------------------------------
 		$chartSeries = [];
-
 		foreach ($levelNames as $level) {
-			$rowData = [];
-
-			foreach ($categories as $skill) {
-				$rowData[] = $matrix[$skill][$level] ?? 0;
-			}
-
 			$chartSeries[] = [
-				'name'  => $level,                        // ✅ REQUIRED
-				'data'  => $rowData,
-				'color' => $levelColors[$level] ?? '#000000'
+				'name'  => $level,
+				'data'  => array_map(fn($skill) => $matrix[$skill][$level] ?? 0, $categories),
+				'color' => $levelColors[$level] ?? '#000'
 			];
 		}
 
-
-		// -------------------------------------
-		// 8. Final output (send to view / debug)
-		// -------------------------------------
-		/*echo '<pre>';
-		print_r([
-			'categories'  => $categories,
-			'chartSeries' => $chartSeries
-		]);
-		exit;*/
-		
-
-    	return view('school.graph-dashboard', compact('title', 'letnenlevels', 'letnentotals', 'ranked_schoolsFitness', 'healthLevels', 'healthTotals', 'healthRankData', 'categories', 'chartSeries')); 
-			
+		return view('school.graph-dashboard', compact(
+			'title',
+			'letnenlevels',
+			'letnentotals',
+			'ranked_schoolsFitness',
+			'healthLevels',
+			'healthTotals',
+			'healthRankData',
+			'categories',
+			'chartSeries',
+			'FitnessMap'
+		));
 	}
 
     public function SchoolDashboard() 
