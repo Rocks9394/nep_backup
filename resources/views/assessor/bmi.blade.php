@@ -39,7 +39,7 @@
             $type = "fitnessTest";
             @endphp
 
-            <x-get-student-list :classes="$classes" :type="$type"  />
+            <x-get-student-list :classes="$classes" :type="$type" :title="$title"  />
             
 
 

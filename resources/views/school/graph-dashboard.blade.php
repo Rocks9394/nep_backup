@@ -110,6 +110,8 @@
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://code.highcharts.com/highcharts-more.js"></script>
+<script src="https://code.highcharts.com/modules/packed-bubble.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -124,7 +126,230 @@
 
         const skillCategories = @json($categories);
         const skillSeries     = @json($chartSeries);        
-        const FitnessMap      = @json($FitnessMap);
+        // const FitnessMap1      = @json($FitnessMap);
+        const tooltip = document.getElementById("mapTooltip");
+        const FitnessMapUrl = "https://nep.goforfit.in/api/states-fitness-data";
+
+        let FitnessMap = []; // initialize as empty array
+        submitLoader();
+        fetch(FitnessMapUrl, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`API response not OK: ${response.status}`);
+            return response.json();
+        })
+        .then(result => {
+            Swal.close();
+            FitnessMap = result.stateData || (result.data && result.data.stateData) || [];
+            buildOverallHealthChart(FitnessMap);
+            buildIndiaMap(FitnessMap);
+            renderIndiaMap();
+            renderPieChart();
+        })
+        .catch(error => {
+            console.error("Could not load mapdata API:", error);
+        });
+
+        function buildOverallHealthChart(FitnessMap) {
+            const overallHealthData = { UW:0, N:0, OW:0, OB:0 };
+            FitnessMap.forEach(state => {
+                overallHealthData.UW += parseInt(state.UW) || 0;
+                overallHealthData.N  += parseInt(state.N)  || 0;
+                overallHealthData.OW += parseInt(state.OW) || 0;
+                overallHealthData.OB += parseInt(state.OB) || 0;
+            });
+
+            const healthCategories = ['UW','N','OW','OB'];
+            const pieData = healthCategories.map(cat => ({
+                name: cat,
+                y: overallHealthData[cat],
+                color: { UW:'#a3d55f', N:'#00953b', OW:'#ffaa62', OB:'#fe4a5d' }[cat]
+            }));
+
+            Highcharts.chart('dd', {
+                chart: { type: 'pie', height: 360 },
+                title: { text: 'Country Health Indicator' },
+                series: [{ name: 'Students', colorByPoint: true, data: pieData }]
+            });
+        }
+
+        
+        const stateCodeMap = {
+            "Andhra Pradesh": "INAP",
+            "Arunachal Pradesh": "INAR",
+            "Assam": "INAS",
+            "Bihar": "INBR",
+            "Chhattisgarh": "INCT",
+            "Goa": "INGA",
+            "Gujarat": "INGJ",
+            "Haryana": "INHR",
+            "Himachal Pradesh": "INHP",
+            "Jharkhand": "INJH",
+            "Karnataka": "INKA",
+            "Kerala": "INKL",
+            "Madhya Pradesh": "INMP",
+            "Maharashtra": "INMH",
+            "Manipur": "INMN",
+            "Meghalaya": "INML",
+            "Mizoram": "INMZ",
+            "Nagaland": "INNL",
+            "Odisha": "INOR",
+            "Punjab": "INPB",
+            "Rajasthan": "INRJ",
+            "Sikkim": "INSK",
+            "Tamil Nadu": "INTN",
+            "Telangana": "INTG",
+            "Tripura": "INTR",
+            "Uttar Pradesh": "INUP",
+            "Uttarakhand": "INUT",
+            "West Bengal": "INWB",
+            "Delhi": "INDL",
+            "Andaman and Nicobar Islands": "INAN",
+            "Chandigarh": "INCH",
+            "Dadra and Nagar Haveli": "INDH",
+            "Daman and Diu": "INDD",
+            "Jammu and Kashmir": "INJK",
+            "Ladakh": "INLA",
+            "Lakshadweep": "INLD",
+            "Puducherry": "INPY"
+        };
+
+        const stateData = {};
+
+        function renderPieChart(){
+            if (document.getElementById('dd')) {
+                try {
+                    const healthCategories = ['UW', 'N', 'OW', 'OB'];
+
+                    const overallHealthData = { UW: 0, N: 0, OW: 0, OB: 0 };
+                    FitnessMap.forEach(state => {
+                        overallHealthData.UW += parseInt(state.UW) || 0;
+                        overallHealthData.N  += parseInt(state.N)  || 0;
+                        overallHealthData.OW += parseInt(state.OW) || 0;
+                        overallHealthData.OB += parseInt(state.OB) || 0;
+                    });
+
+                    const pieData = healthCategories.map(cat => ({
+                        name: cat,
+                        y: overallHealthData[cat],
+                        color: (() => {
+                            // Set your colors for each category
+                            const colors = { UW:'#a3d55f', N:'#00953b', OW:'#ffaa62', OB:'#fe4a5d' };
+                            return colors[cat] || '#ccc';
+                        })()
+                    }));
+
+                    // Render pie chart
+                    Highcharts.chart('dd', {
+                        chart: {
+                            type: 'pie',
+                            height: 360
+                        },
+                        title: { text: 'Country Health Indicator' },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.y}</b> ({point.percentage:.1f}%)'
+                        },
+                        accessibility: {
+                            point: { valueSuffix: '%' }
+                        },
+                        plotOptions: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                dataLabels: {
+                                    enabled: true,
+                                    format: '<b>{point.name}</b>: {point.y} ({point.percentage:.1f}%)'
+                                }
+                            }
+                        },
+                        series: [{
+                            name: 'Students',
+                            colorByPoint: true,
+                            data: pieData
+                        }]
+                    });
+
+                } catch (error) {
+                    console.error('Overall Health Pie Chart Error:', error);
+                    document.getElementById('dd').innerHTML = '<div class="map-error">Error loading overall health pie chart</div>';
+                }
+            }
+        }
+        
+
+        // India Map with multiple fallback options
+
+        function buildIndiaMap(FitnessMap){
+            FitnessMap.forEach(item => {
+                let stateName = item.name;
+
+                if (stateName.includes("Delhi")) {
+                    stateName = "Delhi";
+                }
+
+                const code = stateCodeMap[stateName];
+
+                if (code) {
+                    stateData[code] = item;
+                }
+            });
+        }      
+
+        function renderIndiaMap(){
+            document.querySelectorAll("#indiaMap svg path").forEach(path => {
+                const code = path.id;
+                const data = stateData[code];
+
+                const colors = ['#fe4a5d','#ffaa62','#ffd26e','#74c4d6','#a3d55f','#6bc04b','#00953b'];
+
+                function getBaseColor(schools) {
+                    if (!schools) return '#ddd'; 
+                    let index = Math.floor(schools / 10);
+                    if (index >= colors.length) index = colors.length - 1;
+                    return colors[index] + 'CC';
+                }
+
+                const schools = data ? data.schools : 0;
+                path.dataset.baseColor = getBaseColor(schools);
+                path.style.fill = path.dataset.baseColor;
+
+                path.addEventListener("mouseenter", function () {
+                    const baseColor = this.dataset.baseColor;
+
+                    this.style.fill = baseColor.replace(/CC$/, 'FF'); 
+                    if (!data) {
+                        tooltip.innerHTML = `<strong>No data</strong>`;
+                    } else {
+                        tooltip.innerHTML = `
+                            <strong>${data.name}</strong><br>
+                            Schools: ${data.schools}<br>
+                            Students: ${data.students}<br>
+                            UW: ${data.UW}<br>
+                            N: ${data.N}<br>
+                            OW: ${data.OW}<br>
+                            OB: ${data.OB}
+                        `;
+                    }
+                    tooltip.style.display = "block";
+                });
+
+                path.addEventListener("mousemove", function (e) {
+                    const container = document.getElementById("mapChart");
+                    const rect = container.getBoundingClientRect();
+                    tooltip.style.left = (e.clientX - rect.left + 10) + "px";
+                    tooltip.style.top = (e.clientY - rect.top - 40) + "px";
+                });
+
+                path.addEventListener("mouseleave", function () {
+                    this.style.fill = this.dataset.baseColor; // restore original
+                    tooltip.style.display = "none";
+                });
+            });
+        }
+        
 
         const levelColors = {
             L0:'#01160a', L1:'#fe4a5d', L2:'#ffaa62', L3:'#ffd26e',
@@ -137,69 +362,6 @@
                 y: values[i] ?? 0,
                 color: colorMap ? (colorMap[lvl] || '#000') : (fallbackColors[i] || '#000')
             }));
-        }
-
-        const overallHealthData = { UW:0, N:0, OW:0, OB:0 };
-
-        FitnessMap.forEach(state => {
-            overallHealthData.UW += state.UW || 0;
-            overallHealthData.N  += state.N  || 0;
-            overallHealthData.OW += state.OW || 0;
-            overallHealthData.OB += state.OB || 0;
-        });
-        if (document.getElementById('dd')) {
-            try {
-                // Health categories
-                const healthCategories = ['UW', 'N', 'OW', 'OB'];
-                const overallHealthData = { UW: 0, N: 0, OW: 0, OB: 0 };
-
-                @json($FitnessMap).forEach(state => {
-                    overallHealthData.UW += state.UW || 0;
-                    overallHealthData.N  += state.N  || 0;
-                    overallHealthData.OW += state.OW || 0;
-                    overallHealthData.OB += state.OB || 0;
-                });
-
-                const healthTotalsAllStates = healthCategories.map(cat => overallHealthData[cat]);
-
-                const chartData = buildColumnData(healthCategories, healthTotalsAllStates, null, ['#a3d55f','#00953b','#ffaa62','#fe4a5d']);
-
-                Highcharts.chart('dd', {
-                    chart: { type: 'column' },
-                    title: { text: 'Country Health Indicator' },
-                    xAxis: { categories: healthCategories },
-                    yAxis: [{
-                        title: { text: 'Total Students' },
-                        visible: true
-                    },{
-                        title: { text: 'Overall Average' },
-                        opposite: true,
-                        labels: { enabled: false }
-                    }],
-                    tooltip: {
-                        shared: true,
-                        crosshairs: true
-                    },
-                    series: [
-                        { 
-                            name: 'Total Students', 
-                            data: chartData,
-                            type: 'column'
-                        },
-                        { 
-                            name: 'Overall Average', 
-                            type: 'spline', 
-                            data: healthAvg,
-                            yAxis: 1, 
-                            color: '#434348',
-                            marker: { enabled: true }
-                        }
-                    ]
-                });
-            } catch (error) {
-                console.error('Overall Health Chart Error:', error);
-                document.getElementById('dd').innerHTML = '<div class="map-error">Error loading overall health chart</div>';
-            }
         }
 
         // Fitness Chart
@@ -321,110 +483,6 @@
                 document.getElementById('skillChart').innerHTML = '<div class="map-error">Error loading skill chart</div>';
             }
         }
-
-        // India Map with multiple fallback options
-
-        const stateCodeMap = {
-            "Andhra Pradesh": "INAP",
-            "Arunachal Pradesh": "INAR",
-            "Assam": "INAS",
-            "Bihar": "INBR",
-            "Chhattisgarh": "INCT",
-            "Goa": "INGA",
-            "Gujarat": "INGJ",
-            "Haryana": "INHR",
-            "Himachal Pradesh": "INHP",
-            "Jharkhand": "INJH",
-            "Karnataka": "INKA",
-            "Kerala": "INKL",
-            "Madhya Pradesh": "INMP",
-            "Maharashtra": "INMH",
-            "Manipur": "INMN",
-            "Meghalaya": "INML",
-            "Mizoram": "INMZ",
-            "Nagaland": "INNL",
-            "Odisha": "INOR",
-            "Punjab": "INPB",
-            "Rajasthan": "INRJ",
-            "Sikkim": "INSK",
-            "Tamil Nadu": "INTN",
-            "Telangana": "INTG",
-            "Tripura": "INTR",
-            "Uttar Pradesh": "INUP",
-            "Uttarakhand": "INUT",
-            "West Bengal": "INWB",
-            "Delhi": "INDL"
-        };
-
-        const stateData = {};
-
-        FitnessMap.forEach(item => {
-            let stateName = item.name;
-
-            if (stateName.includes("Delhi")) {
-                stateName = "Delhi";
-            }
-
-            const code = stateCodeMap[stateName];
-
-            if (code) {
-                stateData[code] = item;
-            }
-        });
-
-        const tooltip = document.getElementById("mapTooltip");
-
-        document.querySelectorAll("#indiaMap svg path").forEach(path => {
-
-            const code = path.id;
-            const data = stateData[code];
-
-            const colors = ['#fe4a5d','#ffaa62','#ffd26e','#74c4d6','#a3d55f','#6bc04b','#00953b'];
-
-            function getBaseColor(schools) {
-                if (!schools) return '#ddd'; 
-                let index = Math.floor(schools / 50);
-                if (index >= colors.length) index = colors.length - 1;
-                return colors[index] + 'CC';
-            }
-
-            const schools = data ? data.schools : 0;
-            path.dataset.baseColor = getBaseColor(schools);
-            path.style.fill = path.dataset.baseColor;
-
-            path.addEventListener("mouseenter", function () {
-                const baseColor = this.dataset.baseColor;
-
-                this.style.fill = baseColor.replace(/CC$/, 'FF'); 
-                if (!data) {
-                    tooltip.innerHTML = `<strong>No data</strong>`;
-                } else {
-                    tooltip.innerHTML = `
-                        <strong>${data.name}</strong><br>
-                        Schools: ${data.schools}<br>
-                        Students: ${data.students}<br>
-                        UW: ${data.UW}<br>
-                        N: ${data.N}<br>
-                        OW: ${data.OW}<br>
-                        OB: ${data.OB}
-                    `;
-                }
-                tooltip.style.display = "block";
-            });
-
-            path.addEventListener("mousemove", function (e) {
-                const container = document.getElementById("mapChart");
-                const rect = container.getBoundingClientRect();
-                tooltip.style.left = (e.clientX - rect.left + 10) + "px";
-                tooltip.style.top = (e.clientY - rect.top - 40) + "px";
-            });
-
-            path.addEventListener("mouseleave", function () {
-                this.style.fill = this.dataset.baseColor; // restore original
-                tooltip.style.display = "none";
-            });
-        });
-        console.log(stateData);
         
     });
 </script>

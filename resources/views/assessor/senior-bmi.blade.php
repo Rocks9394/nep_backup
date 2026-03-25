@@ -37,7 +37,7 @@
             $type = "fitnessTest";
             @endphp
 
-            <x-get-student-list :classes="$classes" :type="$type"  />   
+            <x-get-student-list :classes="$classes" :type="$type" :title="$title"  />   
 
             <form method="POST" name="saveBMIRecord" id="save_bmi_record_id" action="">
                 {{method_field('post')}}

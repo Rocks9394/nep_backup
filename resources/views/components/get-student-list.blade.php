@@ -19,6 +19,8 @@
                     </div>
                 </div>
             </div>
+			
+			
 
             <div class="col-12 col-md-8">
                 <div class="form mt-1 mt-md-3">
@@ -35,11 +37,16 @@
 			$userId  = \Auth::id();
 			@endphp
 		
-		<button type="button" id="start-exercise-btn" class="btn btn-warning" 
-		onclick="redirectToPython()" style="color: white; font-weight: bold;"> Start AI Exercise - {{$userId}}</button>
+
 
 			
             @if(Auth::user()->id == '995')
+			
+			<button type="button" id="start-exercise-btn" class="btn btn-warning" 
+			onclick="redirectToPython()" style="color: white; font-weight: bold;"> Start AI Exercise - {{$userId}} - {{ $title }}</button>
+			
+			
+			
             <div class="col-4 col-sm-3 col-md-2 col-lg-1">
                 <div class="form mt-1 mt-md-3">
                     <div class="mb-3" style="margin-top:32px;">

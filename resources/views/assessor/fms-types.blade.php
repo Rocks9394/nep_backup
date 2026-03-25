@@ -26,7 +26,7 @@
                 @php
                 $type = "allFmsTest";
                 @endphp
-                <x-get-student-list :classes="$classes" :type="$type" />
+                <x-get-student-list :classes="$classes" :type="$type" :title="$title" />
 
                 <form class="row" method="POST" name="fms_types_submit" id="fms_types_submit_id" action="">
                     {{method_field('post')}}

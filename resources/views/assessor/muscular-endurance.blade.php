@@ -33,7 +33,9 @@
             $type = "fitnessTest";
             @endphp
 
-            <x-get-student-list :classes="$classes" :type="$type"  />
+          
+			{{-- Pass variables using the colon prefix for PHP variables --}}
+			<x-get-student-list :classes="$classes" :type="$type" :title="$title" />
             
         <form class="row" method="POST" name="savePushUpRecord" id="save_push_up_id" action="">
             {{method_field('post')}}

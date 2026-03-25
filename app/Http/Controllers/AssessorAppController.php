@@ -213,7 +213,7 @@ class AssessorAppController extends Controller
 		
 		$userId  = \Auth::id();
 		
-		
+	
 		if(Session::get('SelectSchoolId')){	
 			$SchoolId = Session::get('SelectSchoolId');			
 		}else{			
@@ -422,7 +422,6 @@ class AssessorAppController extends Controller
 		{
 
 			$classes = $seniorclasses;
-			
 			$title = $skillReport->skill_name;
 			return view('assessor.muscular-endurance', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 			
@@ -447,8 +446,7 @@ class AssessorAppController extends Controller
 		{
 			
 			$classes = $seniorclasses;
-			
-			
+	
 			$title = $skillReport->skill_name;
 			return view('assessor.speed', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 			

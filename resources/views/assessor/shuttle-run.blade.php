@@ -44,7 +44,7 @@
             $type = "fitnessTest";
             @endphp
 
-            <x-get-student-list :classes="$classes" :type="$type"  />
+            <x-get-student-list :classes="$classes" :type="$type" :title="$title"  />
             
             
             <form class="row" method="POST" name="savePlateTappingRecord" id="save_hand-toss" action="">

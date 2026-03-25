@@ -233,7 +233,7 @@ class ReportController extends Controller {
 	}
 
 
-	public function downloadFitnessReport_bk($id = null, $term_id = null) {
+	public function downloadFitnessReport($id = null, $term_id = null) {
 
 		if($id){
 			$studentId = Crypt::decryptString($id);
@@ -1407,7 +1407,7 @@ class ReportController extends Controller {
 	}
 
 
-	public function downloadFitnessReport($id = null, $term_id = null) {
+	public function downloadFitnessReport_bk($id = null, $term_id = null) {
 
 		if($id){
 			$studentId = Crypt::decryptString($id);

@@ -212,6 +212,7 @@ class SchoolRecordController extends Controller
 		));
 	}
 
+
     public function SchoolDashboard() 
 	{
 		
