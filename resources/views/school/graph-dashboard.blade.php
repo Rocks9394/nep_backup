@@ -30,7 +30,7 @@
         padding: 10px 12px;
         border-radius: 6px;
         font-size: 13px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 2px rgba(0,0,0,0.05);
         pointer-events: none;
         z-index: 1000;
     }
@@ -49,6 +49,84 @@
         transition: fill 0.3s ease;
         cursor: pointer;
     }
+
+    .map-legend {
+        position: absolute;
+        bottom: 20px;
+        right: 50px;
+        background: #fff;
+        padding: 2px 5px;
+        border-radius: 6px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        z-index: 1 !important;
+        min-width: 120px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1px;
+        font-size: 11px;
+
+    }
+
+    .legend-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .legend-item span {
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+        margin-right: 5px;
+        border-radius: 2px;
+    }
+   .loader-overlay {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 1 !important;
+        pointer-events: none;
+    }
+
+    .loader-overlay .pulse {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        position: relative;
+        margin-bottom: 8px;
+    }
+
+    .loader-overlay .pulse::before,
+    .loader-overlay .pulse::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 6px solid #000;
+        animation: pulseRing 1.2s ease-out infinite;
+    }
+
+    .loader-overlay .pulse::after {
+        animation-delay: 0.8s;
+        opacity: 0.5;
+    }
+
+    @keyframes pulseRing {
+        0% { transform: scale(0.3); opacity: 0.9; }
+        100% { transform: scale(1.2); opacity: 0; }
+    }
+
+    .loader-overlay p {
+        margin: 0;
+        font-weight: 500;
+        font-size: 14px;
+        color: #333;
+    }
 </style>
 
 <div class="container-fluid">
@@ -62,12 +140,18 @@
         </div>
 
         <div class="mt-3">
-            <div class="row mt-4">
+            <div class="row mt-4 position-relative" id="loaderRow">
+                <div class="loader-overlay">
+                    <div class="pulse"></div>
+                </div>
+
+                <!-- Cards -->
                 <div class="col-md-6">
                     <div class="card">
                         <div id="dd" style="height: 400px;"></div>
                     </div>
                 </div>
+
                 <div class="col-md-6">
                     <div class="card">
                         <h5 class="card-title text-center mt-2 mb-3 text-dark">State-wise Fitness Map</h5>
@@ -75,6 +159,7 @@
                             <div id="indiaMap">
                                 {!! file_get_contents(public_path('assets/uploads/map.svg')) !!}
                             </div>
+                            <div class="map-legend mt-3"></div>
                             <div id="mapTooltip"></div>
                         </div>
                     </div>
@@ -112,12 +197,13 @@
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 <script src="https://code.highcharts.com/highcharts-more.js"></script>
 <script src="https://code.highcharts.com/modules/packed-bubble.js"></script>
+<script src="https://code.highcharts.com/modules/no-data-to-display.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         
-        const fitnessLevels  = @json($letnenlevels);
-        const fitnessData    = @json($letnentotals);
+        const fitnessLevels  = @json($fitnessLevels);
+        const fitnessData    = @json($fitnessTotals);
         const fitnessAvg     = @json($ranked_schoolsFitness);
 
         const healthLevels   = @json($healthLevels);
@@ -128,10 +214,11 @@
         const skillSeries     = @json($chartSeries);        
         // const FitnessMap1      = @json($FitnessMap);
         const tooltip = document.getElementById("mapTooltip");
+       
         const FitnessMapUrl = "https://nep.goforfit.in/api/states-fitness-data";
 
-        let FitnessMap = []; // initialize as empty array
-        submitLoader();
+        let FitnessMap = [];
+        renderPieChart();
         fetch(FitnessMapUrl, {
             headers: {
                 'Accept': 'application/json'
@@ -141,8 +228,8 @@
             if (!response.ok) throw new Error(`API response not OK: ${response.status}`);
             return response.json();
         })
-        .then(result => {
-            Swal.close();
+        .then(result => {            
+            document.getElementsByClassName('loader-overlay')[0].style.display = 'none';
             FitnessMap = result.stateData || (result.data && result.data.stateData) || [];
             buildOverallHealthChart(FitnessMap);
             buildIndiaMap(FitnessMap);
@@ -303,13 +390,40 @@
                 const code = path.id;
                 const data = stateData[code];
 
-                const colors = ['#fe4a5d','#ffaa62','#ffd26e','#74c4d6','#a3d55f','#6bc04b','#00953b'];
+                const mapColors = ['#fe4a5d','#ffaa62','#ffd26e','#74c4d6','#a3d55f','#6bc04b','#00953b'];
+
+                function generateLegend() {
+                    const legendContainer = document.querySelector('.map-legend');
+                    if (!legendContainer) return;
+
+                    legendContainer.innerHTML = '';
+
+                    mapColors.forEach((color, index) => {
+                        let min = index * 25;
+                        let max = (index + 1) * 25;
+
+                        let label = index === mapColors.length - 1 
+                            ? `${min}+` 
+                            : `${min}–${max}`;
+
+                        const item = document.createElement('div');
+                        item.className = 'legend-item';
+                        item.innerHTML = `<span style="background:${color}"></span> ${label} Schools`;
+
+                        legendContainer.appendChild(item);
+                    });
+                }
+
+                generateLegend();
+
 
                 function getBaseColor(schools) {
-                    if (!schools) return '#ddd'; 
-                    let index = Math.floor(schools / 10);
-                    if (index >= colors.length) index = colors.length - 1;
-                    return colors[index] + 'CC';
+                    if (!schools) return '#bbb';
+
+                    let index = Math.floor((schools - 1) / 25);
+                    if (index >= mapColors.length) index = mapColors.length - 1;
+
+                    return mapColors[index] + 'CC';
                 }
 
                 const schools = data ? data.schools : 0;
@@ -382,6 +496,9 @@
                     tooltip: {
                         shared: true,
                         crosshairs: true
+                    },
+                    noData: {
+                        style: { fontWeight: 'bold', fontSize: '15px', color: '#303030' }
                     },
                     series: [
                         { 
@@ -458,6 +575,16 @@
                     plotOptions: {
                         series: {
                             stacking: 'percent',
+                            dataLabels: {
+                                enabled: true,
+                                formatter: function () {
+                                    return `${this.series.name} (${Math.round(this.percentage)}%)`;
+                                },
+                                style: {
+                                    textOutline: 'none',
+                                    fontSize: '11px'
+                                }
+                            },
                             states: { inactive: { opacity: 1 } },
                             point: {
                                 events: {

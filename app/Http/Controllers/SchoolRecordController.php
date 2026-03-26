@@ -128,8 +128,8 @@ class SchoolRecordController extends Controller
 			
 		// echo "<pre>"; print_r($FitnessMap);exit();
 
-		$letnenlevels = $fitness->pluck('level');
-		$letnentotals = $fitness->pluck('total')->map(fn($v) => (int)$v);
+		$fitnessLevels = $fitness->pluck('level');
+		$fitnessTotals = $fitness->pluck('total')->map(fn($v) => (int)$v);
 
 		$health = (clone $baseQuery)
 			->select('str.level', DB::raw('COUNT(*) as total'))
@@ -200,8 +200,8 @@ class SchoolRecordController extends Controller
 
 		return view('school.graph-dashboard', compact(
 			'title',
-			'letnenlevels',
-			'letnentotals',
+			'fitnessLevels',
+			'fitnessTotals',
 			'ranked_schoolsFitness',
 			'healthLevels',
 			'healthTotals',

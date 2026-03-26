@@ -114,8 +114,219 @@ class FillDartController extends Controller
 		return view('fill-darts.dashboard', compact('title','SchoolTrainers','SchoolDetails', 'hasSchools','dashboardModules'));
 	}
 
+	public function dashboard(Request $request){
+		$user = auth()->user();
+		$userId = $user->id;
+		$roleId = $user->role_id;
+		$title = 'Dashboard';
+		
+		// Fetch schools assigned to trainer
+		$SchoolTrainers = DB::table('school_trainers')
+			->join('schools', 'schools.id', '=', 'school_trainers.school_id')
+			->select('schools.id', 'schools.school_name', 'schools.logo')
+			->where('school_trainers.trainer_id', $userId)
+			->where('school_trainers.status', 1)
+			->get();
+		
+		$hasSchools = $SchoolTrainers->isNotEmpty();
+		$selectSchoolId = $request->input('select_school_id') ?? $SchoolTrainers->pluck('id')->first();
 
-	public function dashboard(Request $request)	{
+		if ($hasSchools && $selectSchoolId) {
+			Session::put('SelectSchoolId', $selectSchoolId);
+		}
+
+		$SchoolName = null;
+		if ($schoolId = Session::get('SelectSchoolId')) {
+			$SchoolName = DB::table('schools')
+				->select('school_name', 'logo')
+				->where('id', $schoolId)
+				->first();
+		}
+
+		$dashboardModules = collect();
+
+		// Role-based dashboard logic
+		switch ($roleId) {
+			case 2: // School Role
+				$schoolRef = DB::table('school_reference')
+					->where('school_user_id', $userId)
+					->first();
+				
+				$schoolDetails = null;
+				if ($schoolRef) {
+					$schoolDetails = DB::table('schools')
+						->select('school_name', 'logo', 'school_code')
+						->where('id', $schoolRef->school_id)
+						->first();
+				}
+
+				if ($schoolRef && $schoolRef->status == 1) {
+					$allowedModules = json_decode($user->usermeta->module_access ?? '[]', true);
+					$dashboardModules = DB::table('dashboard_modules')
+						->whereIn('route_name', $allowedModules)
+						->whereIn('role_id', [0,4])
+						->where('status', 1)
+						->orderBy('order_no', 'asc')
+						->get();
+				}
+
+				return view('fill-darts.dashboard', compact(
+					'title', 'SchoolTrainers', 'schoolDetails', 'hasSchools', 'dashboardModules','user'
+				));
+				break;
+
+		    default:
+		        break;
+		}
+			
+		// Access check for role 4
+		if ($roleId != 4 && $roleId != 3) {
+			return view('fill-darts.dashboard', compact('title','SchoolTrainers','SchoolName', 'hasSchools','user'));
+		}
+			
+		if(Auth::user()->role_id == 3){
+			if(Session::get('SelectSchoolId')){	
+				$schoolId = Session::get('SelectSchoolId');	
+			}else{
+				$schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
+			}
+		}else{
+			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+		}
+
+		$studentsCount = DB::table('students')
+			->where('school_id', $schoolId)
+			->where('status', 'active')
+			->count();
+
+		$baseQuery = DB::table('SeniorTestResults as str')
+			->join('students as s', 's.id', '=', 'str.StudentID')
+			->join('schools', 'schools.id', '=', 'str.SchoolID')
+			->join('class as c', 'c.id', '=', 's.class_id')
+			->join('term_masters as tm', 'tm.school_id', '=', 'str.SchoolID')
+			->where('str.SchoolID', $schoolId)
+			->whereDate('tm.term_start_date', '<=', now())
+			->whereDate('tm.term_end_date', '>=', now());
+
+		$fitness = (clone $baseQuery)
+			->select('str.level', DB::raw('COUNT(*) as total'))
+			->whereBetween('c.id', [4, 12])
+			->whereRaw("str.level REGEXP '^L[0-8]+$'")
+			->whereIn('str.TestTypeID', [16,17,19,20,21,22,23])
+			->groupBy('str.level')
+			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
+			->get();
+		
+		$FitnessMap = DB::table('SeniorTestResults as str')
+			->join('students as s', 's.id', '=', 'str.StudentID')
+			->join('schools', 'schools.id', '=', 'str.SchoolID')
+			->join('term_masters as tm', 'tm.school_id', '=', 'str.SchoolID')
+			->whereDate('tm.term_start_date', '<=', now())
+			->whereDate('tm.term_end_date', '>=', now())
+			->where('str.TestTypeID', 18)
+			->groupBy('schools.state')
+			->select(
+				'schools.state as name',
+				DB::raw('COUNT(DISTINCT schools.id) as schools'),
+				DB::raw('COUNT(DISTINCT CASE WHEN s.class_id BETWEEN 1 AND 12 THEN s.id END) as students'),
+				DB::raw("COUNT(DISTINCT CASE WHEN str.level = 'UW' THEN str.StudentID END) as UW"),
+				DB::raw("COUNT(DISTINCT CASE WHEN str.level = 'N' THEN str.StudentID END) as N"),
+				DB::raw("COUNT(DISTINCT CASE WHEN str.level = 'OW' THEN str.StudentID END) as OW"),
+				DB::raw("COUNT(DISTINCT CASE WHEN str.level = 'OB' THEN str.StudentID END) as OB")
+			)
+			->orderBy('schools.state')
+			->get();
+			
+		// echo "<pre>"; print_r($FitnessMap);exit();
+
+		$fitnessLevels = $fitness->pluck('level');
+		$fitnessTotals = $fitness->pluck('total')->map(fn($v) => (int)$v);
+
+		$health = (clone $baseQuery)
+			->select('str.level', DB::raw('COUNT(*) as total'))
+			->whereIn('str.level', ['UW', 'N', 'OW', 'OB'])
+			->groupBy('str.level')
+			->orderByRaw("FIELD(str.level, 'UW','N','OW','OB')")
+			->get();
+
+		$healthLevels = $health->pluck('level');
+		$healthTotals = $health->pluck('total')->map(fn($v) => (int)$v);
+
+		$ranked_schoolsFitness = (clone $baseQuery)
+			->select(DB::raw('COUNT(str.StudentID) as total'))
+			->whereRaw("str.level REGEXP '^L[0-8]+$'")
+			->groupBy('str.level')
+			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
+			->pluck('total');
+
+		$healthRankData = (clone $baseQuery)
+			->select(DB::raw('COUNT(str.StudentID) as total'))
+			->whereIn('str.level', ['UW','N','OW','OB'])
+			->groupBy('str.level')
+			->orderByRaw("FIELD(str.level, 'UW','N','OW','OB')")
+			->pluck('total');
+
+		$data = (clone $baseQuery)
+			->join('skill_reports as sr', 'sr.id', '=', 'str.TestTypeID')
+			->select('sr.skill_name', 'str.level', DB::raw('COUNT(*) as total'))
+			->whereBetween('c.id', [4, 12])
+			->whereIn('str.TestTypeID', [16,17,19,20,21,22,23])
+			->whereNotNull('str.level')
+			->whereNotIn('str.level', ['', 'N.A.'])
+			->whereRaw("str.level REGEXP '^L[0-8]+$'")
+			->groupBy('sr.skill_name', 'str.level')
+			->orderBy('sr.skill_name')
+			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
+			->get();
+
+		// Prepare matrix
+		$skills = [];
+		$levels = [];
+		$matrix = [];
+
+		foreach ($data as $row) {
+			$skills[$row->skill_name] = true;
+			$levels[$row->level] = true;
+			$matrix[$row->skill_name][$row->level] = (int)$row->total;
+		}
+
+		$categories = array_keys($skills);
+
+		$levelNames = array_keys($levels);
+		usort($levelNames, fn($a, $b) => (int)substr($a,1) <=> (int)substr($b,1));
+
+		$levelColors = [
+			'L0'=>'#01160a','L1'=>'#fe4a5d','L2'=>'#ffaa62','L3'=>'#ffd26e',
+			'L4'=>'#74c4d6','L5'=>'#a3d55f','L6'=>'#6bc04b','L7'=>'#00953b','L8'=>'#01160a'
+		];
+
+		$chartSeries = [];
+		foreach ($levelNames as $level) {
+			$chartSeries[] = [
+				'name'  => $level,
+				'data'  => array_map(fn($skill) => $matrix[$skill][$level] ?? 0, $categories),
+				'color' => $levelColors[$level] ?? '#000'
+			];
+		}
+
+		return view('fill-darts.dashboard', compact(
+			'title','SchoolTrainers',
+			'SchoolName',
+			'hasSchools',
+			'fitnessLevels',
+			'fitnessTotals',
+			'ranked_schoolsFitness',
+			'healthLevels',
+			'healthTotals',
+			'healthRankData',
+			'categories',
+			'chartSeries',
+			'FitnessMap',
+			'user'
+		));
+	}
+
+	public function dashboard_bkp(Request $request)	{
 		
 		$userId  =  \Auth::id();
 		$title   = 'Dashboard';
