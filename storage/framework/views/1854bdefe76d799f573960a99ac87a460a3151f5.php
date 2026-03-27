@@ -118,7 +118,7 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span class="fw-bold">Fitness Indicator</span>
 
-                        <select id="skillFilter" class="form-select form-select-sm" style="width: 180px;">
+                        <select id="skillFilter" class="form-select form-select-sm" style="width: 180px; margin-left:120px;">
                             <option value="">All Skills</option>
                             <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $skill): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($skill); ?>"><?php echo e($skill); ?></option>
