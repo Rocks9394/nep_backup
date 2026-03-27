@@ -31,7 +31,6 @@
         color: #fff;
     }
 
-
     .stat-content p {        
         color: #fff;
         font-size: 1rem;
@@ -564,14 +563,14 @@
                   </div>
                 </div>
 				
-				<div class="col-12 col-md-4">
+				<!-- <div class="col-12 col-md-4">
                     <div class="card shadow p-2" style="height:400px;">
                         <div class="card-header fw-bold">Student Completion Status</div>
                         <div class="card-body p-2">
                             <canvas id="studentSummaryChart"></canvas>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
 
 			<!-- contry status  -->
@@ -708,7 +707,7 @@
 
 					],
 					backgroundColor: [
-						'#28a745',
+						'#039a48',
 						'#ffcb08',
 						'#ec0000' 
 					],
@@ -718,7 +717,7 @@
 			options: {
 				responsive: true,
 				maintainAspectRatio: false,
-				cutout: '60%', // ✅ makes it donut
+				cutout: '60%',
 				plugins: {
 					legend: {
 						position: 'bottom'
@@ -746,7 +745,7 @@
 				datasets: [{
 					label: 'Students',
 					data: healthData.map(item => item.Total_Student),
-					backgroundColor: ['#396afc', '#28a745', '#ffcb08', '#ec0000']
+					backgroundColor: ['#6bc04b', '#039a48', '#ffcb08', '#ec0000']
 				}]
 			},
 			options: {
@@ -971,7 +970,7 @@
                         y: overallHealthData[cat],
                         color: (() => {
                             // Set your colors for each category
-                            const colors = { UW:'#a3d55f', N:'#00953b', OW:'#ffaa62', OB:'#fe4a5d' };
+                            const colors = { UW:'#6bc04b', N:'#039a48', OW:'#ffcb08', OB:'#ec0000' };
                             return colors[cat] || '#ccc';
                         })()
                     }));
@@ -994,7 +993,7 @@
 						title: { text: 'Country Health Indicator' },
 						tooltip: {
 							// valueSuffix: ''
-							pointFormat: '{series.name}: <b>{point.y}</b> ({point.percentage:.1f}%)'
+							pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
 						},
 						plotOptions: {
 							pie: {
