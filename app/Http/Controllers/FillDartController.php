@@ -260,15 +260,15 @@ class FillDartController extends Controller
 		});
 
 		$levelColors = [
-			'L0' => '#b30000', // Very Poor (Dark Red)
-    'L1' => '#e60000', // Poor (Red-Orange)
-    'L2' => '#ff1a1a', // Below Average (Orange-Red)
-    'L3' => '#ff6600', // Average-Low (Orange)
-    'L4' => '#ff9900', // Average-Mid (Light Orange)
-    'L5' => '#00b300', // Above Average (Light Green)
-    'L6' => '#008000', // Good (Green)
-    'L7' => '#004d00', // Very Good (Dark Green)
-    'L8' => '#003300',
+			'L0' => '#b30000',
+			'L1' => '#e60000',
+			'L2' => '#ff1a1a',
+			'L3' => '#ff6600',
+			'L4' => '#ff9900',
+			'L5' => '#00b300',
+			'L6' => '#008000',
+			'L7' => '#004d00',
+			'L8' => '#003300',
 		];
 
 		// Prepare full chart series for all skills
