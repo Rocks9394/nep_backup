@@ -267,6 +267,9 @@
 			display: none;
 		}
 	}
+    .highcharts-credits{
+        pointer-events: none;
+    }
 </style>
 
 <?php if(Auth::user()->role_id == '4'): ?>
@@ -534,9 +537,7 @@
                     </div>                    
                 </div>                
 			</div>
-
-            <div class="row g-3 mb-4">
-                
+            <div class="row g-3 mb-4">                
                 <div class="col-12 col-md-6">
                     <div class="card shadow p-2" style="height:400px;">
                         <div class="card-header fw-bold">Health Indicatior</div>
@@ -571,6 +572,20 @@
                         </div>
                     </div>
                 </div> -->
+            </div>
+            <div class="row g-3 mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div id="skillChart" style="height: 600px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-3 mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div id="spiderChart" style="height: 600px;"></div>
+                    </div>
+                </div>
             </div>
 
 			<!-- contry status  -->
@@ -737,127 +752,157 @@
 		});
 
 		 // health summury 
-		const healthData = <?php echo json_encode($healthData, 15, 512) ?>;
-		new Chart(document.getElementById('healthSummaryChart'), {
-			type: 'bar',
-			data: {
-				labels: healthData.map(item => item.LEVEL),
-				datasets: [{
-					label: 'Students',
-					data: healthData.map(item => item.Total_Student),
-					backgroundColor: ['#6bc04b', '#039a48', '#ffcb08', '#ec0000']
-				}]
-			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: false,
-				plugins: {
-					legend: {
-						display: false
-					}
-				},
-				scales: {
-					x: {
-						beginAtZero: true,
-						ticks: {
-							font: {
-								size: 10
-							}
-						}
-					},
-					y: {
-						beginAtZero: true,
-						ticks: {
-							font: {
-								size: 10
-							}
-						}
-					}
-				}
-			}
-		});
+		const healthData = <?php echo json_encode($healthData, 15, 512) ?>;        
+        const skillCategories = <?php echo json_encode($categories, 15, 512) ?>;
+        const skillSeries     = <?php echo json_encode($chartSeries, 15, 512) ?>; 
 
-		// fitness levels skill wise 
-		const levelNames = <?php echo json_encode($levelNames, 15, 512) ?>;
-		const matrix = <?php echo json_encode($matrix, 15, 512) ?>; 
-		const categories = <?php echo json_encode($categories, 15, 512) ?>;
-		const levelColors = <?php echo json_encode($levelColors, 15, 512) ?>;
+        // --- Health Summary Chart with % bars and count tooltips ---
+        const totalStudentsHealth = healthData.reduce((sum, item) => sum + item.Total_Student, 0);
 
-		let chart;
-		function getData(selectedSkill) {
-			if (!selectedSkill) {
-				return levelNames.map(level => {
-					let total = 0;
-					categories.forEach(skill => {
-						total += (matrix[skill]?.[level] || 0);
-					});
-					return total;
-				});
-			}
-			return levelNames.map(level => {
-				return (matrix[selectedSkill]?.[level] || 0);
-			});
-		}
+        new Chart(document.getElementById('healthSummaryChart'), {
+            type: 'bar',
+            data: {
+                labels: healthData.map(item => item.LEVEL),
+                datasets: [{
+                    label: 'Students (%)',
+                    data: healthData.map(item => ((item.Total_Student / totalStudentsHealth) * 100).toFixed(1)),
+                    backgroundColor: ['#6bc04b', '#039a48', '#ffcb08', '#ec0000']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const count = healthData[context.dataIndex].Total_Student;
+                                return `Students: ${count} (${context.parsed.y}%)`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { font: { size: 10 } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: { size: 10 },
+                            callback: function(value) { return value + '%'; }
+                        }
+                    }
+                }
+            }
+        });
 
-		function renderChart(selectedSkill = '') {
+        // --- Skill Levels Chart in % with count tooltips ---
+        const levelNames = <?php echo json_encode($levelNames, 15, 512) ?>;
+        const matrix = <?php echo json_encode($matrix, 15, 512) ?>; 
+        const categories = <?php echo json_encode($categories, 15, 512) ?>;
+        const levelColors = <?php echo json_encode($levelColors, 15, 512) ?>;
 
-			const dataValues = getData(selectedSkill);
+        let chart;
 
-			const ctx = document.getElementById('skillLevelChart');
+        function getData(selectedSkill = '') {
+            let dataObjects;
+            if (!selectedSkill) {
+                // total per level across all skills
+                const totalPerLevel = levelNames.map(level => {
+                    let total = 0;
+                    categories.forEach(skill => {
+                        total += (matrix[skill]?.[level] || 0);
+                    });
+                    return total;
+                });
+                const totalAll = totalPerLevel.reduce((a,b) => a+b, 0);
+                dataObjects = totalPerLevel.map(val => ({
+                    percent: ((val / totalAll) * 100).toFixed(1),
+                    count: val
+                }));
+            } else {
+                const skillData = levelNames.map(level => matrix[selectedSkill]?.[level] || 0);
+                const skillTotal = skillData.reduce((a,b) => a+b, 0);
+                dataObjects = skillData.map(val => ({
+                    percent: ((val / skillTotal) * 100).toFixed(1),
+                    count: val
+                }));
+            }
+            return dataObjects;
+        }
 
-			if (chart) {
-				chart.data.datasets[0].data = dataValues;
-				chart.update();
-				return;
-			}
+        function renderChart(selectedSkill = '') {
+            const dataObjects = getData(selectedSkill);
 
-			chart = new Chart(ctx, {
-				type: 'bar',
-				data: {
-					labels: levelNames,
-					datasets: [{
-						label: 'Students',
-						data: dataValues,
-						backgroundColor: levelNames.map(l => levelColors[l] || '#000')
-					}]
-				},
-				options: {
-					responsive: true,
-					maintainAspectRatio: false,
-					scales: {
-						x: {
-							title: {
-								display: true,
-								text: 'Levels (L0 - L8)'
-							},
-							ticks: {
-								font: { size: 12 }
-							}
-						},
-						y: {
-							beginAtZero: true,
-							title: {
-								display: true,
-								text: 'Students'
-							},
-							ticks: {
-								font: { size: 12 }
-							}
-						}
-					},
-					plugins: {
-						legend: {
-							display: false
-						}
-					}
-				}
-			});
-		}
+            // Separate arrays for Chart.js
+            const dataPercent = dataObjects.map(d => parseFloat(d.percent));
+            const dataCount = dataObjects.map(d => d.count);
 
-		renderChart();
-		document.getElementById('skillFilter').addEventListener('change', function () {
-			renderChart(this.value);
-		});
+            const ctx = document.getElementById('skillLevelChart');
+
+            if (chart) {
+                chart.data.datasets[0].data = dataPercent;
+                chart.data.datasets[0].counts = dataCount; // store counts in dataset
+                chart.update();
+                return;
+            }
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: levelNames,
+                    datasets: [{
+                        label: 'Students (%)',
+                        data: dataPercent,
+                        counts: dataCount, // store counts here
+                        backgroundColor: levelNames.map(l => levelColors[l] || '#000')
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Levels (L0 - L8)' },
+                            ticks: { font: { size: 12 } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Students (%)' },
+                            ticks: { font: { size: 12 }, callback: val => val + '%' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const count = context.dataset.counts[context.dataIndex]; // get count from dataset
+                                    const percent = context.parsed.y;
+                                    return `Students: ${count} (${percent}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initial render
+        renderChart();
+
+        // Filter change
+        document.getElementById('skillFilter').addEventListener('change', function () {
+            renderChart(this.value);
+        });
+
+        renderChart();
+        document.getElementById('skillFilter').addEventListener('change', function () {
+            renderChart(this.value);
+        });
 
 
 		// api data in high chart 
@@ -1140,11 +1185,6 @@
             });
         }
         
-
-        // const levelColors = {
-        //     L0:'#01160a', L1:'#fe4a5d', L2:'#ffaa62', L3:'#ffd26e',
-        //     L4:'#74c4d6', L5:'#a3d55f', L6:'#6bc04b', L7:'#00953b', L8:'#01160a'
-        // };
         const healthColors = ['#a3d55f','#00953b','#ffaa62','#fe4a5d'];
 
         function buildColumnData(levels, values, colorMap = null, fallbackColors = []) {
@@ -1152,6 +1192,270 @@
                 y: values[i] ?? 0,
                 color: colorMap ? (colorMap[lvl] || '#000') : (fallbackColors[i] || '#000')
             }));
+        }
+
+        // Skill Chart
+        if (document.getElementById('skillChart')) {
+            try {
+                Highcharts.chart('skillChart', {
+                    chart: { type: 'bar' },
+                    title: { text: 'Skill Analysis' },
+                    xAxis: { categories: skillCategories },
+                    yAxis: { min: 0, labels: { formatter() { return Math.round(this.value); } } },
+                    legend: { enabled: false },
+                    plotOptions: {
+                        series: {
+                            stacking: 'percent',
+                            dataLabels: {
+                                enabled: true,
+                                formatter: function () {
+                                    return `${this.series.name} (${Math.round(this.percentage)}%)`;
+                                },
+                                style: {
+                                    textOutline: 'none',
+                                    fontSize: '11px'
+                                }
+                            },
+                            states: { inactive: { opacity: 1 } },
+                            point: {
+                                events: {
+                                    mouseOver: function () {
+                                        const chart = this.series.chart;
+                                        chart.series.forEach((s) => {
+                                            s.group.attr({ opacity: s.index === this.series.index ? 1 : 0.2 });
+                                        });
+                                    }
+                                }
+                            },
+                            events: {
+                                mouseOut: function () {
+                                    this.chart.series.forEach(s => s.group.attr({ opacity: 1 }));
+                                }
+                            }
+                        }
+                    },
+                    series: skillSeries
+                });
+            } catch (error) {
+                console.error('Skill Chart Error:', error);
+                document.getElementById('skillChart').innerHTML = '<div class="map-error">Error loading skill chart</div>';
+            }
+        }
+
+        // spider chart 
+
+        // if (document.getElementById('spiderChart')) {
+        //     try {
+        //         Highcharts.chart('spiderChart', {
+        //             chart: {
+        //                 polar: true,
+        //                 type: 'column',
+        //                 backgroundColor: '#f9f9f9', // soft background
+        //             },
+        //             title: {
+        //                 text: 'Skill Analysis (Wind Rose)',
+        //                 style: {
+        //                     fontSize: '20px',
+        //                     fontWeight: '600',
+        //                     color: '#333'
+        //                 }
+        //             },
+        //             pane: {
+        //                 size: '85%'
+        //             },
+        //             xAxis: {
+        //                 categories: skillCategories,
+        //                 tickmarkPlacement: 'on',
+        //                 lineWidth: 1,
+        //                 lineColor: '#ccc',
+        //                 labels: {
+        //                     style: {
+        //                         fontSize: '14px',
+        //                         color: '#555',
+        //                         fontWeight: '500'
+        //                     }
+        //                 }
+        //             },
+        //             yAxis: {
+        //                 min: 0,
+        //                 max:100,
+        //                 endOnTick: false,
+        //                 showLastLabel: true,
+        //                 title: {
+        //                     text: 'Skill Level (%)',
+        //                     style: { fontSize: '13px', color: '#666' }
+        //                 },
+        //                 labels: {
+        //                     formatter: function() {
+        //                         return this.value + '%';
+        //                     },
+        //                     style: {
+        //                         fontSize: '12px',
+        //                         color: '#666'
+        //                     }
+        //                 },
+        //                 gridLineColor: '#ddd',
+        //                 gridLineDashStyle: 'ShortDash'
+        //             },
+        //             legend: {
+        //                 enabled: true,
+        //                 align: 'center',
+        //                 verticalAlign: 'bottom',
+        //                 itemStyle: {
+        //                     fontSize: '13px',
+        //                     color: '#333',
+        //                     fontWeight: '500'
+        //                 },
+        //                 symbolHeight: 12,
+        //                 symbolWidth: 12
+        //             },
+        //             plotOptions: {
+        //                 series: {
+        //                     stacking: 'normal',
+        //                     borderWidth: 0,
+        //                     colorByPoint: false,
+        //                     marker: {
+        //                         enabled: true,
+        //                         radius: 5,
+        //                         lineWidth: 2,
+        //                         lineColor: null
+        //                     },
+        //                     fillOpacity: 0.3,
+        //                     shadow: true,
+        //                     states: {
+        //                         hover: {
+        //                             brightness: 0.1,
+        //                             halo: {
+        //                                 size: 10,
+        //                                 attributes: {
+        //                                     fill: 'rgba(0,0,0,0.15)'
+        //                                 }
+        //                             }
+        //                         }
+        //                     },
+        //                     dataLabels: {
+        //                         enabled: true,
+        //                         formatter: function() {
+        //                             return this.y + '%';
+        //                         },
+        //                         style: {
+        //                             fontSize: '11px',
+        //                             fontWeight: '500',
+        //                             color: '#222',
+        //                             textOutline: '1px white'
+        //                         }
+        //                     }
+        //                 }
+        //             },
+        //             tooltip: {
+        //                 shared: true,
+        //                 backgroundColor: '#fff',
+        //                 borderColor: '#999',
+        //                 borderRadius: 5,
+        //                 shadow: true,
+        //                 style: { color: '#000', fontSize: '13px' },
+        //                 pointFormatter: function() {
+        //                     return `<span style="color:${this.color}">\u25CF</span> <b>${this.series.name}</b>: ${this.y}%<br/>`;
+        //                 }
+        //             },
+        //             series: skillSeries // same format as before
+        //         });
+        //     } catch (error) {
+        //         console.error('Skill Chart Error:', error);
+        //         document.getElementById('spiderChart').innerHTML = '<div class="map-error">Error loading skill chart</div>';
+        //     }
+        // }
+
+
+        if (document.getElementById('spiderChart')) {
+            try {
+                Highcharts.chart('spiderChart', {
+                    chart: {
+                        polar: true,
+                        type: 'line',
+                    },
+                    title: {
+                        text: 'Skill Analysis',
+                        style: {
+                            fontSize: '18px',
+                            fontWeight: 'bold',
+                        }
+                    },
+                    pane: {
+                        size: '90%'
+                    },
+                    xAxis: {
+                        categories: skillCategories,
+                        tickmarkPlacement: 'on',
+                        lineWidth: 0,
+                        labels: {
+                            style: {
+                                fontSize: '13px',
+                                color: '#555'
+                            }
+                        }
+                    },
+                    yAxis: {
+                        min: 0,
+                        gridLineInterpolation: 'polygon',
+                        lineWidth: 0,
+                        labels: {
+                            formatter: function() {
+                                return Math.round(this.value) + '%';
+                            },
+                            style: {
+                                fontSize: '11px',
+                                color: '#666'
+                            }
+                        }
+                    },
+                    legend: {
+                        enabled: true,
+                        itemStyle: {
+                            fontSize: '12px',
+                            color: '#333'
+                        }
+                    },
+                    plotOptions: {
+                        series: {
+                            stacking: 'percent',
+                            fillOpacity: 0.25,
+                            lineWidth: 3,
+                            marker: {
+                                radius: 5
+                            },
+                            dataLabels: {
+                                enabled: true,
+                                formatter: function() {
+                                    return `${this.series.name} (${Math.round(this.percentage)}%)`;
+                                },
+                                style: {
+                                    fontSize: '11px',
+                                    textOutline: 'none',
+                                    color: '#222'
+                                }
+                            },
+                            pointPlacement: 'on'
+                        }
+                    },
+                    tooltip: {
+                        shared: true,
+                        backgroundColor: '#fff',
+                        borderColor: '#999',
+                        borderRadius: 5,
+                        style: {
+                            color: '#000'
+                        },
+                        pointFormatter: function() {
+                            return `<span style="color:${this.color}">\u25CF</span> ${this.series.name}: ${this.y} (${Math.round(this.percentage)}%)<br/>`;
+                        }
+                    },
+                    series: skillSeries
+                });
+            } catch (error) {
+                console.error('Skill Chart Error:', error);
+                document.getElementById('spiderChart').innerHTML = '<div class="map-error">Error loading skill chart</div>';
+            }
         }
 
        

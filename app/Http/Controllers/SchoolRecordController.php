@@ -37,6 +37,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ImportStudentProfile;
 use App\Exports\ExportImproperData;
 use App\Models\Sport; 
+use App\Models\Technique; 
 use App\Models\ViewDart;
 use App\Models\Teacher;
 use App\Models\State;
@@ -143,7 +144,7 @@ class SchoolRecordController extends Controller
 
 		$ranked_schoolsFitness = (clone $baseQuery)
 			->select(DB::raw('COUNT(str.StudentID) as total'))
-			->whereRaw("str.level REGEXP '^L[0-8]+$'")
+			->whereRaw("str.level REGEXP '^L[1-7]+$'")
 			->groupBy('str.level')
 			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
 			->pluck('total');
@@ -162,7 +163,7 @@ class SchoolRecordController extends Controller
 			->whereIn('str.TestTypeID', [16,17,19,20,21,22,23])
 			->whereNotNull('str.level')
 			->whereNotIn('str.level', ['', 'N.A.'])
-			->whereRaw("str.level REGEXP '^L[0-8]+$'")
+			->whereRaw("str.level REGEXP '^L[1-7]+$'")
 			->groupBy('sr.skill_name', 'str.level')
 			->orderBy('sr.skill_name')
 			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
@@ -185,8 +186,8 @@ class SchoolRecordController extends Controller
 		usort($levelNames, fn($a, $b) => (int)substr($a,1) <=> (int)substr($b,1));
 
 		$levelColors = [
-			'L0'=>'#01160a','L1'=>'#fe4a5d','L2'=>'#ffaa62','L3'=>'#ffd26e',
-			'L4'=>'#74c4d6','L5'=>'#a3d55f','L6'=>'#6bc04b','L7'=>'#00953b','L8'=>'#01160a'
+			'L1'=>'#fe4a5d','L2'=>'#ffaa62','L3'=>'#ffd26e',
+			'L4'=>'#74c4d6','L5'=>'#a3d55f','L6'=>'#6bc04b','L7'=>'#00953b'
 		];
 
 		$chartSeries = [];
@@ -236,10 +237,7 @@ class SchoolRecordController extends Controller
 		else
 		{
 			die('--you dont have access for this panel. sorry for inconvenation--');
-		}
-		
-		
-		
+		}		
 
 		$SchoolData = [];
 		$SchoolData['students'] = $students = DB::table('schools')
@@ -1007,9 +1005,9 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		        END AS isValidAge
 		    ")
 		)
-		->where('students.school_code', $school->school_code)
-		->orderBy('custom_classes.orders', 'asc')
-		->orderBy('custom_classes.section', 'asc')
+		->where('students.school_code', $school->school_code)		
+		->orderBy('students.class_id')
+		->orderBy('students.section_id')
 		->orderBy('students.rollno', 'asc');;
 
 
@@ -2880,18 +2878,6 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		$masked = str_repeat("*", max(0, strlen($name) - 4));
 
 		return $visible . $masked . '@' . $domain;
-	}
-
-
-
-	/**
-	 * Date : 19-09-2025
-	 * Get Activities Gallary.
-	 * */
-	public function ActivityGallary(){
-
-		$title = 'Activities Gallary';
-		return view('activity.media.gallary', compact('title'));
 	}
 
 	/**

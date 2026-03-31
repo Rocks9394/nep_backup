@@ -127,6 +127,9 @@
         font-size: 14px;
         color: #333;
     }
+    .highcharts-credits{
+        pointer-events: none;
+    }
 </style>
 
 <div class="container-fluid">
@@ -181,7 +184,7 @@
             <div class="row mt-4">
                 <div class="col-md-12">
                     <div class="card">
-                        <div id="skillChart" style="height: 400px;"></div>
+                        <div id="spiderChart" style="height: 800px;"></div>
                     </div>
                 </div>
             </div>
@@ -564,50 +567,92 @@
         }
 
         // Skill Chart
-        if (document.getElementById('skillChart')) {
+        if (document.getElementById('spiderChart')) {
             try {
-                Highcharts.chart('skillChart', {
-                    chart: { type: 'bar' },
-                    title: { text: 'Skill Analysis' },
-                    xAxis: { categories: skillCategories },
-                    yAxis: { min: 0, labels: { formatter() { return Math.round(this.value); } } },
-                    legend: { enabled: false },
-                    plotOptions: {
-                        series: {
-                            stacking: 'percent',
-                            dataLabels: {
-                                enabled: true,
-                                formatter: function () {
-                                    return `${this.series.name} (${Math.round(this.percentage)}%)`;
-                                },
-                                style: {
-                                    textOutline: 'none',
-                                    fontSize: '11px'
-                                }
-                            },
-                            states: { inactive: { opacity: 1 } },
-                            point: {
-                                events: {
-                                    mouseOver: function () {
-                                        const chart = this.series.chart;
-                                        chart.series.forEach((s) => {
-                                            s.group.attr({ opacity: s.index === this.series.index ? 1 : 0.2 });
-                                        });
-                                    }
-                                }
-                            },
-                            events: {
-                                mouseOut: function () {
-                                    this.chart.series.forEach(s => s.group.attr({ opacity: 1 }));
-                                }
+                Highcharts.chart('spiderChart', {
+                    chart: {
+                        polar: true,
+                        type: 'area',
+                    },
+
+                    title: {
+                        text: 'Skill Analysis',
+                        style: {
+                            fontSize: '18px',
+                            fontWeight: 'bold',
+                        }
+                    },
+
+                    pane: {
+                        size: '85%'
+                    },
+
+                    xAxis: {
+                        categories: skillCategories,
+                        tickmarkPlacement: 'on',
+                        lineWidth: 0,
+                        labels: {
+                            style: {
+                                fontSize: '13px',
+                                color: '#555'
                             }
                         }
                     },
+
+                    yAxis: {
+                        min: 0,
+                        gridLineInterpolation: 'polygon',
+                        lineWidth: 0,
+                        labels: {
+                            style: {
+                                fontSize: '11px',
+                                color: '#666'
+                            }
+                        }
+                    },
+
+                    legend: {
+                        enabled: true,
+                        itemStyle: {
+                            fontSize: '12px',
+                            color: '#333'
+                        }
+                    },
+
+                    plotOptions: {
+                        series: {
+                            fillOpacity: 0.25,  // slightly more visible
+                            lineWidth: 3,
+                            marker: {
+                                radius: 5
+                            },
+                            dataLabels: {
+                                enabled: true,
+                                style: {
+                                    fontSize: '12px',
+                                    textOutline: 'none',
+                                    color: '#222'
+                                }
+                            },
+                            pointPlacement: 'on'
+                        }
+                    },
+
+                    tooltip: {
+                        shared: true,
+                        backgroundColor: '#fff',
+                        borderColor: '#999',
+                        borderRadius: 5,
+                        style: {
+                            color: '#000'
+                        }
+                    },
+
                     series: skillSeries
                 });
             } catch (error) {
                 console.error('Skill Chart Error:', error);
-                document.getElementById('skillChart').innerHTML = '<div class="map-error">Error loading skill chart</div>';
+                document.getElementById('spiderChart').innerHTML = '<div class="map-error">Error loading skill chart</div>';
             }
         }
         

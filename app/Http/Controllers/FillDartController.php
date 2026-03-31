@@ -28,6 +28,8 @@ use App\Models\TermMaster;
 use App\Traits\ReportHelperTrait;
 use App\Imports\TermExamImportData;
 use App\Models\ViewDart;
+use App\Models\Media;
+use Intervention\Image\Facades\Image;
 
 class FillDartController extends Controller
 {
@@ -209,6 +211,11 @@ class FillDartController extends Controller
 			->where('status', 'active')
 			->count();
 				
+		$selectedTermId = $this->getTermId($schoolId);
+
+		$termIds = $this->getCurrentAndPreviousTermIds($schoolId, (int) $selectedTermId);
+			
+		// dd($termIds);
 		
 		$healthData = DB::table('SeniorTestResults')
 			->join('students','students.id', '=', 'SeniorTestResults.StudentID')
@@ -235,11 +242,14 @@ class FillDartController extends Controller
 			->whereIn('str.TestTypeID', [16, 17, 19, 20, 21, 22, 23])
 			->whereNotNull('str.level')
 			->whereNotIn('str.level', ['', 'N.A.'])
-			->whereRaw("str.level REGEXP '^L[0-8]+$'")
+			->whereRaw("str.level REGEXP '^L[1-7]+$'")
 			->groupBy('sr.skill_name', 'str.level')
 			->orderBy('sr.skill_name')
 			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
 			->get();
+
+				
+		// echo"<pre>";print_r($data);exit();
 
 
 		$skills = [];
@@ -260,15 +270,8 @@ class FillDartController extends Controller
 		});
 
 		$levelColors = [
-			'L0' => '#b30000',
-			'L1' => '#e60000',
-			'L2' => '#ff1a1a',
-			'L3' => '#ff6600',
-			'L4' => '#ff9900',
-			'L5' => '#00b300',
-			'L6' => '#008000',
-			'L7' => '#004d00',
-			'L8' => '#003300',
+			'L1'=>'#fe4a5d','L2'=>'#ffaa62','L3'=>'#ffd26e',
+			'L4'=>'#74c4d6','L5'=>'#a3d55f','L6'=>'#6bc04b','L7'=>'#00953b'
 		];
 
 		// Prepare full chart series for all skills
@@ -289,7 +292,6 @@ class FillDartController extends Controller
 		$totalOngoing = $totals->total_ongoing;
 		$totalYetToStart = $totals->total_yet_to_start;
 				
-		// echo"<pre>";print_r($chartSeries);exit();
 		return view('fill-darts.dashboard', compact(
 			'title',
 			'SchoolTrainers',
@@ -771,6 +773,136 @@ class FillDartController extends Controller
 			return redirect()->back()->with('error', 'Form submission failed!');
 		}
 
+	}
+
+	
+	/**
+	 * Date : 27-March-2026
+	 * Get Activities Gallary.
+	 * By Ashish
+	 * */
+	public function ActivityGallary(){
+
+		$title = 'Activities Gallary';
+		$userId  = Auth::id();
+
+		if(Auth::user()->role_id == 3){
+			if(Session::get('SelectSchoolId')){	
+				$schoolId = Session::get('SelectSchoolId');	
+			}else{
+				$schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
+			}
+		}else{
+			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+		}
+		
+		$sportskills = Sport::orderBY('name','ASC')->get();
+		$techniques  = Technique::orderBY('name','ASC')->get();	
+		
+		$classes = DB::table('custom_classes')
+		->join('class','class.id','=','custom_classes.class_id')
+		->select('custom_classes.id','custom_classes.class_id','custom_classes.section',
+
+			DB::raw("CASE 
+	            WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
+	            THEN custom_classes.nomenclature 
+	            ELSE class.name 
+	          END AS classname")
+		)
+		->WhereIn('custom_classes.school_id', array($schoolId))
+		->groupBy(
+			'custom_classes.id',
+			'custom_classes.class_id',
+			'custom_classes.section',
+			'custom_classes.nomenclature',
+			'class.name',
+			DB::raw("CASE 
+				WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
+				THEN custom_classes.nomenclature 
+				ELSE class.name 
+			END")
+		)
+		->orderBy('custom_classes.orders', 'ASC')
+		->get();
+
+		$media = Media::where('school_id', $schoolId)->with('activity')->get();
+
+		return view('activity.media.gallary', compact('title','classes','schoolId', 'media'));
+	}
+
+	public function uploadMedia(Request $request){
+
+		$validator = Validator::make($request->all(), [
+			'files.*' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240', // 10MB max
+			'school_id' => 'required|integer',
+			'activity_id' => 'nullable|integer',
+			'date' => 'required|date',
+			'sclass' => 'required',
+		]);
+
+		if ($validator->fails()) {
+			return response()->json([
+				'success' => false,
+				'error' => $validator->errors()->first()
+			], 422);
+		}
+
+		$schoolId = $request->school_id;
+		$activityId = $request->activity_id;
+		$date = $request->date;
+
+		// Parse class_id from sclass (format: id-class_id)
+		$classParts = explode('-', $request->sclass);
+		$classId = count($classParts) > 1 ? $classParts[1] : $classParts[0];
+
+		$uploadedFiles = [];
+
+		if ($request->hasFile('files')) {
+			foreach ($request->file('files') as $file) {
+				$extension = $file->getClientOriginalExtension();
+				$fileSize = $file->getSize();
+				$mimeType = $file->getMimeType();
+
+				// Determine media type
+				$mediaType = str_starts_with($mimeType, 'image/') ? 'image' : 'video';
+
+				// Generate unique filename: activityID_timestamp_uniqid.extension
+				$timestamp = time();
+				$uniqid = uniqid();
+				$filename = ($activityId ?? 'activity') . '_' . $timestamp . '_' . $uniqid . '.' . $extension;
+
+				// Target folder
+				$destinationPath = public_path('assets/uploads/media');
+				if (!file_exists($destinationPath)) {
+					mkdir($destinationPath, 0755, true);
+				}
+
+				// Move file
+				$file->move($destinationPath, $filename);
+
+				// Relative path for DB
+				$dbPath = 'assets/uploads/media/' . $filename;
+
+				// Save to DB
+				$media = Media::create([
+					'school_id' => $schoolId,
+					'activity_id' => $activityId,
+					'class_id' => $classId,
+					'date' => $date,
+					'media_type' => $mediaType,
+					'file_path' => $dbPath,
+					'file_name' => pathinfo($filename, PATHINFO_FILENAME),
+					'file_size' => $fileSize,
+				]);
+
+				$uploadedFiles[] = $media;
+			}
+		}
+
+		return response()->json([
+			'success' => true,
+			'files' => $uploadedFiles
+		]);
 	}
 
 
