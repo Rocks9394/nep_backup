@@ -780,57 +780,10 @@
 					}
 				}
 			}
-		});
-
-		 // health summury 
-		const healthData = @json($healthData);        
+		}); 
+         // --- Skill Levels Chart in % with count tooltips ---
         const skillCategories = @json($categories);
-        const skillSeries     = @json($chartSeries); 
-
-        // --- Health Summary Chart with % bars and count tooltips ---
-        const totalStudentsHealth = healthData.reduce((sum, item) => sum + item.Total_Student, 0);
-
-        new Chart(document.getElementById('healthSummaryChart'), {
-            type: 'bar',
-            data: {
-                labels: healthData.map(item => item.LEVEL),
-                datasets: [{
-                    label: 'Students (%)',
-                    data: healthData.map(item => ((item.Total_Student / totalStudentsHealth) * 100).toFixed(1)),
-                    backgroundColor: ['#6bc04b', '#039a48', '#ffcb08', '#ec0000']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const count = healthData[context.dataIndex].Total_Student;
-                                return `Students: ${count} (${context.parsed.y}%)`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        ticks: { font: { size: 10 } }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            font: { size: 10 },
-                            callback: function(value) { return value + '%'; }
-                        }
-                    }
-                }
-            }
-        });
-
-        // --- Skill Levels Chart in % with count tooltips ---
+        const skillSeries     = @json($chartSeries);
         const levelNames = @json($levelNames);
         const matrix = @json($matrix); 
         const categories = @json($categories);
@@ -936,56 +889,8 @@
         });
 
 
+
 		// api data in high chart 
-        const tooltip = document.getElementById("mapTooltip");
-		if (!tooltip) return;
-       
-        const FitnessMapUrl = "https://nep.goforfit.in/api/states-fitness-data";
-
-        let FitnessMap = [];
-        fetch(FitnessMapUrl, {
-            headers: {
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) throw new Error(`API response not OK: ${response.status}`);
-            return response.json();
-        })
-        .then(result => {            
-            document.getElementsByClassName('loader-overlay')[0].style.display = 'none';
-           	FitnessMap = result?.stateData ?? result?.data?.stateData ?? [];
-
-			if (!FitnessMap.length) {
-				document.getElementById('dd').innerHTML = 'No data available';
-			}
-            buildOverallHealthChart(FitnessMap);
-            buildIndiaMap(FitnessMap);
-            renderIndiaMap();
-            renderPieChart();
-        })
-        .catch(error => {
-            console.error("Could not load mapdata API:", error);
-        });
-
-        function buildOverallHealthChart(FitnessMap) {
-            const overallHealthData = { UW:0, N:0, OW:0, OB:0 };
-            FitnessMap.forEach(state => {
-                overallHealthData.UW += parseInt(state.UW) || 0;
-                overallHealthData.N  += parseInt(state.N)  || 0;
-                overallHealthData.OW += parseInt(state.OW) || 0;
-                overallHealthData.OB += parseInt(state.OB) || 0;
-            });
-
-            const healthCategories = ['UW','N','OW','OB'];
-            const pieData = healthCategories.map(cat => ({
-                name: cat,
-                y: overallHealthData[cat],
-                color: { UW:'#a3d55f', N:'#00953b', OW:'#ffaa62', OB:'#fe4a5d' }[cat]
-            }));
-        }
-
-        
         const stateCodeMap = {
             "Andhra Pradesh": "INAP",
             "Arunachal Pradesh": "INAR",
@@ -1025,9 +930,72 @@
             "Lakshadweep": "INLD",
             "Puducherry": "INPY"
         };
-
         const stateData = {};
+        
+        const tooltip = document.getElementById("mapTooltip");
+		if (!tooltip) return;
+       
+        const FitnessMapUrl = "https://nep.goforfit.in/api/states-fitness-data";
+        const localStorageKey = "FitnessMapData";
 
+        // Try to get data from localStorage first
+        let FitnessMap = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+
+        if (FitnessMap.length) {
+            buildOverallHealthChart(FitnessMap);
+            buildIndiaMap(FitnessMap);
+            renderIndiaMap();
+            renderPieChart();
+            document.getElementsByClassName('loader-overlay')[0].style.display = 'none';
+        } else {
+            fetch(FitnessMapUrl, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`API response not OK: ${response.status}`);
+                return response.json();
+            })
+            .then(result => {
+                document.getElementsByClassName('loader-overlay')[0].style.display = 'none';
+                FitnessMap = result?.stateData ?? result?.data?.stateData ?? [];
+
+                if (!FitnessMap.length) {
+                    document.getElementById('dd').innerHTML = 'No data available';
+                } else {
+                    // Save in localStorage
+                    localStorage.setItem(localStorageKey, JSON.stringify(FitnessMap));
+
+                    buildOverallHealthChart(FitnessMap);
+                    buildIndiaMap(FitnessMap);
+                    renderIndiaMap();
+                    renderPieChart();
+                }
+            })
+            .catch(error => {
+                console.error("Could not load mapdata API:", error);
+            });
+        }
+
+        function buildOverallHealthChart(FitnessMap) {
+            const overallHealthData = { UW:0, N:0, OW:0, OB:0 };
+            FitnessMap.forEach(state => {
+                overallHealthData.UW += parseInt(state.UW) || 0;
+                overallHealthData.N  += parseInt(state.N)  || 0;
+                overallHealthData.OW += parseInt(state.OW) || 0;
+                overallHealthData.OB += parseInt(state.OB) || 0;
+            });
+
+            const healthCategories = ['UW','N','OW','OB'];
+            const pieData = healthCategories.map(cat => ({
+                name: cat,
+                y: overallHealthData[cat],
+                color: { UW:'#a3d55f', N:'#00953b', OW:'#ffaa62', OB:'#fe4a5d' }[cat]
+            }));
+        }
+        // health pie chart country     
+        
         function renderPieChart(){
             if (document.getElementById('dd')) {
                 try {
@@ -1068,7 +1036,6 @@
 						},
 						title: { text: 'Country Health Indicator' },
 						tooltip: {
-							// valueSuffix: ''
 							pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
 						},
 						plotOptions: {
@@ -1128,6 +1095,7 @@
                 }
             });
         }      
+        // render data in map 
 
         function renderIndiaMap(){
 			const mapColors = ['#fe4a5d','#ffaa62','#ffd26e','#74c4d6','#a3d55f','#6bc04b','#00953b'];
@@ -1172,6 +1140,10 @@
                 path.style.fill = path.dataset.baseColor;
 
                 path.addEventListener("mouseenter", function () {
+                    this.style.transition = "transform 0.3s ease-in-out";
+                    this.style.transformOrigin = "center";
+                    this.style.transform = "scale(1.05)";
+                    tooltip.style.display = "block";
                     const baseColor = this.dataset.baseColor;
 					function formatCount(value) {
 						return value ? '~' + value : '0';
@@ -1192,8 +1164,6 @@
 						}
                         tooltip.innerHTML = `
                             <strong>${data.name}</strong><br>
-                            {{-- Schools: ${data.schools}<br>
-                            Students: ${data.students}<br> --}}
                             UW: ${formatPercent(UW)}<br>
 							N: ${formatPercent(N)}<br>
 							OW: ${formatPercent(OW)}<br>
@@ -1213,20 +1183,12 @@
                 path.addEventListener("mouseleave", function () {
                     this.style.fill = this.dataset.baseColor; // restore original
                     tooltip.style.display = "none";
+                    this.style.transform = "scale(1)";
                 });
             });
-        }
-        
-        const healthColors = ['#a3d55f','#00953b','#ffaa62','#fe4a5d'];
+        }        
 
-        function buildColumnData(levels, values, colorMap = null, fallbackColors = []) {
-            return levels.map((lvl, i) => ({
-                y: values[i] ?? 0,
-                color: colorMap ? (colorMap[lvl] || '#000') : (fallbackColors[i] || '#000')
-            }));
-        }
-
-        // Skill Chart
+        // School Skill Chart
         if (document.getElementById('skillChart')) {
             try {
                 Highcharts.chart('skillChart', {
@@ -1274,130 +1236,7 @@
             }
         }
 
-        // spider chart 
-
-        // if (document.getElementById('spiderChart')) {
-        //     try {
-        //         Highcharts.chart('spiderChart', {
-        //             chart: {
-        //                 polar: true,
-        //                 type: 'column',
-        //                 backgroundColor: '#f9f9f9', // soft background
-        //             },
-        //             title: {
-        //                 text: 'Skill Analysis (Wind Rose)',
-        //                 style: {
-        //                     fontSize: '20px',
-        //                     fontWeight: '600',
-        //                     color: '#333'
-        //                 }
-        //             },
-        //             pane: {
-        //                 size: '85%'
-        //             },
-        //             xAxis: {
-        //                 categories: skillCategories,
-        //                 tickmarkPlacement: 'on',
-        //                 lineWidth: 1,
-        //                 lineColor: '#ccc',
-        //                 labels: {
-        //                     style: {
-        //                         fontSize: '14px',
-        //                         color: '#555',
-        //                         fontWeight: '500'
-        //                     }
-        //                 }
-        //             },
-        //             yAxis: {
-        //                 min: 0,
-        //                 max:100,
-        //                 endOnTick: false,
-        //                 showLastLabel: true,
-        //                 title: {
-        //                     text: 'Skill Level (%)',
-        //                     style: { fontSize: '13px', color: '#666' }
-        //                 },
-        //                 labels: {
-        //                     formatter: function() {
-        //                         return this.value + '%';
-        //                     },
-        //                     style: {
-        //                         fontSize: '12px',
-        //                         color: '#666'
-        //                     }
-        //                 },
-        //                 gridLineColor: '#ddd',
-        //                 gridLineDashStyle: 'ShortDash'
-        //             },
-        //             legend: {
-        //                 enabled: true,
-        //                 align: 'center',
-        //                 verticalAlign: 'bottom',
-        //                 itemStyle: {
-        //                     fontSize: '13px',
-        //                     color: '#333',
-        //                     fontWeight: '500'
-        //                 },
-        //                 symbolHeight: 12,
-        //                 symbolWidth: 12
-        //             },
-        //             plotOptions: {
-        //                 series: {
-        //                     stacking: 'normal',
-        //                     borderWidth: 0,
-        //                     colorByPoint: false,
-        //                     marker: {
-        //                         enabled: true,
-        //                         radius: 5,
-        //                         lineWidth: 2,
-        //                         lineColor: null
-        //                     },
-        //                     fillOpacity: 0.3,
-        //                     shadow: true,
-        //                     states: {
-        //                         hover: {
-        //                             brightness: 0.1,
-        //                             halo: {
-        //                                 size: 10,
-        //                                 attributes: {
-        //                                     fill: 'rgba(0,0,0,0.15)'
-        //                                 }
-        //                             }
-        //                         }
-        //                     },
-        //                     dataLabels: {
-        //                         enabled: true,
-        //                         formatter: function() {
-        //                             return this.y + '%';
-        //                         },
-        //                         style: {
-        //                             fontSize: '11px',
-        //                             fontWeight: '500',
-        //                             color: '#222',
-        //                             textOutline: '1px white'
-        //                         }
-        //                     }
-        //                 }
-        //             },
-        //             tooltip: {
-        //                 shared: true,
-        //                 backgroundColor: '#fff',
-        //                 borderColor: '#999',
-        //                 borderRadius: 5,
-        //                 shadow: true,
-        //                 style: { color: '#000', fontSize: '13px' },
-        //                 pointFormatter: function() {
-        //                     return `<span style="color:${this.color}">\u25CF</span> <b>${this.series.name}</b>: ${this.y}%<br/>`;
-        //                 }
-        //             },
-        //             series: skillSeries // same format as before
-        //         });
-        //     } catch (error) {
-        //         console.error('Skill Chart Error:', error);
-        //         document.getElementById('spiderChart').innerHTML = '<div class="map-error">Error loading skill chart</div>';
-        //     }
-        // }
-
+        // School Spider Chart
 
         if (document.getElementById('spiderChart')) {
             try {
@@ -1490,7 +1329,131 @@
             }
         }
 
-       
+        // School Health bar chart with bell curve 
+
+        const healthData      = @json($healthData);  
+        const nationalPercent = getNationalPercentage(FitnessMap); 
+        function getNationalPercentage(FitnessMap) {
+            const overallHealthData = { UW: 0, N: 0, OW: 0, OB: 0 };
+            FitnessMap.forEach(state => {
+                overallHealthData.UW += parseInt(state.UW) || 0;
+                overallHealthData.N  += parseInt(state.N)  || 0;
+                overallHealthData.OW += parseInt(state.OW) || 0;
+                overallHealthData.OB += parseInt(state.OB) || 0;
+            });
+
+            const totalNational = Object.values(overallHealthData).reduce((a, b) => a + b, 0);
+
+            const nationalPercent = ['UW', 'N', 'OW', 'OB'].map(cat => {
+                return totalNational > 0
+                    ? ((overallHealthData[cat] / totalNational) * 100).toFixed(1)
+                    : 0;
+            });
+
+            return nationalPercent;
+        }
+        const termKeys = Object.keys(healthData).filter(key => key !== 'labels');
+        const termPercent = {};
+        termKeys.forEach(termKey => {
+            const total = healthData[termKey].reduce((a,b) => a + b, 0);
+            termPercent[termKey] = healthData[termKey].map(val => (val / total * 100).toFixed(1));
+        });
+
+        const colorsLight = ['#b1dea1', '#82fcb9', '#ffe380', '#ff8080'];
+        const colorsDark  = ['#6bc04b', '#039a48', '#ffcb08', '#ec0000'];
+        
+        const datasets = [
+            {
+                label: 'Previous',
+                data: termPercent[termKeys[1]],
+                backgroundColor: colorsLight,
+                rawCounts: healthData[termKeys[1]],
+                order: 1
+            },
+            {
+                label: 'Current',
+                data: termPercent[termKeys[0]],
+                backgroundColor: colorsDark,
+                rawCounts: healthData[termKeys[0]],
+                order: 5
+            }
+        ];
+
+        const drawLineOnTopPlugin = {
+            id: 'drawLineOnTop',
+            afterDatasetsDraw(chart) {
+                chart.data.datasets.forEach((dataset, index) => {
+                    if (dataset.type === 'line') {
+                        chart.getDatasetMeta(index).controller.draw();
+                    }
+                });
+            }
+        };
+
+        // Bell curve dataset remains unchanged
+        const bellCurveDataset = {
+            label: '',
+            data: nationalPercent,
+            type: 'line',              
+            borderColor: '#00004b',    
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4,              
+            pointStyle: 'circle',
+            pointBorderColor: '#c4e6039c',
+            pointRadius: 5,
+            pointBackgroundColor: '#00004b',
+            order: 10
+        };
+
+        const allDatasets = [...datasets, bellCurveDataset];
+
+        new Chart(document.getElementById('healthSummaryChart'), {
+            type: 'bar',
+            data: {
+                labels: healthData.labels, 
+                datasets: allDatasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.dataset.type === 'line') {
+                                    return `${context.dataset.label}: ${context.raw}%`;
+                                } else {
+                                    const count = context.dataset.rawCounts[context.dataIndex];
+                                    return `${context.dataset.label}: ${count} students (${context.parsed.y}%)`;
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) { return value + '%'; }
+                        }
+                    },
+                    x: {
+                        stacked: false
+                    }
+                },
+                datasets: {
+                    bar: {
+                        order: 1
+                    },
+                    line: {
+                        order: 10
+                    }
+                }
+            },
+            plugins: [drawLineOnTopPlugin]
+        });     
         
     });
 </script>

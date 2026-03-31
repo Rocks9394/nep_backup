@@ -215,21 +215,41 @@ class FillDartController extends Controller
 
 		$termIds = $this->getCurrentAndPreviousTermIds($schoolId, (int) $selectedTermId);
 			
-		// dd($termIds);
 		
-		$healthData = DB::table('SeniorTestResults')
+		$bmiData = DB::table('SeniorTestResults')
 			->join('students','students.id', '=', 'SeniorTestResults.StudentID')
-			->join('class','class.id', '=', 'students.class_id')
-			->join('term_masters','term_masters.school_id', '=', 'SeniorTestResults.SchoolID')
-			->select('LEVEL', DB::raw('COUNT(StudentID) AS Total_Student'))
-			->whereDate('term_start_date', '<=', now())
-			->whereDate('term_end_date', '>=', now())
+			->select('LEVEL', DB::raw('COUNT(StudentID) AS Total_Student'),'SeniorTestResults.TermId')
+			->whereIn('SeniorTestResults.TermId', $termIds)
 			->where('SeniorTestResults.SchoolID', $schoolId)
 			->whereIn('LEVEL', ['UW', 'N', 'OW', 'OB'])
-			->groupBy('LEVEL')
+			->groupBy('LEVEL', 'TermId')
 			->orderByRaw("FIELD(LEVEL, 'UW', 'N', 'OW', 'OB')")
 			->get();
 
+			// echo"<pre>";print_r($bmiData);exit();
+
+		$levels = ['UW', 'N', 'OW', 'OB'];
+
+		$mapped = $bmiData->keyBy(function ($item) {
+			return $item->LEVEL . '_' . $item->TermId;
+		});
+
+		$healthData = [
+			'labels' => $levels
+		];
+
+		foreach ($termIds as $termId) {
+			$healthData["term_$termId"] = [];
+
+			foreach ($levels as $level) {
+				$key = $level . '_' . $termId;
+				$healthData["term_$termId"][] = isset($mapped[$key]) 
+					? $mapped[$key]->Total_Student 
+					: 0;
+			}
+		}
+			
+		// echo"<pre>";print_r($healthData);exit();
 
 		$data = DB::table('SeniorTestResults as str')
 			->join('skill_reports as sr', 'sr.id', '=', 'str.TestTypeID')
