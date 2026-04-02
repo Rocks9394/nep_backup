@@ -211,9 +211,9 @@ class FillDartController extends Controller
 			->where('status', 'active')
 			->count();
 				
-		$selectedTermId = $this->getTermId($schoolId);
+		$currentTermId = $this->getTermId($schoolId);
 
-		$termIds = $this->getCurrentAndPreviousTermIds($schoolId, (int) $selectedTermId);
+		$termIds = $this->getCurrentAndPreviousTermIds($schoolId, (int) $currentTermId);
 			
 		
 		$bmiData = DB::table('SeniorTestResults')
@@ -254,15 +254,13 @@ class FillDartController extends Controller
 		$data = DB::table('SeniorTestResults as str')
 			->join('skill_reports as sr', 'sr.id', '=', 'str.TestTypeID')
 			->join('students', 'students.id', '=', 'str.StudentID')
-			->join('term_masters', 'term_masters.school_id', '=', 'str.SchoolID')
 			->select('sr.skill_name', 'str.level', DB::raw('COUNT(StudentID) as total'))
-			->whereDate('term_start_date', '<=', now())
-			->whereDate('term_end_date', '>=', now())
 			->where('str.SchoolID', $schoolId)
+			->where('str.TermId', $currentTermId)
 			->whereIn('str.TestTypeID', [16, 17, 19, 20, 21, 22, 23])
 			->whereNotNull('str.level')
 			->whereNotIn('str.level', ['', 'N.A.'])
-			->whereRaw("str.level REGEXP '^L[1-7]+$'")
+			->whereRaw("str.level REGEXP '^L[1-7]$'")
 			->groupBy('sr.skill_name', 'str.level')
 			->orderBy('sr.skill_name')
 			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
@@ -853,7 +851,7 @@ class FillDartController extends Controller
 	public function uploadMedia(Request $request){
 
 		$validator = Validator::make($request->all(), [
-			'files.*' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240', // 10MB max
+			'files.*' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240',
 			'school_id' => 'required|integer',
 			'activity_id' => 'nullable|integer',
 			'date' => 'required|date',
@@ -1527,10 +1525,11 @@ class FillDartController extends Controller
 
 			$year = date('Y');
 			$month = date('m');
-			$day = date('d');
 			$today = Carbon::today()->toDateString();
-			if ($month < 4 || ($month == 3 && $day <= 31)) {
+			if ($month < 4) {
 				$academicYear = ($year - 1) . '-' . $year;
+			} else {
+				$academicYear = $year . '-' . ($year + 1);
 			}
 
 			$terms = TermMaster::where('school_id', $school_id)

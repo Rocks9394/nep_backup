@@ -818,28 +818,31 @@ unset($__errorArgs, $__bag); ?>
 		nextStart.setDate(nextStart.getDate() + 1);
 		createTermRow(index + 1, nextStart, false, true);
 	});
+	document.addEventListener('DOMContentLoaded', function () {
+		academicYearSelect.addEventListener('change', function () {
+			clearNewTerms();
 
-	academicYearSelect.addEventListener('change', function () {
-		clearNewTerms();
+			if (this.value === "<?php echo e($academicYear); ?>") {
+				const { start } = getAcademicDates();
+				createTermRow(1, start, true, true);
+				
+				hideExistingTerms(false);
+				<?php if(count($terms ?? [])): ?>
+				const lastEnd = new Date("<?php echo e(\Carbon\Carbon::parse($terms->last()->term_end_date)->format('Y-m-d')); ?>");
+				const { end } = getAcademicDates();
 
-		if (this.value === "<?php echo e($academicYear); ?>") {
-			hideExistingTerms(false);
-
-			<?php if(count($terms ?? [])): ?>
-			const lastEnd = new Date("<?php echo e(\Carbon\Carbon::parse($terms->last()->term_end_date)->format('Y-m-d')); ?>");
-			const { end } = getAcademicDates();
-
-			if (lastEnd < end) {
-				const nextStart = new Date(lastEnd);
-				nextStart.setDate(nextStart.getDate() + 1);
-				createTermRow(1, nextStart, true, true);
+				if (lastEnd < end) {
+					const nextStart = new Date(lastEnd);
+					nextStart.setDate(nextStart.getDate() + 1);
+					createTermRow(1, nextStart, true, true);
+				}
+				<?php endif; ?>
+			} else {
+				hideExistingTerms(true);
+				const { start } = getAcademicDates();
+				createTermRow(1, start, true, true);
 			}
-			<?php endif; ?>
-		} else {
-			hideExistingTerms(true);
-			const { start } = getAcademicDates();
-			createTermRow(1, start, true, true);
-		}
+		});
 	});
 
 	<?php if(count($terms ?? [])): ?>

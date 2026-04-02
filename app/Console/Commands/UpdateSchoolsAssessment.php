@@ -29,9 +29,9 @@ class UpdateSchoolsAssessment extends Command
             11 => range(18, 23),
             12 => range(18, 23),
             14 => [1, 3, 4, 7, 15],
-            14 => [1, 4, 5],
-            14 => [1, 2, 3, 4, 7, 12, 15],
-            14 => [1, 2, 3, 4, 5, 7, 9, 12, 14, 15],
+            18 => [1, 4, 5],
+            22 => [1, 2, 3, 4, 7, 12, 15],
+            23 => [1, 2, 3, 4, 5, 7, 9, 12, 14, 15],
             // Add more class mappings if needed
         ];
 
@@ -65,15 +65,25 @@ class UpdateSchoolsAssessment extends Command
                         -- Completed
                         WHEN s.class_id >= 4 AND s.class_id <= 12 
                             AND (SELECT COUNT(DISTINCT TestTypeID) 
-                                FROM SeniorTestResults se 
+                                FROM SeniorTestResults se
+                                JOIN term_masters tm 
+                                    ON tm.school_id = s.id
+                                    AND tm.is_active = 1
+                                    AND CURDATE() BETWEEN tm.term_start_date AND tm.term_end_date
                                 WHERE se.StudentID = s.id 
+                                    AND se.TermId = tm.id
                                     AND se.TestTypeID IN (" . implode(',', range(18,23)) . ")) = " . count(range(18,23)) . "
                         THEN 'completed'
 
                         WHEN s.class_id < 4 OR s.class_id > 12
                             AND (SELECT COUNT(DISTINCT skill_report_id) 
                                 FROM skillreport_skilltype_termtype_mapping f
+                                JOIN term_masters tm 
+                                    ON tm.school_id = s.id
+                                    AND tm.is_active = 1
+                                    AND CURDATE() BETWEEN tm.term_start_date AND tm.term_end_date
                                 WHERE f.student_id = s.id 
+                                    AND f.term_master_id = tm.id
                                     AND f.skill_report_id IN (" . implode(',', range(1,18)) . ")) = " . count(range(1,18)) . "
                         THEN 'completed'
 
@@ -81,14 +91,24 @@ class UpdateSchoolsAssessment extends Command
                         WHEN s.class_id >= 4 AND s.class_id <= 12 
                             AND (SELECT COUNT(DISTINCT TestTypeID) 
                                 FROM SeniorTestResults se 
+                                JOIN term_masters tm 
+                                    ON tm.school_id = s.id
+                                    AND tm.is_active = 1
+                                    AND CURDATE() BETWEEN tm.term_start_date AND tm.term_end_date
                                 WHERE se.StudentID = s.id 
+                                    AND se.TermId = tm.id
                                     AND se.TestTypeID IN (" . implode(',', range(18,23)) . ")) > 0
                         THEN 'ongoing'
 
                         WHEN s.class_id < 4 OR s.class_id > 12
                             AND (SELECT COUNT(DISTINCT skill_report_id) 
                                 FROM skillreport_skilltype_termtype_mapping f
+                                JOIN term_masters tm 
+                                    ON tm.school_id = s.id
+                                    AND tm.is_active = 1
+                                    AND CURDATE() BETWEEN tm.term_start_date AND tm.term_end_date
                                 WHERE f.student_id = s.id 
+                                    AND f.term_master_id = tm.id
                                     AND f.skill_report_id IN (" . implode(',', range(1,18)) . ")) > 0
                         THEN 'ongoing'
 

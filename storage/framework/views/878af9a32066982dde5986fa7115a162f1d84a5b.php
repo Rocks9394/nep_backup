@@ -474,7 +474,7 @@
 					<?php if(Auth::user()->id == 974 || Auth::user()->id == 995): ?>
 						<!-- href="<?php echo e(route('activity.gallary')); ?>?p=2" -->
 						<div id="activity_gallary">
-							<a  href="javascript:void(0);"  class="box" ><div>
+							<a  href="<?php echo e(route('activity.gallary')); ?>"  class="box" ><div>
 							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/age-report.svg')); ?>"></div><span>Activity Gallery</span></a>
 						</div>
 
@@ -707,50 +707,8 @@
 			};
 			updateCount();
 		});
-
-		// students summary 
-		new Chart(document.getElementById('studentSummaryChart'), {
-			type: 'doughnut',
-			data: {
-				labels: ['Completed', 'In Progress', 'Not Started'],
-				datasets: [{
-					label: 'Students',
-					data: [
-						<?php echo e($totalCompleted); ?>,
-						<?php echo e($totalOngoing); ?>,
-						<?php echo e($totalYetToStart); ?>
-
-					],
-					backgroundColor: [
-						'#039a48',
-						'#ffcb08',
-						'#ec0000' 
-					],
-					borderWidth: 1
-				}]
-			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: false,
-				cutout: '60%',
-				plugins: {
-					legend: {
-						position: 'bottom'
-					},
-					tooltip: {
-						callbacks: {
-							label: function(context) {
-								let value = context.raw;
-								let total = context.dataset.data.reduce((a, b) => a + b, 0);
-								let percentage = ((value / total) * 100).toFixed(1);
-								return `${context.label}: ${value} (${percentage}%)`;
-							}
-						}
-					}
-				}
-			}
-		}); 
-         // --- Skill Levels Chart in % with count tooltips ---
+        // --- Skill Levels Chart in % with count tooltips ---
+        
         const skillCategories = <?php echo json_encode($categories, 15, 512) ?>;
         const skillSeries     = <?php echo json_encode($chartSeries, 15, 512) ?>;
         const levelNames = <?php echo json_encode($levelNames, 15, 512) ?>;
@@ -820,12 +778,19 @@
                     scales: {
                         x: {
                             title: { display: true, text: 'Levels (L0 - L8)' },
-                            ticks: { font: { size: 12 } }
+                            ticks: { font: { size: 12 } },
+                            grid: {
+                                display: false
+                            }
                         },
                         y: {
                             beginAtZero: true,
+                            max: 100,
                             title: { display: true, text: 'Students (%)' },
-                            ticks: { font: { size: 12 }, callback: val => val + '%' }
+                            ticks: { font: { size: 12 }, callback: val => val + '%' },
+                            grid: {
+                                display: false
+                            }
                         }
                     },
                     plugins: {
@@ -1109,9 +1074,6 @@
                 path.style.fill = path.dataset.baseColor;
 
                 path.addEventListener("mouseenter", function () {
-                    this.style.transition = "transform 0.3s ease-in-out";
-                    this.style.transformOrigin = "center";
-                    this.style.transform = "scale(1.05)";
                     tooltip.style.display = "block";
                     const baseColor = this.dataset.baseColor;
 					function formatCount(value) {
@@ -1133,10 +1095,10 @@
 						}
                         tooltip.innerHTML = `
                             <strong>${data.name}</strong><br>
-                            UW: ${formatPercent(UW)}<br>
-							N: ${formatPercent(N)}<br>
-							OW: ${formatPercent(OW)}<br>
-							OB: ${formatPercent(OB)}
+                            UW: ~${formatPercent(UW)}<br>
+							N: ~${formatPercent(N)}<br>
+							OW: ~${formatPercent(OW)}<br>
+							OB: ~${formatPercent(OB)}
                         `;
                     }
                     tooltip.style.display = "block";
@@ -1152,7 +1114,6 @@
                 path.addEventListener("mouseleave", function () {
                     this.style.fill = this.dataset.baseColor; // restore original
                     tooltip.style.display = "none";
-                    this.style.transform = "scale(1)";
                 });
             });
         }        
@@ -1361,17 +1322,17 @@
 
         // Bell curve dataset remains unchanged
         const bellCurveDataset = {
-            label: '',
+            label: 'National',
             data: nationalPercent,
             type: 'line',              
-            borderColor: '#00004b',    
-            borderWidth: 2,
+            borderColor: '#000814',    
+            borderWidth: 3,
             fill: false,
             tension: 0.4,              
             pointStyle: 'circle',
-            pointBorderColor: '#c4e6039c',
+            pointBorderColor: '#ffc300',
             pointRadius: 5,
-            pointBackgroundColor: '#00004b',
+            pointBackgroundColor: '#000814',
             order: 10
         };
 
@@ -1404,12 +1365,18 @@
                 scales: {
                     y: {
                         beginAtZero: true,
+                        grid: {
+                            display: false
+                        },
                         ticks: {
                             callback: function(value) { return value + '%'; }
                         }
                     },
                     x: {
-                        stacked: false
+                        stacked: false,
+                        grid: {
+                            display: false
+                        }
                     }
                 },
                 datasets: {
