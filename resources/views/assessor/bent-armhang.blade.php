@@ -33,7 +33,7 @@
                     @endif
 
                     
-                        <h1 class="ml-md-4 mb-0">{{$title}}</h1> 
+                        <h1 class="ml-md-4 mb-0">{{$title}} </h1> 
                     </div>
                 </div>
             </div>
@@ -67,6 +67,11 @@
             {{-- footer close --}}	
         </form>	
             
+			@if(Auth::user()->id == '995')
+				<button type="button" id="start-exercise-btn" class="btn py-2 btn-warning d-flex w-100 justify-content-center " 
+			onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button>
+			@endif
+			
         </div>
     </div>
 </div>

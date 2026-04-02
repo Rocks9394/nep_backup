@@ -207,10 +207,11 @@ class StudentDashboardController extends Controller
 
         $year = date('Y');
 		$month = date('m');
-		$day = date('d');
 		$today = Carbon::today()->toDateString();
-		if ($month < 4 || ($month == 3 && $day <= 31)) {
+		if ($month < 4) {
 			$academicYear = ($year - 1) . '-' . $year;
+		} else {
+			$academicYear = $year . '-' . ($year + 1);
 		}
 
 		$terms = TermMaster::where('school_id', $SchoolId)

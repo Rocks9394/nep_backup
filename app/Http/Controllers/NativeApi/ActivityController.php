@@ -43,20 +43,6 @@ class ActivityController extends Controller
 	    ->where('activity_technique.class_id', $class_id)
 	    ->get();
 
-	    // ->map(function ($item) {
-     //        if ($item->image && !filter_var($item->image, FILTER_VALIDATE_URL)) {         
-     //            $item->image = asset('uploads/activities/' . $item->image);
-     //        }            
-           
-     //        if (empty($item->image)) {
-     //            $item->image = asset('images/default-placeholder.png');
-     //        }
-
-     //        return $item;
-     //    });
-	    // ;
-
-
 		return Response::json([
 			'success'=>true, 
 			'activityDetail'=>$activities
@@ -145,6 +131,84 @@ class ActivityController extends Controller
 			'success'=>true, 
 			'SchoolDetails'=>$SchoolData
 		]);
+    }
+
+
+    public function LearnSport(Request $request) {
+    
+    	$items = DB::table('learn_sports')->select('id', 'name', 'img')
+		->where('status', 'active')->orderBy('sequence', 'asc')->get();
+
+		$path = 'https://nep.goforfit.in/public/change-sports/';
+
+ 		$result = $items->map( function($items) use ($path) {
+ 			$array = [
+ 				'id' => $items->id,
+ 				'title' => $items->name,
+ 				'img'  => $path.$items->img,
+ 			];
+ 			return $array;
+ 		});
+
+ 		return Response::json([
+ 			'success' => true,
+ 			'sports' => $result
+ 		]);
+    }
+
+    public function SportsDetails(Request $request,$sport_id) {
+
+		$title = 'Sports Details';
+
+		$items = DB::table('learn_sports') ->select('name', 'img', 'video', 'desc','id')
+		->where('id', $sport_id)->get();
+
+		$path = 'https://nep.goforfit.in/public/change-sports/';
+		$sport_details = $items->map( function($items) use ($path) {
+ 			$array = [
+ 				'id' => $items->id,
+ 				'name' => $items->name,
+ 				'desc'  =>  $items->desc,
+ 				'video'  =>  $items->video,
+ 				'img'  => $path.$items->img,
+ 			];
+ 			return $array;
+ 		});
+		
+
+        if (!$sport_details) {
+	        return response()->json(['message' => 'Sport not found'], 404);
+	    }
+
+	    $videos = DB::table('sports_videos_tutorial')
+        ->where('sport_id', $sport_id)
+        ->where('status', 'active')
+        ->orderBy('chapter')
+        ->get();
+
+
+
+        $chaptersDetails = $videos->groupBy('chapter')->map(function($chapterVideos, $chapterKey) {
+	        return [
+	            'chapter_number' => $chapterKey,
+	            'chapter_name' => $chapterVideos->first()->chapter_name,
+	            'video_count' => $chapterVideos->count(),
+	            'videos' => $chapterVideos
+	        ];
+	    })
+	    ->sortBy(function($item) {
+		    preg_match('/\d+/', $item['chapter_number'], $matches);
+		    return isset($matches[0]) ? (int)$matches[0] : 0;
+		})
+	    ->values();
+
+        return response()->json([
+	        'success' => true,
+	        'sport' => $sport_details,
+	        'chapters' => $chaptersDetails
+	    ]);
+
+
     }
 
 

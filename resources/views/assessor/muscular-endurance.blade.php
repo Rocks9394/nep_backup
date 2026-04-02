@@ -58,7 +58,15 @@
                     </div>
                     <div id="timer" class="mt-0 mb-3 text-center">00:00:00</div>
                     
-                    <div class="actions"><a  id="startPauseBtn" href="#a" class="btn btn-success py-2 w-100 d-flex justify-content-center" style="gap: 10px;"><i class="bi bi-stopwatch"></i><span>Start Timer</span></a></div>
+                    <div class="actions">
+					<a  id="startPauseBtn" href="#a" class="btn btn-success py-2 w-100 d-flex justify-content-center mb-3" style="gap: 10px;"><i class="bi bi-stopwatch"></i><span>Start Timer</span></a>
+					
+					@if(Auth::user()->id == '995')
+						<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center " 
+					onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button>
+					@endif
+					
+					</div>
             
             </div>
             </div> 

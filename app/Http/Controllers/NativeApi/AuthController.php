@@ -30,10 +30,16 @@ class AuthController extends Controller {
         if ($user && Hash::check($password, $user->password)) {
             $token = $user->createToken('TrainerToken', ['trainer'])->accessToken;
 
+            if(empty($user->remember_token)){
+                $user->remember_token = Str::random(60);
+                $user->save();
+            }
+
             return response()->json([
                 'status'       => true,
                 'account_type' => 'user',
                 'token'        => $token,
+                'bridge_token' => $user->remember_token,
                 'user'         => $user,
             ], 200);
         }

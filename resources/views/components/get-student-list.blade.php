@@ -35,17 +35,13 @@
 
 			@php
 			$userId  = \Auth::id();
+			$trainerName = auth()->user()->name;
 			@endphp
 		
 
 
 			
             @if(Auth::user()->id == '995')
-			
-			<button type="button" id="start-exercise-btn" class="btn btn-warning" 
-			onclick="redirectToPython()" style="color: white; font-weight: bold;"> Start AI Exercise - {{$userId}} - {{ $title }}</button>
-			
-			
 			
             <div class="col-4 col-sm-3 col-md-2 col-lg-1">
                 <div class="form mt-1 mt-md-3">
@@ -99,59 +95,85 @@
 
 
 <script>
-	function redirectToPython() 
+    function redirectToPython() 
 	{
-		const studentSelect = document.querySelector('select[name="student_id"]');
-		const classSelect = document.querySelector('select[name="class_id"]');
-		
-		// Extract exerciseId from the URL (e.g., 1011)
-		const pathArray = window.location.pathname.split('/');
-		const exerciseId = pathArray[pathArray.length - 1]; 
+        const studentSelect = document.querySelector('select[name="student_id"]');
+        const classSelect = document.querySelector('select[name="class_id"]');
+        
+        const pathArray = window.location.pathname.split('/');
+        const exerciseId = pathArray[pathArray.length - 1]; 
 
-		// Validation
-		if (!studentSelect || !studentSelect.value || studentSelect.value === "") {
-			alert("Please select a student first!");
-			return;
-		}
+        if (!studentSelect || !studentSelect.value || studentSelect.value === "") {
+            alert("Please select a student first!");
+            return;
+        }
 
-		// --- CORRECTION HERE ---
-		// Get the selected <option> element
-		const selectedOption = studentSelect.options[studentSelect.selectedIndex];
-		
-		// Extract student_id from 'data-id' attribute
-		const actualStudentId = selectedOption.getAttribute('data-id');
-		// Extract roll_no from the 'value' attribute
-		const rollNoValue = studentSelect.value;
-		
-		const classSection = classSelect ? classSelect.options[classSelect.selectedIndex].text : "N/A";
-		const fullText = selectedOption.text;
-		
-		let rollNo = rollNoValue; // Default to the value field
-		let studentName = fullText;
+        // Use Blade syntax to inject the values safely
+        const trainerName = "{{ $trainerName }}";
+        const exerciseTitle = "{{ $title }}";
+        const currentTrainerId = "{{ $userId }}";
 
-		// Parsing the text: "Roll No: 1 | Name: Abeer Singh"
-		if (fullText.includes('|')) {
-			const parts = fullText.split('|');
-			// If you prefer to parse the text for Roll No:
-			rollNo = parts[0].replace(/Roll No:/i, '').trim();
-			studentName = parts[1].replace(/Name:/i, '').trim();
-		}
+        const selectedOption = studentSelect.options[studentSelect.selectedIndex];
+        const actualStudentId = selectedOption.getAttribute('data-id');
+        const rollNoValue = studentSelect.value;
+        const classSection = classSelect ? classSelect.options[classSelect.selectedIndex].text : "N/A";
+        const fullText = selectedOption.text;
+        
+        let rollNo = rollNoValue;
+        let studentName = fullText;
 
-		// Construct URL parameters
-		const queryParams = new URLSearchParams({
-			id: actualStudentId,    // Now sends 9973, 9974, etc.
-			name: studentName,
-			roll: rollNo,           // Sends 1, 2, etc.
-			class_info: classSection,
-			ex_id: exerciseId,
-			trainerId: '{{$userId}}' 
-		});
+        if (fullText.includes('|')) {
+            const parts = fullText.split('|');
+            rollNo = parts[0].replace(/Roll No:/i, '').trim();
+            studentName = parts[1].replace(/Name:/i, '').trim();
+        }
 
-		// Redirect to your Python/HTML server
-		window.location.href = `http://103.65.20.129:8000/standard-push-ups.html?${queryParams.toString()}`;
-	}
+        // --- DYNAMIC DATA: Construct URL parameters ---
+        const queryParams = new URLSearchParams({
+            id: actualStudentId,
+            name: studentName,
+            roll: rollNo,
+            class_info: classSection,
+            ex_id: exerciseId,
+            trainerId: currentTrainerId, // MUST match what exercise-header.js reads
+            traiName: trainerName,
+            exerciseName: exerciseTitle     
+        });
+        
+        const baseUrl = "http://103.65.20.129:8000/";
+        let pageName = "";
+
+        switch (exerciseTitle) {
+            case 'Push Ups':
+                pageName = "standard-push-ups.html";
+                break;
+            case 'Flamingo Balance Test':
+            case 'One-Foot Balance':
+                pageName = "single-leg-balance.html";
+                break;
+            case 'Flexed/Bent Arm Hang':
+                pageName = "bent-arm-hang.html";
+                break;
+            case 'Plate Tapping':
+                pageName = "plate-tapping.html";
+                break;
+            case 'BMI':
+                pageName = "height-winspam-calculate5.html";
+                break;
+            case 'Partial curl up 30 sec':
+                pageName = "situps.html";
+                break;
+            case 'Vertical Jump':
+                pageName = "standing-vertical-jump1.html";
+                break;
+            default:
+                alert("Exercise page not found for: " + exerciseTitle);
+                return;
+        }
+
+        window.location.href = `${baseUrl}${pageName}?${queryParams.toString()}`;
+    }
 </script>
-
 
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>

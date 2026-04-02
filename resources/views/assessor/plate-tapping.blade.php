@@ -44,7 +44,7 @@
             $type = "fitnessTest";
             @endphp
 
-            <x-get-student-list :classes="$classes" :type="$type" :title="$title"  />
+            <x-get-student-list :classes="$classes" :type="$type" :title="$title"   />
             
             
             <form class="row" method="POST" name="savePlateTappingRecord" id="save_plate_tapping_record_id" action="">
@@ -76,9 +76,14 @@
                             </span>
                         </div>
                         <div class="actions">
-                            <a href="#a"  id="startTimerBtn" class="btn btn-success py-2 w-100 d-flex justify-content-center" style="gap: 10px;">
+                            <a href="#a"  id="startTimerBtn" class="btn btn-success py-2 w-100 d-flex justify-content-center mb-3" style="gap: 10px;">
                             <i class="bi bi-stopwatch"></i><span id="timerLabel">Start Timer</span>
                             </a>
+							
+							@if(Auth::user()->id == '995')
+								<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center" 
+							onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button>
+							@endif
                         </div>
                     </div>
                 </div>

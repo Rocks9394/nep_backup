@@ -37,7 +37,6 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ImportStudentProfile;
 use App\Exports\ExportImproperData;
 use App\Models\Sport; 
-use App\Models\Technique; 
 use App\Models\ViewDart;
 use App\Models\Teacher;
 use App\Models\State;
@@ -237,7 +236,10 @@ class SchoolRecordController extends Controller
 		else
 		{
 			die('--you dont have access for this panel. sorry for inconvenation--');
-		}		
+		}
+		
+		
+		
 
 		$SchoolData = [];
 		$SchoolData['students'] = $students = DB::table('schools')
@@ -1005,7 +1007,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		        END AS isValidAge
 		    ")
 		)
-		->where('students.school_code', $school->school_code)		
+		->where('students.school_code', $school->school_code)
 		->orderBy('students.class_id')
 		->orderBy('students.section_id')
 		->orderBy('students.rollno', 'asc');;
@@ -2879,6 +2881,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 		return $visible . $masked . '@' . $domain;
 	}
+
 
 	/**
 	 * Date : 19-09-2025

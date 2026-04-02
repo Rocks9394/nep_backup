@@ -131,18 +131,20 @@ class AssessorAppController extends Controller
 
 		$year = date('Y');
 		$month = date('m');
-		$today = Carbon::today()->toDateString();
+		$today = Carbon::now()->toDateTimeString();
+
 		if ($month < 4) {
 			$academicYear = ($year - 1) . '-' . $year;
 		} else {
 			$academicYear = $year . '-' . ($year + 1);
 		}
-
+		
 		$terms = TermMaster::where('school_id', $SchoolId)
-            ->where('is_active', 1)
-            ->where('academic_year', $academicYear)
-			->get();
-
+		->where('is_active', 1)
+		->where('academic_year', $academicYear)
+		->get();
+		
+		
 		$currentTerm = DB::table('term_masters')
 			->select('id', 'term_name', 'academic_year', 'term_start_date', 'term_end_date')
 			->where('school_id', $SchoolId)
@@ -152,7 +154,10 @@ class AssessorAppController extends Controller
 			->whereDate('term_end_date', '>=', $today)
 			->first();
 
-			$selectedTerm = session('term_id', $currentTerm->id);
+			// echo"<pre>";print_r($today);exit();
+
+
+		$selectedTerm = session('term_id', $currentTerm->id);
 		
 	
 		return view('assessor.alltests', compact('title', 'juniorData', 'cbseData', 'juniorData1', 'seniorData', 'terms', 'selectedTerm'));

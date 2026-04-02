@@ -79,7 +79,8 @@ class PEActivityController extends Controller
 
     public function SportsTopicVideos($sport_id, $topic_id){
 
-    	$videos = DB::table('sports_videos_tutorial')->where('sport_id', $sport_id)->orderBy('chapter')->get();        
+    	$videos = DB::table('sports_videos_tutorial')->where('sport_id', $sport_id)->orderBy('chapter')->get();
+    	     
         $chapters_details = $videos->groupBy('chapter')->map(function($chapterVideos) {
 	        return [
 	            'chapter_name' => $chapterVideos->first()->chapter_name,

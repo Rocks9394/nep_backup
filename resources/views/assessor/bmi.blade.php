@@ -83,7 +83,10 @@
             @endphp
             <x-reset-submit-btn :id="$id"/>
             {{-- footer close --}}
-            
+					@if(Auth::user()->id == '995')
+						<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center " 
+					onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button>
+					@endif
         </form>	
             
             

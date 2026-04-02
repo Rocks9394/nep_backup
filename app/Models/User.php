@@ -50,7 +50,7 @@ class User extends Authenticatable
 
     public function schools()
     {
-        return $this->belongsToMany(School::class, 'school_trainers', 'user_id', 'school_id');
+        return $this->belongsToMany(School::class, 'school_trainers', 'trainer_id', 'school_id');
     }
 
     

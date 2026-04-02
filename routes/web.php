@@ -413,7 +413,8 @@ Route::prefix('school')->group(function(){
 
 
 
-	Route::get('test-relay-auth', [SchoolRecordController::class,'DOTNETREPORT'])->name('test.relay.auth');	
+	Route::get('test-relay-auth', [SchoolRecordController::class,'DOTNETREPORT'])->name('test.relay.auth');
+
 
 	Route::get('get-student-according-class', [SchoolRecordController::class, 'getStudentAccordingToClass'])->name('get.student.according.class'); 
 	Route::get('school-fms-skills-report', [SchoolRecordController::class,'SchoolFMSskillReport'])->name('school.fms.skills.reports');
@@ -465,8 +466,7 @@ Route::prefix('school')->group(function(){
 });
 // for view dart (schools, trainers and school users)
 Route::get('viewdart', [FillDartController::class,'viewSchoolDart'])->name('viewschooldart');
-
-
+	
 /*Activity Gallary */  
 Route::get('activity-gallary', [FillDartController::class,'ActivityGallary'])->name('activity.gallary');
 Route::post('upload-media',[FillDartController::class, 'uploadMedia'])->name('upload.media');

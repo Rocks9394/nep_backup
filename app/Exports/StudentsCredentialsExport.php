@@ -9,10 +9,13 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use DB;
 
-class StudentsCredentialsExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnFormatting, WithColumnWidths
+class StudentsCredentialsExport extends DefaultValueBinder implements WithCustomValueBinder, FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnFormatting, WithColumnWidths
 {
     protected $studentIds;
     protected $className;
@@ -91,6 +94,15 @@ class StudentsCredentialsExport implements FromCollection, WithHeadings, WithMap
             (string) $student->user_id, 
             $plainPassword
         ];
+    }
+    public function bindValue(\PhpOffice\PhpSpreadsheet\Cell\Cell $cell, $value)
+    {
+        if ($cell->getColumn() === 'E') {
+            $cell->setValueExplicit($value, DataType::TYPE_STRING);
+            return true;
+        }
+
+        return parent::bindValue($cell, $value);
     }
 
     public function columnFormats(): array {

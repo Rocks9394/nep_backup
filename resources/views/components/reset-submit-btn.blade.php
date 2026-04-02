@@ -6,7 +6,10 @@
                 <div class="col-12">
                     <div class="action-bar py-3 p-0 actions">
                         <button type="reset" id="reset_{{$id}}" class="btn py-2 px-5 btn btn-outline-secondary">Reset</button>	
-                        <button type="submit" id="submit_{{$id}}" class="btn py-2 px-5 btn-primary">Save</button>
+                        <button type="submit" id="submit_{{$id}}" class="btn py-2 px-5  btn-primary">Save</button>
+						
+					
+						
                     </div>
                 </div>
             </div>

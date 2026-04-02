@@ -383,7 +383,6 @@ class LoginController extends Controller
 	    $student = Sstudent::where('user_id', $student_id)
 	        ->where('status', '<>', 'transfer')->where('is_active','<>', 0)
 	        ->first();
-
 	    if ($student && Hash::check($dob, $student->password)) {
 	        Auth::guard('sstudent')->login($student, $remember);
 	        $request->session()->regenerate();

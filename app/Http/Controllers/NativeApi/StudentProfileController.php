@@ -306,12 +306,13 @@ class StudentProfileController extends Controller
         });
 
         $year = date('Y');
-        $month = date('m');
-        $day = date('d');
-        $today = Carbon::today()->toDateString();
-        if ($month < 4 || ($month == 3 && $day <= 31)) {
-            $academicYear = ($year - 1) . '-' . $year;
-        }
+		$month = date('m');
+		$today = Carbon::today()->toDateString();
+		if ($month < 4) {
+			$academicYear = ($year - 1) . '-' . $year;
+		} else {
+			$academicYear = $year . '-' . ($year + 1);
+		}
 
         $terms = TermMaster::select('id as term_id','term_name','academic_year','term_start_date','term_end_date')->where('school_id', $SchoolId)->where('is_active', 1)->where('academic_year', $academicYear)->get();
 

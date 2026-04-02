@@ -41,82 +41,7 @@ class FillDartController extends Controller
 		$this->middleware(['auth','trainerschool'])->except('ParisOlympics','viewSchoolDart');
     }
 
-    public function dashboard_bk(Request $request)	{
-
-
-		$user = auth()->user();
-	    $roleId = $user->role_id;
-	    $userId = $user->id;
-
-	    $dashboardModules = collect();
-	    $title = 'Dashboard';
-	    $SchoolName = null;
-	    $SchoolTrainers = collect();
-	    $hasSchools = false;
-
-
-		switch ($roleId) {
-
-			case '9': //HeadQuarter Dashboard
-				return redirect()->route('cicse.dashboard');
-				break;
-			
-			case '2': //Schoo-User Dashboard
-
-				$schoolRef = DB::table('school_reference')->where('school_user_id', $userId)->first();
-				$SchoolDetails = DB::table('schools')->select('school_name','logo','school_code')->where('id', $schoolRef->school_id)->first();
-
-				if ($schoolRef && $schoolRef->status == 1) {
-			       $allowedModules = json_decode($user->usermeta->module_access ?? '[]', true);
-					$dashboardModules = DB::table('dashboard_modules')->whereIn('slug', $allowedModules)->where('status', 1)->orderBy('id')->get();
-			    }
-
-				break;
-
-			case '3':  //Trainer Dashboard
-				$SchoolTrainers = DB::table('school_trainers')
-				->join('schools','schools.id','=','school_trainers.school_id')
-				->select('schools.school_name','schools.id','schools.logo')
-				->where('school_trainers.trainer_id',$userId)->where('school_trainers.status', 1)->get();
-
-
-				$hasSchools = $SchoolTrainers->isNotEmpty();
-
-				if($hasSchools && count($SchoolTrainers) == 1) {
-					Session::put('SelectSchoolId', $SchoolTrainers[0]->id);
-					$SchoolDetails = DB::table('schools')->select('school_name','logo','school_code')->where('id', $SchoolTrainers[0]->id)->first();
-				}
-					
-				$select_school_id = $request->input('select_school_id');
-				if($hasSchools &&  !empty($select_school_id)) {
-				 	Session::put('SelectSchoolId', $select_school_id);	
-				  	$SchoolDetails = DB::table('schools')->select('school_name','logo','school_code')->where('id', $select_school_id)->first();
-				}
-				
-				if(Session::get('SelectSchoolId')) {
-				  $SchoolDetails = DB::table('schools')->select('school_name','logo','school_code')->where('id', Session::get('SelectSchoolId'))->first();
-				}
-				break;
-
-			case '4': //School Dashboard
-				$allowedModules = DB::table('dashboard_modules')->where('status', 1)->pluck('slug') ->toArray();
-				$dashboardModules = DB::table('dashboard_modules')->whereIn('slug', $allowedModules)->where('status', 1)->orderBy('id')->get();
-
-				$schoolId = DB::table('school_reference')->where('school_user_id', $userId)->where('status', 1)->value('school_id');
-				$SchoolDetails = DB::table('schools')->select('school_name','logo','school_code')->where('id', $schoolId)->first();
-
-				break;
-			default:
-				abort(403, 'Unauthorized access');
-		}
-
-		
-	    // echo "<pre>"; print_r($dashboardModules);exit();
-
-		return view('fill-darts.dashboard', compact('title','SchoolTrainers','SchoolDetails', 'hasSchools','dashboardModules'));
-	}
-
-	public function dashboard(Request $request){
+    public function dashboard(Request $request)	{
 		$user = auth()->user();
 		$userId = $user->id;
 		$roleId = $user->role_id;
@@ -310,7 +235,7 @@ class FillDartController extends Controller
 		$totalOngoing = $totals->total_ongoing;
 		$totalYetToStart = $totals->total_yet_to_start;
 				
-		return view('fill-darts.dashboard', compact(
+		return view('fill-darts.dashboard-new', compact(
 			'title',
 			'SchoolTrainers',
 			'SchoolName',
@@ -327,7 +252,9 @@ class FillDartController extends Controller
 			'chartSeries',
 			'matrix',
 		));
+
 	}
+
 
 	public function dashboard_bkp(Request $request)	{
 		
@@ -793,6 +720,7 @@ class FillDartController extends Controller
 
 	}
 
+	
 	
 	/**
 	 * Date : 27-March-2026
