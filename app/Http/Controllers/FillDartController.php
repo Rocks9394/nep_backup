@@ -256,7 +256,7 @@ class FillDartController extends Controller
 	}
 
 
-	public function dashboard_bkp(Request $request)	{
+	public function dashboard_bk(Request $request)	{
 		
 		$userId  =  \Auth::id();
 		$title   = 'Dashboard';

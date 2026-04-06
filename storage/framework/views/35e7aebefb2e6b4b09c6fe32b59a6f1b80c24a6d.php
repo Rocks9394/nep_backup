@@ -375,10 +375,6 @@ unset($__errorArgs, $__bag); ?>
 								$nextAcademicYear = ($startYear + 1) . '-' . ($endYear + 1);
 								$academicStart = "$startYear-04-01";
 								$academicEnd   = "$endYear-03-31";
-
-								$lastTermEndDate = isset($terms) && count($terms)
-									? \Carbon\Carbon::parse($terms->last()->term_end_date)->addDay()->format('Y-m-d')
-									: $academicStart;
 							?>
 
 							<div class="row">
@@ -392,32 +388,32 @@ unset($__errorArgs, $__bag); ?>
 
 								<div class="form-group col-md-4">
 									<label>Start Date</label>
-									<input type="date" name="academic_year_start" id="academic_year_start" class="form-control" value="<?php echo e($academicStart); ?>">
+									<input type="date" name="academic_year_start" id="academic_year_start" class="form-control" value="<?php echo e(\Carbon\Carbon::parse($terms[0]->academic_year_start)->format('Y-m-d')); ?>">
 								</div>
 
 								<div class="form-group col-md-4">
 									<label>End Date</label>
-									<input type="date" name="academic_year_end" id="academic_year_end" class="form-control" value="<?php echo e($academicEnd); ?>">
+									<input type="date" name="academic_year_end" id="academic_year_end" class="form-control" value="<?php echo e(\Carbon\Carbon::parse($terms[0]->academic_year_end)->format('Y-m-d')); ?>">
 								</div>
 							</div>
 
-							<h5 class="mt-4 current-year-terms">Terms Details</h5>
+							<h5 class="mt-4">Terms Details</h5>
 
 							<div id="existing-terms" class="current-year-terms">
 							<?php $__currentLoopData = $terms ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 								<div class="form-row existing-term-row" data-last="<?php echo e($loop->last); ?>">
 									<div class="form-group col-md-4">
 										<label>Term Name</label>
-										<input type="text" name="terms[0][term_name]" class="form-control" value="<?php echo e($term->term_name); ?>" readonly>
+										<input type="text" name="terms[<?php echo e($index); ?>][term_name]" class="form-control" value="<?php echo e($term->term_name); ?>" readonly>
 									</div>
 									<div class="form-group col-md-4">
 										<label>Start Date</label>
-										<input type="date" name="terms[0][start_date]" class="form-control" value="<?php echo e(\Carbon\Carbon::parse($term->term_start_date)->format('Y-m-d')); ?>" readonly>
+										<input type="date" name="terms[<?php echo e($index); ?>][start_date]" class="form-control" value="<?php echo e(\Carbon\Carbon::parse($term->term_start_date)->format('Y-m-d')); ?>">
 
 									</div>
 									<div class="form-group col-md-4">
 										<label>End Date</label>
-										<input type="date" name="terms[0][end_date]" class="form-control existing-end-date" 
+										<input type="date" name="terms[<?php echo e($index); ?>][end_date]" class="form-control existing-end-date" 
 											value="<?php echo e(\Carbon\Carbon::parse($term->term_end_date)->format('Y-m-d')); ?>"
 											<?php echo e(!$loop->last ? 'readonly' : ''); ?>>
 									</div>
@@ -659,10 +655,47 @@ unset($__errorArgs, $__bag); ?>
         }
     });
 	
+	</script>
+	<script>
 
 	const maxTerms = 4;
 	const wrapper = document.getElementById('terms-wrapper');
 	const academicYearSelect = document.getElementById('academic_year');
+
+	document.addEventListener('DOMContentLoaded', function () {
+
+		academicYearSelect.addEventListener('change', function () {
+			clearNewTerms();
+			const { start, end } = getAcademicDates();
+			document.getElementById('academic_year_start').value = formatDate(start);
+    		document.getElementById('academic_year_end').value = formatDate(end);
+
+			if (this.value === "<?php echo e($academicYear); ?>") {
+				const { start, end } = getAcademicDates();			
+				hideExistingTerms(false);
+				<?php if(count($terms ?? [])): ?>
+				const lastEnd = new Date("<?php echo e(\Carbon\Carbon::parse($terms->last()->term_end_date)->format('Y-m-d')); ?>");
+
+				if (lastEnd < end) {
+					const nextStart = new Date(lastEnd);
+					nextStart.setDate(nextStart.getDate() + 1);
+					const existingCount = document.querySelectorAll('.existing-term-row').length;
+					createTermRow(existingCount + 1, nextStart, end, true, true);
+				}
+				<?php endif; ?>
+				document.querySelectorAll('.term-row .lbh').forEach(label => {
+					label.classList.add('d-none');	
+				});
+			} else {
+				hideExistingTerms(true);
+				const existingCount = document.querySelectorAll('.existing-term-row').length;
+				createTermRow(existingCount + 1, start, end, true, true);
+				document.querySelectorAll('.term-row .lbh').forEach(label => {
+					label.classList.remove('d-none');	
+				});
+			}
+		});
+	});
 
 	function getAcademicDates() {
 		const [s, e] = academicYearSelect.value.split('-');
@@ -686,7 +719,7 @@ unset($__errorArgs, $__bag); ?>
 		});
 	}
 
-	function createTermRow(index, startDate, editableStart, editableEnd) {
+	function createTermRow(index, startDate, endDate, editableStart, editableEnd) {
 		const { end } = getAcademicDates();
 		const row = document.createElement('div');
 		row.className = 'form-row term-row';
@@ -694,19 +727,19 @@ unset($__errorArgs, $__bag); ?>
 
 		row.innerHTML = `
 			<div class="form-group col-md-4">
-				<label>Term Name</label>
+				<label class="lbh d-none">Term Name</label>				
 				<input type="text" class="form-control term-name"
 					name="terms[${index}][term_name]" readonly>
 			</div>
 			<div class="form-group col-md-4">
-				<label>Start Date</label>
+				<label class="lbh d-none">Strat Date</label>
 				<input type="date" class="form-control start-date"
 					name="terms[${index}][start_date]"
 					value="${formatDate(startDate)}"
 					${editableStart ? '' : 'readonly'}>
 			</div>
 			<div class="form-group col-md-4">
-				<label>End Date</label>
+				<label class="lbh d-none">End Date</label>
 				<input type="date" class="form-control end-date"
 					name="terms[${index}][end_date]"
 					max="${formatDate(end)}"
@@ -715,9 +748,10 @@ unset($__errorArgs, $__bag); ?>
 		`;
 		wrapper.appendChild(row);
 	}
+	// update newly created term name for new academic year 
 
 	function updateTermName(row) {
-		const index = row.dataset.index;
+		const index = parseInt(row.dataset.index);
 		const start = new Date(row.querySelector('.start-date').value);
 		const endInput = row.querySelector('.end-date');
 		if (!endInput.value) return;
@@ -725,15 +759,36 @@ unset($__errorArgs, $__bag); ?>
 		const end = new Date(endInput.value);
 		const { start: acadStart, end: acadEnd } = getAcademicDates();
 
-		row.querySelector('.term-name').value =
-			start.getTime() === acadStart.getTime() && end.getTime() === acadEnd.getTime()
-				? 'Full-Term'
-				: `Term-${index}`;
+		const isFullTerm =
+			start.getTime() === acadStart.getTime() &&
+			end.getTime() === acadEnd.getTime();
+
+		row.querySelector('.term-name').value = isFullTerm
+			? 'Full-Term'
+			: `Term-${index}`;
+	}
+	// update existing term name  
+
+	function updateExistingTermNames() {
+		const existingRows = document.querySelectorAll('.existing-term-row');
+
+		if (!existingRows.length) return;
+
+		const firstRow = existingRows[0];
+		const nameInput = firstRow.querySelector('input[name*="[term_name]"]');
+
+		// Check if it's Full-Term
+		if (nameInput.value === 'Full-Term') {
+			existingRows.forEach((row, index) => {
+				const input = row.querySelector('input[name*="[term_name]"]');
+				input.value = `Term-${index + 1}`;
+			});
+		}
 	}
 
 	document.addEventListener('change', function (e) {
 		if (!e.target.classList.contains('existing-end-date')) return;
-
+		updateExistingTermNames();
 		const endInput = e.target;
 		const row = endInput.closest('.existing-term-row');
 		const startDate = new Date(row.querySelector('input[type="date"]').value);
@@ -770,7 +825,8 @@ unset($__errorArgs, $__bag); ?>
 
 		const nextStart = new Date(endDate);
 		nextStart.setDate(nextStart.getDate() + 1);
-		createTermRow(1, nextStart, true, true);
+		const existingCount = document.querySelectorAll('.existing-term-row').length;
+		createTermRow(existingCount + 1, nextStart, academicEnd, true, true);
 	});
 
 	wrapper.addEventListener('change', function (e) {
@@ -812,39 +868,16 @@ unset($__errorArgs, $__bag); ?>
 			if (parseInt(r.dataset.index) > index) r.remove();
 		});
 
+
+
 		if (index >= maxTerms || endDate.getTime() === academicEnd.getTime()) return;
 
 		const nextStart = new Date(endDate);
 		nextStart.setDate(nextStart.getDate() + 1);
-		createTermRow(index + 1, nextStart, false, true);
-	});
-	document.addEventListener('DOMContentLoaded', function () {
-		academicYearSelect.addEventListener('change', function () {
-			clearNewTerms();
-
-			if (this.value === "<?php echo e($academicYear); ?>") {
-				const { start } = getAcademicDates();
-				createTermRow(1, start, true, true);
-				
-				hideExistingTerms(false);
-				<?php if(count($terms ?? [])): ?>
-				const lastEnd = new Date("<?php echo e(\Carbon\Carbon::parse($terms->last()->term_end_date)->format('Y-m-d')); ?>");
-				const { end } = getAcademicDates();
-
-				if (lastEnd < end) {
-					const nextStart = new Date(lastEnd);
-					nextStart.setDate(nextStart.getDate() + 1);
-					createTermRow(1, nextStart, true, true);
-				}
-				<?php endif; ?>
-			} else {
-				hideExistingTerms(true);
-				const { start } = getAcademicDates();
-				createTermRow(1, start, true, true);
-			}
-		});
+		createTermRow(index + 1, nextStart, academicEnd, false, true);
 	});
 
+	
 	<?php if(count($terms ?? [])): ?>
 		const lastEnd = new Date("<?php echo e(\Carbon\Carbon::parse($terms->last()->term_end_date)->format('Y-m-d')); ?>");
 		const { end } = getAcademicDates();
@@ -852,7 +885,8 @@ unset($__errorArgs, $__bag); ?>
 		if (lastEnd < end) {
 			const nextStart = new Date(lastEnd);
 			nextStart.setDate(nextStart.getDate() + 1);
-			createTermRow(1, nextStart, true, true);
+			const existingCount = document.querySelectorAll('.existing-term-row').length;
+			createTermRow(existingCount + 1, nextStart, end, true, true);
 		}
 	<?php endif; ?>
 	

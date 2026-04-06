@@ -158,7 +158,7 @@
                 pageName = "plate-tapping.html";
                 break;
             case 'BMI':
-                pageName = "height-winspam-calculate5.html";
+                pageName = "height-winspam-calculate4.html";
                 break;
             case 'Partial curl up 30 sec':
                 pageName = "situps.html";

@@ -177,11 +177,11 @@ $(document).ready(function() {
             $dropdown.on('change', function() { table.ajax.reload(); });
             
             /* === Terms Filter === */
-            var terms = @json($filteredTerms);
+            var terms = @json($terms);
             var selectedTermId = @json($TermMasterId);
             const $termDropdown = $('<select class="form-control" id="filter_term"></select>');
             terms.forEach(option => {
-                const displayText = option.name;
+                const displayText =option.academic_year + ' | ' +  option.term_name;
                 const value = option.term_id ?? option.id;
                 const isSelected = value == selectedTermId;
                 $termDropdown.append(new Option(displayText, value, isSelected, isSelected));

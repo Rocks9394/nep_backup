@@ -128,8 +128,8 @@ class SchoolRecordController extends Controller
 			
 		// echo "<pre>"; print_r($FitnessMap);exit();
 
-		$fitnessLevels = $fitness->pluck('level');
-		$fitnessTotals = $fitness->pluck('total')->map(fn($v) => (int)$v);
+		$letnenlevels = $fitness->pluck('level');
+		$letnentotals = $fitness->pluck('total')->map(fn($v) => (int)$v);
 
 		$health = (clone $baseQuery)
 			->select('str.level', DB::raw('COUNT(*) as total'))
@@ -143,7 +143,7 @@ class SchoolRecordController extends Controller
 
 		$ranked_schoolsFitness = (clone $baseQuery)
 			->select(DB::raw('COUNT(str.StudentID) as total'))
-			->whereRaw("str.level REGEXP '^L[1-7]+$'")
+			->whereRaw("str.level REGEXP '^L[0-8]+$'")
 			->groupBy('str.level')
 			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
 			->pluck('total');
@@ -162,7 +162,7 @@ class SchoolRecordController extends Controller
 			->whereIn('str.TestTypeID', [16,17,19,20,21,22,23])
 			->whereNotNull('str.level')
 			->whereNotIn('str.level', ['', 'N.A.'])
-			->whereRaw("str.level REGEXP '^L[1-7]+$'")
+			->whereRaw("str.level REGEXP '^L[0-8]+$'")
 			->groupBy('sr.skill_name', 'str.level')
 			->orderBy('sr.skill_name')
 			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
@@ -185,8 +185,8 @@ class SchoolRecordController extends Controller
 		usort($levelNames, fn($a, $b) => (int)substr($a,1) <=> (int)substr($b,1));
 
 		$levelColors = [
-			'L1'=>'#fe4a5d','L2'=>'#ffaa62','L3'=>'#ffd26e',
-			'L4'=>'#74c4d6','L5'=>'#a3d55f','L6'=>'#6bc04b','L7'=>'#00953b'
+			'L0'=>'#01160a','L1'=>'#fe4a5d','L2'=>'#ffaa62','L3'=>'#ffd26e',
+			'L4'=>'#74c4d6','L5'=>'#a3d55f','L6'=>'#6bc04b','L7'=>'#00953b','L8'=>'#01160a'
 		];
 
 		$chartSeries = [];
@@ -200,8 +200,8 @@ class SchoolRecordController extends Controller
 
 		return view('school.graph-dashboard', compact(
 			'title',
-			'fitnessLevels',
-			'fitnessTotals',
+			'letnenlevels',
+			'letnentotals',
 			'ranked_schoolsFitness',
 			'healthLevels',
 			'healthTotals',
@@ -481,7 +481,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
     }
 
 
-// 23-Jan-2026 school profile update function 
+	// 02-Apr-2026 school profile update function 
 
 	public function viewProfile(){
 
@@ -528,23 +528,20 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 			$year = date('Y');
 			$month = date('m');
-			$day = date('d');
-			if ($month < 4 || ($month == 3 && $day <= 31)) {
+			$today = Carbon::now()->toDateTimeString();
+
+			if ($month < 4) {
 				$academicYear = ($year - 1) . '-' . $year;
 			} else {
 				$academicYear = $year . '-' . ($year + 1);
 			}
 
-
-			$today = Carbon::today()->toDateString();
-
 			$terms = DB::table('term_masters')
-				->select('id', 'term_name', 'academic_year', 'term_start_date', 'term_end_date')
+				->select('id', 'term_name', 'academic_year','academic_year_start','academic_year_end', 'term_start_date', 'term_end_date')
 				->where('school_id', $schoolData->id)
 				->where('is_active', '1')
 				->where('academic_year', $academicYear)
 				->get();
-				
 
 		return view('school.profile.index', compact('title','board_list','regions','states', 'districts', 'schoolData', 'academicYear', 'terms'));
     }
@@ -594,7 +591,11 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		$districts = DB::table('districts')->where('id', $request->district)->value('name');
 	
 		$academicYear = $request->input('academic_year');
+		$academicYearStart = Carbon::parse($request->input('academic_year_start'))->startOfDay();
+		$academicYearEnd = Carbon::parse($request->input('academic_year_end'))->endOfDay();
 		$termsInput   = $request->input('terms', []);
+		
+		// echo"<pre>";print_r($termsInput);exit();
 
 		foreach ($termsInput as $termData) {
 
@@ -603,8 +604,8 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			}
 
 			$termName  = $termData['term_name'];
-			$startDate = $termData['start_date'];
-			$endDate   = $termData['end_date'];
+			$startDate = Carbon::parse($termData['start_date'])->startOfDay();
+			$endDate   = Carbon::parse($termData['end_date'])->endOfDay();
 
 			$term = TermMaster::where('academic_year', $academicYear)
 				->where('school_id', $id)
@@ -613,17 +614,23 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				->first();
 
 			if ($term) {
-				$term->term_end_date = $endDate;
+				$term->term_name 			= $termName;
+				$term->academic_year 		= $academicYear;
+				$term->academic_year_start 	= $academicYearStart;
+				$term->academic_year_end 	= $academicYearEnd;
+				$term->term_end_date 		= $endDate;
 				$term->save();
 			} else {
 				TermMaster::create([
-					'school_id'		  => $id,
-					'term_name'       => $termName,
-					'camp_type'		  => '1',
-					'academic_year'   => $academicYear,
-					'term_start_date' => $startDate,
-					'term_end_date'   => $endDate,
-					'is_active'		  => '1',
+					'school_id'		  		=> $id,
+					'term_name'       		=> $termName,
+					'academic_year'   		=> $academicYear,
+					'academic_year_start' 	=> $academicYearStart,
+					'academic_year_end' 	=> $academicYearEnd,
+					'term_start_date' 		=> $startDate,
+					'term_end_date'   		=> $endDate,
+					'is_active'		  		=> '1',
+					'camp_type'		  		=> '1',
 
 				]);
 			}

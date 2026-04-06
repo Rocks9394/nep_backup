@@ -9,9 +9,12 @@ use Session;
 use App\Models\School;
 use App\Models\Sclass;
 use Illuminate\Support\Facades\Cache;
+use App\Models\TermMaster;
+use App\Traits\ReportHelperTrait;
 
 class DataListingComponent extends Component
 {
+    use ReportHelperTrait;
     public $id;
     public $headers;
     public $columns;
@@ -148,10 +151,7 @@ class DataListingComponent extends Component
                 
             }else {
                 
-                $schoolId = DB::table('school_trainers')
-                ->join('schools','schools.id','=','school_trainers.school_id')
-                ->select('schools.school_name','schools.id','schools.logo')
-                ->where('school_trainers.trainer_id',$creatorId)->where('school_trainers.status', 1)->value('trainer_id');
+                $schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
             }
         }
         
@@ -228,27 +228,28 @@ class DataListingComponent extends Component
                 
             }else {
                 
-                $schoolId = DB::table('school_trainers')
-                ->join('schools','schools.id','=','school_trainers.school_id')
-                ->select('schools.school_name','schools.id','schools.logo')
-                ->where('school_trainers.trainer_id',$creatorId)->where('school_trainers.status', 1)->value('trainer_id');
+                $schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
             }
         }
-
         $cacheKey = "school_terms_{$schoolId}";
-        // Cache::forget($cacheKey);
-        return Cache::remember($cacheKey, now()->addHours(6), function () use ($schoolId) {
-            return School::find($schoolId)
-            ->getTerms()      
-            ->where('is_active', 1)
-            ->get()         
-            ->map(fn ($term) => [
-                'term_id'   => $term->id,
-                'school_id' => $term->school_id,
-                'academic_year' => $term->academic_year,
-                'term_name' => $term->term_name,
-            ])
-            ->values()->toArray();
+        
+        Cache::forget($cacheKey);
+        $TermMasterId = $this->getTermId($schoolId);
+
+		$TermIds = $this->getCurrentAndPreviousTermIds($schoolId, (int) $TermMasterId);
+		
+		$terms = TermMaster::whereIn('id', $TermIds)->get();
+
+        return Cache::remember($cacheKey, now()->addHours(6), function () use ($terms) {
+            return $terms
+                ->map(fn ($term) => [
+                    'term_id'   => $term->id,
+                    'school_id' => $term->school_id,
+                    'academic_year' => $term->academic_year,
+                    'term_name' => $term->term_name,
+                ])
+                ->values()
+                ->toArray();
         });
     }
 

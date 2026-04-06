@@ -453,9 +453,7 @@ class ReportController extends Controller {
         	if(Session::get('SelectSchoolId')) {
 				$schoolId = Session::get('SelectSchoolId');
 			}else{
-				$schoolId = DB::table('school_trainers')
-				->join('schools','schools.id','=','school_trainers.school_id')
-				->where('school_trainers.trainer_id',$userId)->where('school_trainers.status', 1)->value('school_trainers.school_id');
+				$schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
 			}
         }
 
@@ -466,25 +464,9 @@ class ReportController extends Controller {
 
 		$TermMasterId = $this->getTermId($schoolId);
 
-		$year = date('Y');
-		$month = date('m');
-		$today = Carbon::now()->toDateTimeString();
-
-		if ($month < 4) {
-			$academicYear = ($year - 1) . '-' . $year;
-		} else {
-			$academicYear = $year . '-' . ($year + 1);
-		}
-
-		$terms = TermMaster::where('school_id', $schoolId)
-            ->where('is_active', 1)
-            ->where('academic_year', $academicYear)
-			->get();
-			
-		$filteredTerms = $terms->map(function($term) {
-			$term->name = $term->term_name;
-			return $term;
-		});
+		$TermIds = $this->getCurrentAndPreviousTermIds($schoolId, (int) $TermMasterId);
+		
+		$terms = TermMaster::whereIn('id', $TermIds)->get();
 		
         $ajaxUrl = route('trainer.higherclass.status');
 
@@ -675,7 +657,7 @@ class ReportController extends Controller {
         }
 
        	$title = 'Fitness Test Summary (Class 4 to 12)';
-        return view('reports.summary.higherclass', compact('title','classList','ajaxUrl','filteredTerms','TermMasterId'));
+        return view('reports.summary.higherclass', compact('title','classList','ajaxUrl','terms','TermMasterId'));
     }
 
 
@@ -694,11 +676,7 @@ class ReportController extends Controller {
 	    	if(Session::get('SelectSchoolId')) {
 				$schoolId = Session::get('SelectSchoolId');
 			}else{
-				$schoolId = DB::table('school_trainers')
-	            ->join('schools', 'schools.id', '=', 'school_trainers.school_id')
-	            ->where('school_trainers.trainer_id', $userId)
-	            ->where('school_trainers.status', 1)
-	            ->value('school_trainers.school_id');
+				$schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
 			}
 	        //$ajaxUrl = route('trainer.lowerclass.status');
 	    } elseif ($role_id == 4 || $role_id == 2) {
@@ -708,25 +686,10 @@ class ReportController extends Controller {
 
 		$TermMasterId = $this->getTermId($schoolId);
 
-		$year = date('Y');
-		$month = date('m');
-		$today = Carbon::now()->toDateTimeString();
-
-		if ($month < 4) {
-			$academicYear = ($year - 1) . '-' . $year;
-		} else {
-			$academicYear = $year . '-' . ($year + 1);
-		}
-
-		$terms = TermMaster::where('school_id', $schoolId)
-            ->where('is_active', 1)
-            ->where('academic_year', $academicYear)
-			->get();
-			
-		$filteredTerms = $terms->map(function($term) {
-			$term->name = $term->term_name;
-			return $term;
-		});
+		$TermIds = $this->getCurrentAndPreviousTermIds($schoolId, (int) $TermMasterId);
+		
+		$terms = TermMaster::whereIn('id', $TermIds)->get();
+		
 
 	    $ajaxUrl = route('trainer.lowerclass.status');
 
@@ -990,7 +953,7 @@ class ReportController extends Controller {
 	    }
 
 	    $title = 'Fitness Test Summary (Class 1 to 3)';
-	    return view('reports.summary.lowerclass', compact('title', 'classList', 'ajaxUrl','filteredTerms','TermMasterId'));
+	    return view('reports.summary.lowerclass', compact('title', 'classList', 'ajaxUrl','terms','TermMasterId'));
 	}
 
 

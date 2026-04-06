@@ -129,36 +129,11 @@ class AssessorAppController extends Controller
 			$SchoolId = $SchoolTrainers[0]->id;		  	
 		}
 
-		$year = date('Y');
-		$month = date('m');
-		$today = Carbon::now()->toDateTimeString();
+		$selectedTerm = session('term_id', $this->getTermId($SchoolId));
 
-		if ($month < 4) {
-			$academicYear = ($year - 1) . '-' . $year;
-		} else {
-			$academicYear = $year . '-' . ($year + 1);
-		}
+		$TermMasterId = $this->getCurrentAndPreviousTermIds($SchoolId, (int) $selectedTerm);
 		
-		$terms = TermMaster::where('school_id', $SchoolId)
-		->where('is_active', 1)
-		->where('academic_year', $academicYear)
-		->get();
-		
-		
-		$currentTerm = DB::table('term_masters')
-			->select('id', 'term_name', 'academic_year', 'term_start_date', 'term_end_date')
-			->where('school_id', $SchoolId)
-			->where('is_active', '1')
-			->where('academic_year', $academicYear)
-			->whereDate('term_start_date', '<=', $today)
-			->whereDate('term_end_date', '>=', $today)
-			->first();
-
-			// echo"<pre>";print_r($today);exit();
-
-
-		$selectedTerm = session('term_id', $currentTerm->id);
-		
+		$terms = TermMaster::whereIn('id', $TermMasterId)->get();
 	
 		return view('assessor.alltests', compact('title', 'juniorData', 'cbseData', 'juniorData1', 'seniorData', 'terms', 'selectedTerm'));
 	

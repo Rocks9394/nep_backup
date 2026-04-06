@@ -57,10 +57,19 @@ class ExerciseResultController extends Controller
 
 			$SchoolId = $SchoolTrainers->school_id;
 			Log::info('Step 3: School ID found', ['school_id' => $SchoolId]);
+			
+			
+			
+			
+			$skillReports = DB::table('skill_reports')
+			->where('TestTypeMasterID', $validated['exercise_id']) // Corrected from test_id
+			->where('status', 1)
+			->first();
+			
 
 			// 4. Insert into Database
 			DB::table('exercise_logs')->insert([
-				'exercise_id'   => $validated['exercise_id'],
+				'exercise_id'   => $skillReports->id,
 				'student_id'    => $validated['student_id'],
 				'school_id'     => $SchoolId,
 				'exercise_type' => $validated['exercise_type'],
