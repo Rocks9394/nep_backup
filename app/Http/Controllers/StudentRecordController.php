@@ -447,28 +447,47 @@ class StudentRecordController extends Controller
 	public function viewProfile(){
 		$title = "Student Profile";
 		$student = Auth::guard('sstudent')->user();
+		// echo "<pre>"; print_r($student);exit();
 		return view('parent.profile.index', compact('title', 'student'));
 	}
 
 	public function updateProfile(Request $request) {
-
-	    $request->validate([
+		$request->validate([
 			'studentEmail' => 'required|email|max:255',
-			'gender' => 'required|string|in:Male,Female,TransGender',
-			'userid' => 'required|string|max:255',
+			'gender'       => 'required|string|in:Male,Female,TransGender',
+			'profilePicture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+			'apaar_id'     => 'required|digits:12',
+			'domicile'     => 'required|string',
+			'mobile'       => 'required|digits:10',
+			'hobbies'      => 'nullable|string|max:255',
 		]);
+	
+		$student = Auth::guard('sstudent')->user();
+		if ($request->hasFile('profilePicture')) {
+            $imagePath = Helper::resizeAndSaveImage($request->file('profilePicture'), 100, 'profilePictures/student' , $student->id);
+            DB::table('students')->where('id', $student->id)->update([
+	            'profile_picture' => $imagePath,
+	        ]);
+        }
 
-	    $student = Auth::guard('sstudent')->user();
 
 		$student->update([
-			'email_id' => $request->input('studentEmail'),
-			'gender' => $request->input('gender'),
-			'user_id' => $request->input('userid')
+			'email_id'      => $request->input('studentEmail'),
+			'gender'        => $request->input('gender'),
+			'apaar_id'      => $request->input('apaar_id'),
+			'domicile'      => $request->input('domicile'),
+			'mobile'        => $request->input('mobile'),
+			'hobbies'       => $request->input('hobbies'),
 		]);
 
-		$student->save();
-	    
-	    return redirect()->route('student.dashboard')->with('message', 'Profile updated successfully!');
+		if ($request->ajax()) {
+			return response()->json([
+				'success' => true,
+				'message' => 'Profile updated successfully!'
+			], 200);
+		}
+
+		return redirect()->route('student.dashboard')->with('message', 'Profile updated successfully!');
 	}
 
 

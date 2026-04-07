@@ -1,6 +1,13 @@
 @extends('layouts.filldart-app')
 @section('title', $title)
 @section('content')
+<style>
+    .preview-img {
+        max-width: 100px;
+        height: 100px;
+        border-radius: 50%;
+    }
+</style>
 
 <div class="all-chaptr-cards">
     <div class="container">
@@ -91,32 +98,73 @@
                                     @enderror
                                 </div>
                                 <div class="form-group col-md-4">
-                                    <label for="userid">User Id <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('userid') is-invalid @enderror"  data-userid="{{$student->user_id}}"  id="userid" name="userid" value="{{$student->user_id}}">
-                                    @error('userid') <div class="invalid-feedback">{{ $message }}</div>
+                                    <label for="mobile"> Mobile </label>
+                                    <input type="tel" name="mobile" id="mobile" class="form-control @error('mobile') is-invalid @enderror" value="{{$student->mobile}}">
+                                    @error('mobile')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div> 
+                                <div class="form-group col-md-2">
+                                    <label for="profilePicture">Profile Picture <span class="text-danger">*</span></label>
+                                    {{-- Upload new image --}}
+                                    <input type="file" class="form-control @error('profilePicture') is-invalid @enderror" id="profilePicture" name="profilePicture" type="file" accept=".jpg,.jpeg,.png" onchange="previewImage(event)">
+                                    @error('profilePicture')
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-
-                                <div class="form-group col-md-4">
+                                <div class="form-group col-md-2" style="text-align:center">
+                                @if(!empty($student->profile_picture))
+                                    <img src="{{ asset('public/assets/uploads/profilePictures/student/' .$student->profile_picture) }}" id="imagePreview" class="preview-img img-thumbnail">
+                                @else .
+                                    <img id="imagePreview" class="preview-img img-thumbnail d-none" />
+                                @endif
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-3">
                                     <label for="gender">Gender <span class="text-danger">*</span></label>
                                     <select name="gender" id="gender" class="form-control @error('gender') is-invalid @enderror">
                                         <option value="3">Select</option>
                                         <option value="Male" {{$student->gender == 'Male' ? 'selected' : '' }}>Male</option>
 										<option value="Female" {{$student->gender == 'Female' ? 'selected' : '' }}>Female</option>
 										<option value="TransGender" {{ $student->gender == 'TransGender' ? 'selected' : '' }}>TransGender</option>
-									
                                         </select>
                                     @error('gender')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
+
+                                <div class="form-group col-md-3">
+                                    <label for="apaar_id"> APAAR ID (12 digits) <span class="text-danger">*</span></label>
+                                    <input type="text" name="apaar_id" id="apaar_id" class="form-control @error('apaar_id') is-invalid @enderror" value="{{$student->apaar_id}}">
+                                    @error('apaar_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="form-group col-md-3">
+                                    <label for="domicile"> Domicile </label>
+                                    <input type="text" name="domicile" id="domicile" class="form-control @error('domicile') is-invalid @enderror" value="{{$student->domicile}}">
+                                    @error('domicile')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label for="hobbies">Hobbies</label>
+                                    <input type="text" name="hobbies" id="hobbies" value="{{$student->hobbies}}" class="form-control @error('hobbies') is-invalid @enderror">
+                                     @error('hobbies')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                     @enderror
+                                </div>
+                                
                             </div>
 
                             <!-- Submit Buttons -->
-                            <div class="d-flex justify-content-end mt-5">
-                                <button type="submit" class="btn btn-primary">Update Profile</button>
-                            </div>
+                                <div class="d-flex justify-content-end mt-5">
+                                    <a type="button" class="btn btn-secondary mr-2" href="{{ route('student.dashboard')}}">Cancel</a>
+                                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                                </div>
                         </form>
 
                     </div>
@@ -127,69 +175,59 @@
 </div>
 
 <script>
+    function previewImage(event) {
+        const input = event.target;
+        if(event.target.id == 'profilePicture'){
+            var preview = document.getElementById('imagePreview');
+        }
+        if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            preview.src = e.target.result;
+            preview.classList.remove('d-none');
+        };
+        reader.readAsDataURL(input.files[0]);
+        }
+    }
 	$(document).ready(function () {
 		$('#updateStudentProfile').on('submit', function (e) {
 			e.preventDefault();
-
 			let form = $(this);
-			let formData = form.serialize();
-
-			let userid = $('#userid').val();
-			const useridInput = document.getElementById("userid");
-			const originalUserId = useridInput.getAttribute("data-userid");
-
-			let isUserIdChanged = userid !== originalUserId;
-		
-
-			const sendUpdateRequest = () => {
-                submitLoader();
-				$.ajax({
-					url: "{{route('profile.update')}}",
-					type: "POST",
-					data: formData,
-					beforeSend: function () {
-						form.find("button[type='submit']").prop("disabled", true).text("Updating...");
-					},
-					success: function (response) {
-                        Swal.close();
-						Swal.fire({
-							icon: "success",
-							title: "Profile Updated!",
-							text: response.message ?? "Your profile has been updated successfully."
-						});
-					},
-					error: function (xhr) {
-                        Swal.close();
-						if (xhr.status === 422) {
-							let errors = xhr.responseJSON.errors;
-							let errorMessages = Object.values(errors).flat().join("\n");
-							Swal.fire("Validation Error", errorMessages, "error");
-						} else {
-							Swal.fire("Error", "Something went wrong!", "error");
-						}
-					},
-					complete: function () {
-						form.find("button[type='submit']").prop("disabled", false).text("Update Profile");
-					}
-				});
-			};
-
-			if (isUserIdChanged) {
-				Swal.fire({
-					title: "Are you sure?",
-					text: "You'r updating your User Id. This will change your login credentials. Do you want to continue?",
-					icon: "warning",
-					showCancelButton: true,
-					confirmButtonText: "Yes, update it!",
-					cancelButtonText: "Cancel"
-				}).then((result) => {
-					if (result.isConfirmed) {
-						sendUpdateRequest();
-					}
-				});
-			} else {
-				sendUpdateRequest();
-			}
+            let formData = new FormData(form[0]);
+            formData.append('_method', 'PUT');   
+			submitLoader();
+            $.ajax({
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                url: "{{route('profile.update')}}",
+                type: 'POST',
+                data: formData,
+                processData: false, 
+                contentType: false,
+                beforeSend: function () {
+                    form.find("button[type='submit']").prop("disabled", true).text("Updating...");
+                },
+                success: function (response) {
+                    Swal.close();
+                    Swal.fire({
+                        icon: "success",
+                        title: "Profile Updated!",
+                        text: response.message ?? "Your profile has been updated successfully."
+                    });
+                },
+                error: function (xhr) {
+                    Swal.close();
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        let errorMessages = Object.values(errors).flat().join("\n");
+                        Swal.fire("Validation Error", errorMessages, "error");
+                    } else {
+                        Swal.fire("Error", "Something went wrong!", "error");
+                    }
+                },
+                complete: function () {
+                    form.find("button[type='submit']").prop("disabled", false).text("Update Profile");
+                }
+            });
 		});
 	});
 

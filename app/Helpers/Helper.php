@@ -179,6 +179,66 @@ class Helper
     	return DB::table('trainer_other_duties')->where('id',$other_duties_id)->value('name');
     }
 
+    public static function resizeAndSaveImage($file, $height, $folder, $id)
+	{
+		$path = public_path("assets/uploads/{$folder}/");
+		if (!file_exists($path)) {
+			mkdir($path, 0777, true);
+		}
+
+		$extension = strtolower($file->getClientOriginalExtension());
+		$filename = $id . '_' . 'student.' . $extension;
+		$destination = $path . $filename;
+		switch ($extension) {
+			case 'jpg':
+			case 'jpeg':
+				$src = imagecreatefromjpeg($file->getRealPath());
+				break;
+			case 'png':
+				$src = imagecreatefrompng($file->getRealPath());
+				break;
+			case 'webp':
+				$src = imagecreatefromwebp($file->getRealPath());
+				break;
+			default:
+				throw new \Exception("Unsupported file type: $extension");
+		}
+
+		$origWidth = imagesx($src);
+		$origHeight = imagesy($src);
+
+		$width = intval(($height / $origHeight) * $origWidth);
+
+		$dst = imagecreatetruecolor($width, $height);
+
+		if (in_array($extension, ['png', 'webp'])) {
+			imagealphablending($dst, false);
+			imagesavealpha($dst, true);
+			$transparent = imagecolorallocatealpha($dst, 255, 255, 255, 127);
+			imagefilledrectangle($dst, 0, 0, $width, $height, $transparent);
+		}
+
+		imagecopyresampled($dst, $src, 0, 0, 0, 0, $width, $height, $origWidth, $origHeight);
+
+		switch ($extension) {
+			case 'jpg':
+			case 'jpeg':
+				imagejpeg($dst, $destination, 80);
+				break;
+			case 'png':
+				imagepng($dst, $destination, 6);
+				break;
+			case 'webp':
+				imagewebp($dst, $destination, 80);
+				break;
+		}
+
+		imagedestroy($src);
+		imagedestroy($dst);
+
+		return $filename;
+	}
+
 	public static function auditLog($actionType, $description = null)
     {
         if (Auth::check()) {

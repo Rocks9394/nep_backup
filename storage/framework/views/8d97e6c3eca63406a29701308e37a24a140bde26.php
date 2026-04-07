@@ -148,7 +148,13 @@
                         <?php else: ?>
                             <li class="nav-item dropdown avtar">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="<?php echo e(route('filldart.dashboard')); ?>" role="button"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                <?php if(auth()->guard('web')->check() && Auth::user()->profile_picture): ?>
+                                    <img src="<?php echo e(asset('resources/images/avtar.png')); ?>" class="d-inline-block align-top" height="32" width="32" alt="avtar" style="border-radius: 50%;">
+                                <?php elseif(auth()->guard('sstudent')->check() && Auth::guard('sstudent')->user()->profile_picture): ?>
+                                    <img src="<?php echo e(asset('public/assets/uploads/profilePictures/student/' .Auth::guard('sstudent')->user()->profile_picture)); ?>" class="d-inline-block align-top" height="32" width="32" alt="avtar" style="border-radius: 50%;">
+                                <?php else: ?>
                                     <img src="<?php echo e(asset('resources/images/avtar.png')); ?>" class="d-inline-block align-top" height="32" alt="avtar">
+                                <?php endif; ?>                                
                                     
                                     <span class="d-md-block d-none">
                                         <?php if(auth()->guard('web')->check()): ?>                                        
