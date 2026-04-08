@@ -178,7 +178,8 @@ class Helper
     public static function getOtherDuties($other_duties_id){
     	return DB::table('trainer_other_duties')->where('id',$other_duties_id)->value('name');
     }
-
+    
+    // resize and save image
     public static function resizeAndSaveImage($file, $height, $folder, $id)
 	{
 		$path = public_path("assets/uploads/{$folder}/");

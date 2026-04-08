@@ -12,12 +12,9 @@ use App\Http\Controllers\ExerciseResultController;
 use App\Http\Controllers\Api\Fitness365Controller;
 
 
-
-
-
 Route::get('/app-version', function () {
     return response()->json([
-        'latestVersion' => '1.6.6',
+        'latestVersion' => '1.6.7',
         'minVersion'    => '1.0.0', // Fixed syntax and set to a logical number    
         'apkUrl'        => 'https://nep.goforfit.in/public/downloads/apk/app-release.apk',
         'releaseNotes'  => 'New updates are ready! Tap download to stay fit with our latest features.', 
@@ -52,6 +49,7 @@ Route::middleware('auth:user-api')->group(function () {
 Route::middleware('auth:student-api')->group(function () {
 	Route::get('learn-sport', [ActivityController::class,'LearnSport']);
 	Route::get('learn-sport/{id}', [ActivityController::class, 'SportsDetails']);
+	Route::get('battery-of-test', [ActivityController::class, 'TestVideos']);
 });
 
 

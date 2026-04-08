@@ -33,9 +33,8 @@ class GeneralController extends Controller
 {
     
 	public function __construct()
-    {
-		
-        $this->middleware('auth')->except(['index','userStatus', 'TestVideos']);
+    {		
+        $this->middleware('auth:web,sstudent')->except(['index','userStatus']);
     }
 	
 	public function AdminManual(){

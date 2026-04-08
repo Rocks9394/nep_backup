@@ -98,7 +98,7 @@
                                     @enderror
                                 </div>
                                 <div class="form-group col-md-4">
-                                    <label for="mobile"> Mobile </label>
+                                    <label for="mobile">Mobile <span class="text-danger">*</span></label>
                                     <input type="tel" name="mobile" id="mobile" class="form-control @error('mobile') is-invalid @enderror" value="{{$student->mobile}}">
                                     @error('mobile')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -212,7 +212,9 @@
                         icon: "success",
                         title: "Profile Updated!",
                         text: response.message ?? "Your profile has been updated successfully."
-                    });
+                    }).then(() => {
+                        location.reload();
+                    });;
                 },
                 error: function (xhr) {
                     Swal.close();
@@ -232,5 +234,4 @@
 	});
 
 </script>
-
 @endsection

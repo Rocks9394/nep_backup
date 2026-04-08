@@ -211,5 +211,47 @@ class ActivityController extends Controller
 
     }
 
+    public function TestVideos() {	
+	    $TestData = DB::table('fitness_test_videos')
+	        ->join('skill_reports', 'skill_reports.TestTypeMasterID', '=', 'fitness_test_videos.testType_id')
+	        ->select(
+	            'skill_reports.id',
+	            'skill_reports.skill_name',
+	            'skill_reports.icons',
+	            'fitness_test_videos.testType_id',
+	            'fitness_test_videos.type_video',
+	            'fitness_test_videos.video_url'
+	        )
+	        ->get();
+
+
+	    $imageurl = 'https://nep.goforfit.in/public/icons/BatteryOfTests/';   
+
+	    $skill_data = $TestData->groupBy('id')->map(function ($items) use ($imageurl) {
+	  
+	        $firstItem = $items->first();
+
+	        return [
+	            'id' => $firstItem->id,
+	            'skill_name' => $firstItem->skill_name,
+	            'icons' => $imageurl.$firstItem->icons,
+	            'ageGroup'   =>  $firstItem->id <= 18 ? '3-8' : '9-18',
+	            'languages' => $items->map(function ($video) {
+	                return [
+	                    'lang' => $video->type_video,
+	                    'video_url' => str_replace("https://www.youtube.com/watch?v=", "", $video->video_url),
+	                ];
+	            })->values()
+	        ];
+	    })->values();
+
+	    return response()->json([
+	        'status' => true,
+	        'TestData' => $TestData,
+	        'test_skills' => $skill_data
+	    ]);
+	}
+
+
 
 }

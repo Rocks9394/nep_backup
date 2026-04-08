@@ -447,7 +447,6 @@ class StudentRecordController extends Controller
 	public function viewProfile(){
 		$title = "Student Profile";
 		$student = Auth::guard('sstudent')->user();
-		// echo "<pre>"; print_r($student);exit();
 		return view('parent.profile.index', compact('title', 'student'));
 	}
 
@@ -489,7 +488,6 @@ class StudentRecordController extends Controller
 
 		return redirect()->route('student.dashboard')->with('message', 'Profile updated successfully!');
 	}
-
 
 	public function ViewFitnessReport() {
 
