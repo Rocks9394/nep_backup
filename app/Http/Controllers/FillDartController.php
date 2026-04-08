@@ -136,10 +136,18 @@ class FillDartController extends Controller
 			->where('status', 'active')
 			->count();
 				
-		$currentTermId = $this->getTermId($schoolId);
-
+		$currentTermId = $this->getTermId($schoolId);	
 		$termIds = $this->getCurrentAndPreviousTermIds($schoolId, (int) $currentTermId);
-			
+		$terms = TermMaster::whereIn('id', $termIds)->get();
+				
+		if($request->has('term_id')){
+			$selectedTerm = $request->term_id;
+			$termIds = $this->getCurrentAndPreviousTermIds($schoolId, (int) $selectedTerm);
+		}else{
+			$selectedTerm = $currentTermId;			
+		}			
+				
+		// echo"<pre>";print_r($termIds);exit();
 		
 		$bmiData = DB::table('SeniorTestResults')
 			->join('students','students.id', '=', 'SeniorTestResults.StudentID')
@@ -150,8 +158,6 @@ class FillDartController extends Controller
 			->groupBy('LEVEL', 'TermId')
 			->orderByRaw("FIELD(LEVEL, 'UW', 'N', 'OW', 'OB')")
 			->get();
-
-			// echo"<pre>";print_r($bmiData);exit();
 
 		$levels = ['UW', 'N', 'OW', 'OB'];
 
@@ -174,35 +180,41 @@ class FillDartController extends Controller
 			}
 		}
 			
-		// echo"<pre>";print_r($healthData);exit();
+		// echo"<pre>";print_r($termIds);exit();
 
 		$data = DB::table('SeniorTestResults as str')
 			->join('skill_reports as sr', 'sr.id', '=', 'str.TestTypeID')
 			->join('students', 'students.id', '=', 'str.StudentID')
-			->select('sr.skill_name', 'str.level', DB::raw('COUNT(StudentID) as total'))
+			->select(
+				'sr.skill_name',
+				'str.level',
+				'str.TermId',
+				DB::raw('COUNT(StudentID) as total')
+			)
 			->where('str.SchoolID', $schoolId)
-			->where('str.TermId', $currentTermId)
+			->whereIn('str.TermId', $termIds)
 			->whereIn('str.TestTypeID', [16, 17, 19, 20, 21, 22, 23])
 			->whereNotNull('str.level')
 			->whereNotIn('str.level', ['', 'N.A.'])
 			->whereRaw("str.level REGEXP '^L[1-7]$'")
-			->groupBy('sr.skill_name', 'str.level')
+			->groupBy('sr.skill_name', 'str.level', 'str.TermId')
 			->orderBy('sr.skill_name')
 			->orderByRaw("CAST(SUBSTRING(str.level, 2) AS UNSIGNED)")
 			->get();
 
-				
-		// echo"<pre>";print_r($data);exit();
-
+			
 
 		$skills = [];
 		$levels = [];
+		$termsList = [];
 		$matrix = [];
 
 		foreach ($data as $row) {
 			$skills[$row->skill_name] = true;
 			$levels[$row->level] = true;
-			$matrix[$row->skill_name][$row->level] = (int)$row->total;
+			$termsList[$row->TermId] = true;
+
+			$matrix[$row->TermId][$row->skill_name][$row->level] = (int)$row->total;
 		}
 
 		$categories = array_keys($skills);
@@ -219,17 +231,23 @@ class FillDartController extends Controller
 
 		// Prepare full chart series for all skills
 		$chartSeries = [];
-		foreach ($levelNames as $level) {
-			$rowData = [];
-			foreach ($categories as $skill) {
-				$rowData[] = $matrix[$skill][$level] ?? 0;
+
+		foreach ($termsList as $termId => $_) {
+			foreach ($levelNames as $level) {
+				$rowData = [];
+
+				foreach ($categories as $skill) {
+					$rowData[] = $matrix[$termId][$skill][$level] ?? 0;
+				}
+
+				$chartSeries[] = [
+					'name' => "Term {$termId} - {$level}",
+					'data' => $rowData,
+					'color' => $levelColors[$level] ?? '#000000'
+				];
 			}
-			$chartSeries[] = [
-				'name' => $level,
-				'data' => $rowData,
-				'color' => $levelColors[$level] ?? '#000000'
-			];
 		}
+
 		$totalStudents = $totals->total_students;
 		$totalCompleted = $totals->total_completed;
 		$totalOngoing = $totals->total_ongoing;
@@ -251,6 +269,8 @@ class FillDartController extends Controller
 			'levelColors',
 			'chartSeries',
 			'matrix',
+			'terms',
+			'selectedTerm'
 		));
 
 	}

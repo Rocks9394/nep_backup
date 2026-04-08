@@ -246,6 +246,17 @@
 		display: inline-block;
 		padding-left: 100%;
 	}
+    .select-terms{
+        height: 35px;
+        margin-left: 10px;
+    }
+    .term-select{
+        border-color: var(--org-color);
+        height: 100%;
+        padding: 2px;
+        border-radius:5px;
+        color: var(--org-color);
+    }
 
 	/* Animation */
 	@keyframes scroll-left {
@@ -521,8 +532,26 @@
 
         <!-- MAIN DASHBOARD -->
         <div class="col pt-4 pb-4 mb-5 main-content">
-			<h5 class="text-center text-bold">{{ $SchoolName->school_name ?? '' }}</h5>
-
+            <div class="row mb-2">
+                <div class="col">
+                    <div class="heading-rw mt-0 mt-md-1 mb-0 p-0">
+                        <h5 class="text-center text-bold">{{ $SchoolName->school_name ?? '' }}</h5>
+                        
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="select-terms">
+                        <select name="term" id="term" class="term-select">
+                            @foreach($terms as $term)
+                                <option value="{{ $term->id }}"
+                                    {{ $selectedTerm == $term->id ? 'selected' : '' }}>
+                                    {{ $term->academic_year }} | {{ $term->term_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
             <!-- CHARTS -->
 			<div class="row g-3 mb-4">
 				<div class="col-lg-3 col-6">
@@ -596,27 +625,18 @@
                     </div>
                   </div>
                 </div>
-				
-				<!-- <div class="col-12 col-md-4">
-                    <div class="card shadow p-2" style="height:400px;">
-                        <div class="card-header fw-bold">Student Completion Status</div>
-                        <div class="card-body p-2">
-                            <canvas id="studentSummaryChart"></canvas>
-                        </div>
-                    </div>
-                </div> -->
             </div>
             <div class="row g-3 mb-4">
                 <div class="col-md-12">
                     <div class="card">
-                        <div id="skillChart" style="height: 600px;"></div>
+                        <div id="skillChart" style="height: 500px;"></div>
                     </div>
                 </div>
             </div>
             <div class="row g-3 mb-4">
                 <div class="col-md-12">
                     <div class="card">
-                        <div id="spiderChart" style="height: 600px;"></div>
+                        <div id="spiderChart" style="height: 500px;"></div>
                     </div>
                 </div>
             </div>
@@ -720,6 +740,20 @@
 
 
 <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const termSelect = document.getElementById('term');
+
+        termSelect.addEventListener('change', function () {
+            const selectedValue = this.value;
+
+            const url = new URL(window.location.href);
+            url.searchParams.set('term_id', selectedValue);
+
+            window.location.href = url.toString();
+        });
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         // counter 
 		const counters = document.querySelectorAll('.counter');
@@ -751,44 +785,73 @@
         let chart;
 
         function getData(selectedSkill = '') {
-            let dataObjects;
-            if (!selectedSkill) {
-                // total per level across all skills
-                const totalPerLevel = levelNames.map(level => {
-                    let total = 0;
-                    categories.forEach(skill => {
-                        total += (matrix[skill]?.[level] || 0);
+            const result = {};
+
+            Object.keys(matrix).forEach(termId => {
+                let dataObjects;
+
+                if (!selectedSkill) {
+                    // total per level across all skills
+                    const totalPerLevel = levelNames.map(level => {
+                        let total = 0;
+                        categories.forEach(skill => {
+                            total += (matrix[termId]?.[skill]?.[level] || 0);
+                        });
+                        return total;
                     });
-                    return total;
-                });
-                const totalAll = totalPerLevel.reduce((a,b) => a+b, 0);
-                dataObjects = totalPerLevel.map(val => ({
-                    percent: ((val / totalAll) * 100).toFixed(1),
-                    count: val
-                }));
-            } else {
-                const skillData = levelNames.map(level => matrix[selectedSkill]?.[level] || 0);
-                const skillTotal = skillData.reduce((a,b) => a+b, 0);
-                dataObjects = skillData.map(val => ({
-                    percent: ((val / skillTotal) * 100).toFixed(1),
-                    count: val
-                }));
-            }
-            return dataObjects;
+
+                    const totalAll = totalPerLevel.reduce((a,b) => a+b, 0);
+
+                    dataObjects = totalPerLevel.map(val => ({
+                        percent: totalAll ? ((val / totalAll) * 100).toFixed(1) : 0,
+                        count: val
+                    }));
+
+                } else {
+                    const skillData = levelNames.map(level =>
+                        matrix[termId]?.[selectedSkill]?.[level] || 0
+                    );
+
+                    const skillTotal = skillData.reduce((a,b) => a+b, 0);
+
+                    dataObjects = skillData.map(val => ({
+                        percent: skillTotal ? ((val / skillTotal) * 100).toFixed(1) : 0,
+                        count: val
+                    }));
+                }
+
+                result[termId] = dataObjects;
+            });
+
+            return result;
         }
 
         function renderChart(selectedSkill = '') {
-            const dataObjects = getData(selectedSkill);
-
-            // Separate arrays for Chart.js
-            const dataPercent = dataObjects.map(d => parseFloat(d.percent));
-            const dataCount = dataObjects.map(d => d.count);
-
+            const dataByTerm = getData(selectedSkill);
             const ctx = document.getElementById('skillLevelChart');
 
+            const termKeys = Object.keys(dataByTerm).sort((a, b) => a - b);
+            const termLabels = termKeys.map((key, index) =>
+                index === termKeys.length - 1 ? 'Current Term' : 'Previous Term'
+            );
+
+            const datasets = termKeys.map((termId, index) => {
+                const dataObjects = dataByTerm[termId];
+
+                return {
+                    label: termLabels[index],
+                    data: dataObjects.map(d => parseFloat(d.percent)),
+                    counts: dataObjects.map(d => d.count),
+                    backgroundColor: levelNames.map(l => {
+                        const base = levelColors[l] || '#000';
+                        return index === termKeys.length - 1 ? base : base + '88';
+                    })
+                };
+            });
+
             if (chart) {
-                chart.data.datasets[0].data = dataPercent;
-                chart.data.datasets[0].counts = dataCount; // store counts in dataset
+                chart.data.labels = levelNames;
+                chart.data.datasets = datasets;
                 chart.update();
                 return;
             }
@@ -797,36 +860,28 @@
                 type: 'bar',
                 data: {
                     labels: levelNames,
-                    datasets: [{
-                        label: 'Students (%)',
-                        data: dataPercent,
-                        counts: dataCount, // store counts here
-                        backgroundColor: levelNames.map(l => levelColors[l] || '#000')
-                    }]
+                    datasets: datasets
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
                         x: {
-                            title: { display: true, text: 'Levels (L0 - L8)' },
-                            ticks: { font: { size: 12 } },
-                            grid: {
-                                display: false
-                            }
+                            stacked: false,
+                            title: { display: true, text: 'Levels (L1 - L7)' },
+                            grid: { display: false }
                         },
                         y: {
                             beginAtZero: true,
-                            max: 100,
                             title: { display: true, text: 'Students (%)' },
-                            ticks: { font: { size: 12 }, callback: val => val + '%' },
-                            grid: {
-                                display: false
-                            }
+                            ticks: {
+                                callback: val => val + '%'
+                            },
+                            grid: { display: false }
                         }
                     },
                     plugins: {
-                        legend: { display: false },
+                        legend: { display: true },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -1120,7 +1175,7 @@
 
 						const total = UW + N + OW + OB;
 						function formatPercent(value) {
-							if (!total) return '0%';
+							if (!total) return 'No data';
 							return ((value / total) * 100).toFixed(1) + '%';
 						}
                         tooltip.innerHTML = `
@@ -1149,11 +1204,14 @@
         }        
 
         // School Skill Chart
+        const currentTermId = @json($selectedTerm);                
+        const currentTermSeries = skillSeries.filter(s => s.name.startsWith(`Term ${currentTermId} -`));
+
         if (document.getElementById('skillChart')) {
             try {
                 Highcharts.chart('skillChart', {
                     chart: { type: 'bar' },
-                    title: { text: 'Skill Analysis' },
+                    title: { text: 'Skill Analysis (Current Term)' },
                     xAxis: { categories: skillCategories },
                     yAxis: { min: 0, labels: { formatter() { return Math.round(this.value); } } },
                     legend: { enabled: false },
@@ -1163,12 +1221,10 @@
                             dataLabels: {
                                 enabled: true,
                                 formatter: function () {
-                                    return `${this.series.name} (${Math.round(this.percentage)}%)`;
+                                    const level = this.series.name.split(' - ')[1] || this.series.name;
+                                    return `${level} (${Math.round(this.percentage)}%)`;
                                 },
-                                style: {
-                                    textOutline: 'none',
-                                    fontSize: '11px'
-                                }
+                                style: { textOutline: 'none', fontSize: '11px' }
                             },
                             states: { inactive: { opacity: 1 } },
                             point: {
@@ -1188,7 +1244,12 @@
                             }
                         }
                     },
-                    series: skillSeries
+                    tooltip: {
+                        formatter: function() {
+                            return `Students: ${this.y} (${Math.round(this.percentage)}%)`;
+                        }
+                    },
+                    series: currentTermSeries
                 });
             } catch (error) {
                 console.error('Skill Chart Error:', error);
@@ -1203,7 +1264,7 @@
                 Highcharts.chart('spiderChart', {
                     chart: {
                         polar: true,
-                        type: 'line',
+                        type: 'area',
                     },
                     title: {
                         text: 'Skill Analysis',
@@ -1228,7 +1289,8 @@
                     },
                     yAxis: {
                         min: 0,
-                        gridLineInterpolation: 'polygon',
+                        max: 100,
+                        gridLineInterpolation: 'circle',
                         lineWidth: 0,
                         labels: {
                             formatter: function() {
@@ -1245,6 +1307,10 @@
                         itemStyle: {
                             fontSize: '12px',
                             color: '#333'
+                        },
+                        labelFormatter: function() {
+                            const level = this.name.split(' - ')[1] || this.name;
+                            return level;
                         }
                     },
                     plotOptions: {
@@ -1258,7 +1324,8 @@
                             dataLabels: {
                                 enabled: true,
                                 formatter: function() {
-                                    return `${this.series.name} (${Math.round(this.percentage)}%)`;
+                                    const level = this.series.name.split(' - ')[1] || this.series.name;
+                                    return `${level} (${Math.round(this.percentage)}%)`;
                                 },
                                 style: {
                                     fontSize: '11px',
@@ -1278,10 +1345,11 @@
                             color: '#000'
                         },
                         pointFormatter: function() {
-                            return `<span style="color:${this.color}">\u25CF</span> ${this.series.name}: ${this.y} (${Math.round(this.percentage)}%)<br/>`;
+                            const level = this.series.name.split(' - ')[1] || this.series.name;
+                            return `<span style="color:${this.color}">\u25CF</span>${level}: ${this.y} (${Math.round(this.percentage)}%)<br/>`;
                         }
                     },
-                    series: skillSeries
+                    series: currentTermSeries
                 });
             } catch (error) {
                 console.error('Skill Chart Error:', error);
