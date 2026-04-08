@@ -140,7 +140,6 @@
 
                         
 
-
                         <?php if(auth()->guard('web')->guest() && auth()->guard('sstudent')->guest()): ?>
                             <li class="nav-item l_area mr-2">
                                 <a class="nav-link user-login" href="<?php echo e(route('login')); ?>"><?php echo e(__('Login')); ?></a>
@@ -154,8 +153,7 @@
                                     <img src="<?php echo e(asset('public/assets/uploads/profilePictures/student/' .Auth::guard('sstudent')->user()->profile_picture)); ?>" class="d-inline-block align-top" height="32" width="32" alt="avtar" style="border-radius: 50%;">
                                 <?php else: ?>
                                     <img src="<?php echo e(asset('resources/images/avtar.png')); ?>" class="d-inline-block align-top" height="32" alt="avtar">
-                                <?php endif; ?>                                
-                                    
+                                <?php endif; ?>  
                                     <span class="d-md-block d-none">
                                         <?php if(auth()->guard('web')->check()): ?>                                        
                                             <?php echo e(Auth::user()->name); ?>

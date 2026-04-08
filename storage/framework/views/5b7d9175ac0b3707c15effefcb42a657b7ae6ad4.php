@@ -1227,13 +1227,24 @@
         }
 
         // School Spider Chart
+        const levelCategories = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7'];
+        function transformData(skillCategories, currentTermSeries) {
+            const levelCount = currentTermSeries.length;
 
+            return skillCategories.map((skill, skillIndex) => {
+                return {
+                    name: skill,
+                    data: currentTermSeries.map(level => level.data[skillIndex])
+                };
+            });
+        }
+        const transformedSeries = transformData(skillCategories, currentTermSeries);
         if (document.getElementById('spiderChart')) {
             try {
                 Highcharts.chart('spiderChart', {
                     chart: {
                         polar: true,
-                        type: 'area',
+                        type: 'areaspline',
                     },
                     title: {
                         text: 'Skill Analysis',
@@ -1246,7 +1257,7 @@
                         size: '90%'
                     },
                     xAxis: {
-                        categories: skillCategories,
+                        categories: ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7'],
                         tickmarkPlacement: 'on',
                         lineWidth: 0,
                         labels: {
@@ -1258,12 +1269,12 @@
                     },
                     yAxis: {
                         min: 0,
-                        max: 100,
+                        // max: 100,
                         gridLineInterpolation: 'circle',
                         lineWidth: 0,
                         labels: {
                             formatter: function() {
-                                return Math.round(this.value) + '%';
+                                return this.value;
                             },
                             style: {
                                 fontSize: '11px',
@@ -1284,7 +1295,8 @@
                     },
                     plotOptions: {
                         series: {
-                            stacking: 'percent',
+                            stacking: null,
+                            // stacking: 'percent',
                             fillOpacity: 0.25,
                             lineWidth: 3,
                             marker: {
@@ -1293,8 +1305,8 @@
                             dataLabels: {
                                 enabled: true,
                                 formatter: function() {
-                                    const level = this.series.name.split(' - ')[1] || this.series.name;
-                                    return `${level} (${Math.round(this.percentage)}%)`;
+                                   return this.y;
+                                    // return `${this.series.name} (${Math.round(this.percentage)}%)`;
                                 },
                                 style: {
                                     fontSize: '11px',
@@ -1314,11 +1326,13 @@
                             color: '#000'
                         },
                         pointFormatter: function() {
-                            const level = this.series.name.split(' - ')[1] || this.series.name;
-                            return `<span style="color:${this.color}">\u25CF</span>${level}: ${this.y} (${Math.round(this.percentage)}%)<br/>`;
+                            return `<span style="color:${this.color}">\u25CF</span>
+                ${this.series.name}: ${this.y}<br/>`;
+                            // return `<span style="color:${this.color}">\u25CF</span>
+                            //         ${this.series.name}: ${this.y} (${Math.round(this.percentage)}%)<br/>`;
                         }
                     },
-                    series: currentTermSeries
+                    series: transformedSeries
                 });
             } catch (error) {
                 console.error('Skill Chart Error:', error);

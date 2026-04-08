@@ -248,6 +248,7 @@ class FillDartController extends Controller
 			}
 		}
 
+		// echo"<pre>";print_r($categories);exit();
 		$totalStudents = $totals->total_students;
 		$totalCompleted = $totals->total_completed;
 		$totalOngoing = $totals->total_ongoing;
