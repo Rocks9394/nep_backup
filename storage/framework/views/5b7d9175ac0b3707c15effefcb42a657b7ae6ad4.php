@@ -498,11 +498,11 @@
         </div>
 
         <!-- MAIN DASHBOARD -->
-        <div class="col pt-4 pb-4 mb-5 main-content">
-            <div class="row mb-2">
+        <div class="col pt-3 pb-4 mb-5 main-content">
+            <div class="row mb-3">
                 <div class="col">
                     <div class="heading-rw mt-0 mt-md-1 mb-0 p-0">
-                        <h5 class="text-center text-bold"><?php echo e($SchoolName->school_name ?? ''); ?></h5>
+                        <h1 class="text-center text-bold"><?php echo e($SchoolName->school_name ?? ''); ?></h1>
                         
                     </div>
                 </div>
