@@ -459,6 +459,8 @@ class StudentRecordController extends Controller
 			'domicile'     => 'required|string',
 			'mobile'       => 'required|digits:10',
 			'hobbies'      => 'nullable|string|max:255',
+		], [
+    		'profilePicture.max' => 'Profile image must be smaller than 2MB.',
 		]);
 	
 		$student = Auth::guard('sstudent')->user();

@@ -196,7 +196,7 @@ endif;
 unset($__errorArgs, $__bag); ?>
                                 </div>
                                 <div class="form-group col-md-4">
-                                    <label for="mobile"> Mobile </label>
+                                    <label for="mobile">Mobile <span class="text-danger">*</span></label>
                                     <input type="tel" name="mobile" id="mobile" class="form-control <?php $__errorArgs = ['mobile'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -394,14 +394,16 @@ unset($__errorArgs, $__bag); ?>
                         icon: "success",
                         title: "Profile Updated!",
                         text: response.message ?? "Your profile has been updated successfully."
-                    });
+                    }).then(() => {
+                        location.reload();
+                    });;
                 },
                 error: function (xhr) {
                     Swal.close();
                     if (xhr.status === 422) {
                         let errors = xhr.responseJSON.errors;
                         let errorMessages = Object.values(errors).flat().join("\n");
-                        Swal.fire("Validation Error", errorMessages, "error");
+                        Swal.fire("Profile Update Fail", errorMessages, "error");
                     } else {
                         Swal.fire("Error", "Something went wrong!", "error");
                     }
@@ -414,6 +416,5 @@ unset($__errorArgs, $__bag); ?>
 	});
 
 </script>
-
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/parent/profile/index.blade.php ENDPATH**/ ?>

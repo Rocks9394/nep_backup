@@ -629,28 +629,28 @@ unset($__errorArgs, $__bag); ?>
 
 
 <script>
-  function previewImage(event) {
-    const input = event.target;
-    if(event.target.id == 'imageUpload'){
-    	var preview = document.getElementById('imagePreview');
-    }
+	function previewImage(event) {
+		const input = event.target;
+		if(event.target.id == 'imageUpload'){
+			var preview = document.getElementById('imagePreview');
+		}
 
-    if(event.target.id == 'principalSign'){
-    	var preview = document.getElementById('signaturePreview');
-    }
-	if(event.target.id == 'profilePicture'){
-		var preview = document.getElementById('profilePicturePreview');		
-	}   
+		if(event.target.id == 'principalSign'){
+			var preview = document.getElementById('signaturePreview');
+		}
+		if(event.target.id == 'profilePicture'){
+			var preview = document.getElementById('profilePicturePreview');		
+		}   
 
-    if (input.files && input.files[0]) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        preview.src = e.target.result;
-        preview.classList.remove('d-none');
-      };
-      reader.readAsDataURL(input.files[0]);
-    }
-  }
+		if (input.files && input.files[0]) {
+		const reader = new FileReader();
+		reader.onload = function (e) {
+			preview.src = e.target.result;
+			preview.classList.remove('d-none');
+		};
+		reader.readAsDataURL(input.files[0]);
+		}
+	}
 
 	$('#selectState').on('change', function() {
         const stateId = $(this).val();

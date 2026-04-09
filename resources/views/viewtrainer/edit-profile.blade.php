@@ -327,7 +327,7 @@
 						if (xhr.status === 422) {
 							let errors = xhr.responseJSON.errors;
 							let errorMessages = Object.values(errors).flat().join("\n");
-							Swal.fire("Validation Error", errorMessages, "error");
+							Swal.fire("Profile Update Fail", errorMessages, "warning");
 						} else {
 							Swal.fire("Error", "Something went wrong!", "error");
 						}

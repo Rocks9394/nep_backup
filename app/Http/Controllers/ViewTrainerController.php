@@ -779,7 +779,9 @@ class ViewTrainerController extends Controller
 			'district' => 'required',
 			'city' => 'required',
 			'pincode' => 'required|digits:6',
-			'profilePicture' => 'nullable|file|image|mimes:jpg,jpeg,png|max:500',
+			'profilePicture' => 'nullable|file|image|mimes:jpg,jpeg,png|max:2048',
+		], [
+			'profilePicture.max' => 'Profile image must be smaller than 2MB.',
 		]);		
 
 		list($stateId, $stateName) = explode('|', $request->state);

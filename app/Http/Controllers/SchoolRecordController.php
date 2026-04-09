@@ -574,14 +574,14 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 			'school_logo' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
 			'principal_signature' => 'nullable|file|image|mimes:jpg,jpeg,png|max:300',
-			'profilePicture' => 'nullable|file|image|mimes:jpg,jpeg,png|max:500',
+			'profilePicture' => 'nullable|file|image|mimes:jpg,jpeg,png|max:2048',
 
 			// 'academic_year' => ['required', 'regex:/^\d{4}-\d{4}$/']
 
 		],[
 			'principal_signature.max' => 'The principal\'s signature must not exceed 300KB.',
 			'school_logo.max' => 'School logo size must be less than 1MB',
-			'profilePicture.max' => 'School logo size must be less than 500KB'
+			'profilePicture.max' => 'Profile image must be smaller than 2MB'
 		]);
 		
 
