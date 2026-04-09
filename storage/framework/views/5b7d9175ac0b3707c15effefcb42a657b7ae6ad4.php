@@ -1085,77 +1085,161 @@
         }      
         // render data in map 
 
+        // function renderIndiaMap(){
+		// 	const mapColors = ['#fe4a5d','#ffaa62','#ffd26e','#74c4d6','#a3d55f','#6bc04b','#00953b'];
+
+		// 	function generateLegend() {
+        //             const legendContainer = document.querySelector('.map-legend');
+        //             if (!legendContainer) return;
+
+        //             legendContainer.innerHTML = '';
+
+        //             mapColors.forEach((color, index) => {
+        //                 let min = index * 25;
+        //                 let max = (index + 1) * 25;
+
+        //                 let label = index === mapColors.length - 1 
+        //                     ? `${min}+` 
+        //                     : `${min}–${max}`;
+
+        //                 const item = document.createElement('div');
+        //                 item.className = 'legend-item';
+        //                 item.innerHTML = `<span style="background:${color}"></span> ${label} Schools`;
+
+        //                 legendContainer.appendChild(item);
+        //             });
+        //         }
+
+        //     generateLegend();
+        //     document.querySelectorAll("#indiaMap svg path").forEach(path => {
+        //         const code = path.id;
+        //         const data = stateData[code];
+        //         function getBaseColor(schools) {
+        //             if (!schools) return '#bbb';
+
+        //             let index = Math.floor((schools - 1) / 25);
+        //             if (index >= mapColors.length) index = mapColors.length - 1;
+
+        //             return mapColors[index] + 'CC';
+        //         }
+
+        //         const schools = data ? data.schools : 0;
+        //         path.dataset.baseColor = getBaseColor(schools);
+        //         path.style.fill = path.dataset.baseColor;
+
+        //         path.addEventListener("mouseenter", function () {
+        //             tooltip.style.display = "block";
+        //             const baseColor = this.dataset.baseColor;
+		// 			function formatCount(value) {
+		// 				return value ? '~' + value : '0';
+		// 			}
+        //             this.style.fill = baseColor.replace(/CC$/, 'FF'); 
+        //             if (!data) {
+        //                 tooltip.innerHTML = `<strong>No data</strong>`;
+        //             } else {
+		// 				const UW = Number(data.UW) || 0;
+		// 				const N  = Number(data.N)  || 0;
+		// 				const OW = Number(data.OW) || 0;
+		// 				const OB = Number(data.OB) || 0;
+
+		// 				const total = UW + N + OW + OB;
+		// 				function formatPercent(value) {
+		// 					if (!total) return 'No data';
+		// 					return ((value / total) * 100).toFixed(1) + '%';
+		// 				}
+        //                 tooltip.innerHTML = `
+        //                     <strong>${data.name}</strong><br>
+        //                     UW: ~${formatPercent(UW)}<br>
+		// 					N: ~${formatPercent(N)}<br>
+		// 					OW: ~${formatPercent(OW)}<br>
+		// 					OB: ~${formatPercent(OB)}
+        //                 `;
+        //             }
+        //             tooltip.style.display = "block";
+        //         });
+
+        //         path.addEventListener("mousemove", function (e) {
+        //             const container = document.getElementById("mapChart");
+        //             const rect = container.getBoundingClientRect();
+        //             tooltip.style.left = (e.clientX - rect.left + 10) + "px";
+        //             tooltip.style.top = (e.clientY - rect.top - 40) + "px";
+        //         });
+
+        //         path.addEventListener("mouseleave", function () {
+        //             this.style.fill = this.dataset.baseColor; // restore original
+        //             tooltip.style.display = "none";
+        //         });
+        //     });
+        // }        
         function renderIndiaMap(){
-			const mapColors = ['#fe4a5d','#ffaa62','#ffd26e','#74c4d6','#a3d55f','#6bc04b','#00953b'];
-
-			function generateLegend() {
-                    const legendContainer = document.querySelector('.map-legend');
-                    if (!legendContainer) return;
-
-                    legendContainer.innerHTML = '';
-
-                    mapColors.forEach((color, index) => {
-                        let min = index * 25;
-                        let max = (index + 1) * 25;
-
-                        let label = index === mapColors.length - 1 
-                            ? `${min}+` 
-                            : `${min}–${max}`;
-
-                        const item = document.createElement('div');
-                        item.className = 'legend-item';
-                        item.innerHTML = `<span style="background:${color}"></span> ${label} Schools`;
-
-                        legendContainer.appendChild(item);
-                    });
-                }
-
+            const colors = { 
+                UW:'#6bc04b', 
+                N:'#039a48', 
+                OW:'#ffcb08', 
+                OB:'#ec0000' 
+            };
             generateLegend();
             document.querySelectorAll("#indiaMap svg path").forEach(path => {
                 const code = path.id;
                 const data = stateData[code];
-                function getBaseColor(schools) {
-                    if (!schools) return '#bbb';
 
-                    let index = Math.floor((schools - 1) / 25);
-                    if (index >= mapColors.length) index = mapColors.length - 1;
+                function getDominantColor(data) {
+                    if (!data) return '#bbb';
 
-                    return mapColors[index] + 'CC';
+                    const UW = Number(data.UW) || 0;
+                    const N  = Number(data.N)  || 0;
+                    const OW = Number(data.OW) || 0;
+                    const OB = Number(data.OB) || 0;
+
+                    const total = UW + N + OW + OB;
+                    if (!total) return '#bbb';
+
+                    const percents = {
+                        UW: UW / total,
+                        N:  N  / total,
+                        OW: OW / total,
+                        OB: OB / total
+                    };
+
+                    // Find highest percentage category
+                    let dominantKey = Object.keys(percents).reduce((a, b) => 
+                        percents[a] > percents[b] ? a : b
+                    );
+
+                    return colors[dominantKey] + 'CC';
                 }
 
-                const schools = data ? data.schools : 0;
-                path.dataset.baseColor = getBaseColor(schools);
-                path.style.fill = path.dataset.baseColor;
+                const baseColor = getDominantColor(data);
+                path.dataset.baseColor = baseColor;
+                path.style.fill = baseColor;
 
                 path.addEventListener("mouseenter", function () {
                     tooltip.style.display = "block";
-                    const baseColor = this.dataset.baseColor;
-					function formatCount(value) {
-						return value ? '~' + value : '0';
-					}
-                    this.style.fill = baseColor.replace(/CC$/, 'FF'); 
+                    this.style.fill = baseColor.replace(/CC$/, 'FF');
+
                     if (!data) {
                         tooltip.innerHTML = `<strong>No data</strong>`;
                     } else {
-						const UW = Number(data.UW) || 0;
-						const N  = Number(data.N)  || 0;
-						const OW = Number(data.OW) || 0;
-						const OB = Number(data.OB) || 0;
+                        const UW = Number(data.UW) || 0;
+                        const N  = Number(data.N)  || 0;
+                        const OW = Number(data.OW) || 0;
+                        const OB = Number(data.OB) || 0;
 
-						const total = UW + N + OW + OB;
-						function formatPercent(value) {
-							if (!total) return 'No data';
-							return ((value / total) * 100).toFixed(1) + '%';
-						}
+                        const total = UW + N + OW + OB;
+
+                        function formatPercent(value) {
+                            if (!total) return 'No data';
+                            return ((value / total) * 100).toFixed(1) + '%';
+                        }
+
                         tooltip.innerHTML = `
                             <strong>${data.name}</strong><br>
-                            UW: ~${formatPercent(UW)}<br>
-							N: ~${formatPercent(N)}<br>
-							OW: ~${formatPercent(OW)}<br>
-							OB: ~${formatPercent(OB)}
+                            UW: ${formatPercent(UW)}<br>
+                            N: ${formatPercent(N)}<br>
+                            OW: ${formatPercent(OW)}<br>
+                            OB: ${formatPercent(OB)}
                         `;
                     }
-                    tooltip.style.display = "block";
                 });
 
                 path.addEventListener("mousemove", function (e) {
@@ -1166,10 +1250,42 @@
                 });
 
                 path.addEventListener("mouseleave", function () {
-                    this.style.fill = this.dataset.baseColor; // restore original
+                    this.style.fill = this.dataset.baseColor;
                     tooltip.style.display = "none";
                 });
             });
+            function generateLegend() {
+                const legendContainer = document.querySelector('.map-legend');
+                if (!legendContainer) return;
+
+                const colors = { 
+                    UW:'#6bc04b', 
+                    N:'#039a48', 
+                    OW:'#ffcb08', 
+                    OB:'#ec0000' 
+                };
+
+                legendContainer.innerHTML = '';
+
+                const labels = {
+                    UW: 'UW (Underweight)',
+                    N:  'N (Normal)',
+                    OW: 'OW (Overweight)',
+                    OB: 'OB (Obese)'
+                };
+
+                Object.keys(colors).forEach(key => {
+                    const item = document.createElement('div');
+                    item.className = 'legend-item';
+
+                    item.innerHTML = `
+                        <span style="background:${colors[key]}"></span> 
+                        ${labels[key]}
+                    `;
+
+                    legendContainer.appendChild(item);
+                });
+            }
         }        
 
         // School Skill Chart
@@ -1180,20 +1296,32 @@
             try {
                 Highcharts.chart('skillChart', {
                     chart: { type: 'bar' },
-                    title: { text: 'Skill Analysis (Current Term)' },
-                    xAxis: { categories: skillCategories },
-                    yAxis: { min: 0, labels: { formatter() { return Math.round(this.value); } } },
+                    title: { text: 'Skill Analysis' },
+                    xAxis: {
+                        categories: skillCategories,
+                        lineWidth: 0,
+                        gridLineWidth: 0
+                    },
+                    yAxis: {
+                        min: 0,
+                        labels: { formatter() { return Math.round(this.value); } },
+                        gridLineWidth: 0,
+                        title: { text: null }
+                    },
                     legend: { enabled: false },
                     plotOptions: {
                         series: {
-                            stacking: 'percent',
+                            stacking: 'percent',                            
+                            pointPadding: 0,
+                            groupPadding: 0,
+                            borderWidth: 1,
                             dataLabels: {
                                 enabled: true,
                                 formatter: function () {
                                     const level = this.series.name.split(' - ')[1] || this.series.name;
                                     return `${level} (${Math.round(this.percentage)}%)`;
                                 },
-                                style: { textOutline: 'none', fontSize: '11px' }
+                                style: { textOutline: 'none', fontSize: '12px' }
                             },
                             states: { inactive: { opacity: 1 } },
                             point: {
@@ -1244,7 +1372,7 @@
                 Highcharts.chart('spiderChart', {
                     chart: {
                         polar: true,
-                        type: 'areaspline',
+                        type: 'line',
                     },
                     title: {
                         text: 'Skill Analysis',
@@ -1257,7 +1385,7 @@
                         size: '90%'
                     },
                     xAxis: {
-                        categories: ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7'],
+                        categories: skillCategories,
                         tickmarkPlacement: 'on',
                         lineWidth: 0,
                         labels: {
@@ -1270,7 +1398,7 @@
                     yAxis: {
                         min: 0,
                         // max: 100,
-                        gridLineInterpolation: 'circle',
+                        gridLineInterpolation: 'polygon',
                         lineWidth: 0,
                         labels: {
                             formatter: function() {
@@ -1332,7 +1460,7 @@
                             //         ${this.series.name}: ${this.y} (${Math.round(this.percentage)}%)<br/>`;
                         }
                     },
-                    series: transformedSeries
+                    series: currentTermSeries
                 });
             } catch (error) {
                 console.error('Skill Chart Error:', error);

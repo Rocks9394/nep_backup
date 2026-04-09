@@ -188,7 +188,7 @@ class Helper
 		}
 
 		$extension = strtolower($file->getClientOriginalExtension());
-		$filename = $id . '_' . 'student.' . $extension;
+		$filename = $id . '_' . 'picture.' . $extension;
 		$destination = $path . $filename;
 		switch ($extension) {
 			case 'jpg':

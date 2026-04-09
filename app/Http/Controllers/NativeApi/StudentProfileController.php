@@ -53,7 +53,7 @@ class StudentProfileController extends Controller
             'reg_id'       => $student->user_id, 
             'role_id'      => 5, 
             'account_type' => 'student', 
-            'avatar'       => $student->avatar  ? asset('public/' . $student->avatar) : null,
+            'avatar'       => $student->profile_picture  ? asset('public/assets/uploads/profilePictures/student/' . $student->profile_picture) : asset('public/' . $student->avatar),
 
             'schools'      => $student->school ? [[
                 'id'   => $student->school->id,
@@ -93,19 +93,14 @@ class StudentProfileController extends Controller
             'students.custom_class_id',
             'students.gender', 
             'students.dob',
+            'students.profile_picture',
             'custom_classes.section',
-            'students.rollno',
-            DB::raw("
-                CASE 
-                    WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-                    THEN custom_classes.nomenclature 
-                    ELSE class.name 
-                END AS className
-            ")
+            'students.rollno'
         )
         ->where('students.status', 'active')
         ->where('students.id', $studentId)
         ->first();
+
 
 
         $dob          = Carbon::parse($studentData->dob);
@@ -115,6 +110,9 @@ class StudentProfileController extends Controller
 
         $SchoolId = $studentData->school_id;
         $classId = $studentData->class_id;
+
+        $className = Helper::changeToRoman($studentData->custom_class_id);
+        $studentData->className = $className;
 
         $TermMasterId =  $this->getTermId($SchoolId);
 

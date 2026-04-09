@@ -15,6 +15,7 @@ use Response;
 use Validator;
 use Redirect;
 use paginate;
+use App\Helpers\Helper;
 use App\Models\ViewDart;
 use App\Models\User;
 use App\Models\Usermeta;
@@ -746,6 +747,7 @@ class ViewTrainerController extends Controller
 		return view('viewtrainer.showlist', compact('title','schoolData')); 
     }
 
+	// with profile picture 
 
 	public function trainerProfile(Request $request){
 		$user_id = Auth::id();
@@ -755,7 +757,7 @@ class ViewTrainerController extends Controller
 		$states = DB::table('states')->get();
 		$result = DB::table('users')
 					->leftJoin('usermetas','usermetas.user_id','=','users.id')
-					->select('users.id','users.name','users.email','users.phone','users.self_registrationId','users.gender','usermetas.qualification',
+					->select('users.id','users.name','users.email','users.phone','users.self_registrationId','users.profile_picture','users.gender','usermetas.qualification',
 					'usermetas.experience','usermetas.region_id','usermetas.state_id', 'usermetas.pincode' ,'usermetas.school_id','usermetas.subject','usermetas.dob','usermetas.address','usermetas.district','usermetas.city')
 					->where('users.id',$user_id)
 					->first();
@@ -777,7 +779,8 @@ class ViewTrainerController extends Controller
 			'district' => 'required',
 			'city' => 'required',
 			'pincode' => 'required|digits:6',
-		]);
+			'profilePicture' => 'nullable|file|image|mimes:jpg,jpeg,png|max:500',
+		]);		
 
 		list($stateId, $stateName) = explode('|', $request->state);
 		$dob = $request->post('dob');
@@ -791,6 +794,12 @@ class ViewTrainerController extends Controller
 		$users->gender = $request->gender;
 		$users->save();
 		
+		if ($request->hasFile('profilePicture')) {
+            $imagePath = Helper::resizeAndSaveImage($request->file('profilePicture'), 100, 'profilePictures/users' , $user_id);
+			DB::table('users')->where('id', $user_id)->update([
+	            'profile_picture' => $imagePath,
+	        ]);
+        }
 		$usermetas = Usermeta::where('user_id',$user_id)->first();
 
 		if(!empty($usermetas))

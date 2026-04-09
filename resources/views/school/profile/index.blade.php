@@ -270,7 +270,7 @@
 
 							<h2 class="mt-4">School Admin Details</h2>					
 							<div class="form-row">
-								<div class="form-group col-md-4">
+								<div class="form-group col-md-3">
 									<label for="principalName">HM/Principal <span class="text-danger">*</span></label>
 									<input type="text" class="form-control @error('principalName') is-invalid @enderror" 
 										id="principalName" name="principalName" value="{{ old('principalName') ?? $schoolData->p_name ?? '' }}">
@@ -279,28 +279,20 @@
 									@enderror	
 								</div>
 
-								<div class="form-group col-md-4">
+								<div class="form-group col-md-3">
 									<label for="principalEmail">Email <span class="text-danger">*</span></label>
 									<input type="email" class="form-control @error('principalEmail') is-invalid @enderror"  id="principalEmail" name="principalEmail" value="{{ old('principalEmail') ?? $schoolData->p_email ?? '' }}" required>
 									@error('principalEmail') <div class="invalid-feedback">{{ $message }}</div>
 									@enderror
 								</div>
-
-								<div class="form-group col-md-2">
-									<label for="schoolAdminDesignation">Designation <span class="text-danger">*</span></label>
-									<select name="schoolAdminDesignation" id="schoolAdminDesignation" 
-											class="form-control @error('schoolAdminDesignation') is-invalid @enderror">
-										<option value="0">Select</option>
-										<option value="HM" {{ $schoolData->p_designation == 'HM' ? 'selected' : '' }}>HM</option>
-										<option value="Principal" {{ $schoolData->p_designation == 'Principal' ? 'selected' : '' }}>Principal</option>
-									</select>
-									@error('schoolAdminDesignation')
-										<div class="invalid-feedback">{{ $message }}</div>
+								<div class="col-md-3">
+									<label for="principalContact">Principal Contact Number</label>
+									<input type="text" class="form-control @error('principal_contact') is-invalid @enderror"  id="principalContact" name="principal_contact"    value="{{ old('p_contact') ?? $schoolData->p_contact ?? '' }} ">
+									@error('principal_contact') 
+										<div class="invalid-feedback">{{ $message }}</div> 
 									@enderror
 								</div>
-
-
-								<div class="form-group col-md-2">
+								<div class="form-group col-md-3">
 									<label for="gender">Gender <span class="text-danger">*</span></label>
 									<select name="gender" id="gender" class="form-control @error('gender') is-invalid @enderror">
 										<option value="3">Select</option>
@@ -317,15 +309,37 @@
 
 							<div class="form-group">
 								<div class="row align-items-end">
-									<div class="col-md-6">
-										<label for="principalContact">Principal Contact Number</label>
-										<input type="text" class="form-control @error('principal_contact') is-invalid @enderror"  id="principalContact" name="principal_contact"    value="{{ old('p_contact') ?? $schoolData->p_contact ?? '' }} ">
-										@error('principal_contact') 
-											<div class="invalid-feedback">{{ $message }}</div> 
+									
+									<div class="form-group col-md-2">
+										<label for="schoolAdminDesignation">Designation <span class="text-danger">*</span></label>
+										<select name="schoolAdminDesignation" id="schoolAdminDesignation" 
+												class="form-control @error('schoolAdminDesignation') is-invalid @enderror">
+											<option value="0">Select</option>
+											<option value="HM" {{ $schoolData->p_designation == 'HM' ? 'selected' : '' }}>HM</option>
+											<option value="Principal" {{ $schoolData->p_designation == 'Principal' ? 'selected' : '' }}>Principal</option>
+										</select>
+										@error('schoolAdminDesignation')
+											<div class="invalid-feedback">{{ $message }}</div>
+										@enderror
+									</div>								
+
+									<div class="form-group col-md-3">
+										<label for="profilePicture">Profile Picture</label>
+										<input class="form-control @error('profile_picture') is-invalid @enderror" type="file" accept=".jpg,.jpeg,.png" id="profilePicture" name="profilePicture" onchange="previewImage(event)">
+										@error('profile_picture')
+											<div class="invalid-feedback">{{ $message }}</div>
 										@enderror
 									</div>
 
-									<div class="col-md-4">
+									<div class="form-group col-md-2" style="text-align:center">
+										@if($schoolData->profile_picture)
+											<img src="{{ asset('public/assets/uploads/profilePictures/users/' . $schoolData->profile_picture) }}" id="profilePicturePreview" class="preview-img img-thumbnail" />
+										@else .
+											<img id="profilePicturePreview" class="preview-img img-thumbnail d-none" />
+										@endif
+									</div>
+
+									<div class="form-group col-md-3">
 										<label for="principalSign">Upload Signature</label>
 										<input class="form-control @error('principal_signature') is-invalid @enderror" type="file" accept=".jpg,.jpeg,.png" id="principalSign" name="principal_signature" onchange="previewImage(event)">
 										@error('principal_signature')
@@ -333,7 +347,7 @@
 										@enderror
 									</div>
 
-									<div class="col-md-2">
+									<div class="form-group col-md-2" style="text-align:center">
 										@if($schoolData->signature)
 											<img src="{{ asset('public/assets/uploads/signatures/' . $schoolData->signature) }}" id="signaturePreview" class="preview-img img-thumbnail" />
 										@else .
@@ -360,25 +374,28 @@
 
 
 <script>
-  function previewImage(event) {
-    const input = event.target;
-    if(event.target.id == 'imageUpload'){
-    	var preview = document.getElementById('imagePreview');
-    }
+	function previewImage(event) {
+		const input = event.target;
+		if(event.target.id == 'imageUpload'){
+			var preview = document.getElementById('imagePreview');
+		}
 
-    if(event.target.id == 'principalSign'){
-    	var preview = document.getElementById('signaturePreview');
-    }   
+		if(event.target.id == 'principalSign'){
+			var preview = document.getElementById('signaturePreview');
+		}
+		if(event.target.id == 'profilePicture'){
+			var preview = document.getElementById('profilePicturePreview');		
+		}   
 
-    if (input.files && input.files[0]) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        preview.src = e.target.result;
-        preview.classList.remove('d-none');
-      };
-      reader.readAsDataURL(input.files[0]);
-    }
-  }
+		if (input.files && input.files[0]) {
+		const reader = new FileReader();
+		reader.onload = function (e) {
+			preview.src = e.target.result;
+			preview.classList.remove('d-none');
+		};
+		reader.readAsDataURL(input.files[0]);
+		}
+	}
 
 	$('#selectState').on('change', function() {
         const stateId = $(this).val();

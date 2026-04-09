@@ -516,7 +516,8 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
     			'users.phone as p_contact',
     			'users.position as p_designation',
     			'users.gender as p_gender',
-    			'usermetas.signature'
+    			'usermetas.signature',
+				'users.profile_picture'
     		)
 
     		->join('users','users.id','=', 'school_reference.school_user_id')
@@ -547,7 +548,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
     }
 
 
-    /* 23-Jan-2026 updated code */
+    /* 08-APR-2026 updated code */
     public function updateProfile(Request $request, $id) {
 		
 		$request->validate([
@@ -573,12 +574,14 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 			'school_logo' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
 			'principal_signature' => 'nullable|file|image|mimes:jpg,jpeg,png|max:300',
+			'profilePicture' => 'nullable|file|image|mimes:jpg,jpeg,png|max:500',
 
 			// 'academic_year' => ['required', 'regex:/^\d{4}-\d{4}$/']
 
 		],[
 			'principal_signature.max' => 'The principal\'s signature must not exceed 300KB.',
-			'school_logo.max' => 'School logo size must be less than 1MB'
+			'school_logo.max' => 'School logo size must be less than 1MB',
+			'profilePicture.max' => 'School logo size must be less than 500KB'
 		]);
 		
 
@@ -681,6 +684,15 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	            'logo' => $logo_path,
 	        ]);
         }
+
+        if ($request->hasFile('profilePicture')) {
+            $imagePath = Helper::resizeAndSaveImage($request->file('profilePicture'), 100, 'profilePictures/users' , $userId);
+			DB::table('users')->where('id', $userId)->update([
+	            'profile_picture' => $imagePath,
+	        ]);
+        }
+
+
 
 
         if ($request->hasFile('principal_signature')) {

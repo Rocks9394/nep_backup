@@ -1,13 +1,12 @@
 @extends('layouts.filldart-app')
 @section('title','Edit Profile')
 @section('content')
-<!--<style>
-.center{
-	width:40%;
-	margin:0 auto;
-	align-items: center; 
-}
-</style>-->
+<style>
+  .preview-img {
+    max-width: 100px;
+    height: auto;
+  }
+</style>
 
 <div class="container">
 	<div class="t-mrg">	
@@ -94,26 +93,34 @@
 						</div>
 						
 						<div class="form-row">
-							<div class="form-group col-md-4">
+							<div class="form-group col-md-3">
 								<label for="email">Email <span class="text-danger">*</span></label>
 								<input type="email" class="form-control @error('email') is-invalid @enderror" data-email = "{{ old('email') ?? $result->email ?? '' }}"  id="email" name="email" value="{{ old('email') ?? $result->email ?? '' }}">
 								@error('email') <div class="invalid-feedback">{{ $message }}</div>
 								@enderror
 							</div>
-							<div class="form-group col-md-4">
+							<div class="form-group col-md-3">
 								<label for="phone">Contact Number<span class="text-danger">*</span></label>
 								<input type="text" class="form-control @error('phone') is-invalid @enderror"  id="phone" name="phone"    value="{{ old('phone') ?? $result->phone ?? '' }} ">
 								@error('phone') 
 									<div class="invalid-feedback">{{ $message }}</div> 
 								@enderror
 							</div>
-							<div class="form-group col-md-4">
-								<label for="qualification">Quaification<span class="text-danger">*</span></label>
-								<input type="text" class="form-control @error('qualification') is-invalid @enderror"  id="qualification" name="qualification"    value="{{$result->qualification }} ">
-								@error('qualification') 
-									<div class="invalid-feedback">{{ $message }}</div> 
+							<div class="form-group col-md-3">
+								<label for="profilePicture">Profile Picture</label>
+								<input class="form-control @error('profile_picture') is-invalid @enderror" type="file" accept=".jpg,.jpeg,.png" id="profilePicture" name="profilePicture" onchange="previewImage(event)">
+								@error('profile_picture')
+									<div class="invalid-feedback">{{ $message }}</div>
 								@enderror
 							</div>
+
+							<div class="form-group col-md-3" style="text-align:center">
+								@if($result->profile_picture)
+									<img src="{{ asset('public/assets/uploads/profilePictures/users/' . $result->profile_picture) }}" id="profilePicturePreview" class="preview-img img-thumbnail" />
+								@else .
+									<img id="profilePicturePreview" class="preview-img img-thumbnail d-none" />
+								@endif
+							</div>							
 
 						</div>
 
@@ -181,7 +188,14 @@
 
 							
 						</div>
-						<div class="form-row">
+						<div class="form-row">							
+							<div class="form-group col-md-3">
+								<label for="qualification">Quaification<span class="text-danger">*</span></label>
+								<input type="text" class="form-control @error('qualification') is-invalid @enderror"  id="qualification" name="qualification"    value="{{$result->qualification }} ">
+								@error('qualification') 
+									<div class="invalid-feedback">{{ $message }}</div> 
+								@enderror
+							</div>
 							<div class="form-group col-md-3">
 								<label for="experience">Experience </label>
 								<input type="text" class="form-control @error('experience') is-invalid @enderror"  id="experience" name="experience" value="{{$result->experience }} ">
@@ -189,7 +203,7 @@
 									<div class="invalid-feedback">{{ $message }}</div> 
 								@enderror
 							</div>
-							<div class="form-group col-md-6">
+							<div class="form-group col-md-3">
 								<label for="address">Address<span class="text-danger">*</span></label>
 								<input type="text" class="form-control @error('address') is-invalid @enderror"  id="address" name="address" value="{{$result->address }} ">
 								@error('address') 
@@ -256,6 +270,20 @@
             });
         }
     });
+	function previewImage(event) {
+		const input = event.target;
+		if(event.target.id == 'profilePicture'){
+			var preview = document.getElementById('profilePicturePreview');		
+		}   
+		if (input.files && input.files[0]) {
+		const reader = new FileReader();
+		reader.onload = function (e) {
+			preview.src = e.target.result;
+			preview.classList.remove('d-none');
+		};
+		reader.readAsDataURL(input.files[0]);
+		}
+	}
 </script>
 <script>
 	$(document).ready(function () {
@@ -263,7 +291,7 @@
 			e.preventDefault();
 
 			let form = $(this);
-			let formData = form.serialize();
+			let formData = new FormData(this);
 			let userId = "{{ Auth::user()->id }}";
 
 			let email = $('#email').val();
@@ -283,6 +311,8 @@
 					url: "{{ url('update-profile') }}",
 					type: "POST",
 					data: formData,
+					processData: false,
+					contentType: false,
 					beforeSend: function () {
 						form.find("button[type='submit']").prop("disabled", true).text("Updating...");
 					},

@@ -41,7 +41,7 @@ class FillDartController extends Controller
 		$this->middleware(['auth','trainerschool'])->except('ParisOlympics','viewSchoolDart');
     }
 
-    public function dashboard(Request $request)	{
+    public function dashboard_bk(Request $request)	{
 		$user = auth()->user();
 		$userId = $user->id;
 		$roleId = $user->role_id;
@@ -142,7 +142,15 @@ class FillDartController extends Controller
 				
 		if($request->has('term_id')){
 			$selectedTerm = $request->term_id;
-			$termIds = $this->getCurrentAndPreviousTermIds($schoolId, (int) $selectedTerm);
+			$isValidTerm = TermMaster::where('id', $selectedTerm)
+			->where('school_id', $schoolId)
+			->exists();
+			
+			if ($isValidTerm) {
+				$termIds = $this->getCurrentAndPreviousTermIds($schoolId, (int) $selectedTerm);
+			} else {
+				$selectedTerm = $currentTermId;
+			}
 		}else{
 			$selectedTerm = $currentTermId;			
 		}			
@@ -277,7 +285,7 @@ class FillDartController extends Controller
 	}
 
 
-	public function dashboard_bk(Request $request)	{
+	public function dashboard(Request $request)	{
 		
 		$userId  =  \Auth::id();
 		$title   = 'Dashboard';

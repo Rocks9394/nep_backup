@@ -25,7 +25,8 @@ class User extends Authenticatable
 		'role_id',
         'password',
         'self_registrationId',
-        'status'
+        'status',
+        'profile_picture'
     ];
 
     /**

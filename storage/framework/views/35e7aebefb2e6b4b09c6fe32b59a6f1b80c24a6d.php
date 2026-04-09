@@ -427,7 +427,7 @@ unset($__errorArgs, $__bag); ?>
 
 							<h2 class="mt-4">School Admin Details</h2>					
 							<div class="form-row">
-								<div class="form-group col-md-4">
+								<div class="form-group col-md-3">
 									<label for="principalName">HM/Principal <span class="text-danger">*</span></label>
 									<input type="text" class="form-control <?php $__errorArgs = ['principalName'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -450,7 +450,7 @@ endif;
 unset($__errorArgs, $__bag); ?>	
 								</div>
 
-								<div class="form-group col-md-4">
+								<div class="form-group col-md-3">
 									<label for="principalEmail">Email <span class="text-danger">*</span></label>
 									<input type="email" class="form-control <?php $__errorArgs = ['principalEmail'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -470,36 +470,28 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
 								</div>
-
-								<div class="form-group col-md-2">
-									<label for="schoolAdminDesignation">Designation <span class="text-danger">*</span></label>
-									<select name="schoolAdminDesignation" id="schoolAdminDesignation" 
-											class="form-control <?php $__errorArgs = ['schoolAdminDesignation'];
+								<div class="col-md-3">
+									<label for="principalContact">Principal Contact Number</label>
+									<input type="text" class="form-control <?php $__errorArgs = ['principal_contact'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>">
-										<option value="0">Select</option>
-										<option value="HM" <?php echo e($schoolData->p_designation == 'HM' ? 'selected' : ''); ?>>HM</option>
-										<option value="Principal" <?php echo e($schoolData->p_designation == 'Principal' ? 'selected' : ''); ?>>Principal</option>
-									</select>
-									<?php $__errorArgs = ['schoolAdminDesignation'];
+unset($__errorArgs, $__bag); ?>"  id="principalContact" name="principal_contact"    value="<?php echo e(old('p_contact') ?? $schoolData->p_contact ?? ''); ?> ">
+									<?php $__errorArgs = ['principal_contact'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-										<div class="invalid-feedback"><?php echo e($message); ?></div>
+$message = $__bag->first($__errorArgs[0]); ?> 
+										<div class="invalid-feedback"><?php echo e($message); ?></div> 
 									<?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
 								</div>
-
-
-								<div class="form-group col-md-2">
+								<div class="form-group col-md-3">
 									<label for="gender">Gender <span class="text-danger">*</span></label>
 									<select name="gender" id="gender" class="form-control <?php $__errorArgs = ['gender'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -530,29 +522,65 @@ unset($__errorArgs, $__bag); ?>
 
 							<div class="form-group">
 								<div class="row align-items-end">
-									<div class="col-md-6">
-										<label for="principalContact">Principal Contact Number</label>
-										<input type="text" class="form-control <?php $__errorArgs = ['principal_contact'];
+									
+									<div class="form-group col-md-2">
+										<label for="schoolAdminDesignation">Designation <span class="text-danger">*</span></label>
+										<select name="schoolAdminDesignation" id="schoolAdminDesignation" 
+												class="form-control <?php $__errorArgs = ['schoolAdminDesignation'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>"  id="principalContact" name="principal_contact"    value="<?php echo e(old('p_contact') ?? $schoolData->p_contact ?? ''); ?> ">
-										<?php $__errorArgs = ['principal_contact'];
+unset($__errorArgs, $__bag); ?>">
+											<option value="0">Select</option>
+											<option value="HM" <?php echo e($schoolData->p_designation == 'HM' ? 'selected' : ''); ?>>HM</option>
+											<option value="Principal" <?php echo e($schoolData->p_designation == 'Principal' ? 'selected' : ''); ?>>Principal</option>
+										</select>
+										<?php $__errorArgs = ['schoolAdminDesignation'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> 
-											<div class="invalid-feedback"><?php echo e($message); ?></div> 
+$message = $__bag->first($__errorArgs[0]); ?>
+											<div class="invalid-feedback"><?php echo e($message); ?></div>
+										<?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+									</div>								
+
+									<div class="form-group col-md-3">
+										<label for="profilePicture">Profile Picture</label>
+										<input class="form-control <?php $__errorArgs = ['profile_picture'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" type="file" accept=".jpg,.jpeg,.png" id="profilePicture" name="profilePicture" onchange="previewImage(event)">
+										<?php $__errorArgs = ['profile_picture'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+											<div class="invalid-feedback"><?php echo e($message); ?></div>
 										<?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
 									</div>
 
-									<div class="col-md-4">
+									<div class="form-group col-md-2" style="text-align:center">
+										<?php if($schoolData->profile_picture): ?>
+											<img src="<?php echo e(asset('public/assets/uploads/profilePictures/users/' . $schoolData->profile_picture)); ?>" id="profilePicturePreview" class="preview-img img-thumbnail" />
+										<?php else: ?> .
+											<img id="profilePicturePreview" class="preview-img img-thumbnail d-none" />
+										<?php endif; ?>
+									</div>
+
+									<div class="form-group col-md-3">
 										<label for="principalSign">Upload Signature</label>
 										<input class="form-control <?php $__errorArgs = ['principal_signature'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -574,7 +602,7 @@ endif;
 unset($__errorArgs, $__bag); ?>
 									</div>
 
-									<div class="col-md-2">
+									<div class="form-group col-md-2" style="text-align:center">
 										<?php if($schoolData->signature): ?>
 											<img src="<?php echo e(asset('public/assets/uploads/signatures/' . $schoolData->signature)); ?>" id="signaturePreview" class="preview-img img-thumbnail" />
 										<?php else: ?> .
@@ -609,7 +637,10 @@ unset($__errorArgs, $__bag); ?>
 
     if(event.target.id == 'principalSign'){
     	var preview = document.getElementById('signaturePreview');
-    }   
+    }
+	if(event.target.id == 'profilePicture'){
+		var preview = document.getElementById('profilePicturePreview');		
+	}   
 
     if (input.files && input.files[0]) {
       const reader = new FileReader();
