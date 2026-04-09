@@ -1388,15 +1388,28 @@
         // School Spider Chart
         const levelCategories = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7'];
         function transformData(skillCategories, currentTermSeries) {
-            const levelCount = currentTermSeries.length;
+            const skillCount = skillCategories.length;
 
-            return skillCategories.map((skill, skillIndex) => {
+            // Step 1: calculate total per skill
+            const totals = Array(skillCount).fill(0);
+
+            currentTermSeries.forEach(level => {
+                level.data.forEach((val, i) => {
+                    totals[i] += val;
+                });
+            });
+
+            return currentTermSeries.map(level => {
                 return {
-                    name: skill,
-                    data: currentTermSeries.map(level => level.data[skillIndex])
+                    name: level.name,
+                    color: level.color,
+                    data: level.data.map((val, i) => {
+                        return totals[i] === 0 ? 0 : Math.round((val / totals[i]) * 100);
+                    })
                 };
             });
         }
+        
         const transformedSeries = transformData(skillCategories, currentTermSeries);
         if (document.getElementById('spiderChart')) {
             try {
@@ -1429,7 +1442,9 @@
                     yAxis: {
                         min: 0,
                         // max: 100,
+                        tickInterval: 20,
                         gridLineInterpolation: 'polygon',
+                        fillOpacity: 0.05,
                         lineWidth: 0,
                         labels: {
                             formatter: function() {
@@ -1456,19 +1471,18 @@
                         series: {
                             stacking: null,
                             // stacking: 'percent',
-                            fillOpacity: 0.25,
-                            lineWidth: 3,
+                            fillOpacity: 0.1,
+                            lineWidth: 2,
                             marker: {
-                                radius: 5
+                                radius: 3
                             },
                             dataLabels: {
                                 enabled: true,
                                 formatter: function() {
-                                   return this.y;
-                                    // return `${this.series.name} (${Math.round(this.percentage)}%)`;
+                                    return this.y + '%';
                                 },
                                 style: {
-                                    fontSize: '11px',
+                                    fontSize: '9px',
                                     textOutline: 'none',
                                     color: '#222'
                                 }
@@ -1486,18 +1500,140 @@
                         },
                         pointFormatter: function() {
                             return `<span style="color:${this.color}">\u25CF</span>
-                ${this.series.name}: ${this.y}<br/>`;
-                            // return `<span style="color:${this.color}">\u25CF</span>
-                            //         ${this.series.name}: ${this.y} (${Math.round(this.percentage)}%)<br/>`;
+                            ${this.series.name}: ${this.y}%<br/>`;
                         }
                     },
-                    series: currentTermSeries
+                    series: transformData(skillCategories, currentTermSeries)
                 });
             } catch (error) {
                 console.error('Skill Chart Error:', error);
                 document.getElementById('spiderChart').innerHTML = '<div class="map-error">Error loading skill chart</div>';
             }
         }
+
+
+        // 2nd Spider Chart
+
+        // const levelCategories = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7'];
+
+        // function transformData(skillCategories, currentTermSeries) {
+        //     return skillCategories.map((skill, skillIndex) => {
+        //         const values = currentTermSeries.map(level => level.data[skillIndex]);
+
+        //         const total = values.reduce((sum, val) => sum + val, 0);
+        //         const percentageData = values.map(val => {
+        //             return total === 0 ? 0 : ((val / total) * 100).toFixed(1);
+        //         });
+
+        //         return {
+        //             name: skill,
+        //             data: percentageData.map(Number) 
+        //         };
+        //     });
+        // }
+
+        // const transformedSeries = transformData(skillCategories, currentTermSeries);
+
+        // if (document.getElementById('spiderChart')) {
+        //     try {
+        //         Highcharts.chart('spiderChart', {
+        //             chart: {
+        //                 polar: true,
+        //                 type: 'line',
+        //             },
+
+        //             title: {
+        //                 text: 'Skill Analysis',
+        //                 style: {
+        //                     fontSize: '18px',
+        //                     fontWeight: 'bold',
+        //                 }
+        //             },
+
+        //             pane: {
+        //                 size: '90%'
+        //             },
+        //             xAxis: {
+        //                 categories: levelCategories,
+        //                 tickmarkPlacement: 'on',
+        //                 lineWidth: 0,
+        //                 labels: {
+        //                     style: {
+        //                         fontSize: '13px',
+        //                         color: '#555'
+        //                     }
+        //                 }
+        //             },
+
+        //             yAxis: {
+        //                 min: 0,
+        //                 gridLineInterpolation: 'polygon',
+        //                 lineWidth: 0,
+        //                 labels: {
+        //                     formatter: function () {
+        //                         return this.value + '%';
+        //                     },
+        //                     style: {
+        //                         fontSize: '11px',
+        //                         color: '#666'
+        //                     }
+        //                 }
+        //             },
+
+        //             legend: {
+        //                 enabled: true,
+        //                 itemStyle: {
+        //                     fontSize: '12px',
+        //                     color: '#333'
+        //                 }
+        //             },
+
+        //             plotOptions: {
+        //                 series: {
+        //                     fillOpacity: 0.25,
+        //                     lineWidth: 3,
+        //                     marker: {
+        //                         radius: 5
+        //                     },
+        //                     dataLabels: {
+        //                         enabled: true,
+        //                         formatter: function () {
+        //                             return this.y + '%';
+        //                         },
+        //                         style: {
+        //                             fontSize: '11px',
+        //                             textOutline: 'none',
+        //                             color: '#222'
+        //                         }
+        //                     },
+        //                     pointPlacement: 'on'
+        //                 }
+        //             },
+
+        //             tooltip: {
+        //                 shared: true,
+        //                 backgroundColor: '#fff',
+        //                 borderColor: '#999',
+        //                 borderRadius: 5,
+        //                 style: {
+        //                     color: '#000'
+        //                 },
+        //                 pointFormatter: function () {
+        //                     return `<span style="color:${this.color}">\u25CF</span>
+        //                             ${this.series.name}: ${this.y}%<br/>`;
+        //                 }
+        //             },
+
+        //             series: transformedSeries
+        //         });
+
+        //     } catch (error) {
+        //         console.error('Skill Chart Error:', error);
+        //         document.getElementById('spiderChart').innerHTML =
+        //             '<div class="map-error">Error loading skill chart</div>';
+        //     }
+        // }
+
 
         // School Health bar chart with bell curve 
 
