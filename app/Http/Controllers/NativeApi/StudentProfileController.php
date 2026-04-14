@@ -65,6 +65,7 @@ class StudentProfileController extends Controller
                 'dob'           => $student->dob,
                 'qualification' => $className ?? null,
                 'rollno'    => $student->rollno,
+                'custom_class_id' => $student->custom_class_id,
 
             ]
         ];

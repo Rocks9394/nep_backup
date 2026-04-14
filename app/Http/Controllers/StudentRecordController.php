@@ -455,7 +455,7 @@ class StudentRecordController extends Controller
 			'studentEmail' => 'required|email|max:255',
 			'gender'       => 'required|string|in:Male,Female,TransGender',
 			'profilePicture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-			'apaar_id'     => 'required|digits:12',
+			'apaarId'     => 'required|digits:12',
 			'domicile'     => 'required|string',
 			'mobile'       => 'required|digits:10',
 			'hobbies'      => 'nullable|string|max:255',
@@ -475,7 +475,7 @@ class StudentRecordController extends Controller
 		$student->update([
 			'email_id'      => $request->input('studentEmail'),
 			'gender'        => $request->input('gender'),
-			'apaar_id'      => $request->input('apaar_id'),
+			'apaarId'      => $request->input('apaarId'),
 			'domicile'      => $request->input('domicile'),
 			'mobile'        => $request->input('mobile'),
 			'hobbies'       => $request->input('hobbies'),

@@ -136,9 +136,9 @@
                                 </div>
 
                                 <div class="form-group col-md-3">
-                                    <label for="apaar_id"> APAAR ID (12 digits) <span class="text-danger">*</span></label>
-                                    <input type="text" name="apaar_id" id="apaar_id" class="form-control @error('apaar_id') is-invalid @enderror" value="{{$student->apaar_id}}">
-                                    @error('apaar_id')
+                                    <label for="apaarId"> APAAR ID (12 digits) <span class="text-danger">*</span></label>
+                                    <input type="text" name="apaarId" id="apaarId" class="form-control @error('apaarId') is-invalid @enderror" value="{{$student->apaarId}}">
+                                    @error('apaarId')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
