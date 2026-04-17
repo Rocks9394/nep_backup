@@ -112,6 +112,11 @@
         margin-bottom: 20px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    .ttl{
+        font-size: 16px;
+        font-weight: 600;
+        color: #333
+    }
 
     #mapChart {
         width: 100%;     /* or any width you want */
@@ -570,7 +575,7 @@
             <div class="row g-3 mb-4">                
                 <div class="col-12 col-md-6">
                     <div class="card shadow p-2" style="height:400px;">
-                        <div class="card-header fw-bold">Health Indicatior</div>
+                        <div class="card-header ttl">Health Indicatior</div>
                         <div class="card-body p-2">
                             <canvas id="healthSummaryChart"></canvas>
                         </div>
@@ -579,7 +584,7 @@
 				<div class="col-12 col-md-6">
                   <div class="card shadow p-2" style="height:400px;">   
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <span class="fw-bold">Fitness Indicator</span>
+                        <span class="ttl">Fitness Indicator</span>
 
                         <select id="skillFilter" class="form-select form-select-sm" style="width: 180px; margin-left:120px;">
                             <option value="">All Skills (Combined)</option>
@@ -624,7 +629,7 @@
 
                 <div class="col-md-6">
                     <div class="card">
-                        <h5 class="card-title text-center mt-2 mb-3 text-dark">State-wise Fitness Map</h5>
+                        <h5 class="card-title text-center mt-2 mb-3 text-dark">State-wise Health Map</h5>
                         <div id="mapChart">
                             <div id="indiaMap">
                                 <?php echo file_get_contents(public_path('assets/uploads/map.svg')); ?>
@@ -853,10 +858,16 @@
                         legend: { display: true },
                         tooltip: {
                             callbacks: {
+                                title: function(context) {
+                                    return context[0].dataset.label;
+                                },
+
                                 label: function(context) {
-                                    const count = context.dataset.counts[context.dataIndex]; // get count from dataset
+                                    const label = context.label;
+                                    const count = context.dataset.counts?.[context.dataIndex];
                                     const percent = context.parsed.y;
-                                    return `Students: ${count} (${percent}%)`;
+
+                                    return `${label}: ${count} Students (${percent}%)`;
                                 }
                             }
                         }
@@ -1083,94 +1094,7 @@
                 }
             });
         }      
-        // render data in map 
-
-        // function renderIndiaMap(){
-		// 	const mapColors = ['#fe4a5d','#ffaa62','#ffd26e','#74c4d6','#a3d55f','#6bc04b','#00953b'];
-
-		// 	function generateLegend() {
-        //             const legendContainer = document.querySelector('.map-legend');
-        //             if (!legendContainer) return;
-
-        //             legendContainer.innerHTML = '';
-
-        //             mapColors.forEach((color, index) => {
-        //                 let min = index * 25;
-        //                 let max = (index + 1) * 25;
-
-        //                 let label = index === mapColors.length - 1 
-        //                     ? `${min}+` 
-        //                     : `${min}–${max}`;
-
-        //                 const item = document.createElement('div');
-        //                 item.className = 'legend-item';
-        //                 item.innerHTML = `<span style="background:${color}"></span> ${label} Schools`;
-
-        //                 legendContainer.appendChild(item);
-        //             });
-        //         }
-
-        //     generateLegend();
-        //     document.querySelectorAll("#indiaMap svg path").forEach(path => {
-        //         const code = path.id;
-        //         const data = stateData[code];
-        //         function getBaseColor(schools) {
-        //             if (!schools) return '#bbb';
-
-        //             let index = Math.floor((schools - 1) / 25);
-        //             if (index >= mapColors.length) index = mapColors.length - 1;
-
-        //             return mapColors[index] + 'CC';
-        //         }
-
-        //         const schools = data ? data.schools : 0;
-        //         path.dataset.baseColor = getBaseColor(schools);
-        //         path.style.fill = path.dataset.baseColor;
-
-        //         path.addEventListener("mouseenter", function () {
-        //             tooltip.style.display = "block";
-        //             const baseColor = this.dataset.baseColor;
-		// 			function formatCount(value) {
-		// 				return value ? '~' + value : '0';
-		// 			}
-        //             this.style.fill = baseColor.replace(/CC$/, 'FF'); 
-        //             if (!data) {
-        //                 tooltip.innerHTML = `<strong>No data</strong>`;
-        //             } else {
-		// 				const UW = Number(data.UW) || 0;
-		// 				const N  = Number(data.N)  || 0;
-		// 				const OW = Number(data.OW) || 0;
-		// 				const OB = Number(data.OB) || 0;
-
-		// 				const total = UW + N + OW + OB;
-		// 				function formatPercent(value) {
-		// 					if (!total) return 'No data';
-		// 					return ((value / total) * 100).toFixed(1) + '%';
-		// 				}
-        //                 tooltip.innerHTML = `
-        //                     <strong>${data.name}</strong><br>
-        //                     UW: ~${formatPercent(UW)}<br>
-		// 					N: ~${formatPercent(N)}<br>
-		// 					OW: ~${formatPercent(OW)}<br>
-		// 					OB: ~${formatPercent(OB)}
-        //                 `;
-        //             }
-        //             tooltip.style.display = "block";
-        //         });
-
-        //         path.addEventListener("mousemove", function (e) {
-        //             const container = document.getElementById("mapChart");
-        //             const rect = container.getBoundingClientRect();
-        //             tooltip.style.left = (e.clientX - rect.left + 10) + "px";
-        //             tooltip.style.top = (e.clientY - rect.top - 40) + "px";
-        //         });
-
-        //         path.addEventListener("mouseleave", function () {
-        //             this.style.fill = this.dataset.baseColor; // restore original
-        //             tooltip.style.display = "none";
-        //         });
-        //     });
-        // }        
+              
         function renderIndiaMap(){
             const colors = { 
                 UW:'#6bc04b', 
@@ -1299,6 +1223,12 @@
                     title: { text: 'Skill Analysis' },
                     xAxis: {
                         categories: skillCategories,
+                        labels: {
+                            style: {
+                                fontSize: '13px',
+                                fontWeight: '500'
+                            }
+                        },
                         lineWidth: 0,
                         gridLineWidth: 0
                     },
@@ -1357,28 +1287,15 @@
         // School Spider Chart
         const levelCategories = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7'];
         function transformData(skillCategories, currentTermSeries) {
-            const skillCount = skillCategories.length;
+            const levelCount = currentTermSeries.length;
 
-            // Step 1: calculate total per skill
-            const totals = Array(skillCount).fill(0);
-
-            currentTermSeries.forEach(level => {
-                level.data.forEach((val, i) => {
-                    totals[i] += val;
-                });
-            });
-
-            return currentTermSeries.map(level => {
+            return skillCategories.map((skill, skillIndex) => {
                 return {
-                    name: level.name,
-                    color: level.color,
-                    data: level.data.map((val, i) => {
-                        return totals[i] === 0 ? 0 : Math.round((val / totals[i]) * 100);
-                    })
+                    name: skill,
+                    data: currentTermSeries.map(level => level.data[skillIndex])
                 };
             });
         }
-        
         const transformedSeries = transformData(skillCategories, currentTermSeries);
         if (document.getElementById('spiderChart')) {
             try {
@@ -1411,9 +1328,8 @@
                     yAxis: {
                         min: 0,
                         // max: 100,
-                        tickInterval: 20,
+                        tickAmount: 6,
                         gridLineInterpolation: 'polygon',
-                        fillOpacity: 0.05,
                         lineWidth: 0,
                         labels: {
                             formatter: function() {
@@ -1438,20 +1354,22 @@
                     },
                     plotOptions: {
                         series: {
-                            stacking: null,
-                            // stacking: 'percent',
-                            fillOpacity: 0.1,
+                            // stacking: null,
+                            stacking: 'percent',
+                            fillOpacity: 0.25,
                             lineWidth: 2,
                             marker: {
-                                radius: 3
+                                radius: 5
                             },
                             dataLabels: {
                                 enabled: true,
                                 formatter: function() {
-                                    return this.y + '%';
+                                //    return this.y;
+                                    let level = this.series.name.split(' - ').pop();
+                                    return `${level} (${Math.round(this.percentage)}%)`;
                                 },
                                 style: {
-                                    fontSize: '9px',
+                                    fontSize: '11px',
                                     textOutline: 'none',
                                     color: '#222'
                                 }
@@ -1468,141 +1386,18 @@
                             color: '#000'
                         },
                         pointFormatter: function() {
-                            return `<span style="color:${this.color}">\u25CF</span>
-                            ${this.series.name}: ${this.y}%<br/>`;
+                            let level = this.series.name.split(' - ').pop();
+                //             return `<span style="color:${this.color}">\u25CF</span>${level}: ${this.y}<br/>`;
+                            return `<span style="color:${this.color}">\u25CF</span>${level}: ${this.y} (${Math.round(this.percentage)}%)<br/>`;
                         }
                     },
-                    series: transformData(skillCategories, currentTermSeries)
+                    series: currentTermSeries
                 });
             } catch (error) {
                 console.error('Skill Chart Error:', error);
                 document.getElementById('spiderChart').innerHTML = '<div class="map-error">Error loading skill chart</div>';
             }
         }
-
-
-        // 2nd Spider Chart
-
-        // const levelCategories = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7'];
-
-        // function transformData(skillCategories, currentTermSeries) {
-        //     return skillCategories.map((skill, skillIndex) => {
-        //         const values = currentTermSeries.map(level => level.data[skillIndex]);
-
-        //         const total = values.reduce((sum, val) => sum + val, 0);
-        //         const percentageData = values.map(val => {
-        //             return total === 0 ? 0 : ((val / total) * 100).toFixed(1);
-        //         });
-
-        //         return {
-        //             name: skill,
-        //             data: percentageData.map(Number) 
-        //         };
-        //     });
-        // }
-
-        // const transformedSeries = transformData(skillCategories, currentTermSeries);
-
-        // if (document.getElementById('spiderChart')) {
-        //     try {
-        //         Highcharts.chart('spiderChart', {
-        //             chart: {
-        //                 polar: true,
-        //                 type: 'line',
-        //             },
-
-        //             title: {
-        //                 text: 'Skill Analysis',
-        //                 style: {
-        //                     fontSize: '18px',
-        //                     fontWeight: 'bold',
-        //                 }
-        //             },
-
-        //             pane: {
-        //                 size: '90%'
-        //             },
-        //             xAxis: {
-        //                 categories: levelCategories,
-        //                 tickmarkPlacement: 'on',
-        //                 lineWidth: 0,
-        //                 labels: {
-        //                     style: {
-        //                         fontSize: '13px',
-        //                         color: '#555'
-        //                     }
-        //                 }
-        //             },
-
-        //             yAxis: {
-        //                 min: 0,
-        //                 gridLineInterpolation: 'polygon',
-        //                 lineWidth: 0,
-        //                 labels: {
-        //                     formatter: function () {
-        //                         return this.value + '%';
-        //                     },
-        //                     style: {
-        //                         fontSize: '11px',
-        //                         color: '#666'
-        //                     }
-        //                 }
-        //             },
-
-        //             legend: {
-        //                 enabled: true,
-        //                 itemStyle: {
-        //                     fontSize: '12px',
-        //                     color: '#333'
-        //                 }
-        //             },
-
-        //             plotOptions: {
-        //                 series: {
-        //                     fillOpacity: 0.25,
-        //                     lineWidth: 3,
-        //                     marker: {
-        //                         radius: 5
-        //                     },
-        //                     dataLabels: {
-        //                         enabled: true,
-        //                         formatter: function () {
-        //                             return this.y + '%';
-        //                         },
-        //                         style: {
-        //                             fontSize: '11px',
-        //                             textOutline: 'none',
-        //                             color: '#222'
-        //                         }
-        //                     },
-        //                     pointPlacement: 'on'
-        //                 }
-        //             },
-
-        //             tooltip: {
-        //                 shared: true,
-        //                 backgroundColor: '#fff',
-        //                 borderColor: '#999',
-        //                 borderRadius: 5,
-        //                 style: {
-        //                     color: '#000'
-        //                 },
-        //                 pointFormatter: function () {
-        //                     return `<span style="color:${this.color}">\u25CF</span>
-        //                             ${this.series.name}: ${this.y}%<br/>`;
-        //                 }
-        //             },
-
-        //             series: transformedSeries
-        //         });
-
-        //     } catch (error) {
-        //         console.error('Skill Chart Error:', error);
-        //         document.getElementById('spiderChart').innerHTML =
-        //             '<div class="map-error">Error loading skill chart</div>';
-        //     }
-        // }
-
 
         // School Health bar chart with bell curve 
 
@@ -1639,14 +1434,14 @@
         
         const datasets = [
             {
-                label: 'Previous',
+                label: 'Previous Term',
                 data: termPercent[termKeys[1]],
                 backgroundColor: colorsLight,
                 rawCounts: healthData[termKeys[1]],
                 order: 1
             },
             {
-                label: 'Current',
+                label: 'Current Term',
                 data: termPercent[termKeys[0]],
                 backgroundColor: colorsDark,
                 rawCounts: healthData[termKeys[0]],
@@ -1670,14 +1465,15 @@
             label: 'National',
             data: nationalPercent,
             type: 'line',              
-            borderColor: '#000814',    
+            borderColor: '#141352',
+            backgroundColor: '#141352',    
             borderWidth: 3,
             fill: false,
             tension: 0.4,              
             pointStyle: 'circle',
             pointBorderColor: '#ffc300',
             pointRadius: 5,
-            pointBackgroundColor: '#000814',
+            pointBackgroundColor: '#141352',
             order: 10
         };
 
@@ -1696,13 +1492,19 @@
                     legend: { display: true },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
+                            title: function (context) {
+                                return context[0].dataset.label;
+                            },
+
+                            label: function (context) {
+                                const label = context.label;
+                                const percent = context.parsed.y;
                                 if (context.dataset.type === 'line') {
-                                    return `${context.dataset.label}: ${context.raw}%`;
-                                } else {
-                                    const count = context.dataset.rawCounts[context.dataIndex];
-                                    return `${context.dataset.label}: ${count} students (${context.parsed.y}%)`;
+                                    return `${label}: ${percent}%`;
                                 }
+                                const count = context.dataset.rawCounts?.[context.dataIndex];
+
+                                return `${label}: ${count} Students (${percent}%)`;
                             }
                         }
                     }

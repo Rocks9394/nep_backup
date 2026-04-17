@@ -276,16 +276,16 @@ unset($__errorArgs, $__bag); ?>
                                 </div>
 
                                 <div class="form-group col-md-3">
-                                    <label for="apaar_id"> APAAR ID (12 digits) <span class="text-danger">*</span></label>
-                                    <input type="text" name="apaar_id" id="apaar_id" class="form-control <?php $__errorArgs = ['apaar_id'];
+                                    <label for="apaarId"> APAAR ID (12 digits) <span class="text-danger">*</span></label>
+                                    <input type="text" name="apaarId" id="apaarId" class="form-control <?php $__errorArgs = ['apaarId'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>" value="<?php echo e($student->apaar_id); ?>">
-                                    <?php $__errorArgs = ['apaar_id'];
+unset($__errorArgs, $__bag); ?>" value="<?php echo e($student->apaarId); ?>">
+                                    <?php $__errorArgs = ['apaarId'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }

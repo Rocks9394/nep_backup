@@ -129,11 +129,16 @@ class AssessorAppController extends Controller
 			$SchoolId = $SchoolTrainers[0]->id;		  	
 		}
 
-		$selectedTerm = session('term_id', $this->getTermId($SchoolId));
+		$selectedTerm = $this->getTermId($SchoolId);
+		$TermMasterId = TermMaster::where('school_id', $SchoolId)
+            ->where('is_active', 1)
+            ->whereDate('term_start_date', '<=', today())
+            ->whereDate('term_end_date', '>=', today())
+            ->value('id');
 
-		$TermMasterId = $this->getCurrentAndPreviousTermIds($SchoolId, (int) $selectedTerm);
+		$TermIds = $this->getCurrentAndPreviousTermIds($SchoolId, (int) $TermMasterId);
 		
-		$terms = TermMaster::whereIn('id', $TermMasterId)->get();
+		$terms = TermMaster::whereIn('id', $TermIds)->get();
 	
 		return view('assessor.alltests', compact('title', 'juniorData', 'cbseData', 'juniorData1', 'seniorData', 'terms', 'selectedTerm'));
 	

@@ -41,7 +41,7 @@ class FillDartController extends Controller
 		$this->middleware(['auth','trainerschool'])->except('ParisOlympics','viewSchoolDart');
     }
 
-    public function dashboard_bk(Request $request)	{
+    public function dashboard(Request $request)	{
 		$user = auth()->user();
 		$userId = $user->id;
 		$roleId = $user->role_id;
@@ -285,7 +285,7 @@ class FillDartController extends Controller
 	}
 
 
-	public function dashboard(Request $request)	{
+	public function dashboard_bk(Request $request)	{
 		
 		$userId  =  \Auth::id();
 		$title   = 'Dashboard';
