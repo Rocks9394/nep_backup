@@ -570,6 +570,17 @@
                         </div>
                     </div>                    
                 </div>
+                <div class="col-lg-3 col-6">
+					<div class="stat-card green">
+                        <div class="stat-content">                       
+                            <p>Completed</p>
+                            <h3 class="counter" data-target="{{ $totalCompleted }}">0</h3>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                    </div>                    
+                </div>  
 				<div class="col-lg-3 col-6">
 					<div class="stat-card yellow">
                         <div class="stat-content">
@@ -592,17 +603,7 @@
                         </div>
                     </div>                    
                 </div>                
-				<div class="col-lg-3 col-6">
-					<div class="stat-card green">
-                        <div class="stat-content">                       
-                            <p>Completed</p>
-                            <h3 class="counter" data-target="{{ $totalCompleted }}">0</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-user-graduate"></i>
-                        </div>
-                    </div>                    
-                </div>                
+				              
 			</div>
             <div class="row g-3 mb-4">                
                 <div class="col-12 col-md-6">
@@ -1064,7 +1065,7 @@
 							},
 							panKey: 'shift'
 						},
-						title: { text: 'Country Health Indicator' },
+						title: { text: 'National Health Indicator' },
 						tooltip: {
 							pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
 						},
