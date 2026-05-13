@@ -116,11 +116,11 @@ class ReportController extends Controller {
 
             'status' => function ($query, $value) {            	
 	           if ($value === 'complete') {
-			        $query->where('test_status', '=', 'Completed');
+			        $query->having('test_status', '=', 'Completed');
 			    } elseif ($value === 'pending') {
-			        $query->where('test_status', '=', 'Ongoing');
+			        $query->having('test_status', '=', 'Ongoing');
 			    } elseif ($value === 'yet_to_start') {
-			        $query->where('test_status', '=', 'Yet to Start');
+			        $query->having('test_status', '=', 'Yet to Start');
 			    }
 	        },
         ];

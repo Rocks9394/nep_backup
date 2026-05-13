@@ -43,6 +43,24 @@ class ActivityController extends Controller
 	    ->where('activity_technique.class_id', $class_id)
 	    ->get();
 
+
+	    $activities = $activities->map(function($activity) {	
+		    if (!empty($activity->image)) {
+		        if (str_contains($activity->image, 'wp-content')) {
+		            $activity->final_image = $activity->image;
+		        } elseif (file_exists(public_path('uploads/' . $activity->image))) {
+		            $activity->final_image = asset('public/uploads/' . $activity->image);
+		        } else {
+		            $activity->final_image = asset('public/change-activities/default_activity_img.svg');
+		        }
+		    } else {
+		        $activity->final_image = asset('public/change-activities/default_activity_img.svg');
+		    }
+
+		    return $activity;
+		});
+
+	    
 		return Response::json([
 			'success'=>true, 
 			'activityDetail'=>$activities

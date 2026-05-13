@@ -42,42 +42,33 @@ class GeneralController extends Controller {
 
 		try{
 
-			$userId  = Auth::guard('student-api')->user()->id;
-			$schoolId = null;
-		
-			/*
-			$userId   =  \Auth::id();
-			$role_id  =  \Auth::user()->role_id ?? '';
-			$school_id = null;
+			$student = Auth::guard('student-api')->user();
+        	$trainer = Auth::guard('user-api')->user();
+
+        	$classId = null;
+            $schoolId = $request->school_id;
 
 
-			if($role_id == 3) {
-				$school_id = DB::table('school_trainers')->where('status', 1)->pluck('school_id') ->toArray();
+            if ($student) {
+	            $targetCustomClassId = $request->custom_class_id ?? $student->custom_class_id;	            
+	            $customClass = DB::table('custom_classes')->where('id', $targetCustomClassId)->first();
+	            if (!$customClass) {
+	                return Response::json(['success' => false, 'message' => 'Invalid Class ID'], 400);
+	            }
+	            $classId = $customClass->class_id;
+	            $schoolId = $customClass->school_id;
+	        } else {
+	            $classes =  DB::table('custom_classes')->where('school_id', $schoolId)->value('class_id');
+	        }
 
-			} elseif($role_id == 4) {
-				$school_id = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
-
-			} elseif (\Auth::guard('sstudent')->check()) {
-		        $UserData = \Auth::guard('sstudent')->user();
-		        $school_id = $UserData->school_id;
-		       
-		    }
-		    */
-
-	        if (!$request->has('custom_class_id') || !$request->custom_class_id) {
-	            return Response::json(['success' => false, 'message' => 'Class ID is required'], 400);
+			if (!$classId) {
+	            return Response::json(['success' => false, 'message' => 'Class ID could not be determined'], 400);
 	        }
 
 
-	        $classId = DB::table('custom_classes')->where('id', $request->custom_class_id)->value('class_id');
-
-	        if (!$classId) {
-	            return Response::json(['success' => false, 'message' => 'Invalid Class ID'], 400);
-	        }
-
-	       
-	        
-
+	        echo "<pre>"; print_r($classes);exit();
+	
+	    
 	        // Main query for activities
 			$activityQuery = DB::table('activity_technique')
 			->join('activity','activity.id','=','activity_technique.act_id')
@@ -88,6 +79,7 @@ class GeneralController extends Controller {
 				'activity.id',
 		        'activity.title',
 		        'activity.image',
+		        'activity.url',
 		        'skillareas.name as skillname', 
 		        'sports.name as sportsname', 
 		        'techniques.name as techniquename',
@@ -220,7 +212,7 @@ class GeneralController extends Controller {
 			return Response::json([
 	            'success' => true,
 	            'activitieslist' => $activities,
-
+	            'classes' => $classes ?? null,
 	            'skillArea' => $skillAreas,
 	            'sports' => $sports,
 	            'technique' => $techniques

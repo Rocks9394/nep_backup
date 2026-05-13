@@ -140,8 +140,10 @@
             exerciseName: exerciseTitle     
         });
         
-        const baseUrl = "http://103.65.20.129:8000/";
-        let pageName = "";
+        //const baseUrl = "http://103.65.20.129:8000/";
+         const baseUrl  = "https://talentid.goforfit.in/";
+	   
+	   let pageName = "";
 
         switch (exerciseTitle) {
             case 'Push Ups':
@@ -161,7 +163,7 @@
                 pageName = "height-winspam-calculate.html";
                 break;
             case 'Partial curl up 30 sec':
-                pageName = "situps.html";
+                pageName = "partial-curl-up.html";
                 break;
             case 'Vertical Jump':
                 pageName = "standing-vertical-jump1.html";
@@ -173,6 +175,99 @@
 
         window.location.href = `${baseUrl}${pageName}?${queryParams.toString()}`;
     }
+	
+	
+	
+	
+	
+	function openAIScreen() {
+		const studentSelect = document.querySelector('select[name="student_id"]');
+        const classSelect = document.querySelector('select[name="class_id"]');
+        
+        const pathArray = window.location.pathname.split('/');
+        const exerciseId = pathArray[pathArray.length - 1]; 
+
+        if (!studentSelect || !studentSelect.value || studentSelect.value === "") {
+            alert("Please select a student first!");
+            return;
+        }
+
+        // Use Blade syntax to inject the values safely
+        const trainerName = "{{ $trainerName }}";
+        const exerciseTitle = "{{ $title }}";
+        const currentTrainerId = "{{ $userId }}";
+
+        const selectedOption = studentSelect.options[studentSelect.selectedIndex];
+        const actualStudentId = selectedOption.getAttribute('data-id');
+        const rollNoValue = studentSelect.value;
+        const classSection = classSelect ? classSelect.options[classSelect.selectedIndex].text : "N/A";
+        const fullText = selectedOption.text;
+        
+        let rollNo = rollNoValue;
+        let studentName = fullText;
+
+        if (fullText.includes('|')) {
+            const parts = fullText.split('|');
+            rollNo = parts[0].replace(/Roll No:/i, '').trim();
+            studentName = parts[1].replace(/Name:/i, '').trim();
+        }
+
+        // --- DYNAMIC DATA: Construct URL parameters ---
+        const queryParams = new URLSearchParams({
+            id: actualStudentId,
+            name: studentName,
+            roll: rollNo,
+            class_info: classSection,
+            ex_id: exerciseId,
+            trainerId: currentTrainerId, // MUST match what exercise-header.js reads
+            traiName: trainerName,
+            exerciseName: exerciseTitle     
+        });
+        
+        //const baseUrl = "http://103.65.20.129:8000/";
+         const baseUrl  = "https://talentid.goforfit.in/";
+	   
+	   let pageName = "";
+
+        switch (exerciseTitle) {
+            case 'Push Ups':
+                pageName = "standard-push-ups.html";
+                break;
+            case 'Flamingo Balance Test':
+            case 'One-Foot Balance':
+                pageName = "single-leg-balance.html";
+                break;
+            case 'Flexed/Bent Arm Hang':
+                pageName = "bent-arm-hang.html";
+                break;
+            case 'Plate Tapping':
+                pageName = "plate-tapping.html";
+                break;
+            case 'BMI':
+                pageName = "height-winspam-calculate.html";
+                break;
+            case 'Partial curl up 30 sec':
+                //pageName = "situps.html";
+				pageName = "partial-curl-up.html";
+                break;
+            case 'Vertical Jump':
+                pageName = "standing-vertical-jump1.html";
+                break;
+            default:
+                alert("Exercise page not found for: " + exerciseTitle);
+                return;
+        }
+
+
+		// Build the URL with the data attached
+		const aiUrl = `${baseUrl}${pageName}?${queryParams.toString()}`;
+
+		// Open the window
+		window.open(aiUrl, 'AIWindow', 'width=1200,height=800');
+}
+	
+	
+	
 </script>
 
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>

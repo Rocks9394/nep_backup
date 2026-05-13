@@ -83,10 +83,12 @@
             @endphp
             <x-reset-submit-btn :id="$id"/>
             {{-- footer close --}}
-					@if(Auth::user()->id == '995')
-						<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center " 
-					onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button>
-					@endif
+				 @if(Auth::user()->id == '995')
+					<!--<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center " onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button>-->
+					
+					<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center " 
+					onclick="openAIScreen()" style="color: white; font-weight: bold;"> Switch to AI </button>	
+				@endif
         </form>	
             
             
@@ -205,6 +207,40 @@ document.getElementById("weightInput").addEventListener("input", function (e) {
 
 </script>
 
+
+<script>
+// Global Listener for data from the AI Scanner
+window.addEventListener('message', function(event) {
+    // 1. Security Check: Only accept messages from your goforfit.in domains
+    if (!event.origin.includes("goforfit.in")) return;
+
+    const data = event.data;
+
+    // 2. Check for the specific Data Type we send from the AI Screen
+    if (data.type === "AI_SYNC_DATA") {
+        console.log("Biometric data received:", data);
+
+        // Fill Height field
+        const heightInput = document.getElementById('heightInput');
+        if (heightInput) {
+            heightInput.value = data.height;
+        }
+
+        // Optional: Fill Weight field with Wingspan if needed
+        // const weightInput = document.getElementById('weightInput');
+        // if (weightInput) weightInput.value = data.wingspan;
+
+        // 3. Success Feedback
+        Swal.fire({
+            icon: 'success',
+            title: 'AI Data Synced',
+            text: 'Height: ' + data.height + ' cm has been recorded.',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }
+}, false);
+</script>
 
 
 

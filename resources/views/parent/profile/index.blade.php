@@ -152,7 +152,7 @@
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="hobbies">Hobbies</label>
-                                    <input type="text" name="hobbies" id="hobbies" value="{{$student->hobbies}}" class="form-control @error('hobbies') is-invalid @enderror">
+                                    <input type="text" name="hobbies" id="hobbies" value="{{$student->hobbies}}" class="form-control @error('hobbies') is-invalid @enderror" placeholder="Separated by commas">
                                      @error('hobbies')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                      @enderror

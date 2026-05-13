@@ -120,13 +120,13 @@ trait ReportHelperTrait
         // Human-readable labels
         $levelLabels = [
             'L0' => "Inadequate",
-            'L1' => "Work Harder",
-            'L2' => "Must Improve",
-            'L3' => "Can do Better",
-            'L4' => "Good",
-            'L5' => "Very Good",
-            'L6' => "Athletic",
-            'L7' => "Sports Fit",
+            'L1' => "Very Low",
+            'L2' => "Low",
+            'L3' => "Developing",
+            'L4' => "Moderate",
+            'L5' => "Good",
+            'L6' => "High",
+            'L7' => "Excellent",
             'L8' => "Beyond L7",
         ];
 

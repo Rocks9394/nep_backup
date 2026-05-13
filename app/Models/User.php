@@ -49,9 +49,9 @@ class User extends Authenticatable
     ];
 
 
-    public function schools()
-    {
-        return $this->belongsToMany(School::class, 'school_trainers', 'trainer_id', 'school_id');
+    public function schools() {
+
+        return $this->belongsToMany(School::class, 'school_trainers', 'trainer_id', 'school_id')->where('school_trainers.status', 1)->withTimestamps();
     }
 
     

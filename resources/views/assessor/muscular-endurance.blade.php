@@ -62,8 +62,10 @@
 					<a  id="startPauseBtn" href="#a" class="btn btn-success py-2 w-100 d-flex justify-content-center mb-3" style="gap: 10px;"><i class="bi bi-stopwatch"></i><span>Start Timer</span></a>
 					
 					@if(Auth::user()->id == '995')
-						<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center " 
-					onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button>
+						<!--<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center " onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button>-->
+					
+					<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center" 
+					onclick="openAIScreen()" style="color: white; font-weight: bold;"> Switch to AI </button>
 					@endif
 					
 					</div>
@@ -220,5 +222,34 @@ document.getElementById("pushUpCount").addEventListener("input", function (e) {
     }
     e.target.value = value;
 });
+</script>
+
+
+<script>
+window.addEventListener("message", (event) => {
+    // 1. Security Check: Only accept messages from your AI subdomain
+    if (!event.origin.includes("goforfit.in")) return;
+
+    const data = event.data;
+
+    // 2. Check if the message is the one we sent from the AI
+    if (data.type === "AI_SYNC_DATA") {
+        console.log("Push Up data received:", data);
+
+        // Fill the Counts field (ID: pushUpCount)
+        const countInput = document.getElementById('pushUpCount');
+        if (countInput) countInput.value = data.count;
+
+        // Fill the Timer display (ID: timer)
+        const timerDisplay = document.getElementById('timer');
+        if (timerDisplay) timerDisplay.innerText = data.formattedTime;
+
+        // Set 'elapsed' variable so the Laravel Save validation doesn't block you
+        elapsed = 60000; 
+
+        alert("AI Results Updated! You can now click Save.");
+    }
+}, false);
+
 </script>
 @endsection

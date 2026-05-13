@@ -333,6 +333,11 @@
 
 
                 	<!-- Trainers Dashboard  -->
+
+                	<div>
+                        <a href="{{ route('learn.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('public/uploads/icons/Learn-Sports.svg') }}"></div><span>Learn Sports</span></a>
+                    </div>
+	                    
                     @if((Auth::user()->role_id == '3' && $hasSchools) && (Auth::user()->role_id == '3' && $getActiveTerm))
 
 	                    <div data-id="{{ Auth::user()->role_id }}">
@@ -489,9 +494,7 @@
 					
 					@if(!$user || $user->role_id != 2)
 
-						<div>
-	                        <a href="{{ route('learn.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('public/uploads/icons/Learn-Sports.svg') }}"></div><span>Learn Sports</span></a>
-	                    </div>
+						
 
 					    <div>
 					        <a href="{{ route('getactive') }}" class="box">
@@ -639,13 +642,13 @@
                     </div>
                 </div>
             </div>
-            <div class="row g-3 mb-4">
+            <!-- <div class="row g-3 mb-4">
                 <div class="col-md-12">
                     <div class="card">
                         <div id="spiderChart" style="height: 500px;"></div>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
 			<!-- contry status  -->
 			<div class="row g-3 mb-4 position-relative" id="loaderRow">
@@ -1127,211 +1130,57 @@
             });
         }      
               
-        // function renderIndiaMap(){
-        //     const colors = { 
-        //         UW:'#6bc04b', 
-        //         N:'#039a48', 
-        //         OW:'#ffcb08', 
-        //         OB:'#ec0000' 
-        //     };
-        //     generateLegend();
-        //     document.querySelectorAll("#indiaMap svg path").forEach(path => {
-        //         const code = path.id;
-        //         const data = stateData[code];
-
-        //         function getDominantColor(data) {
-        //             if (!data) return '#bbb';
-
-        //             const UW = Number(data.UW) || 0;
-        //             const N  = Number(data.N)  || 0;
-        //             const OW = Number(data.OW) || 0;
-        //             const OB = Number(data.OB) || 0;
-
-        //             const total = UW + N + OW + OB;
-        //             if (!total) return '#bbb';
-
-        //             const percents = {
-        //                 UW: UW / total,
-        //                 N:  N  / total,
-        //                 OW: OW / total,
-        //                 OB: OB / total
-        //             };
-
-        //             // Find highest percentage category
-        //             let dominantKey = Object.keys(percents).reduce((a, b) => 
-        //                 percents[a] > percents[b] ? a : b
-        //             );
-
-        //             return colors[dominantKey] + 'CC';
-        //         }
-
-        //         const baseColor = getDominantColor(data);
-        //         path.dataset.baseColor = baseColor;
-        //         path.style.fill = baseColor;
-
-        //         path.addEventListener("mouseenter", function () {
-        //             tooltip.style.display = "block";
-        //             this.style.fill = baseColor.replace(/CC$/, 'FF');
-
-        //             if (!data) {
-        //                 tooltip.innerHTML = `<strong>No data</strong>`;
-        //             } else {
-        //                 const UW = Number(data.UW) || 0;
-        //                 const N  = Number(data.N)  || 0;
-        //                 const OW = Number(data.OW) || 0;
-        //                 const OB = Number(data.OB) || 0;
-
-        //                 const total = UW + N + OW + OB;
-
-        //                 function formatPercent(value) {
-        //                     if (!total) return 'No data';
-        //                     return ((value / total) * 100).toFixed(1) + '%';
-        //                 }
-
-        //                 tooltip.innerHTML = `
-        //                     <strong>${data.name}</strong><br>
-        //                     UW: ${formatPercent(UW)}<br>
-        //                     N: ${formatPercent(N)}<br>
-        //                     OW: ${formatPercent(OW)}<br>
-        //                     OB: ${formatPercent(OB)}
-        //                 `;
-        //             }
-        //         });
-
-        //         path.addEventListener("mousemove", function (e) {
-        //             const container = document.getElementById("mapChart");
-        //             const rect = container.getBoundingClientRect();
-        //             tooltip.style.left = (e.clientX - rect.left + 10) + "px";
-        //             tooltip.style.top = (e.clientY - rect.top - 40) + "px";
-        //         });
-
-        //         path.addEventListener("mouseleave", function () {
-        //             this.style.fill = this.dataset.baseColor;
-        //             tooltip.style.display = "none";
-        //         });
-        //     });
-        //     function generateLegend() {
-        //         const legendContainer = document.querySelector('.map-legend');
-        //         if (!legendContainer) return;
-
-        //         const colors = { 
-        //             UW:'#6bc04b', 
-        //             N:'#039a48', 
-        //             OW:'#ffcb08', 
-        //             OB:'#ec0000' 
-        //         };
-
-        //         legendContainer.innerHTML = '';
-
-        //         const labels = {
-        //             UW: 'UW (Underweight)',
-        //             N:  'N (Normal)',
-        //             OW: 'OW (Overweight)',
-        //             OB: 'OB (Obese)'
-        //         };
-
-        //         Object.keys(colors).forEach(key => {
-        //             const item = document.createElement('div');
-        //             item.className = 'legend-item';
-
-        //             item.innerHTML = `
-        //                 <span style="background:${colors[key]}"></span> 
-        //                 ${labels[key]}
-        //             `;
-
-        //             legendContainer.appendChild(item);
-        //         });
-        //     }
-        // }        
-
-        function renderIndiaMap(selectedCategory = null) {
-           const colors = {
-                UW: '#4CAF50',   // light green
-                N:  '#008000',   // dark green
-                OW: '#FFC107',   // yellow
-                OB: '#E53935'    // red
+        function renderIndiaMap(){
+            const colors = { 
+                UW:'#6bc04b', 
+                N:'#039a48', 
+                OW:'#ffcb08', 
+                OB:'#ec0000' 
             };
-
-            generateLegend(selectedCategory);
-
+            generateLegend();
             document.querySelectorAll("#indiaMap svg path").forEach(path => {
                 const code = path.id;
                 const data = stateData[code];
 
-                function getStateColor(data, selectedCategory = null) {
+                function getDominantColor(data) {
                     if (!data) return '#bbb';
 
                     const UW = Number(data.UW) || 0;
-                    const N  = Number(data.N) || 0;
+                    const N  = Number(data.N)  || 0;
                     const OW = Number(data.OW) || 0;
                     const OB = Number(data.OB) || 0;
 
                     const total = UW + N + OW + OB;
                     if (!total) return '#bbb';
 
-                    /*
-                        DEFAULT MODE:
-                        Highest % wala color
-                    */
-                    if (!selectedCategory) {
-                        const percents = {
-                            UW: UW / total,
-                            N:  N  / total,
-                            OW: OW / total,
-                            OB: OB / total
-                        };
+                    const percents = {
+                        UW: UW / total,
+                        N:  N  / total,
+                        OW: OW / total,
+                        OB: OB / total
+                    };
 
-                        let dominantKey = Object.keys(percents).reduce((a, b) =>
-                            percents[a] > percents[b] ? a : b
-                        );
+                    // Find highest percentage category
+                    let dominantKey = Object.keys(percents).reduce((a, b) => 
+                        percents[a] > percents[b] ? a : b
+                    );
 
-                        return colors[dominantKey] + 'CC';
-                    }
-
-                    /*
-                        LEGEND CLICK MODE:
-                        Selected category ke % ke hisab se opacity
-                    */
-
-                    const valueMap = { UW, N, OW, OB };
-                    const selectedValue = valueMap[selectedCategory];
-
-                    const percent = (selectedValue / total) * 100;
-
-                    /*
-                        Opacity scale:
-                        low % = lighter
-                        high % = darker
-                    */
-
-                    let opacity = '44'; // very light
-
-                    if (percent >= 35) opacity = 'FF';      // very high
-                    else if (percent >= 25) opacity = 'CC'; // high
-                    else if (percent >= 20) opacity = '99'; // medium
-                    else if (percent >= 10) opacity = '77'; // low
-                    else opacity = '55'; 
-
-                    return colors[selectedCategory] + opacity;
+                    return colors[dominantKey] + 'CC';
                 }
 
-                const baseColor = getStateColor(data, selectedCategory);
-
+                const baseColor = getDominantColor(data);
                 path.dataset.baseColor = baseColor;
                 path.style.fill = baseColor;
 
                 path.addEventListener("mouseenter", function () {
                     tooltip.style.display = "block";
-
-                    if (baseColor.includes('#')) {
-                        this.style.fill = baseColor.replace(/(33|55|88|CC)$/, 'FF');
-                    }
+                    this.style.fill = baseColor.replace(/CC$/, 'FF');
 
                     if (!data) {
                         tooltip.innerHTML = `<strong>No data</strong>`;
                     } else {
                         const UW = Number(data.UW) || 0;
-                        const N  = Number(data.N) || 0;
+                        const N  = Number(data.N)  || 0;
                         const OW = Number(data.OW) || 0;
                         const OB = Number(data.OB) || 0;
 
@@ -1355,7 +1204,6 @@
                 path.addEventListener("mousemove", function (e) {
                     const container = document.getElementById("mapChart");
                     const rect = container.getBoundingClientRect();
-
                     tooltip.style.left = (e.clientX - rect.left + 10) + "px";
                     tooltip.style.top = (e.clientY - rect.top - 40) + "px";
                 });
@@ -1365,10 +1213,16 @@
                     tooltip.style.display = "none";
                 });
             });
-
-            function generateLegend(activeCategory = null) {
+            function generateLegend() {
                 const legendContainer = document.querySelector('.map-legend');
                 if (!legendContainer) return;
+
+                const colors = { 
+                    UW:'#6bc04b', 
+                    N:'#039a48', 
+                    OW:'#ffcb08', 
+                    OB:'#ec0000' 
+                };
 
                 legendContainer.innerHTML = '';
 
@@ -1379,51 +1233,19 @@
                     OB: 'OB (Obese)'
                 };
 
-                // Reset option
-                const resetItem = document.createElement('div');
-                resetItem.className = 'legend-item';
-                resetItem.style.cursor = 'pointer';
-                resetItem.style.fontWeight = !activeCategory ? 'bold' : 'normal';
-                resetItem.innerHTML = `↺ Reset View`;
-
-                resetItem.addEventListener('click', function () {
-                    renderIndiaMap();
-                });
-
-                legendContainer.appendChild(resetItem);
-
                 Object.keys(colors).forEach(key => {
                     const item = document.createElement('div');
                     item.className = 'legend-item';
-                    item.style.cursor = 'pointer';
-                    item.style.padding = '4px 8px';
-                    item.style.borderRadius = '6px';
-
-                    if (activeCategory === key) {
-                        item.style.background = '#f2f2f2';
-                        item.style.fontWeight = 'bold';
-                    }
 
                     item.innerHTML = `
-                        <span style="
-                            display:inline-block;
-                            width:12px;
-                            height:12px;
-                            border-radius:2px;
-                            background:${colors[key]};
-                            margin-right:8px;
-                        "></span>
+                        <span style="background:${colors[key]}"></span> 
                         ${labels[key]}
                     `;
-
-                    item.addEventListener('click', function () {
-                        renderIndiaMap(key);
-                    });
 
                     legendContainer.appendChild(item);
                 });
             }
-        }
+        }        
 
         // School Skill Chart
         const currentTermId = @json($selectedTerm);                

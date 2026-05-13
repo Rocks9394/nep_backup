@@ -207,6 +207,7 @@ $(function () {
 
 
                 const TermList = <?php echo json_encode($schoolTerms ?? [], 15, 512) ?>;      
+                console.log(TermList); 
                 const $dropdown = $('<select class="form-select form-select-sm ms-2" id="filter-school-terms" style="font-size: 13px;color: #2c2d78;"></select>');               
 
                 TermList.forEach(option => {

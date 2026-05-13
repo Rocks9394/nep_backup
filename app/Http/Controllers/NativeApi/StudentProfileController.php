@@ -5,22 +5,10 @@ namespace App\Http\Controllers\NativeApi;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\BelongsTo;
 use App\Helpers\Helper;
-use App\Models\StudentDashboard;
-use App\Models\ClassModel;
-use App\Models\StudentInfo;
-use App\Models\Sclass;
 use App\Models\School;
-use App\Models\Sstudent;
-use App\Models\Food;
-use App\Models\FoodItems;
 use Carbon\Carbon;
-use App\Models\WaterIntake;
-use App\Models\Report;
 use App\Models\Activity;
-use App\Models\SleepRecord;
-use App\Models\CalorieTarget;
 use Illuminate\Support\Facades\DB;
 use Response;
 use Session;
@@ -28,7 +16,9 @@ use Illuminate\Support\Facades\Cookie;
 use App\Models\TermMaster;
 use App\Traits\ReportHelperTrait;
 use DateTime;
- 
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
+
 use Illuminate\Contracts\View\Factory as ViewFactory;
 
 
@@ -48,12 +38,12 @@ class StudentProfileController extends Controller
             'user_id'      => $student->id,
             'name'         => $student->student_name,
             'email'        => $student->email_id,
-            'phone'        => $student->phone ?? null,
+            'phone'        => $student->mobile ?? null,
             'gender'       => $student->gender,
             'reg_id'       => $student->user_id, 
             'role_id'      => 5, 
             'account_type' => 'student', 
-            'avatar'       => $student->profile_picture  ? asset('public/assets/uploads/profilePictures/student/' . $student->profile_picture) : asset('public/' . $student->avatar),
+            'avatar'       => $student->profile_picture  ? asset('public/assets/uploads/profilePictures/student/' . $student->profile_picture) : null,
 
             'schools'      => $student->school ? [[
                 'id'   => $student->school->id,
@@ -66,6 +56,9 @@ class StudentProfileController extends Controller
                 'qualification' => $className ?? null,
                 'rollno'    => $student->rollno,
                 'custom_class_id' => $student->custom_class_id,
+                'apaarId' =>   $student->apaarId,
+                'domicile' =>  $student->domicile,
+                'hobbies'  =>   $student->hobbies,
 
             ]
         ];
@@ -223,18 +216,32 @@ class StudentProfileController extends Controller
             ->whereNotIn('str.TestTypeID', [18])
             ->get();
 
+
         $levelLabels = [
             'L0' => "Inadequate",
-            'L1' => "Very Low",
-            'L2' => "Low",
-            'L3' => "Developing",
-            'L4' => "Moderate",
-            'L5' => "Good",
-            'L6' => "High",
-            'L7' => "Excellent",
+            'L1' => "Work Harder",
+            'L2' => "Must Improve",
+            'L3' => "Can do Better",
+            'L4' => "Good",
+            'L5' => "Very Good",
+            'L6' => "Athletic",
+            'L7' => "Sports Fit",
             'L8' => "Beyond L7",
         ];
+
+        // $levelLabels1 = [
+        //     'L0' => "Inadequate",
+        //     'L1' => "Very Low",
+        //     'L2' => "Low",
+        //     'L3' => "Developing",
+        //     'L4' => "Moderate",
+        //     'L5' => "Good",
+        //     'L6' => "High",
+        //     'L7' => "Excellent",
+        //     'L8' => "Beyond L7",
+        // ];
         
+
 
         $categories_id2 = [];
         $categoty = "";
@@ -494,12 +501,13 @@ class StudentProfileController extends Controller
     }
 
 
-   public function SkillReports(Request $request) {
+    public function SkillReports(Request $request) {
 
         $UserData = Auth::guard('student-api')->user();       
         $schoolId = $UserData->school_id;
 
         $SessionAndTerm = TermMaster::where('school_id', $schoolId)->where('is_active',1)->select('id', 'term_name', 'academic_year')->get();
+
         $termId = $request->query('term_id') ?? TermMaster::where('school_id', $schoolId) 
         ->where('is_active', 1)
         ->whereDate('term_start_date', '<=', today())
@@ -509,7 +517,7 @@ class StudentProfileController extends Controller
         $studentClassData = DB::table('custom_classes')
         ->join('class', 'class.id', '=', 'custom_classes.class_id')
         ->where('custom_classes.id', $UserData->custom_class_id)
-        ->select(DB::raw("CASE 
+        ->select('custom_classes.class_id','custom_classes.id', DB::raw("CASE 
                             WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
                             THEN custom_classes.nomenclature 
                             ELSE class.name 
@@ -538,11 +546,13 @@ class StudentProfileController extends Controller
             ];
         }
 
+        $class = Helper::changeToRoman($studentClassData->id);
+
         return response()->json([
             'status' => true,
             'studentProfile' => [
                 'name' => $UserData->student_name, 
-                'class' => $studentClassData->class_display_name ?? null,
+                'class' => $class ?? null,
                 'section' => $studentClassData->section ?? null,
                 'rollno' => $UserData->rollno, 
             ],
@@ -553,5 +563,96 @@ class StudentProfileController extends Controller
     }
 
     
+
+
+    public function updateProfile(Request $request) {
+
+        $student = Auth::guard('student-api')->user();
+        $validator = Validator::make($request->all(), [
+            'name'         => 'required|string|min:2|max:255',
+            'email'        => ['required', 'email:rfc,dns', Rule::unique('students', 'email_id')->ignore($student->id)],
+            'mobile'       => 'required|digits:10',
+            'apaarId'      => 'required|digits:12',
+            'gender'       => 'required|in:Male,Female,Other',
+            'dateOfBirth'  => 'required|date',
+            'domicile'     => 'required|string|max:100',
+            'hobbies'      => 'nullable|string|max:500',
+            'profileImage' => 'nullable|image|mimes:jpeg,png,jpg|max:3048',
+        ], [
+            'profileImage.max' => 'Profile image must be smaller than 2MB.',
+            'email.unique'     => 'This email ID is already registered.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        DB::beginTransaction();
+
+        try {
+          
+            if ($request->hasFile('profileImage')) {
+
+                // Optional: delete old image
+                // if ($student->profile_picture && file_exists(public_path($student->profile_picture))) {
+                //     unlink(public_path($student->profile_picture));
+                // }
+
+                $imagePath = Helper::resizeAndSaveImage(
+                    $request->file('profileImage'),
+                    100,
+                    'profilePictures/student',
+                    $student->id
+                );
+
+                $student->profile_picture = $imagePath;
+            }
+         
+            $student->student_name = $validated['name'];
+            $student->email_id     = $validated['email'];
+            $student->mobile       = $validated['mobile'];
+            $student->apaarId      = $validated['apaarId'];
+            $student->gender       = $validated['gender'];
+            $student->dob          = $validated['dateOfBirth'];
+            $student->domicile     = $validated['domicile'];
+            $student->hobbies      = $validated['hobbies'] ?? null;
+
+            $student->save();
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully',
+                'data' => [
+                    'id'            => $student->id,
+                    'name'          => $student->student_name,
+                    'email'         => $student->email_id,
+                    'mobile'        => $student->mobile,
+                    'apaarId'       => $student->apaarId,
+                    'gender'        => $student->gender,
+                    'dateOfBirth'   => $student->dob,
+                    'domicile'      => $student->domicile,
+                    'hobbies'       => $student->hobbies,
+                    'profileImage'  => $student->profile_picture ?? null,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong',
+                //'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
 
 }

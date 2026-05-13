@@ -451,6 +451,7 @@ class StudentRecordController extends Controller
 	}
 
 	public function updateProfile(Request $request) {
+
 		$request->validate([
 			'studentEmail' => 'required|email|max:255',
 			'gender'       => 'required|string|in:Male,Female,TransGender',

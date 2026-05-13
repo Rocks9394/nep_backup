@@ -167,7 +167,8 @@ class AssessorAppController extends Controller
 	}
 	
 	
-	public function PhysicalSkills($TestcategoryId, $SeniorBMI = false) {
+	public function PhysicalSkills($TestcategoryId, $SeniorBMI = false) 
+	{
 		
 		$CategoryName = DB::table('TestCategoryMaster')->where('TestCategoryID',$TestcategoryId)->value('TestCategoryName');
 			
@@ -189,7 +190,7 @@ class AssessorAppController extends Controller
 
     public function FMSTypes($TestTypeId, $SeniorBMI = false) 
 	{
-		
+	
 		$skillReport = DB::table('skill_reports')->select('id','skill_name','TestTypeMasterID')->where('TestTypeMasterID',$TestTypeId)->first();
 		$skillTypes = DB::table('skill_types')->where('skill_report_id',$skillReport->id)->where('status', 1)->get();
 
@@ -334,7 +335,7 @@ class AssessorAppController extends Controller
 
 		if($skillReport->skill_name == 'BMI' && $SeniorBMI == false)
 		{
-
+          
 			$title = $skillReport->skill_name;
 			return view('assessor.bmi', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 		}
@@ -347,6 +348,7 @@ class AssessorAppController extends Controller
 		}
 		elseif($skillReport->skill_name == 'Flamingo Balance Test')
 		{
+			
 			$title = $skillReport->skill_name;
 			return view('assessor.flamingo', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 			

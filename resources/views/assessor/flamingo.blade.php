@@ -119,8 +119,11 @@
                   </a>
 				  
 				  @if(Auth::user()->id == '995')
-				  <button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center" 
-			onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button>
+				 <!-- <button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center" 
+			onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button> -->
+			
+			<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center" 
+			onclick="openAIScreen()" style="color: white; font-weight: bold;"> Switch to AI </button>
 				  @endif
                   
                   
@@ -295,6 +298,25 @@ $(document).ready(function() {
 </script>
 
 
+
+
+<script>
+
+window.addEventListener("message", (event) => {
+    const data = event.data;
+    if (data.type === "AI_SYNC_DATA") {
+        // Set the Counts (Fouls)
+        document.getElementById('pauseCount').value = data.fouls;
+        // Set the Timer
+        document.getElementById('timer').innerText = data.formattedTime;
+        // Enable Save button
+        elapsed = 60000; // Set this so validation passes
+        document.getElementById('submit_flamingo').classList.remove('hide');
+    }
+});
+
+
+</script>
 
 </body>
 </html>

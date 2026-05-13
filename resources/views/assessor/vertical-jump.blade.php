@@ -97,6 +97,17 @@
                 {{-- footer close --}}
         </form>		
             
+			
+				@if(Auth::user()->id == '995')
+								<!--<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center" 
+							onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button>-->
+							
+							<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center"  onclick="openAIScreen()" style="color: white; font-weight: bold;"> Switch to AI </button>
+							
+							
+							
+							
+				@endif
             
         </div>
     </div>
@@ -259,6 +270,31 @@ document.getElementById("final_mm_id").addEventListener("input", function (e) {
     }
     e.target.value = value;
 });
+</script>
+
+<script>
+// --- NEW CODE START: RECEIVE DATA FROM AI SCREEN ---
+window.addEventListener("message", function(event) {
+    // Only process the message if it is our specific AI Sync type
+    if (event.data && event.data.type === "AI_SYNC_VERTICAL_JUMP") {
+        
+        // 1. Fill Initial Position Fields using the IDs in your HTML
+        // Matches id="initial_cm_id" and id="initial_mm_id"
+        document.getElementById('initial_cm_id').value = event.data.initialCm;
+        document.getElementById('initial_mm_id').value = event.data.initialMm;
+
+        // 2. Fill Final Position Fields
+        // Matches id="final_cm_id" and id="final_mm_id"
+        document.getElementById('final_cm_id').value = event.data.finalCm;
+        document.getElementById('final_mm_id').value = event.data.finalMm;
+
+        // 3. Automatically trigger your existing calculateScore() function
+        calculateScore();
+
+        console.log("AI Data Received: Form Updated successfully!");
+    }
+}, false);
+// --- NEW CODE END ---
 </script>
 
 @endsection

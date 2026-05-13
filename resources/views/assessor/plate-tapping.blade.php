@@ -81,8 +81,14 @@
                             </a>
 							
 							@if(Auth::user()->id == '995')
-								<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center" 
-							onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button>
+								<!--<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center" 
+							onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button>-->
+							
+							<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center"  onclick="openAIScreen()" style="color: white; font-weight: bold;"> Switch to AI </button>
+							
+							
+							
+							
 							@endif
                         </div>
                     </div>
@@ -226,6 +232,41 @@ $(document).ready(function() {
             startTimer();
         }
     });
+</script>
+
+<script>
+	window.addEventListener("message", (event) => {
+		// Security check: only accept from your company domain
+		if (!event.origin.includes("goforfit.in")) return;
+
+		const data = event.data;
+
+		// Check if the message is from our AI sync
+		if (data.type === "AI_SYNC_DATA") {
+			console.log("Plate Tapping data received:", data);
+
+			// Fill the input fields by ID
+			if (document.getElementById('minuteId')) document.getElementById('minuteId').value = data.min;
+			if (document.getElementById('secondId')) document.getElementById('secondId').value = data.sec;
+			if (document.getElementById('milisecondId')) document.getElementById('milisecondId').value = data.msec;
+			
+			// Fill the hidden total milliseconds input
+			if (document.getElementById('total_milisecond_id')) {
+				document.getElementById('total_milisecond_id').value = data.totalMs;
+			}
+
+			// Reveal and Enable the Save button
+			const saveBtn = document.getElementById("submit_plateTapping");
+			if (saveBtn) {
+				saveBtn.classList.remove("hide");
+				saveBtn.style.pointerEvents = "auto";
+				saveBtn.style.opacity = "1";
+			}
+
+			alert("AI Results Received! Data updated in the form.");
+		}
+	}, false);
+
 </script>
 
 

@@ -27,7 +27,19 @@ class AuthController extends Controller {
 
         $user = User::where('email', $loginId)->orWhere('userid', $loginId)->first();
 
-        if ($user && Hash::check($password, $user->password)) {
+        
+        
+
+        if ($user && Hash::check($password, $user->password)) {           
+
+            if($user->status === 0){
+                return response()->json([
+                    'status'       => false,
+                    'account_type' => 'user',
+                    'message'      => 'Account Inactive. Please contact your school administrator.',
+                ], 401);
+            }
+
             $token = $user->createToken('TrainerToken', ['trainer'])->accessToken;
 
             if(empty($user->remember_token)){
@@ -48,6 +60,15 @@ class AuthController extends Controller {
         $student = Sstudent::where('user_id', $loginId)->first();
 
         if ($student && Hash::check($password, $student->password)) {
+
+
+            if($student->is_active === 0){
+                return response()->json([
+                    'status'       => false,
+                    'account_type' => 'student',
+                    'message'      => 'Account Inactive. Please contact your school administrator.',
+                ], 401);
+            }
 
             config(['auth.guards.api.provider' => 'sstudents']);
             // $student->withAccessToken($student->createToken('StudentToken', ['student'])->accessToken);

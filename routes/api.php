@@ -16,7 +16,7 @@ use App\Http\Controllers\NativeApi\GeneralController;
 
 Route::get('/app-version', function () {
     return response()->json([
-        'latestVersion' => '1.7.1',
+        'latestVersion' => '1.7.4',
         'minVersion'    => '1.0.0',   
         'apkUrl'        => 'https://nep.goforfit.in/public/downloads/apk/app-release.apk',
         'releaseNotes'  => 'New updates are ready! Tap download to stay fit with our latest features.', 
@@ -38,7 +38,7 @@ Route::middleware('auth:student-api')->group(function () {
 
     Route::get('activity-detail', [ActivityController::class,'ActivityDetail']);
     Route::get('school-records', [ActivityController::class,'schoolRecords']);
-
+    Route::post('profile/update', [StudentProfileController::class, 'updateProfile']);
 });
 
 Route::middleware('auth:user-api')->group(function () {
@@ -52,7 +52,7 @@ Route::middleware('auth:student-api')->group(function () {
 	Route::get('battery-of-test', [ActivityController::class, 'TestVideos']);
 });
 
-Route::middleware('auth:student-api')->group(function () {
+Route::middleware('auth:student-api,user-api')->group(function () {
 	Route::get('activitylist', [GeneralController::class,'GetActivityList']);
 	Route::get('getactivity', [GeneralController::class,'activityAccordingToClass']);
 });

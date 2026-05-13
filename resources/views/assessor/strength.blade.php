@@ -73,8 +73,11 @@
 							<a href="javascript:void(0)" id="startBtn" class="btn btn-success py-2 w-100 d-flex justify-content-center mb-3" style="gap: 10px;"><i class="bi bi-stopwatch"></i><span>Start Timer</span></a>
 							
 							@if(Auth::user()->id == '995')
+								<!--<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center" 
+							onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button>-->
+							
 								<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center" 
-							onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button>
+								onclick="openAIScreen()" style="color: white; font-weight: bold;"> Switch to AI </button>
 							@endif
 							</div>
                         </div>
