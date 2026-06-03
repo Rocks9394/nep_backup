@@ -43,6 +43,7 @@ Route::middleware('auth:student-api')->group(function () {
 
 Route::middleware('auth:user-api')->group(function () {
     Route::get('/user/profile', [TrainerProfileController::class, 'show']);
+    Route::get('trainer/dashboard', [TrainerProfileController::class, 'dashboard']);
     
 });
 
