@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="twitter:card" value="summary">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="msapplication-TileImage" content="{{ asset('public/favicon.ico')}}" />
+    <meta name="msapplication-TileImage" content="{{ asset('favicon.ico')}}" />
     <title>@yield('title')</title>
-    <link rel="icon" href="{{ asset('public/favicon.ico')}}" sizes="32x32" />
-    <link rel="apple-touch-icon-precomposed" href="{{ asset('public/favicon.ico')}}" />
+    <link rel="icon" href="{{ asset('favicon.ico')}}" sizes="32x32" />
+    <link rel="apple-touch-icon-precomposed" href="{{ asset('favicon.ico')}}" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 
     <link rel="stylesheet" href="{{ asset('resources/css/dashboard.min.css') }}" media="screen">
@@ -31,8 +31,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <!-- DataTable CSS -->
-    <script src="{{ asset('public/assets/DataTables/datatables.js') }}"></script>
-    <script src="{{ asset('public/assets/DataTables/datatables.min.js') }}"></script>
+    <script src="{{ asset('assets/DataTables/datatables.js') }}"></script>
+    <script src="{{ asset('assets/DataTables/datatables.min.js') }}"></script>
     <!-- DataTables Buttons JS -->    
     <script src="https://cdn.datatables.net/select/2.0.3/js/dataTables.select.js"></script>
     <script src="https://cdn.datatables.net/select/2.0.3/js/select.bootstrap4.js"></script>
@@ -99,8 +99,8 @@
 
     @stack('style-css')
 
-    <link rel="stylesheet" href="{{ asset('public/assets/css/take-test-root.css') }}">
-    <link rel="stylesheet" href="{{ asset('public/assets/css/take-test-style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/take-test-root.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/take-test-style.css') }}">
 
 </head>
 
@@ -115,7 +115,7 @@
 
             @if(!empty($SchoolDetails))
                 @if($SchoolDetails->logo)
-                    <img src="{{ asset('public/assets/uploads/logos/' . $SchoolDetails->logo) }}" style="height:42px; padding:0;">
+                    <img src="{{ asset('assets/uploads/logos/' . $SchoolDetails->logo) }}" style="height:42px; padding:0;">
                 @else
                     <p>School: {{ $SchoolDetails->school_name }} @if($SchoolDetails->school_code)| {{ $SchoolDetails->school_code }}@endif</p>
                 @endif
@@ -176,9 +176,9 @@
                             <li class="nav-item dropdown avtar">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="{{ route('filldart.dashboard') }}" role="button"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                 @if(auth()->guard('web')->check() && Auth::user()->profile_picture)
-                                    <img src="{{ asset('public/assets/uploads/profilePictures/users/' .Auth::user()->profile_picture) }}" class="d-inline-block align-top" height="32" width="32" alt="avtar" style="border-radius: 50%;">
+                                    <img src="{{ asset('assets/uploads/profilePictures/users/' .Auth::user()->profile_picture) }}" class="d-inline-block align-top" height="32" width="32" alt="avtar" style="border-radius: 50%;">
                                 @elseif(auth()->guard('sstudent')->check() && Auth::guard('sstudent')->user()->profile_picture)
-                                    <img src="{{ asset('public/assets/uploads/profilePictures/student/' .Auth::guard('sstudent')->user()->profile_picture) }}" class="d-inline-block align-top" height="32" width="32" alt="avtar" style="border-radius: 50%;">
+                                    <img src="{{ asset('assets/uploads/profilePictures/student/' .Auth::guard('sstudent')->user()->profile_picture) }}" class="d-inline-block align-top" height="32" width="32" alt="avtar" style="border-radius: 50%;">
                                 @else
                                     <img src="{{ asset('resources/images/avtar.png') }}" class="d-inline-block align-top" height="32" alt="avtar">
                                 @endif  

@@ -2,11 +2,11 @@
 
 <?php $__env->startSection('content'); ?>
 
-<link href="<?php echo e(asset('public/assets/css/login.css')); ?>?v=<?php echo e(time()); ?>" rel="stylesheet">
-<link href="<?php echo e(asset('public/assets/css/nvsdashboard.min.css')); ?>?v=<?php echo e(time()); ?>" rel="stylesheet" media="screen">        
-<link href="<?php echo e(asset('public/assets/css/nvsstyle.css')); ?>?v=<?php echo e(time()); ?>" rel="stylesheet" media="all">
-<link href="<?php echo e(asset('public/assets/css/nvscustom-style.css')); ?>?v=<?php echo e(time()); ?>" rel="stylesheet">
-<link href="<?php echo e(asset('public/assets/css/nvsresponsive.css')); ?>?v=<?php echo e(time()); ?>" rel="stylesheet" media="screen">
+<link href="<?php echo e(asset('assets/css/login.css')); ?>?v=<?php echo e(time()); ?>" rel="stylesheet">
+<link href="<?php echo e(asset('assets/css/nvsdashboard.min.css')); ?>?v=<?php echo e(time()); ?>" rel="stylesheet" media="screen">        
+<link href="<?php echo e(asset('assets/css/nvsstyle.css')); ?>?v=<?php echo e(time()); ?>" rel="stylesheet" media="all">
+<link href="<?php echo e(asset('assets/css/nvscustom-style.css')); ?>?v=<?php echo e(time()); ?>" rel="stylesheet">
+<link href="<?php echo e(asset('assets/css/nvsresponsive.css')); ?>?v=<?php echo e(time()); ?>" rel="stylesheet" media="screen">
 
 <?php $__env->startPush('styles'); ?>
 <style>
@@ -133,7 +133,7 @@ unset($__errorArgs, $__bag); ?>
             <div id="pagecaptcha-cont">
                <div class="captcha">
                   <input type="checkbox" aria-label="Checkbox captcha" name="g-recaptcha-response">
-                  <img alt="captcha" src="<?php echo e(asset('public/assets/imgs/captcha-img.png')); ?>" class="img-fluid" usemap="#image-map">
+                  <img alt="captcha" src="<?php echo e(asset('assets/imgs/captcha-img.png')); ?>" class="img-fluid" usemap="#image-map">
                   <map name="image-map">
                      <area target="_blank" alt="Privacy" title="Privacy" href="https://policies.google.com/privacy?hl=en" coords="" shape="rect" class="m-p">
                      <area target="_blank" alt="Terms" title="Terms" href="https://policies.google.com/terms?hl=en" coords="" shape="rect" class="m-t">

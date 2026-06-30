@@ -31,7 +31,7 @@
                             </a>
                             @endif
                         
-                            <h1 class="ml-md-4 mb-0">{{$title}}</h1>
+                            <h1 class="ml-md-4 mb-0">{{$title}}  </h1>
                         </div>
                         <div class="col">
                             <div class="session_term d-flex mb-2 flex-row-reverse">                          

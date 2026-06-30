@@ -42,13 +42,13 @@
                                 <tr>
                                     <td style="width:180px;"></td>
                                     <td style="position: relative; vertical-align: top; width: 200px; height: 100%;">
-                                        <img src="{{ asset('/public/assets/reports/yellow-dot.png')}}" alt="" style="width: 50px; height:50px; position: relative; left:-50px; top:0;">
+                                        <img src="{{ asset('/assets/reports/yellow-dot.png')}}" alt="" style="width: 50px; height:50px; position: relative; left:-50px; top:0;">
                                         <div style="position: absolute; top: 0; display: flex; align-items: flex-start; z-index: 10; width: 200px; overflow: hidden;">
                                             <div class="logo" style="position: relative; width: inherit;">
                                                 <span style="position: absolute; top:0; left:0; width: inherit; padding: 20px; box-sizing: border-box; display:inline-block;">
-                                                    <img src="{{ asset('/public/assets/reports/seqfast-logo.png')}}" alt="" style="width: 160px; margin-top: 10px;">
+                                                    <img src="{{ asset('/assets/reports/seqfast-logo.png')}}" alt="" style="width: 160px; margin-top: 10px;">
                                                 </span>
-                                                <img src="{{ asset('/public/assets/reports/logo-bg.jpg')}}" alt="" style="width: 200px; margin-top: -50px;">
+                                                <img src="{{ asset('/assets/reports/logo-bg.jpg')}}" alt="" style="width: 200px; margin-top: -50px;">
                                             </div>
                                         </div>
                                     </td>
@@ -75,7 +75,7 @@
                                    <td style="background-color:#FBCA01;">
                                         <div style="position:relative;">
                                             <span style="position:absolute; top:-38px; background:rgb(0 0 0/50%); padding:10px; width:100%; z-indix:2; box-sizing: border-box; text-align:center; color:#fff; font-size:16px; text-transform: uppercase;">For Senoir</span>
-                                            <img src="{{ asset('/public/assets/reports/aa-bg.png')}}" alt="" style="width:198px; position: relative; top: -3px;">
+                                            <img src="{{ asset('/assets/reports/aa-bg.png')}}" alt="" style="width:198px; position: relative; top: -3px;">
                                         </div>
                                     </td>
                                     <td style="vertical-align: top; width: 100%;">
@@ -93,7 +93,7 @@
                                                 <td style="height:20px;"></td>
                                             </tr>
                                             <tr>
-                                                <td style="padding: 10px 30px 10px 50px; font-size: 20px; background:#E60A00; color:#fff; font-size: 24px; font-weight: 500; position:relative;">Personal Profile<span style=" position:absolute; top:46px; right:-20px;"><img src="{{ asset('/public/assets/reports/green-bg.jpg')}}" alt="" style="width:20px;"></span></td>
+                                                <td style="padding: 10px 30px 10px 50px; font-size: 20px; background:#E60A00; color:#fff; font-size: 24px; font-weight: 500; position:relative;">Personal Profile<span style=" position:absolute; top:46px; right:-20px;"><img src="{{ asset('/assets/reports/green-bg.jpg')}}" alt="" style="width:20px;"></span></td>
                                             </tr>
                                             <tr>
                                                 <td style="height:20px;"></td>
@@ -534,9 +534,9 @@
 
                                     <td rowspan="2" style="position: relative; vertical-align: top; width: auto; height: 100%; text-align: left;">
                                         <div style="position: absolute; top: 30px; left:30px; display: flex; align-items: center; z-index: 1; width: 90px; overflow: hidden;">
-                                            <img src="{{ asset('/public/assets/reports/seqfast-logo.png')}}" alt="" style="width: inherit;">
+                                            <img src="{{ asset('/assets/reports/seqfast-logo.png')}}" alt="" style="width: inherit;">
                                         </div>
-                                        <img src="{{ asset('/public/assets/reports/inner-header2-bg.png')}}" alt="" style="width: 450px; height:auto; position: relative; left:0px; top:0;">
+                                        <img src="{{ asset('/assets/reports/inner-header2-bg.png')}}" alt="" style="width: 450px; height:auto; position: relative; left:0px; top:0;">
                                     </td>
 
                                     
@@ -958,9 +958,9 @@
 
                                     <td rowspan="2" style="position: relative; vertical-align: top; width: auto; height: 100%; text-align: right;">
                                         <div style="position: absolute; top: 30px; right:30px; display: flex; align-items: center; z-index: 1; width: 90px; overflow: hidden;">
-                                            <img src="{{ asset('/public/assets/reports/seqfast-logo.png')}}" alt="" style="width: inherit;">
+                                            <img src="{{ asset('/assets/reports/seqfast-logo.png')}}" alt="" style="width: inherit;">
                                         </div>
-                                        <img src="{{ asset('/public/assets/reports/inner-header-bg.png')}}" alt="" style="width: 450px; height:auto; position: relative; right:0px; top:0;">
+                                        <img src="{{ asset('/assets/reports/inner-header-bg.png')}}" alt="" style="width: 450px; height:auto; position: relative; right:0px; top:0;">
                                     </td>
 
                                 </tr>
@@ -1284,7 +1284,7 @@
                                             <tr>
                                                 <td style="border: 1px solid transparent; width:50%; height: 90px; position:relative;">
                                                     <div style="margin: 10px 0 0 0; text-align:center;">
-                                                        <img src="{{ asset('/public/assets/imgs/rashmi_stamp.jpg')}}" alt="" style="height: 70px;">
+                                                        <img src="{{ asset('/assets/imgs/rashmi_stamp.jpg')}}" alt="" style="height: 70px;">
                                                     </div>
                                                     <p style="text-align: center; font-weight: 600;">Issued by</p>
                                                 </td>

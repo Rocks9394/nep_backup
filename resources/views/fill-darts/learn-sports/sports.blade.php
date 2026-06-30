@@ -160,7 +160,7 @@
                <div class="col-12 col-lg-4 col-xl-3">
                   <div class="sport-summery">
                      <a href="{{ url('/learn-sports') }}"class="back-btn">
-                        <img src="{{ asset('public/assets/imgs/back-arrow.png') }}" alt="">
+                        <img src="{{ asset('assets/imgs/back-arrow.png') }}" alt="">
                         <span class="back-to-chptr">
                            <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
                               <path d="M2.117 12l7.527 6.235-.644.765-9-7.521 9-7.479.645.764-7.529 6.236h21.884v1h-21.883z"/>
@@ -169,7 +169,7 @@
 
                      <div class="card card-details ml-0">
 
-                     <img src="{{ asset('public/change-sports/' . $sport_details->img) }}" class="img-fluid rounded-0" alt="Sports Img">
+                     <img src="{{ asset('change-sports/' . $sport_details->img) }}" class="img-fluid rounded-0" alt="Sports Img">
 
                      <div class="card-body chapter-dtls">
                            <h1 class="chapter-heading">{{ $sport_details->name ?? '' }}</h1>

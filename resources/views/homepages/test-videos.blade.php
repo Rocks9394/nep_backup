@@ -129,7 +129,7 @@
 
                                                     {{-- Right Side: Icon --}}
                                                     <div class="test-icon">
-                                                        <img src="{{ asset('public/icons/BatteryOfTests/' . $videoGroup['videos']->first()->icons) }}" 
+                                                        <img src="{{ asset('uploads/BatteryOfTests/' . $videoGroup['videos']->first()->icons) }}" 
                                                             alt="icon"
                                                             style="height: 70px;">
                                                     </div>

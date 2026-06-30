@@ -352,8 +352,7 @@
                         if (status_filter === "completed" && !isDone) return;
                         if (status_filter === "pending" && isDone) return;
                         let imagepath = val.image?.includes("wp-content") ? val.image : val.image ?
-                            'public/uploads/' + val.image :
-                            'public/change-activities/default_activity_img.svg';
+                            'uploads/' + val.image : 'change-activities/default_activity_img.svg';
 
 
                         var tickMark = isDone ? 'active-completed' : 'activity-pending';
@@ -440,10 +439,10 @@
                         if (mystring.indexOf(word) !== -1) {
                             imagepath = val.image;
                         } else if (val.image == '' || val.image == null) {
-                            imagepath = 'public/change-activities/default_activity_img.svg';
+                            imagepath = 'change-activities/default_activity_img.svg';
 
                         } else {
-                            imagepath = 'public/uploads/' + val.image;
+                            imagepath = 'uploads/' + val.image;
                         }
 
 
@@ -551,10 +550,10 @@
     						}
     						else if(val.image == '' || val.image == null)
     						{
-    					    	imagepath = 'public/change-activities/default_activity_img.svg';	
+    					    	imagepath = 'change-activities/default_activity_img.svg';	
     						}else
     						{
-    						    imagepath = 'public/uploads/'+val.image;
+    						    imagepath = 'uploads/'+val.image;
     						}
 
 

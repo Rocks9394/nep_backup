@@ -66,7 +66,7 @@ class GeneralController extends Controller {
 	        }
 
 
-	        echo "<pre>"; print_r($classes);exit();
+	        // echo "<pre>"; print_r($classes);exit();
 	
 	    
 	        // Main query for activities

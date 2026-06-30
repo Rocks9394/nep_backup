@@ -22,7 +22,7 @@
                 <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
                     <a href="{{ route('sports.videos', $sport->sport_name) }}" target="_self" class="img-grid">
                         <span>{{ $sport->sport_name }}</span>
-                        <img src="{{ asset('public/change-sports/' . $sport->img) }}" class="img-fluid rounded" alt="">
+                        <img src="{{ asset('change-sports/' . $sport->img) }}" class="img-fluid rounded" alt="">
                     </a>
                 </div>
             @endforeach

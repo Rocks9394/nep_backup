@@ -12,7 +12,7 @@
     
     <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
     
-    <link rel="stylesheet" href="{{ asset('public/assets/css/bootstrap/bootstrap.min.css') }}" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap/bootstrap.min.css') }}" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <link href="{{ asset('resources/css/style.css') }}" rel="stylesheet" media="all">
     <link rel="stylesheet" href="{{ asset('resources/css/custom-style.css') }}">
@@ -49,9 +49,9 @@
 
     </style>
      
-    <link rel="stylesheet" href="{{ asset('public/assets/css/customstyle.css') }}" type="text/css"> 
-    <link rel="stylesheet" href="{{ asset('public/assets/css/take-test-root.css') }}">
-    <link rel="stylesheet" href="{{ asset('public/assets/css/take-test-style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/customstyle.css') }}" type="text/css"> 
+    <link rel="stylesheet" href="{{ asset('assets/css/take-test-root.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/take-test-style.css') }}">
     <link href="{{ asset('resources/css/responsive.css') }}" rel="stylesheet" media="screen">
 
 </head>
@@ -66,7 +66,7 @@
             @endphp
             
                 @if(!empty($GetSchoolLogo->logo))
-                    <img src="{{ asset('public/assets/uploads/logos/'.$GetSchoolLogo->logo) }}" style="height:42px; padding:0;">
+                    <img src="{{ asset('assets/uploads/logos/'.$GetSchoolLogo->logo) }}" style="height:42px; padding:0;">
                 @endif    
         
         </div>

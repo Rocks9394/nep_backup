@@ -15,16 +15,16 @@
 
                         @php 
                             if($detail['image'] == ''){
-                               $imagepath = 'public/change-activities/default_activity_img.svg'; 
+                               $imagepath = 'change-activities/default_activity_img.svg'; 
                             } else {
                                 if(str_starts_with($detail['image'], 'https')){
                                     $imagepath = $detail['image'];
                                 }else{
-                                    $file = 'public/uploads/'.$detail['image'];
+                                    $file = 'uploads/'.$detail['image'];
                                     if (file_exists($file)) {                                                        
-                                        $imagepath = 'public/uploads/'.$detail['image'];
+                                        $imagepath = 'uploads/'.$detail['image'];
                                     } else {
-                                       $imagepath = 'public/change-activities/default_activity_img.svg';
+                                       $imagepath = 'change-activities/default_activity_img.svg';
                                     }
                                 }
                             } 
@@ -40,11 +40,11 @@
                             <span class="rating" style="position: relative; top: -5px;">
                                 <span class="stars" style="margin-right: 0px;">
                                     <?php for ($i=0; $i < $detail['level'] ; $i++) {  ?>
-                                      <img alt="star" src="{{'public/change-activities/star_fill-o.svg'}}" class="img-fluid">
+                                      <img alt="star" src="{{'change-activities/star_fill-o.svg'}}" class="img-fluid">
                                     <?php } ?>
                                       
                                     <?php for ($i=0 ; $i < 7-$detail['level'] ; $i++ ) { ?>
-                                        <img alt="star" src="{{'public/change-activities/star_border-o.svg'}}" class="img-fluid">
+                                        <img alt="star" src="{{'change-activities/star_border-o.svg'}}" class="img-fluid">
                                     <?php } ?>
                                 </span>
                             </span>

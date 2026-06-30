@@ -335,39 +335,39 @@
                 	<!-- Trainers Dashboard  -->
 
                 	<div>
-                        <a href="<?php echo e(route('learn.sports')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/Learn-Sports.svg')); ?>"></div><span>Learn Sports</span></a>
+                        <a href="<?php echo e(route('learn.sports')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/Learn-Sports.svg')); ?>"></div><span>Learn Sports</span></a>
                     </div>
 	                    
                     <?php if((Auth::user()->role_id == '3' && $hasSchools) && (Auth::user()->role_id == '3' && $getActiveTerm)): ?>
 
 	                    <div data-id="<?php echo e(Auth::user()->role_id); ?>">
-	                        <a href="<?php echo e(route('fill.dart')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/Dart.svg')); ?>"></div><span>Fill DART</span></a>
+	                        <a href="<?php echo e(route('fill.dart')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/Dart.svg')); ?>"></div><span>Fill DART</span></a>
 	                    </div>
 
 	                    <div>
-	                        <a href="<?php echo e(route('viewschooldart')); ?>" data-id="" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/viewDart.svg')); ?>"></div><span>View DART</span></a>
+	                        <a href="<?php echo e(route('viewschooldart')); ?>" data-id="" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/viewDart.svg')); ?>"></div><span>View DART</span></a>
 	                    </div>
 	              
 	                    <div>
-	                        <a href="<?php echo e(route('activity.according.to.class')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/activities.svg')); ?>"></div><span>Activity Planner</span></a>
+	                        <a href="<?php echo e(route('activity.according.to.class')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/activities.svg')); ?>"></div><span>Activity Planner</span></a>
 	                    </div>
 	                    	                  
 	                    <div>
-	                        <a href="<?php echo e(route('map.sports')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/MAP-Students.svg')); ?>"></div><span>Map Students</span></a>
+	                        <a href="<?php echo e(route('map.sports')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/MAP-Students.svg')); ?>"></div><span>Map Students</span></a>
 	                    </div>
 	                 		                 	
 	                    <div>
-	                        <a href="<?php echo e(route('all-test')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/taketest.svg')); ?>"></div><span>Take Test</span></a>
+	                        <a href="<?php echo e(route('all-test')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/taketest.svg')); ?>"></div><span>Take Test</span></a>
 	                    </div>                  
 	 	                    
 	                    <div>
 							<a href="<?php echo e(route('trainer.lowerclass.status')); ?>" class="box"><div>
-							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/lc_test-status.svg')); ?>"></div><span>Test Summary <br> (Upto Class-3)</span></a>
+							<img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/lc_test-status.svg')); ?>"></div><span>Test Summary <br> (Upto Class-3)</span></a>
 						</div>
 
 						<div>
 							<a href="<?php echo e(route('trainer.higherclass.status')); ?>" class="box"><div>
-							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/hc_test-status.svg')); ?>"></div><span>
+							<img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/hc_test-status.svg')); ?>"></div><span>
 							Test Summary <br> (Class-4 & Above)</span></a>
 						</div>
 					<?php endif; ?>
@@ -378,58 +378,58 @@
 
 
 	                    <div>
-	                        <a href="<?php echo e(route('viewschooldart')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/viewDart.svg')); ?>" ></div><span>View DART</span></a>
+	                        <a href="<?php echo e(route('viewschooldart')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/viewDart.svg')); ?>" ></div><span>View DART</span></a>
 	                    </div>
 
 	                    <div>
-	                        <a href="<?php echo e(route('activity.according.to.class')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/activities.svg')); ?>"></div><span>Activity Planner</span></a>
+	                        <a href="<?php echo e(route('activity.according.to.class')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/activities.svg')); ?>"></div><span>Activity Planner</span></a>
 	                    </div>
 
 	                    <div>
 							<a href="<?php echo e(route('fitness.report')); ?>" class="box"><div>
-							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/fa.svg')); ?>"></div><span>Assessment Reports</span></a>
+							<img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/fa.svg')); ?>"></div><span>Assessment Reports</span></a>
 						</div>
 						<div>
 							<a href="<?php echo e(route ('trainer.lowerclass.status')); ?>" class="box"><div>
-							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/lc_test-status.svg')); ?>"></div><span>Test Summary <br> (Upto Class-3)</span></a>
+							<img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/lc_test-status.svg')); ?>"></div><span>Test Summary <br> (Upto Class-3)</span></a>
 						</div>
 
 						<div>
 							<a href="<?php echo e(route ('trainer.higherclass.status')); ?>" class="box"><div>
-							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/hc_test-status.svg')); ?>"></div><span>
+							<img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/hc_test-status.svg')); ?>"></div><span>
 							Test Summary <br> (Class-4 & Above)</span></a>
 						</div>
 	                
 	                     <div>
-	                        <a href="<?php echo e(route('managestudent')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/manage-stds.svg')); ?>"></div><span>Manage Students</span></a>
+	                        <a href="<?php echo e(route('managestudent')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/manage-stds.svg')); ?>"></div><span>Manage Students</span></a>
 	                    </div>
 	                    
 	                    
 	                    <div>
-	                        <a href="<?php echo e(route('mapping.sports')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/mapSports.svg')); ?>"></div><span>Map Sports</span></a>
+	                        <a href="<?php echo e(route('mapping.sports')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/mapSports.svg')); ?>"></div><span>Map Sports</span></a>
 	                    </div>
 						
 					
 						<div>
-	                        <a href="<?php echo e(route('students-sports-mapping')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/activities.svg')); ?>"></div><span>Students Sport Mapping</span></a>
+	                        <a href="<?php echo e(route('students-sports-mapping')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/activities.svg')); ?>"></div><span>Students Sport Mapping</span></a>
 	                    </div>
 	                   
 	                    <div>
-	                        <a href="<?php echo e(route('mapping.trainer')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/MAP-Students.svg')); ?>"></div><span>Manage Trainers</span></a>
+	                        <a href="<?php echo e(route('mapping.trainer')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/MAP-Students.svg')); ?>"></div><span>Manage Trainers</span></a>
 	                    </div>
 	                    
 	                    <div>
-	                        <a href="<?php echo e(route('schoolDashboard')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/Dashboard.svg')); ?>"></div><span>Dashboard</span></a>
+	                        <a href="<?php echo e(route('schoolDashboard')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/Dashboard.svg')); ?>"></div><span>Dashboard</span></a>
 	                    </div>
 	                    	
             			<div>
 							<a href="<?php echo e(route('create.users')); ?>" class="box"><div>
-							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/manage-stds.svg')); ?>"></div><span> Create Viewer </span></a>
+							<img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/manage-stds.svg')); ?>"></div><span> Create Viewer </span></a>
 						</div>
 
 						<div>
 							<a href="<?php echo e(route('upload.test.data')); ?>" class="box"><div>
-							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/taketest.svg')); ?>"></div><span>Upload Test Data</span></a>
+							<img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/taketest.svg')); ?>"></div><span>Upload Test Data</span></a>
 						</div> 
 						
 
@@ -444,7 +444,7 @@
 					        <div>
 					            <a href="<?php echo e(route($module->route_name)); ?>" class="box">
 					                <div>
-					                    <img class="img-fluid" alt="<?php echo e($module->name); ?>" src="<?php echo e(asset('public/uploads/icons/'.$module->icon)); ?>">
+					                    <img class="img-fluid" alt="<?php echo e($module->name); ?>" src="<?php echo e(asset('uploads/icons/'.$module->icon)); ?>">
 					                </div>
 					                <span><?php echo e($module->name); ?></span>
 					            </a>
@@ -465,21 +465,21 @@
 
 					    <div>
 					        <a href="<?php echo e(route('getactive')); ?>" class="box">
-					            <div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/Get-Active.svg')); ?>"></div>
+					            <div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/Get-Active.svg')); ?>"></div>
 					            <span>Get Active</span>
 					        </a>
 					    </div>
 
 					    <div>
 					        <a href="<?php echo e(route('admin.manual')); ?>" target="_blank" class="box">
-					            <div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/trainer-manual2.svg')); ?>"></div>
+					            <div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/trainer-manual2.svg')); ?>"></div>
 					            <span>Training Manual</span>
 					        </a>
 					    </div>
 
 					    <div>
 					        <a href="<?php echo e(route('test.videos')); ?>" class="box">
-					            <div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/test-demo.svg')); ?>"></div>
+					            <div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/test-demo.svg')); ?>"></div>
 					            <span>Battery of Tests</span>
 					        </a>
 					    </div>
@@ -494,12 +494,12 @@
 						<!-- href="<?php echo e(route('activity.gallary')); ?>?p=2" -->
 						<div id="activity_gallary">
 							<a  href="<?php echo e(route('activity.gallary')); ?>"  class="box" ><div>
-							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/age-report.svg')); ?>"></div><span>Activity Gallery</span></a>
+							<img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/age-report.svg')); ?>"></div><span>Activity Gallery</span></a>
 						</div>
 
 						<div>
 							<a  href="<?php echo e(route('skill.reports')); ?>"  class="box" ><div>
-							<img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/skills-report.svg')); ?>"></div><span>Skill Report</span></a>
+							<img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/skills-report.svg')); ?>"></div><span>Skill Report</span></a>
 						</div>
 					<?php endif; ?>
             </div>
@@ -707,14 +707,24 @@
 
 
 <!-- Highcharts core -->
-<script src="https://code.highcharts.com/highcharts.js"></script>
+<!-- <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 <script src="https://code.highcharts.com/highcharts-more.js"></script>
 <script src="https://code.highcharts.com/modules/packed-bubble.js"></script>
 <script src="https://code.highcharts.com/modules/no-data-to-display.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/highcharts-more.js"></script>
+<script src="https://code.highcharts.com/modules/packed-bubble.js"></script>
+<script src="https://code.highcharts.com/modules/no-data-to-display.js"></script>
 
 
 <script>
@@ -1028,6 +1038,8 @@
                         chart: {
 							type: 'pie',
 							height: 380,
+                            backgroundColor: '#ffffff',
+                            plotBackgroundColor: '#ffffff',
 							zooming: {
 								type: 'xy'
 							},
@@ -1037,7 +1049,12 @@
 							},
 							panKey: 'shift'
 						},
-						title: { text: 'National Health Indicator' },
+						title: { 
+                            text: 'National Health Indicator',
+                            style: {
+                                color: '#000000'
+                            }
+                         },
 						tooltip: {
 							pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
 						},
@@ -1223,14 +1240,23 @@
         if (document.getElementById('skillChart')) {
             try {
                 Highcharts.chart('skillChart', {
-                    chart: { type: 'bar' },
-                    title: { text: 'Skill Analysis' },
+                    chart: { 
+                        type: 'bar',
+                        backgroundColor: '#ffffff',
+                        plotBackgroundColor: '#ffffff',
+                     },
+                    title: { text: 'Skill Analysis',
+                        style: {
+                            color: '#000000'
+                        }
+                     },
                     xAxis: {
                         categories: skillCategories,
                         labels: {
                             style: {
                                 fontSize: '13px',
-                                fontWeight: '500'
+                                fontWeight: '500',
+                                color: '#000000'
                             }
                         },
                         lineWidth: 0,

@@ -3,7 +3,7 @@
 @section('content')
 
 @push('style-css')
-    <link href="{{ asset('public/assets/css/student_dashboard_style/main.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/student_dashboard_style/main.css') }}" rel="stylesheet" />
 @endpush
 
 <style>
@@ -245,7 +245,7 @@
                     <div class="fitness-box h-100 w-100">
                         <div class="weight_01 left-text">
                             <div class="center-img-weight">
-                                <img src="{{ asset('public/assets/imgs/height-icon.jpg') }}" alt="Height" class="img-fluid img lazy-image" loading="lazy" />
+                                <img src="{{ asset('assets/imgs/height-icon.jpg') }}" alt="Height" class="img-fluid img lazy-image" loading="lazy" />
                                 <div class="weight-input">
                                     <h4>Height</h4>
                                     <span>{{ $bmiRecord->height ?? '---' }} cm</span>
@@ -254,7 +254,7 @@
                         </div>
                         <div class="weight_02 left-text">
                             <div class="center-img-weight">
-                                <img src="{{ asset('public/assets/imgs/weight-icon.png') }}" alt="weight" class="img-fluid img lazy-image" loading="lazy" />
+                                <img src="{{ asset('assets/imgs/weight-icon.png') }}" alt="weight" class="img-fluid img lazy-image" loading="lazy" />
                                 <div class="weight-input">
                                     <h4>Weight</h4>
                                     <span>{{ $bmiRecord->weight ?? '---' }} kg</span>
@@ -302,7 +302,7 @@
                         <div class="col-12 col-md-6 col-lg-6 col-xl-4">
                             <div class="test-box">
                                 <div class="tests left-text">
-                                    <img src="{{ asset('public/icons/BatteryOfTests/' . $test->icons) }}" 
+                                    <img src="{{ asset('uploads/BatteryOfTests/' . $test->icons) }}" 
                                         alt="logo" class="img-fluid img lazy-image" loading="lazy" />
 
                                     <div class="left-text w-100">
@@ -338,7 +338,7 @@
                         <div class="col-12 col-md-6 col-lg-6 col-xl-4">
                             <div class="test-box">
                                 <div class="tests left-text">
-                                    <img src="{{ asset('public/icons/BatteryOfTests/' . $test->icons) }}" alt="logo" class="img-fluid img lazy-image" loading="lazy" />
+                                    <img src="{{ asset('uploads/BatteryOfTests/' . $test->icons) }}" alt="logo" class="img-fluid img lazy-image" loading="lazy" />
                                     <div class="left-text w-100">
                                         <h4>{{ $test->skill_name }}</h4>
                                         <div class="level-box">

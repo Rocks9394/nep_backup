@@ -42,38 +42,38 @@
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
                         <a href="{{ route('student.test.dashboard' )}}" class="box">
                             <div>
-                                <img class="img-fluid" alt="" src="{{ asset('public/uploads/icons/Dashboard.svg') }}">
+                                <img class="img-fluid" alt="" src="{{ asset('uploads/icons/Dashboard.svg') }}">
                             </div>
                             <span>Student Dashboard</span>
                         </a>
                     </div>
                     
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4 text-center">
-                        <a href="{{ route('skill.dailyreport') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('public/uploads/icons/skills-report.svg') }}"></div><span>Daily Tracker</span></a>
+                        <a href="{{ route('skill.dailyreport') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/skills-report.svg') }}"></div><span>Daily Tracker</span></a>
                     </div>
                       
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
                         <a href="{{ route('skill.report') }}" class="box">
-                            <div> <img class="img-fluid" alt="" src="{{asset('public/uploads/icons/skills-report.svg') }}"> </div>
+                            <div> <img class="img-fluid" alt="" src="{{asset('uploads/icons/skills-report.svg') }}"> </div>
                             <span>Skill Reports</span>
                         </a>
                     </div>
 
                     <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
-                        <a href="{{ route('activity.according.to.class') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('public/uploads/icons/activities.svg') }}"></div><span>Activity Planner</span></a>
+                        <a href="{{ route('activity.according.to.class') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/activities.svg') }}"></div><span>Activity Planner</span></a>
                     </div>
 
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
                         <a href="{{ route('reports.view.test')}}" class="box" target="_blank">
                             <div data-toggle="tooltip" data-placement="top" title="Progress Report">
-                                <img class="img-fluid" alt="" src="{{ asset('public/uploads/icons/taketest.svg') }}">
+                                <img class="img-fluid" alt="" src="{{ asset('uploads/icons/taketest.svg') }}">
                             </div>
                             <span>Progress Report</span>
                         </a>
                     </div>
                     
                     <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
-                        <a href="{{ route('test.videos')}}" class="box"><div><img class="img-fluid" alt="" src="{{asset('public/uploads/icons/test-demo.svg') }}"></div><span>Battery of Tests</span></a>
+                        <a href="{{ route('test.videos')}}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/test-demo.svg') }}"></div><span>Battery of Tests</span></a>
                     </div>
 
 
@@ -81,7 +81,7 @@
                         <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
                             <a href="{{ route('fms.skills.reports') }}" class="box" data-toggle="tooltip" data-placement="top" title="End of the term">
                                 <div >
-                                    <img class="img-fluid" alt="" src="{{asset('public/uploads/icons/Dashboard.svg') }}">
+                                    <img class="img-fluid" alt="" src="{{asset('uploads/icons/Dashboard.svg') }}">
                                 </div>
                                 <span >FMS Development</span>
                             </a>
@@ -93,17 +93,17 @@
     			    @endif		
 					
 					{{-- <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
-                        <a href="{{ route('pe-activities.index') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('public/uploads/icons/pe-activites.svg') }}"></div><span>P.E Activities</span></a>
+                        <a href="{{ route('pe-activities.index') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/pe-activites.svg') }}"></div><span>P.E Activities</span></a>
                     </div> --}}
 
 
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
-                        <a href="{{ route('learn.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('public/uploads/icons/Learn-Sports.svg') }}"></div><span>Learn Sports</span></a>
+                        <a href="{{ route('learn.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/Learn-Sports.svg') }}"></div><span>Learn Sports</span></a>
                     </div>
                     
 
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
-                        <a href="{{ route('getactive') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('public/uploads/icons/Get-Active.svg') }}"></div><span>Get Active</span></a>
+                        <a href="{{ route('getactive') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/Get-Active.svg') }}"></div><span>Get Active</span></a>
                     </div>
 
 
@@ -112,7 +112,7 @@
                     {{-- <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
                         <a href="#" class="box" data-toggle="tooltip" data-placement="top" title="Report will available at end of the term">
                             <div >
-                                <img class="img-fluid" alt="" src="{{asset('public/uploads/icons/Dashboard.svg') }}">
+                                <img class="img-fluid" alt="" src="{{asset('uploads/icons/Dashboard.svg') }}">
                             </div>
                             <span >Dashboard</span>
                         </a>
@@ -120,7 +120,7 @@
                     
 
 					{{-- <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
-						<a href="{{ route('paris.olympics') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('public/uploads/icons/paris.svg') }}" style="max-height:180px;"></div><span>Paris 2024</span></a>
+						<a href="{{ route('paris.olympics') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/paris.svg') }}" style="max-height:180px;"></div><span>Paris 2024</span></a>
 					</div> --}}
 
 

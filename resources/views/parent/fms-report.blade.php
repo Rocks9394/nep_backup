@@ -78,14 +78,14 @@
                                        {{-- Latest Term (Term 1) --}}
                                        <td class="text-center">
                                              @if(!empty($term1) && $term1->skill_type_value == 'Y')
-                                                <img class="tick" src="{{ asset('public/assets/imgs/check.svg') }}">
+                                                <img class="tick" src="{{ asset('assets/imgs/check.svg') }}">
                                              @endif
                                        </td>
 
                                        {{-- Previous Term (Term 2) --}}
                                        <td class="text-center">
                                              @if(!empty($term2) && $term2->skill_type_value == 'Y')
-                                                <img class="tick" src="{{ asset('public/assets/imgs/check.svg') }}">
+                                                <img class="tick" src="{{ asset('assets/imgs/check.svg') }}">
                                              @endif
                                        </td>
                                     </tr>

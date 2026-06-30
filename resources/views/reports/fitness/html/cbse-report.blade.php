@@ -71,7 +71,7 @@
                                     <td style="width:180px;"></td>
 
                                     <td style="position: relative; width: 220px;">
-                                        <img src="{{ asset('/public/assets/reports/yellow-dot.png') }}"
+                                        <img src="{{ asset('/assets/reports/yellow-dot.png') }}"
                                             style="width: 50px;
                                                 position: absolute;
                                                 left: -50px;
@@ -79,9 +79,9 @@
 
                                         <!-- logo wrapper -->
                                         <div style="position:absolute; top:0;">
-                                            <img src="{{ asset('/public/assets/reports/logo-bg.jpg') }}"
+                                            <img src="{{ asset('/assets/reports/logo-bg.jpg') }}"
                                                 style="width: 200px; margin-top: -50px;">
-                                            <img src="{{ asset('/public/assets/reports/seqfast-logo.png') }}"
+                                            <img src="{{ asset('/assets/reports/seqfast-logo.png') }}"
                                                 style="
                                                     width: 167px;
                                                     position: absolute;
@@ -137,7 +137,7 @@
                                                 text-transform:uppercase;">
                                                 For Senior
                                             </span>
-                                            <img src="{{ asset('/public/assets/reports/aa-bg.png') }}"
+                                            <img src="{{ asset('/assets/reports/aa-bg.png') }}"
                                                 style="width:200px;">
                                         </div>
                                     </td>
@@ -156,7 +156,7 @@
                                             position:relative;
                                             margin-left: -30px;">
                                             Personal Profile
-                                            <img src="{{ asset('/public/assets/reports/green-bg.jpg') }}" style="width:20px; position:absolute; right:-20px; top:100%;">
+                                            <img src="{{ asset('/assets/reports/green-bg.jpg') }}" style="width:20px; position:absolute; right:-20px; top:100%;">
                                         </div>
 
                                         <div style="height:20px;"></div>

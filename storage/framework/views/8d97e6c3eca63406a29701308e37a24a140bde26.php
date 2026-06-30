@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="twitter:card" value="summary">
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
-    <meta name="msapplication-TileImage" content="<?php echo e(asset('public/favicon.ico')); ?>" />
+    <meta name="msapplication-TileImage" content="<?php echo e(asset('favicon.ico')); ?>" />
     <title><?php echo $__env->yieldContent('title'); ?></title>
-    <link rel="icon" href="<?php echo e(asset('public/favicon.ico')); ?>" sizes="32x32" />
-    <link rel="apple-touch-icon-precomposed" href="<?php echo e(asset('public/favicon.ico')); ?>" />
+    <link rel="icon" href="<?php echo e(asset('favicon.ico')); ?>" sizes="32x32" />
+    <link rel="apple-touch-icon-precomposed" href="<?php echo e(asset('favicon.ico')); ?>" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 
     <link rel="stylesheet" href="<?php echo e(asset('resources/css/dashboard.min.css')); ?>" media="screen">
@@ -31,8 +31,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <!-- DataTable CSS -->
-    <script src="<?php echo e(asset('public/assets/DataTables/datatables.js')); ?>"></script>
-    <script src="<?php echo e(asset('public/assets/DataTables/datatables.min.js')); ?>"></script>
+    <script src="<?php echo e(asset('assets/DataTables/datatables.js')); ?>"></script>
+    <script src="<?php echo e(asset('assets/DataTables/datatables.min.js')); ?>"></script>
     <!-- DataTables Buttons JS -->    
     <script src="https://cdn.datatables.net/select/2.0.3/js/dataTables.select.js"></script>
     <script src="https://cdn.datatables.net/select/2.0.3/js/select.bootstrap4.js"></script>
@@ -99,8 +99,8 @@
 
     <?php echo $__env->yieldPushContent('style-css'); ?>
 
-    <link rel="stylesheet" href="<?php echo e(asset('public/assets/css/take-test-root.css')); ?>">
-    <link rel="stylesheet" href="<?php echo e(asset('public/assets/css/take-test-style.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('assets/css/take-test-root.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('assets/css/take-test-style.css')); ?>">
 
 </head>
 
@@ -115,7 +115,7 @@
 
             <?php if(!empty($SchoolDetails)): ?>
                 <?php if($SchoolDetails->logo): ?>
-                    <img src="<?php echo e(asset('public/assets/uploads/logos/' . $SchoolDetails->logo)); ?>" style="height:42px; padding:0;">
+                    <img src="<?php echo e(asset('assets/uploads/logos/' . $SchoolDetails->logo)); ?>" style="height:42px; padding:0;">
                 <?php else: ?>
                     <p>School: <?php echo e($SchoolDetails->school_name); ?> <?php if($SchoolDetails->school_code): ?>| <?php echo e($SchoolDetails->school_code); ?><?php endif; ?></p>
                 <?php endif; ?>
@@ -148,9 +148,9 @@
                             <li class="nav-item dropdown avtar">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="<?php echo e(route('filldart.dashboard')); ?>" role="button"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                 <?php if(auth()->guard('web')->check() && Auth::user()->profile_picture): ?>
-                                    <img src="<?php echo e(asset('public/assets/uploads/profilePictures/users/' .Auth::user()->profile_picture)); ?>" class="d-inline-block align-top" height="32" width="32" alt="avtar" style="border-radius: 50%;">
+                                    <img src="<?php echo e(asset('assets/uploads/profilePictures/users/' .Auth::user()->profile_picture)); ?>" class="d-inline-block align-top" height="32" width="32" alt="avtar" style="border-radius: 50%;">
                                 <?php elseif(auth()->guard('sstudent')->check() && Auth::guard('sstudent')->user()->profile_picture): ?>
-                                    <img src="<?php echo e(asset('public/assets/uploads/profilePictures/student/' .Auth::guard('sstudent')->user()->profile_picture)); ?>" class="d-inline-block align-top" height="32" width="32" alt="avtar" style="border-radius: 50%;">
+                                    <img src="<?php echo e(asset('assets/uploads/profilePictures/student/' .Auth::guard('sstudent')->user()->profile_picture)); ?>" class="d-inline-block align-top" height="32" width="32" alt="avtar" style="border-radius: 50%;">
                                 <?php else: ?>
                                     <img src="<?php echo e(asset('resources/images/avtar.png')); ?>" class="d-inline-block align-top" height="32" alt="avtar">
                                 <?php endif; ?>  

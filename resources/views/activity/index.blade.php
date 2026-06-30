@@ -139,12 +139,12 @@
                     <figure class="thumb-card"><img src="{{ preg_replace('/[^(\x20-\x7F)\x0A\x0D]*/','', $act->image) }}"
                             class="card-img-top attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="">
                     </figure>
-                    <?php } else if (file_exists('public/uploads/'.$act->image)){ ?>
-                    <figure class="thumb-card"><img src="{{ asset('public/uploads').'/'.$act->image }}"
+                    <?php } else if (file_exists('uploads/'.$act->image)){ ?>
+                    <figure class="thumb-card"><img src="{{ asset('uploads').'/'.$act->image }}"
                             class="card-img-top attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="">
                     </figure>
                     <?php } else{ ?>
-                    <figure class="thumb-card"><img src="{{ asset('public/uploads').'/'.'images.jpg' }}"
+                    <figure class="thumb-card"><img src="{{ asset('uploads').'/'.'images.jpg' }}"
                             class="card-img-top attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="">
                     </figure>
                     <?php } ?>

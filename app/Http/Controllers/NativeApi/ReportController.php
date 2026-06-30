@@ -9,34 +9,32 @@ use Auth;
 use Dompdf\Dompdf;
 use PDF;
 use DB;
-
+use Illuminate\Support\Facades\Log;
 use App\Traits\ReportHelperTrait;
+use App\Models\TermMaster;
 
 class ReportController extends Controller
 {
  	use ReportHelperTrait;
 
-    public function downloadFitnessReport($id = null, $term_id = null) {
+    public function downloadFitnessReport(Request $request) {
 
-		if($id){
-			$studentId = Crypt::decryptString($id);
-		}else{
-			$studentId = Auth::guard('student-api')->user()->id;
-		}
-        
+		$studentId = Auth::guard('student-api')->user()->id;
+        // return "hi";
         $studentsData = $this->getStudentData($studentId);
         if (!$studentsData) {
 	        return response()->json(['status' => false, 'message' => 'Student not found'], 404);
 	    }
 
-        
-        if (!empty($term_id)) {
-	        $TermMasterId = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $term_id);
-	    } else {
-	        $selectedTermId = $this->getTermId($studentsData->schools_id);
+	    $selectedTermId = $request->query('term_id') ?? TermMaster::where('school_id', $studentsData->schools_id) 
+        ->where('is_active', 1)
+        ->whereDate('term_start_date', '<=', today())
+        ->whereDate('term_end_date', '>=', today())
+        ->value('id');
 
-			$TermMasterId = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $selectedTermId);
-	    }
+		$TermMasterId = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $selectedTermId);
+
+        // Log::info('Term Master IDs fetched:', ['data' => $TermMasterId]);
 
 	    $currentTermId  = $TermMasterId[0] ?? null;
 		$previousTermId = $TermMasterId[1] ?? null;

@@ -43,12 +43,12 @@ class StudentProfileController extends Controller
             'reg_id'       => $student->user_id, 
             'role_id'      => 5, 
             'account_type' => 'student', 
-            'avatar'       => $student->profile_picture  ? asset('public/assets/uploads/profilePictures/student/' . $student->profile_picture) : null,
+            'avatar'       => $student->profile_picture  ? asset('assets/uploads/profilePictures/student/' . $student->profile_picture) : null,
 
             'schools'      => $student->school ? [[
                 'id'   => $student->school->id,
                 'name' => $student->school->school_name,
-                'logo' => $student->school->logo  ? asset('public/logo/' . $student->school->logo)  : null,
+                'logo' => $student->school->logo  ? asset('logo/' . $student->school->logo)  : null,
             ]] : [],
 
             'metadata'     => [
@@ -59,7 +59,6 @@ class StudentProfileController extends Controller
                 'apaarId' =>   $student->apaarId,
                 'domicile' =>  $student->domicile,
                 'hobbies'  =>   $student->hobbies,
-
             ]
         ];
 
@@ -70,10 +69,13 @@ class StudentProfileController extends Controller
         ]);
     }
 
-    public function dashboard(){
+    public function dashboard(Request $request){
 
         $studentId = Auth::guard('student-api')->user()->id;
         $currentDate = Carbon::now()->format('Y/m/d');
+
+
+
            
         $studentData = DB::table('students')        
         ->join('schools', 'schools.id', '=' , 'students.school_id')
@@ -96,10 +98,8 @@ class StudentProfileController extends Controller
         ->first();
 
 
-
         $dob          = Carbon::parse($studentData->dob);
-        $studentAge   = $dob->age;
-        
+        $studentAge   = $dob->age;        
         $ageGender = $studentAge . strtolower(substr($studentData->gender, 0, 1));
 
         $SchoolId = $studentData->school_id;
@@ -108,13 +108,21 @@ class StudentProfileController extends Controller
         $className = Helper::changeToRoman($studentData->custom_class_id);
         $studentData->className = $className;
 
-        $TermMasterId =  $this->getTermId($SchoolId);
+
+        $selectedTermId = $request->query('term_id') ?? TermMaster::where('school_id', $SchoolId) 
+        ->where('is_active', 1)
+        ->whereDate('term_start_date', '<=', today())
+        ->whereDate('term_end_date', '>=', today())
+        ->value('id');
+
+
+        // $TermMasterId =  $this->getTermId($SchoolId);
 
         $bmiRecord = DB::table('SeniorTestResults as str')
         ->select('str.height', 'str.weight', 'str.score', 'str.level as Level')
         ->where('str.TestTypeID', 18)
         ->where('str.StudentID', $studentId)
-        ->where('str.TermId', $TermMasterId)
+        ->where('str.TermId', $selectedTermId)
         ->orderBy('str.ResultId', 'desc')
         ->limit(1)
         ->first();
@@ -144,10 +152,10 @@ class StudentProfileController extends Controller
 
         $fmsTestData = DB::table('TestTypeMaster')
         ->join('skill_reports', 'skill_reports.TestTypeMasterID', '=', 'TestTypeMaster.TestTypeID')
-        ->join('skillreport_skilltype_termtype_mapping as sst', function ($join) use ($studentId, $TermMasterId) {
+        ->join('skillreport_skilltype_termtype_mapping as sst', function ($join) use ($studentId, $selectedTermId) {
             $join->on('sst.skill_report_id', '=', 'skill_reports.id')
                 ->where('sst.student_id', $studentId)
-                ->where('sst.term_master_id', $TermMasterId);
+                ->where('sst.term_master_id', $selectedTermId);
         })
         ->select(
             'TestTypeMaster.TestTypeID',
@@ -212,7 +220,7 @@ class StudentProfileController extends Controller
                 'TestTypeMaster.ScoreCriteria'         
             )
             ->where('str.StudentID', $studentId)
-            ->where('str.TermId', $TermMasterId)
+            ->where('str.TermId', $selectedTermId)
             ->whereNotIn('str.TestTypeID', [18])
             ->get();
 
@@ -311,51 +319,32 @@ class StudentProfileController extends Controller
             return $item;
         });
 
-        $year = date('Y');
-		$month = date('m');
-		$today = Carbon::today()->toDateString();
-		if ($month < 4) {
-			$academicYear = ($year - 1) . '-' . $year;
-		} else {
-			$academicYear = $year . '-' . ($year + 1);
-		}
 
-        $terms = TermMaster::select('id as term_id','term_name','academic_year','term_start_date','term_end_date')->where('school_id', $SchoolId)->where('is_active', 1)->where('academic_year', $academicYear)->get();
-
-        $currentTerm = DB::table('term_masters')
-            ->select('id', 'term_name', 'academic_year', 'term_start_date', 'term_end_date')
-            ->where('school_id', $SchoolId)
-            ->where('is_active', '1')
-            ->where('academic_year', $academicYear)
-            ->whereDate('term_start_date', '<=', $today)
-            ->whereDate('term_end_date', '>=', $today)
-            ->first();
-
-        $selectedTerm = session('term_id', $currentTerm->id);
+        $terms = TermMaster::select('id as term_id','term_name','academic_year','term_start_date','term_end_date')->where('school_id', $SchoolId)->where('is_active', 1)->get();
 
         return response()->json([
             'status' => true,
-            'selected_term_id' => (int)$TermMasterId,
+            'selected_term_id' => (int)$selectedTermId,
             'data' => [
                 'student_profile' => $studentData,
                 'age'             => $studentAge,
                 'bmi_report'      => [
-                    'latest'    => $bmiRecord,
+                    'latest'      => $bmiRecord,
                     'bmi_benchmark' => $getBmiBenchmark,
                     'bmiSuggestion' => $bmiSuggestion['message'],
                 ],
                 'fms_tests'       => $fmsTestData,
                 'fitness_tests'   => $fitnessTest,
                 'academic_terms'  => $terms,
+                'selectedTermId'  => $selectedTermId,
                 'getFitnessBenchmark' => $getFitnessBenchmark
             ]
         ], 200);
     }
 
 
-    public function dailyReportApi(Request $request){ 
+    public function dailyReportApi(Request $request){
 
-       
         $UserData = Auth::guard('student-api')->user();
         $school_id = $UserData->school_id;
         $SessionAndTerm = TermMaster::where('school_id', $school_id)->where('is_active',1)->select('id','term_name','academic_year')->get();
