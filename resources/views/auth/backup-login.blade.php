@@ -86,8 +86,6 @@
             <label class="form-check-label" for="remember">Remember Me</label>
          </div>
 		 
-		
-
          <div class="captcha-row">
             <div id="pagecaptcha-cont">
                <div class="captcha">
