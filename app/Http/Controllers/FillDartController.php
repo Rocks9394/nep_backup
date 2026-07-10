@@ -801,6 +801,7 @@ class FillDartController extends Controller
 		->get();
 
 		$media = Media::where('school_id', $schoolId)->with('activity')->get();
+		// echo"<pre>";print_r($media);exit();
 
 		return view('activity.media.gallary', compact('title','classes','schoolId', 'media'));
 	}

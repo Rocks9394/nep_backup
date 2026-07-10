@@ -33,9 +33,9 @@ class Media extends Model
         }
 
         // Ensure path starts with public/ for asset() URL generation
-        if (!Str::startsWith($path, 'public/')) {
-            $path = 'public/' . $path;
-        }
+        // if (!Str::startsWith($path, 'public/')) {
+        //     $path = 'public/' . $path;
+        // }
 
         return asset($path);
     }

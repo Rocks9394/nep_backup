@@ -328,9 +328,9 @@
                                                     
                                                     <div class="cover-photo">
                                                         @if($group->first())
-                                                            <img src="{{ $group->first()->url ?? asset('/public/assets/media/photo-001.jpg') }}" class="gallery-cover" />
+                                                            <img src="{{ $group->first()->url ?? asset('/assets/media/photo-001.jpg') }}" class="gallery-cover" />
                                                         @else
-                                                            <img src="{{ asset('/public/assets/media/photo-001.jpg') }}" class="gallery-cover" />
+                                                            <img src="{{ asset('/assets/media/photo-001.jpg') }}" class="gallery-cover" />
                                                         @endif
                                                     </div>
 
@@ -374,11 +374,11 @@
                                                     <div class="cover-photo">
                                                         @if($group->first())
                                                         <video class="gallery-cover" muted playsinline controls preload="metadata" style="display:block;">
-                                                            <source src="{{ $group->first()->url ?? asset('/public/assets/media/dummy-video.mp4') }}" type="video/mp4" >
+                                                            <source src="{{ $group->first()->url ?? asset('/assets/media/dummy-video.mp4') }}" type="video/mp4" >
                                                         </video>
                                                         @else
                                                         <video class="gallery-cover" muted playsinline controls preload="metadata" style="max-height:220px; display:block;">
-                                                            <source src="{{ asset('/public/assets/media/dummy-video.mp4') }}" type="video/mp4" >
+                                                            <source src="{{ asset('/assets/media/dummy-video.mp4') }}" type="video/mp4" >
                                                         </video>
                                                         @endif
                                                     </div>

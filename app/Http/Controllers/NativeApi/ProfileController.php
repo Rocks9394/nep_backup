@@ -57,19 +57,6 @@ class ProfileController extends Controller
     }
 
 
-    public function show_nk(Request $request) {
-
-        $user = auth()->user();
-
-        echo "<pre>"; print_r($user); exit();
-
-        $user = $request->user()->load(['schools','usermeta']);
-        
-        return response()->json([
-            'status' => true,
-            'data' => new ProfileResource($user),
-        ]);
-    }
 
 
     public function update(Request $request)

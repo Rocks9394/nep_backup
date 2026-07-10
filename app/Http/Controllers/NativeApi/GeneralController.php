@@ -196,12 +196,12 @@ class GeneralController extends Controller {
 			        if (str_contains($activity->image, 'wp-content')) {
 			            $activity->final_image = $activity->image;
 			        } elseif (file_exists(public_path('uploads/' . $activity->image))) {
-			            $activity->final_image = asset('public/uploads/' . $activity->image);
+			            $activity->final_image = asset('uploads/' . $activity->image);
 			        } else {
-			            $activity->final_image = asset('public/change-activities/default_activity_img.svg');
+			            $activity->final_image = asset('change-activities/default_activity_img.svg');
 			        }
 			    } else {
-			        $activity->final_image = asset('public/change-activities/default_activity_img.svg');
+			        $activity->final_image = asset('change-activities/default_activity_img.svg');
 			    }
 
 			    $activity->status = in_array($activity->id, $doneActivityIds) ? 'Completed' : 'upcoming';
