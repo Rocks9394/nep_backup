@@ -73,10 +73,8 @@ class StudentProfileController extends Controller
 
         $studentId = Auth::guard('student-api')->user()->id;
         $currentDate = Carbon::now()->format('Y/m/d');
+        $baseIconUrl = 'https://nep.goforfit.in/uploads/BatteryOfTests/';
 
-
-
-           
         $studentData = DB::table('students')        
         ->join('schools', 'schools.id', '=' , 'students.school_id')
         ->leftJoin('custom_classes', 'students.custom_class_id', '=', 'custom_classes.id')
@@ -162,6 +160,7 @@ class StudentProfileController extends Controller
             'skill_reports.id as skillId',
             'skill_reports.skill_name',
             'skill_reports.icons',
+            DB::raw("CONCAT('$baseIconUrl', skill_reports.icons) as icons"),
             DB::raw('COUNT(sst.id) as score')
         )
         ->whereIn('TestTypeMaster.TestTypeID', $fmsApplicable)
@@ -202,6 +201,8 @@ class StudentProfileController extends Controller
                 
         }
 
+
+
         $fitnessTest = DB::table('SeniorTestResults as str')
             ->join('skill_reports', 'skill_reports.id', '=', 'str.TestTypeID')
             ->join('TestTypeMaster','TestTypeMaster.TestTypeID','=', 'skill_reports.TestTypeMasterID')
@@ -216,6 +217,7 @@ class StudentProfileController extends Controller
                 'str.level',                
                 'skill_reports.skill_name',
                 'skill_reports.icons',
+                DB::raw("CONCAT('$baseIconUrl', skill_reports.icons) as icons"),
                 'TestTypeMaster.ScoreUnit',
                 'TestTypeMaster.ScoreCriteria'         
             )
@@ -332,6 +334,10 @@ class StudentProfileController extends Controller
                     'latest'      => $bmiRecord,
                     'bmi_benchmark' => $getBmiBenchmark,
                     'bmiSuggestion' => $bmiSuggestion['message'],
+                    'bmi_icons'   =>[
+                        'height' => 'https://nep.goforfit.in/assets/imgs/height-icon.jpg',
+                        'weight' => 'https://nep.goforfit.in/assets/imgs/weight-icon.png'
+                    ],
                 ],
                 'fms_tests'       => $fmsTestData,
                 'fitness_tests'   => $fitnessTest,
@@ -454,10 +460,10 @@ class StudentProfileController extends Controller
                 if (str_starts_with($data->image, 'https')) {
                    $imageUrl = $data->image;
                 }else{
-                    $imageUrl = 'https://nep.goforfit.in/public/uploads/'.$data->image;
+                    $imageUrl = 'https://nep.goforfit.in/uploads/'.$data->image;
                 }
             }else{
-                $imageUrl = 'https://nep.goforfit.in/public/change-activities/default_activity_img.svg';
+                $imageUrl = 'https://nep.goforfit.in/change-activities/default_activity_img.svg';
             }
             
             $sections[$categoryName]['data'][] = [

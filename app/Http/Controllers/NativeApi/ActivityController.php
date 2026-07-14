@@ -48,13 +48,13 @@ class ActivityController extends Controller
 		    if (!empty($activity->image)) {
 		        if (str_contains($activity->image, 'wp-content')) {
 		            $activity->final_image = $activity->image;
-		        } elseif (file_exists(public_path('uploads/' . $activity->image))) {
-		            $activity->final_image = asset('public/uploads/' . $activity->image);
+		        } elseif (file_exists(public_path('/' . $activity->image))) {
+		            $activity->final_image = asset('/' . $activity->image);
 		        } else {
-		            $activity->final_image = asset('public/change-activities/default_activity_img.svg');
+		            $activity->final_image = asset('change-activities/default_activity_img.svg');
 		        }
 		    } else {
-		        $activity->final_image = asset('public/change-activities/default_activity_img.svg');
+		        $activity->final_image = asset('change-activities/default_activity_img.svg');
 		    }
 
 		    return $activity;
@@ -157,7 +157,7 @@ class ActivityController extends Controller
     	$items = DB::table('learn_sports')->select('id', 'name', 'img')
 		->where('status', 'active')->orderBy('sequence', 'asc')->get();
 
-		$path = 'https://nep.goforfit.in/public/change-sports/';
+		$path = 'https://nep.goforfit.in/change-sports/';
 
  		$result = $items->map( function($items) use ($path) {
  			$array = [
@@ -181,7 +181,7 @@ class ActivityController extends Controller
 		$items = DB::table('learn_sports') ->select('name', 'img', 'video', 'desc','id')
 		->where('id', $sport_id)->get();
 
-		$path = 'https://nep.goforfit.in/public/change-sports/';
+		$path = 'https://nep.goforfit.in/change-sports/';
 		$sport_details = $items->map( function($items) use ($path) {
  			$array = [
  				'id' => $items->id,
@@ -243,7 +243,7 @@ class ActivityController extends Controller
 	        ->get();
 
 
-	    $imageurl = 'https://nep.goforfit.in/public/icons/BatteryOfTests/';   
+	    $imageurl = 'https://nep.goforfit.in/uploads/BatteryOfTests/';   
 
 	    $skill_data = $TestData->groupBy('id')->map(function ($items) use ($imageurl) {
 	  

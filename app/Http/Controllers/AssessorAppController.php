@@ -72,7 +72,7 @@ class AssessorAppController extends Controller
 		$junior = array(10, 11, 12);
 		$junior1 = array(2, 6, 3);
 		
-		$senior = array(8, 9, 5, 4, 15, 3);
+		$senior = array(8, 9, 5, 4, 15, 3, 132);
 		$cbseTests = array(6, 7, 1, 2, 131);
 	
 		$juniorData = DB::table('TestCategoryMaster')->whereIn('TestCategoryID',$junior)->orderByRaw('FIELD(TestCategoryID, ' . implode(',', $junior) . ')')->get();
@@ -308,7 +308,7 @@ class AssessorAppController extends Controller
 				END")
 			);
 
-		$seniorclasses = $query->whereIn('class.id', array(4,5,6,7,8,9,10,11,12))->get();
+		$seniorclasses = $query->whereIn('class.id', array(4,5,6,7,8,9,10,11,12, 132))->get();
 		$additionalClasses = $query->whereIn('class.id', array(9,10,11,12))->get();
 		
 		
@@ -437,6 +437,15 @@ class AssessorAppController extends Controller
 	
 			$title = $skillReport->skill_name;
 			return view('assessor.speed', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
+			
+		}
+		elseif($skillReport->skill_name == 'WingSpam 3')
+		{
+			
+			$classes = $seniorclasses;
+	
+			$title = $skillReport->skill_name;
+			return view('assessor.senior-bmi', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 			
 		}
 		else{
