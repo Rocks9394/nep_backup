@@ -19,9 +19,7 @@
                     </div>
                 </div>
             </div>
-			
-			
-
+				
             <div class="col-12 col-md-8">
                 <div class="form mt-1 mt-md-3">
                     <label for="student_id" class="form-label">Select Student</label>
@@ -38,8 +36,6 @@
 			$trainerName = auth()->user()->name;
 			@endphp
 		
-
-
 			
             @if(Auth::user()->id == '995')
 			
@@ -95,90 +91,7 @@
 
 
 <script>
-    function redirectToPython() 
-	{
-        const studentSelect = document.querySelector('select[name="student_id"]');
-        const classSelect = document.querySelector('select[name="class_id"]');
-        
-        const pathArray = window.location.pathname.split('/');
-        const exerciseId = pathArray[pathArray.length - 1]; 
-
-        if (!studentSelect || !studentSelect.value || studentSelect.value === "") {
-            alert("Please select a student first!");
-            return;
-        }
-
-        // Use Blade syntax to inject the values safely
-        const trainerName = "{{ $trainerName }}";
-        const exerciseTitle = "{{ $title }}";
-        const currentTrainerId = "{{ $userId }}";
-
-        const selectedOption = studentSelect.options[studentSelect.selectedIndex];
-        const actualStudentId = selectedOption.getAttribute('data-id');
-        const rollNoValue = studentSelect.value;
-        const classSection = classSelect ? classSelect.options[classSelect.selectedIndex].text : "N/A";
-        const fullText = selectedOption.text;
-        
-        let rollNo = rollNoValue;
-        let studentName = fullText;
-
-        if (fullText.includes('|')) {
-            const parts = fullText.split('|');
-            rollNo = parts[0].replace(/Roll No:/i, '').trim();
-            studentName = parts[1].replace(/Name:/i, '').trim();
-        }
-
-        // --- DYNAMIC DATA: Construct URL parameters ---
-        const queryParams = new URLSearchParams({
-            id: actualStudentId,
-            name: studentName,
-            roll: rollNo,
-            class_info: classSection,
-            ex_id: exerciseId,
-            trainerId: currentTrainerId, // MUST match what exercise-header.js reads
-            traiName: trainerName,
-            exerciseName: exerciseTitle     
-        });
-        
-        //const baseUrl = "http://103.65.20.129:8000/";
-         const baseUrl  = "https://talentid.goforfit.in/";
-	   
-	   let pageName = "";
-
-        switch (exerciseTitle) {
-            case 'Push Ups':
-                pageName = "standard-push-ups.html";
-                break;
-            case 'Flamingo Balance Test':
-            case 'One-Foot Balance':
-                pageName = "single-leg-balance.html";
-                break;
-            case 'Flexed/Bent Arm Hang':
-                pageName = "bent-arm-hang.html";
-                break;
-            case 'Plate Tapping':
-                pageName = "plate-tapping.html";
-                break;
-            case 'BMI':
-                pageName = "height-winspam-calculate.html";
-                break;
-            case 'Partial curl up 30 sec':
-                pageName = "partial-curl-up.html";
-                break;
-            case 'Vertical Jump':
-                pageName = "standing-vertical-jump1.html";
-                break;
-            default:
-                alert("Exercise page not found for: " + exerciseTitle);
-                return;
-        }
-
-        window.location.href = `${baseUrl}${pageName}?${queryParams.toString()}`;
-    }
-	
-	
-	
-	
+   
 function openAIScreen() {
     const studentSelect = document.querySelector('select[name="student_id"]');
     const classSelect = document.querySelector('select[name="class_id"]');
@@ -221,7 +134,9 @@ function openAIScreen() {
         trainerId: currentTrainerId, // MUST match what exercise-header.js reads
         traiName: trainerName,
         exerciseName: exerciseTitle     
-    });
+    }); 
+	
+	
     
     // We make baseUrl a re-assignable 'let' variable so we can change it dynamically
     let baseUrl = "https://talentid.goforfit.in/";
@@ -231,7 +146,7 @@ function openAIScreen() {
         // ────────────────────────────────────────────────────────
         // 1. NEW FASTAPI INTEGRATION
         // ────────────────────────────────────────────────────────
-        case 'BMI':
+        case 'WingSpan':
         case 'Anthropometry':
             // Overwrite baseUrl to use your clean secure Apache reverse proxy directory
             baseUrl = "https://talentid.goforfit.in/fms/";
@@ -274,10 +189,80 @@ function openAIScreen() {
     // Open the window
     window.open(aiUrl, 'AIWindow', 'width=1200,height=800');
 }
+
+
+/**
+ * Dedicated launch function for FastAPI AI Engine screens.
+ * Leaves openAIScreen() completely untouched for legacy HTML tests.
+ */
+function openFastAPIScreen() {
+    const studentSelect = document.querySelector('select[name="student_id"]');
+    const classSelect   = document.querySelector('select[name="class_id"]');
+    
+    const pathArray  = window.location.pathname.split('/');
+    const exerciseId = pathArray[pathArray.length - 1]; 
+
+    if (!studentSelect || !studentSelect.value || studentSelect.value === "") {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Select Student',
+            text: 'Please select a student first!'
+        });
+        return;
+    }
+
+    // Pull student metadata
+    const selectedOption  = studentSelect.options[studentSelect.selectedIndex];
+    const actualStudentId = selectedOption.getAttribute('data-id');
+    const rollNoValue     = studentSelect.value;
+    const classSection    = classSelect ? classSelect.options[classSelect.selectedIndex].text : "N/A";
+    const fullText        = selectedOption.text;
+    
+    let rollNo      = rollNoValue;
+    let studentName = fullText;
+
+    if (fullText.includes('|')) {
+        const parts = fullText.split('|');
+        rollNo      = parts[0].replace(/Roll No:/i, '').trim();
+        studentName = parts[1].replace(/Name:/i, '').trim();
+    }
+
+    // Blade context
+    const trainerName      = "{{ $trainerName }}";
+    const exerciseTitle    = "{{ $title }}";
+    const currentTrainerId = "{{ $userId }}";
+
+    // Clean test key formatted for FastAPI (e.g., "WingSpan" -> "wingspan")
+    const testKey = exerciseTitle.toLowerCase().replace(/[^a-z0-9]/g, '_');
+
+    // Build query parameters for FastAPI screen4
+    const queryParams = new URLSearchParams({
+        test: testKey,                  // 'wingspan', 'anthropometry', 'bmi', etc.
+        id: actualStudentId,            // Student ID
+        name: studentName,              // Student Name
+        roll: rollNo,                   // Roll Number
+        class_info: classSection,        // Class & Section
+        ex_id: exerciseId,              // Exercise ID
+        trainerId: currentTrainerId,    // Trainer ID
+        traiName: trainerName,          // Trainer Name
+        exerciseName: exerciseTitle     // Original Title
+    });
+
+    // Clean secure FastAPI base proxy endpoint
+    const baseUrl  = "https://talentid.goforfit.in/fms/";
+    const pageName = "screen4";
+
+    const aiUrl = `${baseUrl}${pageName}?${queryParams.toString()}`;
+
+    // Open in dedicated popup window
+    window.open(aiUrl, 'FastAPIAIWindow', 'width=1280,height=800,scrollbars=yes,resizable=yes');
+}
 	
 	
 	
 </script>
+
+
 
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
@@ -406,6 +391,7 @@ function openAIScreen() {
     });
 
 </script>
+
 <script>
     $(document).ready(function () {
        if(localStorage.getItem("selected_class")){
@@ -554,6 +540,7 @@ function openAIScreen() {
         };
 
     });
+
 
     $('#student_id').on('change', function () {
         let rollNo = this.value;

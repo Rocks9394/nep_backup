@@ -177,6 +177,22 @@
                             </ul>
                             @endif
 
+
+                            <br><h4 class="test-cat">Physical Fitness Assessment for CWSN</h4>
+                                <ul class="list-group mt-0">                        
+                                    @foreach($rpwdCategoriesData as $category)
+                                        @php $encrypted = encrypt($category->PwdCategoryID); @endphp
+
+                                        <li>
+                                            <a 
+                                            href="{{ route('assessor.cwsn.category', ['pwd_category_id' => $category->PwdCategoryID]) }}">
+                                                <span>{{ $category->CategoryName }}</span>
+                                                <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
+                                            </a>
+                                        </li>
+                                    @endforeach                    
+                                </ul>
+
                         </div>
                     </div>
                 </div>

@@ -2035,7 +2035,10 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
         $studentIds = $request->input('student_ids', []);
 
-		$students = DB::table('schools')->select(
+		$students = DB::table('schools')
+			->join('students','students.school_id', 'schools.id')
+			->join('class','class.id', 'students.class_id')
+			->select(
 			'schools.school_name',
 			'schools.logo',
 			'schools.school_code',
@@ -2047,8 +2050,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			'students.custom_class_id',
 			'class.name as class_name',
 			'students.section_id'
-			)->join('students','students.school_id', 'schools.id')
-			->join('class','class.id', 'students.class_id')				
+			)				
 			->where('students.status', 'active')
 	    	->whereIn('students.id', $studentIds)->get();
 

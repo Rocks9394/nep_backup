@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\Auth\UserController;
@@ -39,6 +38,8 @@ use App\Http\Controllers\Auth\ChangePasswordController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Sstudent;
 use Illuminate\Http\Request;
+
+use App\Http\Controllers\CwsnController;
 
 /*
 |--------------------------------------------------------------------------
@@ -131,6 +132,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('assessor-app-partial-curl-up-record-submit',[App\Http\Controllers\AssessorAppController::class, 'SubmitPartialCurlUpRecord'])->name('partial.curl.up.record.submit');
 	Route::post('assessor-app-sit-and-reach-record-submit',[App\Http\Controllers\AssessorAppController::class, 'SubmitSitAndReachRecord'])->name('sit.and.reach.record.submit');
 	Route::post('assessor-app-speed-record-submit',[App\Http\Controllers\AssessorAppController::class, 'SubmitSpeedRecord'])->name('speed.record.submit');
+	Route::post('assessor-app-wingspan-record-submit',[App\Http\Controllers\AssessorAppController::class, 'SubmitWingSpanRecord'])->name('wingspan.record.submit');
 
 	// to view reports on trainer 
 	Route::get('higherclass/summary', [ReportController::class, 'HigherClassTestSummary'])->name('trainer.higherclass.status');
@@ -138,6 +140,16 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('report/{id}', [AssessorAppController::class, 'ViewFitnessReport'])->name('trainer.reports.view');
 
 
+	/**
+	 * Date : 09-07-2026
+	 * Routes for CWSN Tests.
+	 * */
+	Route::prefix('cwsn')->group(function(){
+		Route::get('{pwd_category_id}', [CwsnController::class, 'showCWSNCategory'])->name('assessor.cwsn.category');
+		Route::get('{pwd_category_id}/category/{test_category_id}', [CwsnController::class, 'CWSNSkillsTest'])->name('assessor.cwsn.test');
+		Route::get('{pwd_category_id}/test/{TestTypeId}', [CwsnController::class, 'CwsnTestTypes'])->name('cwsn.test.types');
+	});
+	
 });
 
 

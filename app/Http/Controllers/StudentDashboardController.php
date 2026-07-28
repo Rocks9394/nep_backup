@@ -74,9 +74,12 @@ class StudentDashboardController extends Controller
                 END AS className
             ")
         )
-        ->where('students.status', 'active')
+        ->where('students.status', '=', 'active')
         ->where('students.id', $studentId)
         ->first();
+
+        // dd($studentData);
+
         $dob          = Carbon::parse($studentData->dob);
 	    $studentAge   = $dob->age;
         
