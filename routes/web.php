@@ -148,6 +148,7 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::get('{pwd_category_id}', [CwsnController::class, 'showCWSNCategory'])->name('assessor.cwsn.category');
 		Route::get('{pwd_category_id}/category/{test_category_id}', [CwsnController::class, 'CWSNSkillsTest'])->name('assessor.cwsn.test');
 		Route::get('{pwd_category_id}/test/{TestTypeId}', [CwsnController::class, 'CwsnTestTypes'])->name('cwsn.test.types');
+		Route::post('cwsn.types.submit',[CwsnController::class, 'SubmitCwsnTest'])->name('cwsn.types.submit');
 	});
 	
 });
@@ -386,7 +387,12 @@ Route::prefix('school')->group(function(){
 	Route::post('promote-student',[SchoolRecordController::class, 'PromoteStudent'])->name('promote-student');
 
 	Route::get('fetchStudents',[SchoolRecordController::class, 'fetchStudents'])->name('fetchStudents');
+	Route::post('update-rollno',[SchoolRecordController::class, 'updateRollno'])->name('update.rollno');
+	Route::post('update-email',[SchoolRecordController::class, 'updateEmailId'])->name('update.email');
 
+	Route::post('promote-student-ids',[SchoolRecordController::class, 'PromoteStudentIds'])->name('promote.student.ids');
+	Route::get('fetch-promotion-ids-status',[SchoolRecordController::class, 'PromotionIdsStatus'])->name('fetch.promotionIds.status');
+	Route::post('download-student-profile', [SchoolRecordController::class, 'downloadStudentProfile'])->name('download.student.profile');
 
 	Route::get('mapping-sports', [SchoolRecordController::class,'MapSports'])->name('mapping.sports')->middleware('module_access:mapping.sports');
 	Route::put('mapping-sports/{id}', [SchoolRecordController::class,'SaveMappedSports'])->name('mapping.sports.update');

@@ -36,6 +36,8 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ImportStudentProfile;
 use App\Exports\ExportImproperData;
+use App\Exports\ExportStudentProfile;
+use App\Jobs\PromoteStudentsByIdsJob;
 use App\Models\Sport; 
 use App\Models\ViewDart;
 use App\Models\Teacher;
@@ -908,9 +910,9 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
      * */
 
 	public function ManageStudents(Request $request){
-
-
+   
     	$userId = Auth::user()->id;
+
 		$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
 		$data = ScustomClass::where('school_id', $schoolId)->select('class_id','section')->get()->toArray();
 		$customClass1 = array();
@@ -931,6 +933,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		$school = School::find($schoolId);
 		$classList = $school->getClasses;
 		foreach ($classList as $class) {
+		   // $class->name = Sclass::where('id', $class->class_id)->orderBy('orders')->first()->name;
 
 		    $originalClass = Sclass::where('id', $class->class_id)->orderBy('orders')->first();
 		    $class->name = !empty($class->nomenclature) 
@@ -938,42 +941,52 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		        : ($originalClass ? $originalClass->name : null);
 
 		}
-		$classList = $classList->sortBy('orders')->values();
+
+
 		$classList->prepend((object)[
 	        'class_id' => '',
 	        'name' => 'Select Class',
 	        'section' => ''
 	    ]);
-			
-		$sub = DB::table('custom_classes')
-		    ->select(DB::raw('MIN(id) as min_id'))
-		    ->where('school_id', $schoolId)
-		    ->groupBy('class_id');
 
-		$classes = DB::table('custom_classes')
-	    ->join('class', 'class.id', '=', 'custom_classes.class_id')
-	    ->join('schools', 'schools.id', '=', 'custom_classes.school_id')
-	    ->whereIn('custom_classes.id', $sub)
-	    ->select(
-	        'schools.id as schools_id',
-	        'custom_classes.id as custom_class_id',
-	        'custom_classes.class_id as id',
-	        'custom_classes.section',
-	        DB::raw("
-	            CASE 
-	                WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-	                THEN custom_classes.nomenclature 
-	                ELSE class.name 
-	            END AS className
-	        ")
-	    )
-	    ->orderBy('school_id')->orderby('custom_classes.orders')
-	    ->get();
+
+		$year = date('Y');
+        $month = date('m');
+		$academicYear = ($month >= 4)
+			? $year . '-' . ($year + 1)
+			: ($year - 1) . '-' . $year;
+
+			[$startYear, $endYear] = explode('-', $academicYear);
+			$previousAcademicYear = ($startYear - 1) . '-' . ($endYear - 1);
+
+		if ($request->filled('academic_year')) {
+			$selectedYear = $request->academic_year;
+		} else {
+
+			$hasPreviousYearData = DB::table('students')
+				->where('school_code', $school->school_code)
+				->where('academic_year', $previousAcademicYear)
+				->exists();
+			$selectedYear = $hasPreviousYearData
+				? $previousAcademicYear
+				: $academicYear;
+		}
+
+		$classes = DB::table('schools')
+			->select('class.id','class.name as className', 'nomenclature')
+			->join('custom_classes' ,'custom_classes.school_id' ,'=' ,'schools.id')
+			->join('class','class.id','=','custom_classes.class_id')
+			->where('schools.id' ,$schoolId )
+			->where('class.status' , 1 )
+			->groupBy('class.id','class.name','nomenclature')
+			->orderBY('class.orders')
+			->get();
 
 		//echo "<pre>"; print_r($classes);exit();
 
 		$studentsQuery = DB::table('schools')
 		->join('students', 'students.school_id', '=' , 'schools.id')
+		->leftJoin('students_meta', 'students_meta.student_id', '=', 'students.id')
 		->leftJoin('class', 'students.class_id', '=', 'class.id')
     	->leftJoin('custom_classes', 'students.custom_class_id', '=', 'custom_classes.id')
 		->select(
@@ -990,6 +1003,11 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			'students.email_id',
 			'students.rollno',
 			'students.status',
+			'students.is_pwd',
+			'students_meta.disability_types',
+			'students.created_at',
+			'students.academic_year',
+			'students.email_flag',
 			DB::raw("CASE 
                     WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
                     THEN custom_classes.nomenclature 
@@ -1014,24 +1032,32 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		                    (students.class_id = 9 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 12 AND 17) OR
 		                    (students.class_id = 10 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 13 AND 18) OR
 		                    (students.class_id = 11 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 14 AND 19) OR
-		                    (students.class_id = 12 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 15 AND 20) OR
-							(students.class_id = 14 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 3 AND 5) OR
-							(students.class_id = 17 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 3 AND 5) OR
-							(students.class_id = 18 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 3 AND 5) OR
-							(students.class_id = 22 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 3 AND 6) OR
-							(students.class_id = 23 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 4 AND 7) 
+		                    (students.class_id = 12 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 15 AND 20)
 		                )
 		            THEN 1
 		            ELSE 0
 		        END AS isValidAge
 		    ")
 		)
-		->where('students.school_code', $school->school_code)
 		->orderBy('students.class_id')
 		->orderBy('students.section_id')
-		->orderBy('students.rollno', 'asc');;
+		->where('students.school_code', $school->school_code);
 
+		$emailGroups = (clone $studentsQuery)
+		->where('students.academic_year', $academicYear)
+		->where('students.email_flag', '0')
+		->get()
+		->groupBy('email_id');
 
+		$studentsDetails1 = (clone $studentsQuery)->get();
+		$emailCounts = $studentsDetails1->groupBy('email_id')->map->count();
+
+		if ($request->filled('academic_year')) {
+			$studentsQuery->where('students.academic_year', $request->academic_year);
+		} else {
+			$studentsQuery->where('students.academic_year', $selectedYear);
+		}
+		
 		if ($request->filled('class_id')) {
 			$studentsQuery->where('students.class_id', $request->class_id);
 		}
@@ -1040,56 +1066,58 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			$studentsQuery->where('students.section_id', $request->section_id);
 		}
 
-        if ($request->has('status')) {
-	        $status = $request->input('status');
-	        if (!empty($status)) {
-	        	$studentsQuery->where('students.status', $status);
-	        }
+        if ($request->filled('status')) {
+			$status = $request->input('status');
+			if ($status === 'all') {
+				$studentsQuery->whereIn('students.status', ['active', 'transfer', 'promoted', 'failed',]);
+			}else{
+				$studentsQuery->where('students.status', $status);			
+			}
 	    }
-	    $studentsDetails = $studentsQuery->get();
+		// for physically disabled
+		// if ($request->filled('is_pwd')) {
+		// 	$studentsQuery->where('students.is_pwd', $request->input('is_pwd'));
+		// }
 
+		$studentsDetails  = (clone $studentsQuery)->get();
 
     	if($request->ajax()){
 
 			return Datatables::of($studentsDetails)
 	        ->addIndexColumn()
 
-			->addColumn('checkbox', function($row) {
-		        return '<input type="checkbox" class="row-select" value="'.$row->student_id.'">';
+			->addColumn('checkbox', function($row) use ($academicYear){
+				if($row->academic_year != $academicYear && $row->status != 'active') {
+					return '<input type="checkbox" class="row-select abc" value="'.$row->student_id.'" data-id=" '.$row->student_id .'" disabled>';
+				}else{
+					return '<input type="checkbox" class="row-select" value="'.$row->student_id.'" data-id="'. $row->student_id .'">';
+				}
 		    })
 
 	        ->addColumn('class_id', function($row) {
 	        	return $row->display_classname;
-                // return \App\Helpers\Helper::className($row->class_id);
             })
 
-	        ->addColumn('section_id', function($row) use ($customClass1){
-	        	$html = '<select class="form-control mx-0 w-100" name="section_id" data-section="'.$row->section_id.'" data-id= '.$row->student_id.' id="section" value="'.$row->class_id.'" >
-	                <option value="">Section</option>';
-                	foreach ($customClass1[$row->class_id] as $section) {
-					    $html .= '<option value="' . $row->class_id . '"';
-					    if ($row->section_id == $section) {
-					        $html .= ' selected';
-					    }
-					    $html .= '>' . $section . '</option>';
-					}
-	        	$html .= '</select>';
-                return $html;
+			->addColumn('section_id', function($row) use ($customClass1, $academicYear){
+				if ($row->academic_year == $academicYear){
+					$html = '<select class="form-control mx-0 w-100" name="section_id" data-section="'.$row->section_id.'" data-id= '.$row->student_id.' id="section" value="'.$row->class_id.'" >
+						<option value="">Section</option>';
+						foreach ($customClass1[$row->class_id] as $section) {
+							$html .= '<option value="' . $row->class_id . '"';
+							if ($row->section_id == $section) {
+								$html .= ' selected';
+							}
+							$html .= '>' . $section . '</option>';
+						}
+					$html .= '</select>';
+					return $html;
+				}else{ 	
+					return $row->section_id;
+				}       	
             })
 
             ->addColumn('gender' , function($row) {
-            	$gender = ['Male','Female'];
-            	$genderHtml = '<select class="form-control form-control-sm" name="gender" id="studentGender" data-gender="'.$row->gender.'" data-id="'.$row->student_id.'" >
-	                <option value="">Select Gender</option>';
-					foreach ($gender as $data) {
-						$genderHtml .= '<option value="' . $data . '"';
-						if ($data == $row->gender) {
-							$genderHtml .= ' selected';
-						}
-						$genderHtml .= '>' . $data . '</option>';
-					}
-				$genderHtml .= '</select>';
-            	return $genderHtml;
+				return $row->gender;
             })
 
 	        ->addColumn('dob', function($row) {
@@ -1112,20 +1140,43 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				if ((isset($row->isValidAge) && $row->isValidAge === 0) || $formatted_date == 'Fill date') {
 					$hasDobError = true;
 				}
-
+				$formattedDob = date('d M Y', strtotime($row->dob));
 
 				if ($hasDobError) {
-					return '<input class="datepicker has-dob-error" data-dob-error="true" data-dob="'.date('d-m-Y', strtotime($row->dob)).'" data-id="'.$row->student_id.'" type="date" name="birth_date" value="'.$formatted_date.'" id="updated_date">';
+					return '<span class="has-dob-error"
+						data-dob-error="true"
+						data-dob="'.$formattedDob.'"
+						data-id="'.$row->student_id.'">'
+						.$formattedDob.
+					'</span>';
+				} else {
+					$datehtml .= '<span
+						data-dob="'.$formattedDob.'"
+						data-id="'.$row->student_id.'">'
+						.$formattedDob.
+					'</span>';
 				}
-		        else{
-		    		$datehtml .= '<input class="datepicker" data-dob="'.date('d-m-Y', strtotime($row->dob)).'" data-id="'.$row->student_id.'" type="date" name="birth_date" value="'.$formatted_date.'" id="updated_date">';
-		        } 
 
                 return $datehtml;
             })
 
-	        ->addColumn('status', function($row){
-	        	$status = ['active','transfer'];
+			->addColumn('email_id', function ($row) use ($emailCounts) {
+				$count = $emailCounts[$row->email_id] ?? 0;
+				$email = ($row->email_id);
+				// if ($count >= 2) {
+				// 	$email .= ' <span class="badge badge-danger"><i class="fa fa-ban" title="This email id is used '  . $count . ' times"></i></span>';
+				// }
+				return $email;
+			})
+
+	        ->addColumn('status', function($row) use ($academicYear){
+				$status = null;
+				if ($row->academic_year == $academicYear){
+					$status = ['active','transfer'];
+				}else{
+					$status = ['active','transfer','promoted','failed'];
+				}
+	        	
             	$statusHtml = '<select class="form-control" name="status" id="studentStatus" data-status="'.$row->status.'" data-id="'.$row->student_id.'" >
 	                <!--option value="">Select Status</option-->';
 					foreach ($status as $data) {
@@ -1138,8 +1189,49 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				$statusHtml .= '</select>';
             	return $statusHtml;
             })
+			->addColumn('student_display_name', function($row) {
+				if($row->is_pwd == 1){
+					return $row->student_name . ' <span style="color:white; background:#e74c3c; padding:2px 6px; border-radius:4px; font-size:10px;">CWSN</span>';
+				} else {
+					return $row->student_name;
+				}
+			})
+			->addColumn('created_at', function($row) {
+				return Carbon::parse($row->created_at)->format('d-m-Y');
+			})
 
-            ->rawColumns(['checkbox','gender','class_id','section_id','dob','status'])
+			->addColumn('rollno', function($row) use($academicYear) {
+				if ($row->academic_year == $academicYear){
+					return '<input type="text" class="form-control rollno-input" data-rollno="'.$row->rollno.'"  value="'.$row->rollno.'" data-id="'.$row->student_id.'">';
+				}else{
+					return $row->rollno;
+				}
+			})
+
+			->addColumn('edit_button', function($row) use($academicYear) {
+
+				if ($row->academic_year == $academicYear){
+					return '<div class="d-flex align-items-center">
+								<button class="btn btn-sm btn-primary edit-student" 
+										data-id="'.$row->student_id.'" 
+										title="edit '.$row->student_name.' details">
+									<i class="fas fa-edit"></i>
+								</button>
+								<button class="btn btn-sm btn-primary mx-1 login-as-student" 
+										data-id="'.$row->student_id.'" 
+										title="Login as '.$row->student_name.'">
+									<i class="fa-solid fa-right-to-bracket"></i>
+								</button>
+							</div>';
+				}else{
+					return '<button class="btn btn-sm btn-secondary" disabled>
+								<i class="fas fa-edit"></i>
+							</button>';
+				}
+			})
+			
+
+            ->rawColumns(['checkbox','student_display_name','gender','class_id','section_id','rollno','dob','email_id','status','created_at','edit_button'])
 	        ->toJson();
         }
 
@@ -1151,13 +1243,19 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
         	$classList = Sclass::select('id','name')->where('status', 1)->orderBy('orders')->get();
         }
 
+		$pwdDetails = DB::table('pwd_categories')
+		->join('pwd_types', 'pwd_types.pwd_cat_id', '=', 'pwd_categories.id')->get();
+
         $logs = \App\Models\StudentImportLog::with('user')
         ->where('user_id', Auth::id())->where('is_active', 'active')
         ->orderBy('created_at', 'desc')
         ->get();
+		$promotionLog = DB::table('students_promotion_status')->where('school_id',$schoolId)
+		->orderBy('created_at', 'desc')
+        ->get();
 
 		$title = 'Manage Students';
-		return view('school.managestudent', compact('title','studentsDetails','classes','check','classList','logs', 'data'));
+		return view('school.managestudent', compact('title','studentsDetails','studentsDetails1','classes','check','classList','logs', 'promotionLog', 'data','pwdDetails','emailGroups','hasPreviousYearData'));
 	} 	
 
 		// for age validation
@@ -1447,16 +1545,16 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 
    		$rules = [
-		    'student_name'  => 'required|string|max:100|regex:/^[a-zA-Z][a-zA-Z\s.\']*$/u',	
+		    'student_name'  => 'required|string|max:100|regex:/^[a-zA-Z][a-zA-Z\s.]*$/u',		    				
 		    'studentuid'    => 'required|min:8',
 		    'email'         => 'required|email|max:255',
 		    'gender'        => 'required|in:Male,Female',
 		    'dob'           => 'required|date',
 		    'section'       => 'required|not_in:0',
 		    'class'         => 'required|not_in:0',
-		    'rollno'        => ['required', 'numeric','digits_between:1,4',
+		    'rollno'        => ['required', 'alpha_num','digits_between:1,4',
 		    function ($attribute, $value, $fail) use ($request) {
-		        $exists = Sstudent::where('class_id', $request->input('class'))->where('school_id', $request->input('schools_id'))->where('section_id', $request->input('section'))->where('rollno', $value)->value('student_name');
+		        $exists = Sstudent::where('class_id', $request->input('class'))->where('school_id', $request->input('schools_id'))->where('academic_year', '2026-2027')->where('section_id', $request->input('section'))->where('rollno', $value)->value('student_name');
 
 		            if ($exists) {
 		                $fail('The roll number is already assigned to : ' .$exists );
@@ -1464,25 +1562,36 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		        }
 		    ],
 
-		    'student_uid'   => ['required', 'numeric',
+		    // 'student_uid'   => ['required', 'digits_between:1,12',
+		     'student_uid'   => ['required',
 		        function ($attribute, $value, $fail) use ($request) {
-		            $existingStudent = Sstudent::where('student_uid', $value) ->where('school_id', $request->input('schools_id'))->first();
+		            $existingStudent = Sstudent::where('student_uid', $value) ->where('school_id', $request->input('schools_id'))->where('academic_year', '2026-2027')->first();
 		            if ($existingStudent) {
 		                $fail('The registration number is already assigned to : ' . ucfirst($existingStudent->student_name));
 		            }
 		        }
+			],
+			'is_pwd_add' => 'required|in:0,1',
+			'pwdTypesForAdd' => [
+				function ($attribute, $value, $fail) use ($request) {
+					if ($request->is_pwd == 1) {
+						if (empty($value) || $value === 'null') {
+							$fail('Please select at least one disability type.');
+						}
+					}
+				}
 			],
 		];
 
 		// Custom validation messages
 		$customMessages = [
 		    'student_name.required' => 'Please enter student name',
-		    'student_name.regex'   => 'Name should contain only letters, spaces, and dots and apostrophe.',
+		    'student_name.regex'    => 'Name should contain only letters, spaces, and dots.',
 		    'student_name.max'      => 'Maximum character length is 100',
 
 		    'student_uid.required'   => 'Please enter student registration number',
 		    'student_uid.numeric'    => 'Registration number should only contain numeric values',
-		    // 'student_uid.digits_between' => 'Registration number should be between 1 and 12 digits',
+		    // 'student_uid.digits_between' => 'Registration number should be between 1 and 7 digits',
 
 		    'email.required'        => 'Email address is required!',
 		    'email.email'           => 'Please provide a valid email address',
@@ -1493,7 +1602,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		    'section.required'      => 'Please assign class section',
 
 		    'rollno.required'       => 'Please assign roll number to the student',
-		    'rollno.numeric'        => 'Roll number should only contain numeric values',
+		    'rollno.alpha_num'      => 'Roll Number can only contain letters and numbers.',
 		    'rollno.digits_between' => 'Roll number should be between 1 and 4 digits',
 
 		    'studentuid.required'   => 'Please provide student user id',
@@ -1517,13 +1626,20 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	        $namefirstletter = $words[0];
 	        $password = strtolower($namefirstletter) . '@' . $request->post('student_uid');
 			$year = date('Y');
-			$month = date('m');
+            $month = date('m');
 
-			if ($month >= 4) {
-				$academicYear = $year . '-' . ($year + 1);
-			} else {
-				$academicYear = ($year - 1) . '-' . $year;
-			}
+            $academicYear = ($month >= 4)
+                ? $year . '-' . ($year + 1)
+                : ($year - 1) . '-' . $year;
+
+			$pwdValue = $request->pwdTypesForAdd[0] ?? null;
+			[$disabilities, $pwd_type_id] = array_pad(
+				explode('|', $pwdValue ?? ''),
+				2,
+				null
+			);
+
+			dd($request->pwdTypesForAdd);
 
 	        if (!empty($custom_class_id)) {
 	            $data = Sstudent::create([
@@ -1537,12 +1653,30 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	                'section_id'    => $request->post('section'),
 	                'dob'           => $request->post('dob'),
 	                'user_id'       => $request->post('studentuid'),
-	                'password'      => $password,
+	                'password'      => Hash::make($password),
+					'password_generated' => 1,
 	                'email_id'      => $request->post('email'),
 	                'rollno'        => $request->post('rollno'),
 	                'status'        => $request->post('status'),
-					'academic_year'	=> $academicYear
+					'is_pwd' => 	$request->is_pwd_add,
+					'academic_year' => $academicYear,
 	            ]);
+
+				DB::table('students_meta')->Insert(
+					[	'student_id' => $data->id,
+						'is_pwd' => $request->is_pwd_add,
+						'disability_types' => $disabilities ? json_encode($disabilities) : null,
+						'updated_at' => now(),
+						'created_at' => now(),
+					]
+				);
+
+				if($request->is_pwd_add == 1){
+					DB::table('student_rpwd_mapping')->insert([
+						'student_id' => $data->id,
+						'pwd_type_id' => $pwd_type_id,				
+					]);
+				}
 
 	            $className = Sclass::find($data->class_id)->value('name');
 	            return response()->json([
@@ -1611,16 +1745,58 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
 
 			if($request->ajax()){
+
 				Sstudent::find($request->post('studentId'))->update([
 					'status' => $request->post('status'),
+					'updated_at' => now(),
 				]);
+
+				if($request->input('status') && $request->input('status') === 'failed'){
+
+					$student = Sstudent::find($request->post('studentId'));
+
+					Sstudent::create([
+                        'school_id'         => $student->school_id,
+                        'school_code'       => $student->school_code,
+                        'student_uid'       => $student->student_uid,
+                        'student_name'      => $student->student_name,
+                        'gender'            => $student->gender,
+                        'class_id'          => $student->class_id,
+                        'custom_class_id'   => $student->custom_class_id,
+                        'section_id'        => $student->section_id,
+                        'dob'               => $student->dob,
+                        'user_id'           => $student->user_id,
+                        'password'          => $student->password,
+                        'email_id'          => $student->email_id,
+                        'rollno'            => $student->rollno,
+                        'domicile'          => $student->domicile,
+                        'fav_sport'         => $student->fav_sport,
+                        'hobbies'           => $student->hobbies,
+                        'apaarId'           => $student->apaarId,
+                        'aadhaarId'         => $student->aadhaarId,
+                        'passport'          => $student->passport,
+                        'status'            => 'active',
+                        'academic_year'     => '2026-2027',
+                    ]);
+				}
 
 				echo 'Status updated sucessfully';
 			}
 
 		} catch (\Exception $e) {
-			return $e->getMessage();
-		}
+	        $errorMessage = 'Update failed';
+	        $httpCode = 500;
+	        
+	        // Detect database lock errors
+	        if (str_contains($e->getMessage(), 'Lock wait timeout') || str_contains($e->getMessage(), 'deadlock') || str_contains($e->getMessage(), 'lock conflict')) {	            
+	            $errorMessage = 'The system is currently busy processing other requests. Please try again in a few moments.';
+	            $httpCode = 423; 
+	        }
+	        
+	        // Log::error('Status update failed: '.$e->getMessage());
+	        Log::error('Status update failed');
+	        return response()->json(['error' => $errorMessage], $httpCode);
+	    }
    	}
 	
 	
@@ -1628,177 +1804,209 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
    	 * Delete students 23_Feb
    	 * */
 	
-	public function DeleteStudent(Request $request){
-		try {
+	public function DeleteStudent(Request $request) {
 
-			$action = $request->input('action');
-			$ids = $request->input('ids', []);
+	    $action = $request->input('action');
+	    $ids = $request->input('ids', []);
 
-			if (empty($ids)) {
-				return response()->json([
-					'status' => false,
-					'message' => 'No students selected.'
-				], 422);
-			}
+	    if (empty($ids) || !in_array($action, ['delete', 'trash'])) {
+	        return response()->json(['message' => 'Invalid request.'], 400);
+	    }
+		$year = date('Y');
+		$month = date('m');
+		$academicYear = ($month >= 4)
+			? $year . '-' . ($year + 1)
+			: ($year - 1) . '-' . $year;
 
-			if (!in_array($action, ['delete', 'trash'])) {
-				return response()->json([
-					'status' => false,
-					'message' => 'Invalid action requested.'
-				], 400);
-			}
-			$students = DB::table('students')
-				->whereIn('id', $ids)
-				->get();
+		if ($action === 'delete') {
+			
+			
+		    $students = DB::table('students')->select('id', 'school_id', 'school_code', 'student_uid', 'student_name', 'gender', 'class_id', 'custom_class_id', 'section_id','dob','user_id','email_id','rollno','academic_year','is_pwd','batchId','paymentStatus','batchCreatedAt','careersPaymentRef','gatewayTxnId','paidOn','updatedOn','apaarId')
+		        ->whereIn('id', $ids)->where('academic_year', $academicYear)->get();
 
-			if ($students->isEmpty()) {
-				return response()->json([
-					'status' => false,
-					'message' => 'Selected students not found.'
-				], 404);
-			}
+		    $deletedData = [];
+		    $now = now(); 
+		    $userId = Auth::id();
 
-			$deletedData = [];
-			$now = now();
+		    foreach ($students as $student) {
+		        $deletedData[] = [
+		            'student_id'       => $student->id,
+		            'name'             => $student->student_name,
+		            'deleted_by'       => $userId,
+		            'deleted_at'       => $now,
+		            'school_id'        => $student->school_id,
+		            'custom_class_id'  => $student->custom_class_id,
+		            'student_uid'      => $student->student_uid,
+		            'json_data'        => json_encode((array) $student),
+		        ];
+		    }
+
+		    if (!empty($deletedData)) {
+		        DB::table('deleted_students')->insert($deletedData);
+		    }
+
+		    $deletedCount = DB::table('students')->whereIn('id', $ids)->where('academic_year', $academicYear)->delete();
+		    AuditHelper::log('action', 'Deleted Students');
+
+		    return response()->json([
+				'status' => true,
+				'deleted' => $deletedCount,
+				'message' => "$deletedCount student(s) deleted successfully."
+			]);
+		}
+
+
+
+	    if ($action === 'trash') {
+	        Sstudent::whereIn('id', $ids)->update(['status' => 'trashed']);
+
+
+	        return response()->json(['message' => 'Selected students moved to trash successfully.']);
+	    }
+
+	    return response()->json(['message' => 'Action performed successfully.']);
+	}
+
+	/**
+   	 * Promote students by students Id 22_Apr
+   	 * */
+	
+	public function PromoteStudentIds(Request $request){
+
+		try {	
+
 			$userId = Auth::id();
 
-			foreach ($students as $student) {
-				$deletedData[] = [
-					'student_id'      => $student->id,
-					'name'            => $student->student_name,
-					'deleted_by'      => $userId,
-					'deleted_at'      => $now,
-					'school_id'       => $student->school_id,
-					'custom_class_id' => $student->custom_class_id,
-					'student_uid'     => $student->student_uid,
-					'json_data'       => json_encode((array) $student),
-				];
+			$ids = $request->input('ids', []);
+			
+			$year = date('Y');
+			$month = date('m');
+			$academicYear = ($month >= 4)
+				? $year . '-' . ($year + 1)
+				: ($year - 1) . '-' . $year;
+
+			[$startYear, $endYear] = explode('-', $academicYear);
+			$previousAcademicYear = ($startYear - 1) . '-' . ($endYear - 1);
+				
+			$studentIds = Sstudent::whereIn('id', $ids)
+				->where('status', 'active')
+				->where('academic_year', $previousAcademicYear)
+				->pluck('id')
+				->toArray();
+			
+
+			$schoolId = DB::table('school_reference')
+					->where('school_user_id', $userId)
+					->where('status', 1)
+					->value('school_id');
+
+			if (empty($studentIds)) {
+				return response()->json([
+					'status' => false,
+					'message' => 'Selected students have already been promoted.'
+				], 400);
 			}
 
-			DB::table('deleted_students')->insert($deletedData);
-			DB::table('students')->whereIn('id', $ids)->delete();
+			$promotionId = DB::table('students_promotion_status')->insertGetId([
+				'school_id' => $schoolId,
+				'total_students' => count($studentIds),
+				'promoted_students' => 0,
+				'transferred_students' => 0,
+				'status' => 'pending'
+			]);
+
+			PromoteStudentsByIdsJob::dispatch($studentIds, $schoolId, $promotionId)->onQueue('upload_test');
 
 			return response()->json([
 				'status' => true,
-				'message' => count($ids) . ' student(s) permanently deleted successfully.'
-			], 200);
-
-		} catch (\Exception $e) {
-
+				'message' => 'Promotion Request Submitted Successfully.'
+			]);
+		} catch (\Throwable $th) {
+			$promotionId = DB::table('students_promotion_status')->where('school_id', $schoolId,)->update([				
+				'status' => 'failed'
+			]);
 			return response()->json([
 				'status' => false,
-				'message' => 'Failed to process request.',
-				'error'   => $e->getMessage()
+				'message' => 'Failed to start promotion.',
+				'error' => $e->getMessage()
 			], 500);
 		}
 	}
 
+	public function PromotionIdsStatus(){
+		$userId = Auth::id();
+		$schoolId = DB::table('school_reference')
+			->where('school_user_id', $userId)
+			->where('status', 1)
+			->value('school_id');
+
+		$logs = DB::table('students_promotion_status as sps')
+			->select(
+				'sps.total_students',
+				'sps.promoted_students',
+				'sps.transferred_students',
+				'sps.status',
+				'sps.updated_at',
+				'sps.completed_at',
+			)
+			->where('sps.school_id', $schoolId)
+			->orderByDesc('sps.id')
+			->get();
+
+		return response()->json([
+			'html' => view('modals.students-promotion-status-table', compact('logs'))->render()
+		]);
+	}
+
+
 	/**
-   	 * Promote students 23_Feb
-   	 * */
-	
-	public function PromoteStudent(Request $request) {
+	* download students record 
+	* 01-Aug
+	**/ 
+	public function downloadStudentProfile(Request $request) {
+	    try {
 
-		try{
-			$userId = Auth::id();
+	        $userId = Auth::id();
 
-			$schoolId = DB::table('school_reference')
-				->where('school_user_id', $userId)
-				->where('status', 1)
-				->value('school_id');
+	        $schoolId = DB::table('school_reference')
+	            ->where('school_user_id', $userId)
+	            ->where('status', 1)
+	            ->value('school_id');
 
-			$ids = $request->input('ids');
+	        $studentIds = [];
+	        $selectAll = true;
 
-			$students = Sstudent::whereIn('id', $ids)->where('status', 'active')->get();
+	       
+	      	$selectedYear = $request->input('selectedYear');
+	        if(empty($selectedYear)){
+	        	$selectedYear = '2025-2026';
+	        }
 
-			if ($students->isEmpty()) {
-				return response()->json([
-					'status' => false,
-					'message' => 'No active students found for promotion.'
-				], 404);
-			}
-			$classes = DB::table('class')->orderBy('orders')->get();
-			$nextClassMap = [];
-			for ($i = 0; $i < $classes->count() - 1; $i++) {
-				$nextClassMap[$classes[$i]->id] = $classes[$i + 1]->id;
-			}
+	        if ($request->filled('student_ids')) {
+	            $studentIds = array_map('intval', (array) $request->student_ids);
+	            if (empty($studentIds)) {
+	                return response()->json([
+	                    'status' => false,
+	                    'message' => 'No students selected.'
+	                ], 400);
+	            }
+	            $selectAll = false;
+	        }
+	        $fileName = 'StudentDataUploadFormat' . now()->format('Ymd_His') . '.xlsx';
 
-			$nextClassPairs = $students->map(function ($student) use ($nextClassMap) {
-				return [
-					'next_class_id' => $nextClassMap[$student->class_id] ?? null,
-					'section_id'    => $student->section_id,
-				];
-			})->unique();
+	        return Excel::download( new ExportStudentProfile(  $schoolId, $studentIds, $selectAll, $selectedYear), $fileName );
 
-			$customClasses = DB::table('custom_classes')
-				->where('school_id', $schoolId)
-				->whereIn('class_id', $nextClassPairs->pluck('next_class_id'))
-				->whereIn('section', $nextClassPairs->pluck('section_id'))
-				->get()
-				->keyBy(function ($item) {
-					return $item->class_id . '_' . $item->section;
-				});
-			$year = date('Y');
-			$month = date('m');
+	    } catch (\Throwable $e) {
 
-			if ($month >= 4) {
-				$academicYear = $year . '-' . ($year + 1);
-			} else {
-				$academicYear = ($year - 1) . '-' . $year;
-			}
+	        \Log::error('Student export failed: ' . $e->getMessage());
 
-			$promotedCount = 0;
-			$transferredCount = 0;
-
-			foreach ($students as $student) {
-				if ($student->class_id == 12) {
-					$student->update([
-						'status' => 'transfer',
-					]);
-					$transferredCount++;
-					continue;
-				}
-
-				$nextClassId = $student->class_id + 1;
-				$key = $nextClassId . '_' . $student->section_id;
-
-				$customClassId = $customClasses[$key]->id ?? null;
-
-				if (!$customClassId) {
-                    $maxValue = ScustomClass::max('orders') ?? 0;
-
-                    $customClass = ScustomClass::create([
-                        'school_id' => $schoolId,
-                        'class_id'  => $nextClassId,
-                        'section'   => $student->section_id,
-                        'orders'    => $maxValue + 1,
-                        'status'    => 1,
-                    ]);
-
-                    $customClassId = $customClass->id;
-                }
-
-				$student->update([
-					'class_id'			=> $nextClassId,
-					'custom_class_id'	=> $customClassId,
-					'academic_year'		=> $academicYear
-				]);
-				$promotedCount++;
-			}
-
-			return response()->json([
-				'status' => true,
-				'message' => "$promotedCount student(s) promoted successfully. $transferredCount student(s) transferred."
-			], 200);
-
-		} catch (\Exception $e) {
-
-			return response()->json([
-				'status' => false,
-				'message' => 'Failed to promote students.',
-				'error'   => $e->getMessage()
-			], 500);
-		}
+	        return response()->json([
+	            'status' => false,
+	            'message' => $e->getMessage(),
+	            'line' => $e->getLine(),
+	            'file' => $e->getFile(),
+	        ], 500);
+	    }
 	}
 
 

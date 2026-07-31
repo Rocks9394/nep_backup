@@ -1339,6 +1339,7 @@ class AssessorAppController extends Controller
 	        		break;
 
 	        	case 'fitnessTest':
+	        	case 'cwsnlist':
 	        		$testExists = DB::table('SeniorTestResults')
 	                ->where('StudentID', $studentId)
 	                ->where('SchoolID', $request->school_id)
@@ -1424,7 +1425,7 @@ class AssessorAppController extends Controller
 	        21 => 'Partial curl up 30 sec',
 	        22 => 'Sit and Reach Test',
 	        23 => 'Push Ups',
-			24 => 'wingSpan',
+			28 => 'wingSpan',
 			
 	    ];
 
@@ -2253,6 +2254,7 @@ class AssessorAppController extends Controller
 		{
 	   
 			$alldata = $request->all();
+			
 			$userId  = \Auth::id();
 			
 			if(Session::get('SelectSchoolId')) 	{	
@@ -2274,7 +2276,7 @@ class AssessorAppController extends Controller
 			$studentGender = $student->gender;
 			$ageGender = $studentAge . strtolower(substr($studentGender, 0, 1));
 
-			if($alldata['wingspanScore'] !='') {
+			if($alldata['wingspan_height'] !='') {
 					
 		
 				$Result = new SeniorTestResult();
@@ -2283,12 +2285,12 @@ class AssessorAppController extends Controller
 				$Result->StudentID    = $alldata['student_id'];
 				$Result->TermId       = $TermMasterId;
 				$Result->TestTypeID   = $alldata['skillReportId'];
-				$Result->Score   	  = $alldata['wingspanScore'];
+				$Result->Score   	  = $alldata['wingspan_height'];
 				$Result->created_at   = now();
 				$Result->CreatedBy    = $userId;
 				$Result->updated_at   = now();
 				$Result->ModifiedBy   = $userId;
-				$Result->wingspan       = $alldata['wingspanScore'];
+				$Result->wingspan       = $alldata['wingspan_height'];
 				$Result->save();
 			
 				$message = $this->TestMessage($alldata['student_id'],$alldata['skillReportId']);

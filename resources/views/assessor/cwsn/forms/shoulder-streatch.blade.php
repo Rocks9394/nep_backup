@@ -2,18 +2,24 @@
 @section('cwsnform')
 
 <style>
-	h4.text-uppercase {
-    color: #292775 !important;
-}
-
-h4.text-uppercase {
-    color: #292775 !important;
-}
+    h4.text-uppercase {
+        color: #292775 !important;
+    }
+    /* Active visual state feedback styling for Bootstrap group buttons */
+    .btn-group-toggle label.active.btn-outline-success {
+        background-color: #28a745 !important;
+        color: #fff !important;
+    }
+    .btn-group-toggle label.active.btn-outline-danger {
+        background-color: #dc3545 !important;
+        color: #fff !important;
+    }
 </style>
-<h2 class="text-center pb-2">Enter {{ $title }} Score</h2>
 
-<form method="POST" name="saveSitAndReachRecord" id="save_sit_and_reach_record_id" action="{{-- route('sit.and.reach.record.submit') --}}">
-    {{ method_field('post') }}
+<h2 class="text-center pb-2">{{ $title }} Score</h2>
+
+{{-- FIXED: Form element ID unified dynamically to match layout architecture --}}
+<form method="POST" name="{{ $TestTypeId }}" id="{{ $TestTypeId }}" action="javascript:void(0);">
     @csrf
     
     <input type="hidden" name="skillReportId" value="{{ $skillReportId }}" id="skillReportId">
@@ -21,125 +27,119 @@ h4.text-uppercase {
     <input type="hidden" name="SchoolId" id="SchoolId" value="{{ $SchoolId }}">
     <input type="hidden" name="student_id" id="selected_student_id">
 
-    <input type="hidden" name="score_measurement" id="score_measurement" value="">
+    {{-- Data payload inputs targeting the database save loops --}}
+    <input type="hidden" name="score_left" id="score_left" value="">
+    <input type="hidden" name="score_right" id="score_right" value="">
 
+    <div class="row">
+        <!-- Right Shoulder Assessment Card -->
+        <div class="col-12 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-body text-center">
+                    <h4 class="font-weight-bold text-uppercase mb-1" style="font-size: 1.1rem;">Right Arm Stretch</h4>
+                    <p class="small mb-2 text-muted">(Right arm over right shoulder, reaching down)</p>
+                    
+                    <!-- REMOVED data-toggle="buttons" to prevent Bootstrap conflicts -->
+                    <div class="btn-group w-100 shoulder-toggle">
+                        <label class="btn btn-outline-danger font-weight-bold w-50" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
+                            <input type="radio" name="right_shoulder_status" id="right_fail" value="0" autocomplete="off" class="d-none"> FAIL
+                        </label>
+                        <label class="btn btn-outline-success font-weight-bold w-50" style="border-top-right-radius: 20px; border-bottom-right-radius: 20px;">
+                            <input type="radio" name="right_shoulder_status" id="right_pass" value="1" autocomplete="off" class="d-none"> PASS
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-	<div class="row">
-	    <!-- Right Shoulder Assessment Card -->
-	    <div class="col-12 col-md-6 px-2">
-	        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-	            <div class="card-body text-center">
-	                <h4 class="font-weight-bold text-primary mb-1 text-uppercase" style="font-size: 1.1rem;">Right Arm Stretch</h4>
-	                <p class="small text-muted">(Right arm over right shoulder, reaching down)</p>
-	                
-	                <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
-	                    <label class="btn btn-outline-danger font-weight-bold w-50" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
-	                        <input type="radio" name="right_shoulder_status" id="right_fail" value="0" autocomplete="off" onchange="syncShoulderPayload()"> FAIL
-	                    </label>
-	                    <label class="btn btn-outline-success font-weight-bold w-50" style="border-top-right-radius: 20px; border-bottom-right-radius: 20px;">
-	                        <input type="radio" name="right_shoulder_status" id="right_pass" value="1" autocomplete="off" onchange="syncShoulderPayload()"> PASS
-	                    </label>
-	                </div>
-	            </div>
-	        </div>
-	    </div>
+        <!-- Left Shoulder Assessment Card -->
+        <div class="col-12 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-body text-center">
+                    <h4 class="font-weight-bold text-uppercase mb-1" style="font-size: 1.1rem;">Left Arm Stretch</h4>
+                    <p class="small mb-2 text-muted">(Left arm over left shoulder, reaching down)</p>
+                    
+                    <div class="btn-group w-100 shoulder-toggle">
+                        <label class="btn btn-outline-danger font-weight-bold w-50" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
+                            <input type="radio" name="left_shoulder_status" id="left_fail" value="0" autocomplete="off" class="d-none"> FAIL
+                        </label>
+                        <label class="btn btn-outline-success font-weight-bold w-50" style="border-top-right-radius: 20px; border-bottom-right-radius: 20px;">
+                            <input type="radio" name="left_shoulder_status" id="left_pass" value="1" autocomplete="off" class="d-none"> PASS
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-	    <!-- Left Shoulder Assessment Card -->
-	    <div class="col-12 col-md-6 px-2">
-	        <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-	            <div class="card-body text-center">
-	                <h4 class="font-weight-bold text-success mb-1 text-uppercase" style="font-size: 1.1rem;">Left Arm Stretch</h4>
-	                <p class="small text-muted">(Left arm over left shoulder, reaching down)</p>
-	                
-	                <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
-	                    <label class="btn btn-outline-danger font-weight-bold w-50" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
-	                        <input type="radio" name="left_shoulder_status" id="left_fail" value="0" autocomplete="off" onchange="syncShoulderPayload()"> FAIL
-	                    </label>
-	                    <label class="btn btn-outline-success font-weight-bold w-50" style="border-top-right-radius: 20px; border-bottom-right-radius: 20px;">
-	                        <input type="radio" name="left_shoulder_status" id="left_pass" value="1" autocomplete="off" onchange="syncShoulderPayload()"> PASS
-	                    </label>
-	                </div>
-	            </div>
-	        </div>
-	    </div>
-	</div>
-
-	@php  $id = "shoulderstreatch";  @endphp
-    <x-reset-submit-btn :id="$id"/>
+    <x-reset-submit-btn :id="$TestTypeId"/>
 </form>
-
 
 <script>
 function syncShoulderPayload() {
     let rightVal = document.querySelector('input[name="right_shoulder_status"]:checked')?.value || '';
     let leftVal = document.querySelector('input[name="left_shoulder_status"]:checked')?.value || '';
 
-    // Standard structural string assignment
-    if (leftVal || rightVal) {
-        document.getElementById('score_measurement').value = `L: ${leftVal || 'PENDING'} | R: ${rightVal || 'PENDING'}`;
-    }
-
-    // Pass quantitative score representation (e.g., total successful sides: 0, 1, or 2)
-    let leftNumeric = leftVal === 'PASS' ? 1 : 0;
-    let rightNumeric = rightVal === 'PASS' ? 1 : 0;
-    document.getElementById('result').value = leftNumeric + rightNumeric;
+    document.getElementById('score_left').value = leftVal;
+    document.getElementById('score_right').value = rightVal;
 }
 
 $(document).ready(function() {
-    // Dynamic binding to custom button components using correct id string
-    $('#reset_btn_shoulderstretch').on('click', function() {
-        $('#save_shoulder_stretch_record_id')[0].reset();
-        $('.btn-group-toggle label').removeClass('active');
-        document.getElementById('score_measurement').value = '';
-        document.getElementById('result').value = '0';
+    const formId = @json($TestTypeId);
+    const formSelector = $(`#${formId}`);
+
+    formSelector.on('change', 'input[type="radio"]', function() {
+        const selectedRadio = $(this);
+        const parentLabel = selectedRadio.closest('label');
+        const siblingLabels = selectedRadio.closest('.shoulder-toggle').find('label');
+
+        siblingLabels.removeClass('active btn-danger btn-success');
+        
+        // 2. Add active visual feedback using proper contextual colors
+        if (selectedRadio.val() === "1") {
+            parentLabel.addClass('active btn-success');
+        } else {
+            parentLabel.addClass('active btn-danger');
+        }
+
+        syncShoulderPayload();
     });
 
-    $('#save_shoulder_stretch_record_id').submit(function(e) {
+
+    $(`#reset_${formId}`).on('click', function(e) {
         e.preventDefault();
-        
+
+        console.log('ppps')
+        formSelector[0].reset();
+        formSelector.find('.shoulder-toggle label').removeClass('active btn-danger btn-success');
+        document.getElementById('score_left').value = '';
+        document.getElementById('score_right').value = '';
+    });
+
+
+    $(`#${formId}`).submit(function(e) {
+        e.preventDefault();
+
         const studentId = document.getElementById('selected_student_id').value;
-        const rightVal = document.querySelector('input[name="right_shoulder_status"]:checked')?.value;
-        const leftVal = document.querySelector('input[name="left_shoulder_status"]:checked')?.value;
+        const scoreLeft = document.getElementById('score_left').value;
+        const scoreRight = document.getElementById('score_right').value;
 
         if (!studentId) {
-            handleResponseMessages('info', 'Select Student', 'Please select a student from the listing array first.');
+            handleResponseMessages( 'warning',  'Select Student', 'Please select the student');
             return;
         }
 
-        if (!rightVal || !leftVal) {
+        if (scoreLeft === '' || scoreRight === '') {
             handleResponseMessages('info', 'Incomplete Form', 'Please record both Left and Right arm metrics before saving.');
             return;
         }
 
-        submitLoader(); // Trigger processing UI indicator
-        
-        $.ajax({
-            url: $(this).attr('action'),
-            method: 'POST',
-            data: $(this).serialize(),
-            success: function(response) {
-                Swal.close();
-                $('#save_shoulder_stretch_record_id')[0].reset();
-                $('.btn-group-toggle label').removeClass('active');
-                
-                handleResponseMessages('success', '', response.message, {
-                    confirmText: 'OK',
-                    onConfirm: function () {
-                        location.reload();
-                    }
-                });                 
-            },
-            error: function(xhr) {
-                Swal.close();
-                let err = xhr.responseJSON;
-                Swal.fire({
-                    title: "Error!",
-                    text: (err && err.message) ? err.message : "Data capture transaction dropped by core service filters.",
-                    icon: "error"
-                });
-            }
-        });
+        let route = '{{ route("cwsn.types.submit") }}';
+        let formData =  $(this).serialize();
+        SubmitForm(formId, formData, route);
+        document.getElementById('live_status_badge').textContent = `Level 1, Shuttle 0`;
     });
+
 });
 </script>
 

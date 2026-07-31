@@ -1,9 +1,36 @@
 @extends('assessor.cwsn.index')
 @section('cwsnform')
 
-<h2 class="text-center mb-3">Enter {{ $title }} Score</h2>
+<style>
+/* Custom styling overrides to make standard radio listings look like professional select cards */
+.style-radio-card {
+    border-radius: 10px;
+    border: 1.5px solid #deebd5;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+.style-radio-card input[type="radio"] {
+    transform: scale(1.2);
+    vertical-align: middle;
+}
 
-<form method="POST" name="saveApleyRecord" id="save_apley_record_id" action="{{-- route('apley.scratch.record.submit') --}}">
+.list-group-item {
+  padding: 0.75rem 1rem !important;
+}
+
+h4.text-uppercase {
+    color: #292775 !important;
+}
+
+h4.text-uppercase {
+    color: #292775 !important;
+}
+
+</style>
+
+
+<h2 class="text-center mb-3">{{ $title }} Score</h2>
+<form method="POST" name="saveApleyRecord" name="{{ $TestTypeId }}" id="{{ $TestTypeId }}" action="javascript:void(0);">
     {{ method_field('post') }}
     @csrf
     
@@ -15,7 +42,7 @@
     
     <!-- Dynamic Outputs -->
     <input type="hidden" name="result" id="result" value="0" readonly>
-    <input type="hidden" name="score_measurement" id="score_measurement" value="">
+    <input type="hidden" name="aplay_test" id="aplay_test" value="">
 
     <div class="row ">
 
@@ -78,90 +105,50 @@
         </div>
     </div>
 
-    @php $id = "apleyscratch"; @endphp
-    <x-reset-submit-btn :id="$id"/>
+    <x-reset-submit-btn :id="$TestTypeId"/>
 </form>
 
-<style>
-/* Custom styling overrides to make standard radio listings look like professional select cards */
-.style-radio-card {
-    border-radius: 10px;
-    border: 1.5px solid #deebd5;
-    transition: all 0.2s ease-in-out;
-    cursor: pointer;
-}
-.style-radio-card input[type="radio"] {
-    transform: scale(1.2);
-    vertical-align: middle;
-}
 
-.list-group-item {
-  padding: 0.75rem 1rem !important;
-}
-
-h4.text-uppercase {
-    color: #292775 !important;
-}
-
-h4.text-uppercase {
-    color: #292775 !important;
-}
-
-</style>
 
 <script>
+
+const formName = @json($TestTypeId);
+
 function syncApleyPayload() {
     let rightVal = document.querySelector('input[name="right_apley_level"]:checked')?.value || '0';
     let leftVal = document.querySelector('input[name="left_apley_level"]:checked')?.value || '0';
 
-    // Parse values to set composite tracking strings
-    document.getElementById('score_measurement').value = `L: Level ${leftVal} | R: Level ${rightVal}`;
-    
-    // Result calculates average performance layer or cumulative metrics directly
+    document.getElementById('aplay_test').value = `L: ${leftVal} | R: ${rightVal}`;
     document.getElementById('result').value = parseInt(leftVal) + parseInt(rightVal);
 }
 
+
+
 $(document).ready(function() {
-    // Instantiate values on init
     syncApleyPayload();
 
-    $('#reset_btn_apleyscratch').on('click', function() {
-        $('#save_apley_record_id')[0].reset();
-        syncApleyPayload();
-    });
+    $(document).ready(function() {
 
-    $('#save_apley_record_id').submit(function(e) {
-        e.preventDefault();
-        
-        const studentId = document.getElementById('selected_student_id').value;
-        if (!studentId) {
-            handleResponseMessages('info', 'Select Student', 'Please select a student from the listing array first.');
-            return;
-        }
+        $(`#${formName}`).submit(function(e) {
+            e.preventDefault();
 
-        submitLoader();
-        $.ajax({
-            url: $(this).attr('action'),
-            method: 'POST',
-            data: $(this).serialize(),
-            success: function(response) {
-                Swal.close();
-                handleResponseMessages('success', '', response.message, {
-                    confirmText: 'OK',
-                    onConfirm: function () {
-                        location.reload();
-                    }
-                });                 
-            },
-            error: function(xhr) {
-                Swal.close();
-                let err = xhr.responseJSON;
-                Swal.fire({
-                    title: "Error!",
-                    text: (err && err.message) ? err.message : "AJAX post execution failed on the server side.",
-                    icon: "error"
-                });
+            const studentId = document.getElementById('selected_student_id').value;
+            if(!studentId){
+                handleResponseMessages( 'warning',  'Select Student', 'Please select the student');
+                return;
             }
+            
+            const aplay_test_result = $('input[name="aplay_test"]').val();
+
+            if (aplay_test_result === '' || aplay_test_result === null || undefined === aplay_test_result) {
+                handleResponseMessages('info', '', 'Please enter position of the student');
+                return;
+            }
+
+            let route = '{{ route("cwsn.types.submit") }}';
+            let formData =  $(this).serialize();
+            SubmitForm(formName, formData, route);
+            document.getElementById('live_status_badge').textContent = `Level 1, Shuttle 0`;
         });
     });
 });

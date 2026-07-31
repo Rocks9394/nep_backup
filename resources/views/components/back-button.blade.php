@@ -4,7 +4,7 @@
     }
 </style>
 
-<div class="col d-flex">
+<div class="col-12 d-flex">
     <a href="#a" onclick="history.back()" class="back-button">
         <span class="arrow">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">

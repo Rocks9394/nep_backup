@@ -86,13 +86,11 @@
                         </a>
 
                     @elseif(auth()->guard('sstudent')->check())
-
                         <a href="javascript:history.back()" class="back-button">
                             <span class="arrow"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5" />
                                 </svg></span> 
-                        </a>
-                    
+                        </a>                    
                     @endif
 
                     
@@ -102,7 +100,7 @@
             </div>
 
 
-            <form method="POST" name="saveSpeedRecord" id="save_speed_record_id" action="">
+            <form method="POST" name="{{ $TestTypeId }}" id="{{ $TestTypeId }}" action="javascript:void(0);">
                 {{method_field('post')}}
                 @csrf
 
@@ -187,11 +185,7 @@
             </form>
             
             @php  $type = "cwsnlist"; @endphp
-
             <x-speed-get-students :classes="$classes" :type="$type"  />
-
-
-            
         </div>
     </div>
 </div>
@@ -203,7 +197,6 @@
         saveBtn.classList.add("hide");
         localStorage.removeItem("selected_student");
     }
-
 
     const laneItems = document.querySelectorAll('#select_lane li a');
     let selectedLane = 0;
@@ -236,9 +229,15 @@
         });
     }
 
+
+
     $(document).ready(function() {
-        $('#save_speed_record_id').submit(function(e) {
+
+        const formName = String(@json($TestTypeId)); 
+
+        $(document).on('submit', `#${formName}`, function(e) {
             e.preventDefault();
+
             const filledStudents = [];
             document.querySelectorAll('#laneList .student-id').forEach(input => {
                 const value = input.value.trim();
@@ -255,40 +254,55 @@
             }
             
             localStorage.removeItem("selected_student");
+
+            const route = '{{ route("cwsn.types.submit") }}';
+            const formData = $(this).serialize();
+            
+            SubmitForm(formName, formData, route);
+        });
+
+
+        function SubmitForm(formid, formData, route) {
+            submitLoader(); 
+
             $.ajax({
-                url: '{{ route("speed.record.submit") }}',
+                url: route,
                 method: 'POST',
-                data: $(this).serialize(),
+                data: formData, 
                 success: function(response) {
+                  
+                    if (typeof Swal !== 'undefined' && Swal.close) Swal.close(); 
+                    $(`#${formid}`)[0].reset();
 
-                    $('#save_speed_record_id')[0].reset();
-                    handleResponseMessages( 'success',  '', response.message, {
-                        confirmText: 'OK',
-                        onConfirm: function () {
-                            location.reload();
-                        }
-                    });
-
+                    if (response.status === 'success' || response.success === true) {
+                        handleResponseMessages('success', 'Success!', response.message, {
+                            confirmText: 'OK',
+                            onConfirm: function () {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        handleResponseMessages('error', 'Failed', response.message || 'Action could not be completed.');
+                    }
                 },
-                error: function(xhr) {
-                    let errors = xhr.responseJSON.errors;
-                    let errorHtml = '<ul>';
-                    $.each(errors, function(key, value) {
-                        errorHtml += '<li>' + value[0] + '</li>';
-                    });
-                    errorHtml += '</ul>';
-                    $('#response').html('<div style="color:red;">' + errorHtml + '</div>');
-
-                    Swal.fire({
-                        title: "error!",
-                        text: response.message,
-                        icon: "error"
-                    });
-
+                error: function (xhr) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: "Error!",
+                            text: xhr.responseJSON?.message ?? 'An unexpected error occurred',
+                            icon: "error"
+                        });
+                    } else {
+                        alert(xhr.responseJSON?.message ?? 'An unexpected error occurred');
+                    }
                 }
             });
-        });
+        }
     });
+
+
+
+
 
     let activeLane = null;
     let maxLi = 0;

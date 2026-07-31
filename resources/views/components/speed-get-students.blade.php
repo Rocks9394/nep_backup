@@ -32,7 +32,7 @@
                     <div class="form mt-1 mt-md-3">
                         <label for="student_id" class="form-label">Select Student</label>
                         <div class="input-group mb-3">
-                            <select name="student_id" id="student_id" data-grade="speed" data-test-type="fitnessTest" class="form-control">
+                            <select name="student_id" id="student_id" data-grade="speed" data-test-type="{{ $type }}" class="form-control">
                                 <option value="">-- Select Student --</option>
                             </select>
                         </div>

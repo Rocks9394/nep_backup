@@ -42,38 +42,38 @@
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
                         <a href="<?php echo e(route('student.test.dashboard' )); ?>" class="box">
                             <div>
-                                <img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/Dashboard.svg')); ?>">
+                                <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/Dashboard.svg')); ?>">
                             </div>
                             <span>Student Dashboard</span>
                         </a>
                     </div>
                     
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4 text-center">
-                        <a href="<?php echo e(route('skill.dailyreport')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/skills-report.svg')); ?>"></div><span>Daily Tracker</span></a>
+                        <a href="<?php echo e(route('skill.dailyreport')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/skills-report.svg')); ?>"></div><span>Daily Tracker</span></a>
                     </div>
                       
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
                         <a href="<?php echo e(route('skill.report')); ?>" class="box">
-                            <div> <img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/skills-report.svg')); ?>"> </div>
+                            <div> <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/skills-report.svg')); ?>"> </div>
                             <span>Skill Reports</span>
                         </a>
                     </div>
 
                     <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
-                        <a href="<?php echo e(route('activity.according.to.class')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/activities.svg')); ?>"></div><span>Activity Planner</span></a>
+                        <a href="<?php echo e(route('activity.according.to.class')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/activities.svg')); ?>"></div><span>Activity Planner</span></a>
                     </div>
 
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
                         <a href="<?php echo e(route('reports.view.test')); ?>" class="box" target="_blank">
                             <div data-toggle="tooltip" data-placement="top" title="Progress Report">
-                                <img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/taketest.svg')); ?>">
+                                <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/taketest.svg')); ?>">
                             </div>
                             <span>Progress Report</span>
                         </a>
                     </div>
                     
                     <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
-                        <a href="<?php echo e(route('test.videos')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/test-demo.svg')); ?>"></div><span>Battery of Tests</span></a>
+                        <a href="<?php echo e(route('test.videos')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/test-demo.svg')); ?>"></div><span>Battery of Tests</span></a>
                     </div>
 
 
@@ -81,7 +81,7 @@
                         <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
                             <a href="<?php echo e(route('fms.skills.reports')); ?>" class="box" data-toggle="tooltip" data-placement="top" title="End of the term">
                                 <div >
-                                    <img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/Dashboard.svg')); ?>">
+                                    <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/Dashboard.svg')); ?>">
                                 </div>
                                 <span >FMS Development</span>
                             </a>
@@ -96,12 +96,12 @@
 
 
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
-                        <a href="<?php echo e(route('learn.sports')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/Learn-Sports.svg')); ?>"></div><span>Learn Sports</span></a>
+                        <a href="<?php echo e(route('learn.sports')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/Learn-Sports.svg')); ?>"></div><span>Learn Sports</span></a>
                     </div>
                     
 
                     <div class="col-4 col-md-3 col-lg-3 col-xl-2 mb-4">
-                        <a href="<?php echo e(route('getactive')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('public/uploads/icons/Get-Active.svg')); ?>"></div><span>Get Active</span></a>
+                        <a href="<?php echo e(route('getactive')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/Get-Active.svg')); ?>"></div><span>Get Active</span></a>
                     </div>
 
 

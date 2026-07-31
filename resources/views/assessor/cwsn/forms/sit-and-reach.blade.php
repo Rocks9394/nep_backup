@@ -3,38 +3,33 @@
 
 <style>
     h4.text-uppercase {
-    color: #292775 !important;
-}
-
-h4.text-uppercase {
-    color: #292775 !important;
-}
+        color: #292775 !important;
+    }
 </style>
 
-<h2 class="text-center pb-2">Enter {{ $title }} Score</h2>
+<h2 class="text-center pb-2">{{ $title }} Score</h2>
 
 <!-- Wrap everything inside a single master form submission to capture both scores simultaneously -->
-<form method="POST" name="saveSitAndReachRecord" id="save_sit_and_reach_record_id" action="{{-- route('sit.and.reach.record.submit') --}}">
-    {{ method_field('post') }}
+<form method="POST" name="{{ $TestTypeId }}" id="{{ $TestTypeId }}" action="javascript:void(0);">
     @csrf
     
     <input type="hidden" name="skillReportId" value="{{ $skillReportId }}" id="skillReportId">
     <input type="hidden" name="TestTypeMasterID" value="{{ $TestTypeMasterID }}">
     <input type="hidden" name="SchoolId" id="SchoolId" value="{{ $SchoolId }}">
     <input type="hidden" name="student_id" id="selected_student_id">
-    <input type="hidden" name="result" id="result" placeholder="Result" readonly>
     
-    <!-- Unified payload storage matched to your master schema: "L: X.X | R: Y.Y" -->
-    <input type="hidden" name="score_measurement" id="score_measurement" value="">
+    <!-- Distinct fields containing the calculated final float values (in cm) sent to backend database rows -->
+    <input type="hidden" name="score_left" id="score_left" value="">
+    <input type="hidden" name="score_right" id="score_right" value="">
 
     <div class="row mx-n2">
         <!-- ==================== LEFT LEG COLUMN ==================== -->
-        <div class="col-12 col-md-6 px-2">
+        <div class="col-12 col-md-6 px-2 mb-3">
             <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-                <div class="p-1">
-                    <h4 class="text-center text-primary text-uppercase" style="font-size: 1.1rem;">Left Leg Evaluation</h4>
+                <div class="card-body p-3">
+                    <h4 class="text-center text-primary text-uppercase font-weight-bold" style="font-size: 1.1rem;">Left Leg Evaluation</h4>
                     
-                    <div class="row">
+                    <div class="row mt-2">
                         <!-- Left Initial Position Grid -->
                         <div class="col-6 border-right">
                             <h5 class="mb-2 text-center text-muted font-weight-bold" style="font-size:1.0rem;">Initial Position</h5>
@@ -60,7 +55,7 @@ h4.text-uppercase {
                                 </div>
                                 <div class="col-6 px-1">
                                     <label for="left_final_mm" class="small font-weight-bold text-muted mb-1 d-block text-center">mm</label>
-                                    <input type="text" name="left_final_mm" onkeyup="calculateLegScore('left')" class="form-control text-center" id="left_final_mm" placeholder="0" inputmode="numeric" style="font-size: 1.25rem;">
+                                    <input type="text" name="left_final_mm" onkeyup="calculateLegScore('left')" class="form-control text-center font-weight-bold" id="left_final_mm" placeholder="0" inputmode="numeric" style="font-size: 1.25rem;">
                                 </div>
                             </div>
                         </div>
@@ -76,12 +71,12 @@ h4.text-uppercase {
         </div>
 
         <!-- ==================== RIGHT LEG COLUMN ==================== -->
-        <div class="col-12 col-md-6 px-2">
+        <div class="col-12 col-md-6 px-2 mb-3">
             <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-                <div class="p-1">
+                <div class="card-body p-3">
                     <h4 class="text-center font-weight-bold text-success text-uppercase" style="font-size: 1.1rem;">Right Leg Evaluation</h4>
                     
-                    <div class="row">
+                    <div class="row mt-2">
                         <!-- Right Initial Position Grid -->
                         <div class="col-6 border-right">
                             <h5 class="mb-2 text-center text-muted font-weight-bold" style="font-size:1.0rem;">Initial Position</h5>
@@ -123,12 +118,8 @@ h4.text-uppercase {
         </div>
     </div>
     
-
-    <!-- Sticky Footer Fixed Action Bar -->
-    @php  $id = "pushups";  @endphp
+    @php $id = $TestTypeId; @endphp
     <x-reset-submit-btn :id="$id"/>
-
-
 </form>
 
 <script>
@@ -144,10 +135,10 @@ function calculateLegScore(side) {
     let finalCm = document.getElementById(`${side}_final_cm`).value;
     let finalMm = document.getElementById(`${side}_final_mm`).value;
 
-    // Wait until at least one character is entered to avoid flash of empty container
+    // Wait until at least one parameter has value to toggle indicators safely
     if (!initialCm && !initialMm && !finalCm && !finalMm) {
         document.getElementById(`${side}_net_score_container`).style.display = "none";
-        syncPayloadString();
+        document.getElementById(`score_${side}`).value = "";
         return 0;
     }
 
@@ -159,97 +150,19 @@ function calculateLegScore(side) {
     
     if (totalMm < 0) {
         document.getElementById(`${side}_final_result`).innerHTML = `<span class="text-danger">Final position lower than initial</span>`;
+        document.getElementById(`score_${side}`).value = "";
     } else {
         let displayCm = Math.floor(totalMm / 10);
         let displayMm = totalMm % 10;
         document.getElementById(`${side}_final_result`).innerHTML = `${displayCm} cm, ${displayMm} mm`;
+        
+        // Convert total millimeters to standard float centimeters for backend processing
+        let finalFloatCm = (totalMm / 10).toFixed(1); 
+        document.getElementById(`score_${side}`).value = finalFloatCm;
     }
-
-    syncPayloadString();
     return totalMm;
 }
 
-// Packages structural values out directly into standard database payload format
-function syncPayloadString() {
-    let leftInitialCm = document.getElementById(`left_initial_cm`).value;
-    let leftFinalCm = document.getElementById(`left_final_cm`).value;
-    let rightInitialCm = document.getElementById(`right_initial_cm`).value;
-    let rightFinalCm = document.getElementById(`right_final_cm`).value;
-
-    let leftMm = getTotalInMm(leftFinalCm, document.getElementById(`left_final_mm`).value) - getTotalInMm(leftInitialCm, document.getElementById(`left_initial_mm`).value);
-    let rightMm = getTotalInMm(rightFinalCm, document.getElementById(`right_final_mm`).value) - getTotalInMm(rightInitialCm, document.getElementById(`right_initial_mm`).value);
-
-    let leftInches = (leftMm > 0) ? ((leftMm / 10) * 0.393701).toFixed(1) : "0.0";
-    let rightInches = (rightMm > 0) ? ((rightMm / 10) * 0.393701).toFixed(1) : "0.0";
-
-    // Dynamic field update mapped directly to standard schema architecture
-    document.getElementById('score_measurement').value = `L: ${leftInches} in | R: ${rightInches} in`;
-    document.getElementById('result').value = Math.max(0, leftMm + rightMm);
-}
-
-$(document).ready(function() {
-    // Standard Reset Trigger Handler Setup
-    $('#reset_sit_and_reach').on('click', function() {
-        $('#save_sit_and_reach_record_id')[0].reset();
-        $('#left_net_score_container, #right_net_score_container').hide();
-        syncPayloadString();
-    });
-
-    $('#save_sit_and_reach_record_id').submit(function(e) {
-        e.preventDefault();
-        
-        const studentId = document.getElementById('selected_student_id').value;
-        
-        // Comprehensive checks for completeness across both leg systems
-        if(!$('#left_final_cm').val() && !$('#right_final_cm').val()) {
-            handleResponseMessages('info', '', 'Please complete the scoring records before clicking save.');
-            return;
-        }
-        
-        if (!studentId) {
-            handleResponseMessages('info', 'Select Student', 'Please select a student from the listing array first.');
-            return;
-        }
-
-        let leftScore = getTotalInMm($('#left_final_cm').val(), $('#left_final_mm').val()) - getTotalInMm($('#left_initial_cm').val(), $('#left_initial_mm').value);
-        let rightScore = getTotalInMm($('#right_final_cm').val(), $('#right_final_mm').val()) - getTotalInMm($('#right_initial_cm').val(), $('#right_initial_mm').value);
-        
-        if (leftScore < 0 || rightScore < 0) {
-            handleResponseMessages('info', 'Invalid Input', "Calculated net adjustments cannot be negative values.");
-            return;
-        }
-        
-        submitLoader();
-        $.ajax({
-            url: $(this).attr('action'),
-            method: 'POST',
-            data: $(this).serialize(),
-            success: function(response) {
-                Swal.close();
-                $('#save_sit_and_reach_record_id')[0].reset(); 
-                document.getElementById(`left_net_score_container`).style.display = "none";
-                document.getElementById(`right_net_score_container`).style.display = "none";
-                
-                handleResponseMessages('success', '', response.message, {
-                    confirmText: 'OK',
-                    onConfirm: function () {
-                        location.reload();
-                    }
-                });                 
-            },
-            error: function(xhr) {
-                Swal.close();
-                let errorResponse = xhr.responseJSON;
-                
-                Swal.fire({
-                    title: "Error!",
-                    text: (errorResponse && errorResponse.message) ? errorResponse.message : "Data post process rejected by internal endpoint constraints.",
-                    icon: "error"
-                });
-            }
-        });
-    });
-});
 
 // Setup input sizing filters to constrain input ranges
 const inputConfigs = [
@@ -271,5 +184,56 @@ inputConfigs.forEach(config => {
         });
     }
 });
+
+
+
+$(document).ready(function() {
+    const formId = @json($TestTypeId);
+    const formSelector = $(`#${formId}`);
+
+    // Standard Reset Trigger Handler Setup
+    $(`#reset_${formId}`).on('click', function(e) {
+        e.preventDefault();
+        formSelector[0].reset();
+        $(`#left_net_score_container, #${formId} #right_net_score_container`).hide();
+        document.getElementById('score_left').value = '';
+        document.getElementById('score_right').value = '';      
+    });
+
+    formSelector.submit(function(e) {
+        e.preventDefault();
+        
+        const studentId = document.getElementById('selected_student_id').value;
+        const scoreLeft = document.getElementById('score_left').value;
+        const scoreRight = document.getElementById('score_right').value;
+        
+        if (!studentId) {
+            handleResponseMessages('info', 'Select Student', 'Please select a student from the listing array first.');
+            return;
+        }
+
+        // Validate that calculations for both sides are completed before continuing
+        if (scoreLeft === '' || scoreRight === '') {
+            handleResponseMessages('info', 'Incomplete Form', 'Please complete valid numeric scoring metrics for both Left and Right leg groups.');
+            return;
+        }
+
+        let leftInitialMm = getTotalInMm($('#left_initial_cm').val(), $('#left_initial_mm').val());
+        let leftFinalMm = getTotalInMm($('#left_final_cm').val(), $('#left_final_mm').val());
+        let rightInitialMm = getTotalInMm($('#right_initial_cm').val(), $('#right_initial_mm').val());
+        let rightFinalMm = getTotalInMm($('#right_final_cm').val(), $('#right_final_mm').val());
+        
+        if ((leftFinalMm - leftInitialMm) < 0 || (rightFinalMm - rightInitialMm) < 0) {
+            handleResponseMessages('info', 'Invalid Input', "Calculated net configurations cannot possess negative values.");
+            return;
+        }
+        
+
+        let route = '{{ route("cwsn.types.submit") }}';
+        let formData =  $(this).serialize();
+        SubmitForm(formId, formData, route);
+    });
+});
+
 </script>
 @endsection

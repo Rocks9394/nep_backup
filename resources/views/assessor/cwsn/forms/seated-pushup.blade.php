@@ -39,12 +39,11 @@
         border: none;
         border-radius: 10px;
     }
-
 </style>
 
 <h2 class="mb-3 text-center">{{ $title }} Score </h2>
 
-<form class="row bg-white mt-4" method="POST" name="seated-pushup" id="save_flamingo_record_id" action="javascript:void(0);">
+<form class="row bg-white mt-4" method="POST" name="{{ $TestTypeId }}" id="{{ $TestTypeId }}" action="javascript:void(0);">
     {{ method_field('post') }}
     @csrf
 
@@ -52,23 +51,22 @@
     <input type="hidden" name="TestTypeMasterID" value="{{ $TestTypeMasterID }}">
     <input type="hidden" id="SchoolId" name="SchoolId" value="{{ $SchoolId }}">
     <input type="hidden" id="selected_student_id" name="student_id">
-    <input type="hidden" name="score_measurement" id="score_measurement" value="">
-
-
+    <input type="hidden" name="modified_pushup" id="score_measurement" value="">
 
     <div class="col-12">
-       <div class="form mb-4">  
-            <div class="card-body text-center">
+       <div class="form row mb-4">  
+            <div class="card-body bg-light text-center">
                 <!-- Centered Digital Timer Display Circle -->
                 <div class="d-flex justify-content-center align-items-center">
                     <div class="d-flex flex-column justify-content-center align-items-center text-dark" id="timer-display-box">
-                        <span id="stopwatch_display" class="font-weight-bold" style="font-size: 2.4rem; font-family: monospace; line-height: 1;">0.0</span>  
+                        <!-- Updated default placeholder text to match SS:mm layout -->
+                        <span id="stopwatch_display" class="font-weight-bold" style="font-size: 2.4rem; font-family: monospace; line-height: 1;">00:00</span>  
 
                         <small class="text-uppercase tracking-wider text-muted font-weight-bold m-2" id="timer-status" style="font-size: 0.65rem;">Ready</small>
                     </div>
                 </div>
 
-            	<button type="button" id="btn-timer-control" class="btn btn-success w-100 d-flex justify-content-center" style="gap: 8px; border-radius: 8px;">
+                <button type="button" id="btn-timer-control" class="btn btn-success w-100 d-flex justify-content-center" style="gap: 8px; border-radius: 8px;">
                     <i class="bi bi-stopwatch"></i><span id="timer-btn-text">Start Timer</span>
                 </button>
             </div>
@@ -80,8 +78,8 @@
         <footer class="container-fluid position-fixed bg-white shadow-lg border-top p-0" style="bottom: 0; left: 0; right: 0; z-index: 100;">
             <div class="container py-3">
                 <div class="d-flex justify-content-between align-items-center px-2">
-                    <button type="button" id="reset_seatedPushup" class="btn py-2.5 px-5 font-weight-bold btn-outline-secondary" style="border-radius: 8px; min-width: 140px;">Reset</button>   
-                    <button type="submit" id="submit_seatedPushup" class="btn py-2.5 px-5 font-weight-bold btn-primary" style="border-radius: 8px; min-width: 140px;" disabled>Save</button>
+                    <button type="button" id="reset_{{ $TestTypeId }}" class="btn py-2.5 px-5 font-weight-bold btn-outline-secondary" style="border-radius: 8px; min-width: 140px;">Reset</button>   
+                    <button type="submit" id="submit_{{ $TestTypeId }}" class="btn py-2.5 px-5 font-weight-bold btn-primary" style="border-radius: 8px; min-width: 140px;" disabled>Save</button>
                 </div>
             </div>
         </footer>
@@ -92,6 +90,7 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     const testtype = `{{ $title }}`;
+    const formName = @json($TestTypeId);
 
     let animationFrame = null;
     let startTime = null;
@@ -102,13 +101,23 @@ document.addEventListener("DOMContentLoaded", function () {
     const timerStatus = document.getElementById("timer-status");
     const timerBox = document.getElementById("timer-display-box");
     const btnControl = document.getElementById("btn-timer-control");
-    const btnReset = document.getElementById("reset_seatedPushup");
-    const btnSubmit = document.getElementById("submit_seatedPushup");
+    const btnReset = document.getElementById(`reset_${formName}`);
+    const btnSubmit = document.getElementById(`submit_${formName}`);
     const hiddenScoreInput = document.getElementById("score_measurement");
 
-    // Force secure initial state values
     if (btnSubmit) {
         btnSubmit.disabled = true;
+    }
+
+    // New helper to parse milliseconds into a strict SS:mm (Seconds:Milliseconds) output
+    function formatTime(ms) {
+        let totalSeconds = Math.floor(ms / 1000);
+        let milliseconds = Math.floor((ms % 1000) / 10); // Extract 2 digit milliseconds
+
+        let secondsStr = totalSeconds < 10 ? '0' + totalSeconds : totalSeconds;
+        let milliStr = milliseconds < 10 ? '0' + milliseconds : milliseconds;
+
+        return `${secondsStr}:${milliStr}`;
     }
 
     btnControl.addEventListener("click", function () {
@@ -125,7 +134,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function startTimer() {
-
         isRunning = true;
         startTime = performance.now() - elapsedTime;
 
@@ -134,10 +142,10 @@ document.addEventListener("DOMContentLoaded", function () {
         btnControl.classList.add("paused");
 
         timerStatus.innerText = "Running";
-        timerBox.style.borderColor = "#28a745"; // Success Green Boundary color
+        timerBox.style.borderColor = "#28a745"; 
 
         if (btnSubmit) {
-            btnSubmit.disabled = true; // Lock submittals during continuous active tracking runs
+            btnSubmit.disabled = true; 
             btnSubmit.classList.remove("btn-theme-primary");
             btnSubmit.classList.add("btn-primary");
         }
@@ -151,46 +159,41 @@ document.addEventListener("DOMContentLoaded", function () {
         elapsedTime = performance.now() - startTime;
         let seconds = elapsedTime / 1000;
 
-        if(testtype == 'Isometric Push-up'){
-            let maxtime = 40;
-
+        if (testtype == 'Isometric Push-up') {
             if (seconds >= 40) {
-                seconds = 40.0;
                 elapsedTime = 40000;
-                stopwatchDisplay.innerText = "40.0";
-                hiddenScoreInput.value = "40.0";
-                stopTimer(true,testtype);
+                let formatted = formatTime(elapsedTime);
+                stopwatchDisplay.innerText = formatted;
+                hiddenScoreInput.value = formatted; 
+                stopTimer(true, testtype);
                 return;
             }
-
         }
 
-        if(testtype == 'Seated Push-up'){
-            let maxtime = 40;
+        if (testtype == 'Seated Push-up') {
             if (seconds >= 20) {
-                seconds = 20.0;
                 elapsedTime = 20000;
-                stopwatchDisplay.innerText = "20.0";
-                hiddenScoreInput.value = "20.0";
-                stopTimer(true,testtype);
+                let formatted = formatTime(elapsedTime);
+                stopwatchDisplay.innerText = formatted;
+                hiddenScoreInput.value = formatted; 
+                stopTimer(true, testtype);
                 return;
             }
         }
 
-        stopwatchDisplay.innerText = seconds.toFixed(1);
-        hiddenScoreInput.value = seconds.toFixed(1);
+        let formatted = formatTime(elapsedTime);
+        stopwatchDisplay.innerText = formatted;
+        hiddenScoreInput.value = formatted; 
         animationFrame = requestAnimationFrame(updateTimer);
     }
 
     function stopTimer(maxReached = false, testtype) {
-
-        let maxtime = '';
-        if(testtype == 'Isometric Push-up'){
-          maxtime = 40;
+        let maxtimeMs = Infinity;
+        if (testtype == 'Isometric Push-up') {
+            maxtimeMs = 40000;
         }
-
-        if(testtype == 'Seated Push-up'){
-          maxtime = 20;
+        if (testtype == 'Seated Push-up') {
+            maxtimeMs = 20000;
         }
 
         isRunning = false;
@@ -200,20 +203,16 @@ document.addEventListener("DOMContentLoaded", function () {
             animationFrame = null;
         }
 
-        const finalScore = Math.min(maxtime, elapsedTime / 1000);
-        const textScore = finalScore.toFixed(1);
+        const finalScoreMs = Math.min(maxtimeMs, elapsedTime);
+        const formattedScore = formatTime(finalScoreMs);
 
-
-        stopwatchDisplay.innerText = textScore;
-        hiddenScoreInput.value = textScore;
-
+        stopwatchDisplay.innerText = formattedScore;
+        hiddenScoreInput.value = formattedScore;
 
         document.getElementById("timer-btn-text").textContent = "Start Timer";
         btnControl.classList.remove("paused");
         btnControl.classList.add("btn-success");
         btnControl.disabled = true;
-
-
 
         if (maxReached) {
             timerStatus.innerText = "Max Reached";
@@ -224,9 +223,8 @@ document.addEventListener("DOMContentLoaded", function () {
             timerBox.style.borderColor = "#dc3545"; 
         }
 
-        if (btnSubmit && finalScore > 0) {
+        if (btnSubmit && finalScoreMs > 0) {
             btnSubmit.disabled = false;
-
             btnSubmit.classList.remove("btn-theme-primary");
             btnSubmit.classList.add("btn-primary");
         }
@@ -242,7 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
         elapsedTime = 0;
         startTime = null;
 
-        stopwatchDisplay.innerText = "0.0";
+        stopwatchDisplay.innerText = "00:00";
         timerStatus.innerText = "Ready";
         timerBox.style.borderColor = "#4da3ff";
 
@@ -255,11 +253,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (btnSubmit) {
             btnSubmit.disabled = true;
-
             btnSubmit.classList.remove("btn-theme-primary");
             btnSubmit.classList.add("btn-primary");
         }
     }
+
+    $(document).ready(function() {
+        const formName = @json($TestTypeId);
+
+        $(`#${formName}`).submit(function(e) {
+            e.preventDefault();
+
+            const studentId = document.getElementById('selected_student_id').value;
+            if (!studentId) {
+                handleResponseMessages('warning', 'Select Student', 'Please select the student');
+                return;
+            }
+            
+            const finalMmInput = $('input[name="modified_pushup"]').val();
+
+            if (finalMmInput === '' || finalMmInput === null || undefined === finalMmInput) {
+                handleResponseMessages('info', '', 'Please enter position of the student');
+                return;
+            }
+
+            let route = '{{ route("cwsn.types.submit") }}';
+            let formData = $(this).serialize();
+            SubmitForm(formName, formData, route);
+            document.getElementById('live_status_badge').textContent = `Level 1, Shuttle 0`;
+        });
+    });
 });
 </script>
 

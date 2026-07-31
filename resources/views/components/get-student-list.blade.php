@@ -20,7 +20,7 @@
                 </div>
             </div>
 				
-            <div class="col-12 col-md-8">
+            <div class="col-12 col-md-7">
                 <div class="form mt-1 mt-md-3">
                     <label for="student_id" class="form-label">Select Student</label>
                     <div class="input-group1 mb-3">
@@ -29,21 +29,22 @@
                         </select>
                     </div>
                 </div>
-            </div>   
+            </div> 
 
-			@php
-			$userId  = \Auth::id();
-			$trainerName = auth()->user()->name;
-			@endphp
-		
-			
+
+             @php
+            $userId  = \Auth::id();
+            $trainerName = auth()->user()->name;
+            @endphp
+        
+            
             @if(Auth::user()->id == '995')
-			
-            <div class="col-4 col-sm-3 col-md-2 col-lg-1">
+
+            <div class="col-12 col-md-1">
                 <div class="form mt-1 mt-md-3">
                     <div class="mb-3" style="margin-top:32px;">
                        <a href="{{ route('scan') }}"
-                            class="btn btn-outline-secondary px-3 ml-0 d-flex justify-content-center align-items-center border-btn"
+                            class="btn btn-outline-secondary px-3 ml-0 d-flex justify-content-center align-items-center border-btn" id="scanner_btn" 
                             style="gap: 5px" data-toggle="modal" data-target=".bd-scan-modal-lg"><span
                                 class="d-flex"><i class="bi bi-qr-code"></i></span>
                             <span>Scan</span>
@@ -51,10 +52,12 @@
 
                     </div>
                 </div>
-            </div>
+            </div> 
             @endif
 
         </div>
+
+
         <div class="row my-2">
             <div class="col-12">
                 <div class="card alert alert-warning border-0" style="box-shadow: none; min-height:auto;">

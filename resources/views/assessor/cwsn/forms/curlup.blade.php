@@ -1,123 +1,230 @@
 @extends('assessor.cwsn.index')
 @section('cwsnform')
 
-
 <style>
-
-    @media only screen and (max-width: 600px) {
-        .btn {  min-width: 80px; }
-        #laps_completed{
-            width: 100px;         }
+    .hide {
+        pointer-events: none;   
+        opacity: 0.6;    
+        cursor: not-allowed;
+    }
+    .btn-danger-stop {
+        background-color: #ff0000 !important;
+        color: #fff !important;
     }
 
-    @media only screen and (min-width: 600px) {
-        .btn { min-width: 170px; }
-        #laps_completed{
-            width: 140px;
-        }
-    }
-
-    @media only screen and (min-width: 768px) {
-        .btn {  min-width: 170px;}
-        #laps_completed{
-            width: 140px;
-        }
-    }
-
-    #laps_completed{ height: 45px !important; font-size: 20px;}
-
-    button.btn.btn-secondary.d-flex.align-items-center.justify-content-center.fw-bold.fs-3.user-select-none {
-        border: 1px solid orange;
-    }
 
 </style>
 
-
- <form class="row" method="POST" name="saveFlamingoRecord" id="save_partial_curl_up_record_id" action="">
-        {{method_field('post')}}
-        @csrf
-        
-        <input type="hidden" name="skillReportId" value="{{ $skillReportId }}">
-        <input type="hidden" name="TestTypeMasterID" value="{{ $TestTypeMasterID }}">
-        <input type="hidden" id="SchoolId" name="SchoolId" value="{{ $SchoolId }}">
-        <input type="hidden" id="selected_student_id" name="student_id">
-        
-        <div class="col-12"> 
-            <div class="form mb-4">
-                <h2 class="mb-3 mt-4 text-center">Enter {{ $title }} Score</h2>
-                <div class="input-group mb-3 text-center">
-                    <span class="form-control single-input">
-                        <label for="count_total_number_id" class="form-label">Counts</label>
-                        <input type="text" name="count_total_number" class="form-control form-control-lg text-center" id="count_total_number_id" placeholder="--">
-                    </span>
-                </div>
-                <div  id="timer" class="mt-0 mb-3 text-center">00:00:00</div>
-                <div class="actions"><a href="javascript:void(0)" id="startBtn" class="btn btn-success py-2 w-100 d-flex justify-content-center" style="gap: 10px;"><i class="bi bi-stopwatch"></i><span>Start Timer</span></a></div>
+<form class="row" method="POST" name="{{ $TestTypeId }}" id="{{ $TestTypeId }}" action="javascript:void(0);">
+    {{ method_field('post') }}
+    @csrf
+    
+    <input type="hidden" name="skillReportId" value="{{ $skillReportId }}">
+    <input type="hidden" name="TestTypeMasterID" value="{{ $TestTypeMasterID }}">
+    <input type="hidden" id="SchoolId" name="SchoolId" value="{{ $SchoolId }}">
+    <input type="hidden" id="selected_student_id" name="student_id">
+    
+    <div class="col-12"> 
+        <div class="row form mb-4">
+            <h2 class="mb-3 text-center">{{ $title }} Score</h2>
+            <div class="input-group mb-3 text-center">
+                <span class="form-control single-input">
+                    <label for="count_total_number_id" class="form-label">Counts (Max 75)</label>
+                    <input type="text" name="count_total_number" class="form-control form-control-lg text-center" id="count_total_number_id" placeholder="00" disabled>
+                </span>
+            </div>
+            
+            <div id="timer" class="mt-0 mb-3 text-center" style="font-family: monospace; font-size: 1.5rem;">00:00:00</div>
+            <div class="actions">
+                <a href="javascript:void(0)" id="startBtn" class="btn btn-success py-2 w-100 d-flex justify-content-center" style="gap: 10px;">
+                    <i class="bi bi-stopwatch"></i><span>Start Timer</span>
+                </a>
             </div>
         </div>
-                
-
-        @php $id = "strength"; @endphp
-        <x-reset-submit-btn :id="$id"/>
-</form> 
+    </div>
+            
+    <x-reset-submit-btn :id="$TestTypeId"/>
+</form>
 
 
 
 <script>
-$(function () {
+let TestTypeId = @json($TestTypeId);
+const saveBtn = document.getElementById(`submit_${TestTypeId}`);
+let timerInterval;
+const countInput = document.getElementById("count_total_number_id");
+const timerDisplay = document.getElementById("timer");
+const startBtn = document.getElementById("startBtn");
 
-    const TEST_DURATION = 30000; 
+let audioCtx = null;
+let isRunning = false; 
+let startTime = null;
+let maxTimeMs = 75 * 3 * 1000; 
+let currentRepCount = 0; 
 
-    const saveBtn      = document.getElementById("submit_strength");
-    const startBtn     = document.getElementById("startBtn");
-    const countInput   = document.getElementById("count_total_number_id");
-    const timerDisplay = document.getElementById("timer");
+function playBeep() {
+    try {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
 
-    let timerInterval = null;
+        oscillator.type = 'sine'; // Smooth, friendly tone
+            oscillator.frequency.value = 880; // High Pitch (A5) -> "UP"
+            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.2);
+    } catch (e) {
+        console.error("Audio dynamic beep initialization failed: ", e);
+    }
+}
 
-    saveBtn.classList.add("hide");
-    countInput.disabled = true;
-    updateTimerDisplay(TEST_DURATION);
-    startBtn.addEventListener("click", startTimer);
+window.onload = function() { 
+    if(saveBtn) saveBtn.classList.add("hide"); 
+}
 
-    function startTimer() {
-        clearInterval(timerInterval);
-        startBtn.innerHTML = "Test is Running...";
-        startBtn.disabled = true;
-        const endTime = Date.now() + TEST_DURATION;
+document.addEventListener("DOMContentLoaded", function () {
+    let lastBeepTimeIndex = -1;
 
-        timerInterval = setInterval(function () {
-            const remaining = endTime - Date.now();
+    startBtn.addEventListener("click", function() {
+        if (!isRunning) {
+            isRunning = true;
+            currentRepCount = 0;
+            countInput.value = ""; 
+            countInput.disabled = true; 
 
-            if (remaining <= 0) {
-                clearInterval(timerInterval);
-                updateTimerDisplay(0);
-
-                countInput.disabled = false;
-                countInput.focus();
-
-                startBtn.innerHTML = "Test Completed";
-                saveBtn.classList.remove("hide");
-
-                return;
+            if (window.AudioContext || window.webkitAudioContext) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
-            updateTimerDisplay(remaining);
-        }, 10);
-    }
 
-    function updateTimerDisplay(ms) {
-        const totalSeconds = Math.floor(ms / 1000);
-        const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
-        const seconds = String(totalSeconds % 60).padStart(2, "0");
-        const millis  = String(ms % 1000).padStart(3, "0");
-        timerDisplay.textContent = `${minutes}:${seconds}:${millis}`;
-    }
+            clearInterval(timerInterval);            
+            startBtn.innerHTML = '<i class="bi bi-stopwatch"></i><span>Pause Timer</span>';
+            startBtn.classList.remove("btn-success");
+            startBtn.classList.add("btn-danger-stop");
 
+            startTime = Date.now();
+            playBeep(); 
+            lastBeepTimeIndex = 0;
+            currentRepCount = 1; 
 
-    countInput.addEventListener("input", function () {
-        this.value = this.value.replace(/\D/g, "").slice(0, 3);
+            timerInterval = setInterval(() => {
+                let msElapsed = Date.now() - startTime;
+                
+                if (msElapsed >= maxTimeMs) {
+                    currentRepCount = 75;
+                    stopTest(true); 
+                } else {
+                    updateTimerDisplay(msElapsed);
+                    
+                    let currentSecondBlock = Math.floor(msElapsed / 3000);
+                    if (currentSecondBlock > lastBeepTimeIndex) {
+                        playBeep();
+                        lastBeepTimeIndex = currentSecondBlock;
+                        currentRepCount++; 
+                    }
+                }
+            }, 30); // Higher resolution tracking rate to capture millisecond precision fluidly
+
+        } else {
+            stopTest(false);
+        }
     });
 
+    function stopTest(hitMaxCeiling = false) {
+        isRunning = false;
+        clearInterval(timerInterval);
+        
+        startBtn.classList.add("hide"); 
+        countInput.disabled = false; 
+
+        countInput.value = currentRepCount;
+
+        if (saveBtn) saveBtn.classList.remove("hide"); 
+
+        if (hitMaxCeiling) {
+            updateTimerDisplay(maxTimeMs);
+            startBtn.innerHTML = '<span>Max 75 Reps Completed!</span>';
+            startBtn.className = "btn btn-warning py-2 w-100 d-flex justify-content-center text-dark";
+        } else {
+            startBtn.innerHTML = '<span>Test Stopped</span>';
+            startBtn.className = "btn btn-success py-2 w-100 d-flex justify-content-center disabled";
+        }
+    }
+
+    const resetBtn = document.getElementById(`reset_${TestTypeId}`);
+    if (resetBtn) {
+        resetBtn.addEventListener("click", function() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            timerDisplay.textContent = "00:00:00"; // Fixed clear format layout rule
+            
+            startBtn.innerHTML = '<i class="bi bi-stopwatch"></i><span>Start Timer</span>';
+            startBtn.className = "btn btn-success py-2 w-100 d-flex justify-content-center";
+            startBtn.classList.remove("hide");
+            countInput.value = "";
+            countInput.disabled = true; 
+            if(saveBtn) saveBtn.classList.add("hide");
+        });
+    }
+});
+
+// Full conversion format system explicitly breaking intervals out to min:ss:mm
+function updateTimerDisplay(ms) {
+    let totalSeconds = Math.floor(ms / 1000);
+    
+    let minutes = Math.floor(totalSeconds / 60);
+    let seconds = totalSeconds % 60;
+    let centiseconds = Math.floor((ms % 1000) / 10); // Standard digital stopwatch styling logic
+    
+    let minsStr = String(minutes).padStart(2, '0');
+    let secsStr = String(seconds).padStart(2, '0');
+    let milliStr = String(centiseconds).padStart(2, '0');
+    
+    timerDisplay.textContent = `${minsStr}:${secsStr}:${milliStr}`;
+}
+
+document.getElementById("count_total_number_id").addEventListener("input", function (e) {
+    let value = e.target.value.replace(/[^0-9]/g, '');  
+    
+    if (value !== '') {
+        let numValue = parseInt(value, 10);
+        if (numValue > 75) {
+            value = '75'; 
+        }
+    }
+    
+    e.target.value = value;
+    if (value !== '' && saveBtn && !isRunning) {
+        saveBtn.classList.remove("hide"); 
+    }
+});
+
+$(document).ready(function() {
+    const formName = @json($TestTypeId);
+
+    $(`#${formName}`).submit(function(e) {
+        e.preventDefault();
+
+        const studentId = document.getElementById('selected_student_id').value;
+        const curlUpCount = document.getElementById('count_total_number_id')?.value;
+
+        if (!studentId) {
+            handleResponseMessages('warning', 'Add Student', 'Please select the student');
+            return;
+        }
+        if (curlUpCount === null || curlUpCount === undefined || curlUpCount === "") {
+            handleResponseMessages('warning', 'Add curl-up count', 'Please add curl-up count');
+            return;
+        }
+
+        let route = '{{ route("cwsn.types.submit") }}';
+        let formData = $(this).serialize();
+        SubmitForm(formName, formData, route);
+    });
 });
 </script>
 @endsection

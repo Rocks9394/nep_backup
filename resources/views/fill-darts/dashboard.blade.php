@@ -121,7 +121,7 @@
 	                    </div>
 	                 		                 	
 	                    <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
-	                        <a href="{{ route('all-test') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('public/uploads/icons/taketest.svg') }}"></div><span>Take Test</span></a>
+	                        <a href="{{ route('all-test') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('public/uploads/icons/taketest.svg') }}"></div><span>Take Test-1</span></a>
 	                    </div>                  
 	 	                    
 	                    <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">

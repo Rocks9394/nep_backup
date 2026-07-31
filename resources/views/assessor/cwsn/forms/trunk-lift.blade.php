@@ -1,71 +1,63 @@
 @extends('assessor.cwsn.index')
 @section('cwsnform')
 
+<form class="row" method="POST" name="{{ $TestTypeId }}" id="{{ $TestTypeId }}" action="javascript:void(0);">
+    {{ method_field('POST') }}
+    @csrf
+    
+    <input type="hidden" name="skillReportId" value="{{ $skillReportId }}" id="skillReportId">
+    <input type="hidden" name="TestTypeMasterID" value="{{ $TestTypeMasterID }}">
+    <input type="hidden" name="SchoolId" id="SchoolId" value="{{ $SchoolId }}">
+    <input type="hidden" name="student_id" id="selected_student_id">
+    <input type="hidden" name="trunk_lift" id="result" readonly>
+    
+    <div class="col-12">
+        <div class="form">
+            <h2 class="mb-2 mt-4 text-center">{{ $title }} Test Score</h2>
+        </div>
+    </div>
+    
+    <div class="col-12 col-md-6">
+        <div class="form">
+            <h3 class="mb-2 mt-4 text-left label">Trial 1</h3>
+            <div class="input-group input-group__2 mb-3">
+                <span class="form-control">
+                    <label for="initial_cm_id" class="form-label">Cms</label>
+                    <input type="text" name="initial_cm" class="form-control form-control-lg score-input" id="initial_cm_id" placeholder="00">
+                </span>
+                <span class="form-control">
+                    <label for="initial_mm_id" class="form-label">mm</label>
+                    <input type="text" name="initial_mm" class="form-control form-control-lg score-input" id="initial_mm_id" placeholder="00">
+                </span>
+            </div>
+        </div>
+    </div>
 
-<form class="row" method="POST" name="saveSitAndReachRecord" id="save_sit_and_reach_record_id" action="">
-                {{method_field('post')}}
-                @csrf
-                
-                <input type="hidden" name="skillReportId" value="{{ $skillReportId }}" id="skillReportId">
-                <input type="hidden" name="TestTypeMasterID" value="{{ $TestTypeMasterID }}">
-                <input type="hidden" name="SchoolId" id="SchoolId" value="{{ $SchoolId }}">
-                <input type="hidden" name="student_id" id="selected_student_id" >
-                <input type="hidden" name="result" id="result" placeholder="Result" readonly>
-                
-                <div class="col-12">
-                    <div class="form">
-                        <h2 class="mb-2 mt-4 text-center">Enter {{ $title }} Test Score</h2>
-                    </div>
-                </div>
-                <div class="col-12 col-md-6">
-                    <div class="form">
-                        <h3 class="mb-2 mt-4 text-left label">Trial 1</h3>
-                        <div class="input-group input-group__2 mb-3">
-                            <span class="form-control">
-                                <label for="initial_cm_id" class="form-label">Cms</label>
-                                <input type="text" name="initial_cm" onkeyup="calculateScore()" class="form-control form-control-lg" id="initial_cm_id" placeholder="00">
-                            </span>
-                            <span class="form-control">
-                                <label for="initial_mm_id" class="form-label">mm</label>
-                                <input type="text" name="initial_mm" onkeyup="calculateScore()" class="form-control form-control-lg" id="initial_mm_id" placeholder="00">
-                            </span>
-                        </div>
+    <div class="col-12 col-md-6">
+        <div class="form">
+            <h3 class="mb-2 mt-4 text-left label">Trial 2</h3>
+            <div class="input-group input-group__2 mb-3">
+                <span class="form-control">
+                    <label for="final_cm_id" class="form-label">Cms</label>
+                    <input type="text" name="final_cm" class="form-control form-control-lg score-input" id="final_cm_id" placeholder="00">
+                </span>
+                <span class="form-control">
+                    <label for="final_mm_id" class="form-label">mm</label>
+                    <input type="text" name="final_mm" class="form-control form-control-lg score-input" id="final_mm_id" placeholder="00">
+                </span>
+            </div>
+            <div>        
+                <span id="best_score" style="display:none"><b>Best Score:</b> <span id="final_result_id"></span></span>
+            </div>
+        </div>
+    </div>
 
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <div class="form">
-                        <h3 class="mb-2 mt-4 text-left label">Trial 2</h3>
-                        <div class="input-group input-group__2 mb-3">
-                            <span class="form-control">
-                                <label for="final_cm_id" class="form-label">Cms</label>
-                                <input type="text" name="final_cm" class="form-control form-control-lg" onkeyup="calculateScore()" id="final_cm_id" placeholder="00">
-                            </span>
-                            <span class="form-control">
-                                <label for="final_mm_id" class="form-label">mm</label>
-                                <input type="text" name="final_mm" class="form-control form-control-lg" onkeyup="calculateScore()" id="final_mm_id" placeholder="00">
-                            </span>
-                        </div>
-                        <div>
-                    
-                            <span id="net_score" style="display:none"><b>Net Score:</b> <span id="final_result_id"></span></span>
-                        </div>
-
-                    </div>
-                </div>
-                {{-- footer for submit and reset button --}}
-                    @php
-                        $id = "flexibility";
-                    @endphp
-                    <x-reset-submit-btn :id="$id"/>
-                {{-- footer close --}}
-        </form>
-
+    <x-reset-submit-btn :id="$TestTypeId"/>
+</form>
 
 <script>
 function getTotalInMm(cm, mm) {
-    return (parseInt(cm) || 0) * 10 + (parseInt(mm) || 0);
+    return (parseInt(cm, 10) || 0) * 10 + (parseInt(mm, 10) || 0);
 }
 
 function calculateScore() {
@@ -74,154 +66,122 @@ function calculateScore() {
     let finalCm = document.getElementById("final_cm_id").value;
     let finalMm = document.getElementById("final_mm_id").value;
 
+    // Return safely if no values have been provided yet
+    if (!initialCm && !initialMm && !finalCm && !finalMm) {
+        document.getElementById("best_score").style.display = "none";
+        document.getElementById("result").value = "";
+        return 0;
+    }
+
     let initialTotalMm = getTotalInMm(initialCm, initialMm);
     let finalTotalMm = getTotalInMm(finalCm, finalMm);
 
-    let totalMm = finalTotalMm - initialTotalMm;
+    // Dynamic max comparison
+    let maxTotalMm = Math.max(initialTotalMm, finalTotalMm);
 
-    // Properly handle negative values
-    let sign = totalMm < 0 ? "-" : "";
-    let absMm = Math.abs(totalMm);
-    let resultCm = Math.floor(absMm / 10);
-    let resultMm = absMm % 10;
+    let resultCm = Math.floor(maxTotalMm / 10);
+    let resultMm = maxTotalMm % 10;
 
-    document.getElementById("net_score").style.display = "block";
-    document.getElementById("result").value = totalMm;
-    document.getElementById("final_result_id").innerHTML = `${sign}${resultCm}cm, ${sign}${resultMm}mm`;
+    document.getElementById("best_score").style.display = "block";
+    document.getElementById("result").value = maxTotalMm;
+    document.getElementById("final_result_id").innerHTML = `${resultCm}cm, ${resultMm}mm`;
 
-    return totalMm;
+    return maxTotalMm;
 }
-</script>
 
-<script>
+// FIXED: Added partnerMmId to parameter definition
+function validateCmInput(element, partnerMmId) {
+    let value = element.value.replace(/[^0-9]/g, ''); 
+    
+    if (value.length > 2) {
+        value = value.slice(0, 2);
+    }
+    
+    // Max cap fixed to 30 cm
+    if (value !== '' && parseInt(value, 10) > 30) {
+        value = '30';
+    }
+    
+    element.value = value;
+
+    if (value === '30') {
+        const mmElement = document.getElementById(partnerMmId);
+        if (mmElement && mmElement.value !== '' && mmElement.value !== '0') {
+            mmElement.value = '0';
+        }
+    }
+}
+
+function validateMmInput(element, partnerCmId) {
+    let value = element.value.replace(/[^0-9]/g, ''); 
+    
+    if (value.length > 1) {
+        value = value.slice(0, 1);
+    }
+
+    const cmValue = document.getElementById(partnerCmId).value;
+    if (cmValue === '30' && value !== '' && value !== '0') {
+        value = '0';
+    }
+
+    element.value = value;
+}
+
+
 $(document).ready(function() {
-    $('#save_sit_and_reach_record_id').submit(function(e) {
-        e.preventDefault(); // prevent default form submission
+    const formName = String(@json($TestTypeId));
+
+    // Handle initial inputs tracking
+    $(document).on('input', '#initial_cm_id', function() {
+        validateCmInput(this, "initial_mm_id"); // FIXED: Passed partner ID here
+        calculateScore();
+    });
+    $(document).on('input', '#initial_mm_id', function() {
+        validateMmInput(this, "initial_cm_id");
+        calculateScore();
+    });
+
+    // Handle final inputs tracking
+    $(document).on('input', '#final_cm_id', function() {
+        validateCmInput(this, "final_mm_id"); // FIXED: Passed partner ID here
+        calculateScore();
+    });
+    $(document).on('input', '#final_mm_id', function() {
+        validateMmInput(this, "final_cm_id");
+        calculateScore();
+    });
+    
+
+    // Handle Form Form Submissions
+    $(`#${formName}`).submit(function(e) {
+        e.preventDefault();
+
         const studentId = document.getElementById('selected_student_id').value;
-        const finalMmInput = $('input[name="final_mm"]').val();
-        const finalCmInput = $('input[name="final_cm"]').val();
+        const initialCm = $('#initial_cm_id').val().trim();
+        const initialMm = $('#initial_mm_id').val().trim();
+        const finalCm = $('#final_cm_id').val().trim();
+        const finalMm = $('#final_mm_id').val().trim();
 
-        const finalMm = finalMmInput === "" ? null : finalMmInput;
-        const finalCm = finalCmInput === "" ? null : finalCmInput;
-
-      
-        if(finalMm==null && finalCm == null) {
-            handleResponseMessages( 'info',  '', 'Please enter position of the student');
-            return;
-        }
-        
         if (!studentId) {
-            handleResponseMessages( 'info',  'Select Student', 'Please select the student');
+            handleResponseMessages('info', 'Select Student', 'Please select the student');
             return;
         }
 
-        let score = calculateScore();
-        if(score < 0 ){
-            handleResponseMessages( 'info',  'Invalid Input', "Final value can't be less than initial value");
+        const initialProvided = initialCm !== '' || initialMm !== '';
+        const finalProvided = finalCm !== '' || finalMm !== '';
+
+        if (!initialProvided && !finalProvided) {
+            handleResponseMessages('info', '', 'Please enter at least one trial measurement position.');
             return;
         }
+
+        let route = '{{ route("cwsn.types.submit") }}';
+        let formData = $(this).serialize();
         
-        submitLoader();
-        $.ajax({
-            url: '{{ route("sit.and.reach.record.submit") }}', // or your route URL
-            method: 'POST',
-            data: $(this).serialize(),
-            success: function(response) {
-                Swal.close();
-				
-				$('#save_sit_and_reach_record_id')[0].reset();	
-                handleResponseMessages( 'success',  '', response.message, {
-                    confirmText: 'OK',
-                    onConfirm: function () {
-                        location.reload();
-                    }
-                });					
-            },
-            
-            error: function(xhr) {
-                Swal.close();
-                let errors = xhr.responseJSON.errors;
-                let errorHtml = '<ul>';
-                $.each(errors, function(key, value) {
-                    errorHtml += '<li>' + value[0] + '</li>';
-                });
-                errorHtml += '</ul>';
-                $('#response').html('<div style="color:red;">' + errorHtml + '</div>');
-				
-				Swal.fire({
-					title: "error!",
-					text: response.message,
-					icon: "error"
-					});
-				
-            }
-        });
+        SubmitForm(formName, formData, route);
     });
 });
 
-// for input validations
 
-document.getElementById("initial_cm_id").addEventListener("input", function (e) {
-    let value = e.target.value;
-    value = value.replace(/[^0-9]/g, '');    
-    let match = value.match(/^(\d{0,2})?$/);
-    if (match) {
-        value = match[0];
-    } else {
-        value = value.slice(0, -1); 
-    }
-    if (value && parseFloat(value) < 0) {
-        value = '';
-    }
-    e.target.value = value;
-});
-document.getElementById("final_cm_id").addEventListener("input", function (e) {
-    let value = e.target.value;
-    value = value.replace(/[^0-9]/g, '');    
-    let match = value.match(/^(\d{0,2})?$/);
-    if (match) {
-        value = match[0];
-    } else {
-        value = value.slice(0, -1); 
-    }
-    
-    if (value && parseFloat(value) < 0) {
-        value = '';
-    }
-    e.target.value = value;
-});
-document.getElementById("initial_mm_id").addEventListener("input", function (e) {
-    let value = e.target.value;
-    value = value.replace(/[^0-9]/g, '');    
-    let match = value.match(/^(\d{0,1})?$/);
-    if (match) {
-        value = match[0];
-    } else {
-        value = value.slice(0, -1); 
-    }
-    
-    if (value && parseFloat(value) < 0) {
-        value = '';
-    }
-    e.target.value = value;
-});
-document.getElementById("final_mm_id").addEventListener("input", function (e) {
-    let value = e.target.value;
-    value = value.replace(/[^0-9]/g, '');    
-    let match = value.match(/^(\d{0,1})?$/);
-    if (match) {
-        value = match[0];
-    } else {
-        value = value.slice(0, -1); 
-    }
-    
-    if (value && parseFloat(value) < 0) {
-        value = '';
-    }
-    e.target.value = value;
-});
 </script>
-
-
-
 @endsection
