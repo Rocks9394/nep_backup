@@ -22,7 +22,7 @@
                                 @if($student->logo == '')
                                     <img src="{{ public_path('resources/images/gofor-fit-logo.png') }}" alt="school-logo" style="height:24px;">
                                 @else
-                                    <img src="{{ public_path('logo/' . $student->logo) }}" alt="school" style="height:24px;">
+                                    <img src="{{ public_path('assets/uploads/logos/' . $student->logo) }}" alt="school" style="height:24px;">
                                 @endif
                             </th>
                             <th style="padding: 3px 6px 3px 6px; border: 1px solid #ddd; text-align: center; ">

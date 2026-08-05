@@ -185,7 +185,7 @@
             </form>
             
             @php  $type = "cwsnlist"; @endphp
-            <x-speed-get-students :classes="$classes" :type="$type"  />
+            <x-speed-get-students :classes="$classes" :type="$type" :cwsn-type="$pwd_category_id" />
         </div>
     </div>
 </div>

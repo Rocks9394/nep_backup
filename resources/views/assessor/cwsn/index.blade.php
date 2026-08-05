@@ -7,8 +7,16 @@
     <div class="container">
         <div class="t-mrg2 mb-5 pb-5">            
             <div class="row"> <x-back-button :title="$title" /> </div>
+
             @php  $type = "cwsnlist"; @endphp
-            <x-get-student-list :classes="$classes" :type="$type" :title="$title" />
+            
+            <x-get-student-list 
+                :classes="$classes" 
+                :type="$type" 
+                :title="$title" 
+                :cwsn-type="$pwd_category_id"
+            />
+            
             <div class="col-12"> @yield('cwsnform') </div>
         </div>
     </div>

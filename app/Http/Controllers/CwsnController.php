@@ -107,7 +107,9 @@ class CwsnController extends Controller
         $skillTypes = DB::table('skill_types')->where('skill_report_id',$skillReport->id)->where('status', 1)->get();
         $title = $skillReport->skill_name;
 
-        // echo "<pre>"; print_r($title);exit();
+
+
+        //echo "<pre>"; print_r($pwd_category_id);exit();
 
         switch ($skillReport->skill_name) {
 
@@ -122,7 +124,7 @@ class CwsnController extends Controller
 
             case 'Curl-up':
             case 'Modified Curl-up':
-                return view('assessor.cwsn.forms.curlup', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId'));
+                return view('assessor.cwsn.forms.curlup', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId','pwd_category_id'));
 
             case 'BMI':
                 return view('assessor.cwsn.forms.cwsn-bmi', compact('title', 'skillTypes','skillReportId','TestTypeMasterID', 'classes', 'SchoolId','pwd_category_id','TestTypeId'));
@@ -132,42 +134,42 @@ class CwsnController extends Controller
             case 'Dumbbell Press':
             case 'Pull-up':
             case 'Modified Pull-Up':
-                return view('assessor.cwsn.forms.pushup', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId'));
+                return view('assessor.cwsn.forms.pushup', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId','pwd_category_id'));
                 break;
 
             case 'Trunk Lift':                
-                return view('assessor.cwsn.forms.trunk-lift', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId'));
+                return view('assessor.cwsn.forms.trunk-lift', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId','pwd_category_id'));
                 break;
             
             case 'Back Saver Sit and Reach':
-                return view('assessor.cwsn.forms.sit-and-reach', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId'));
+                return view('assessor.cwsn.forms.sit-and-reach', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId','pwd_category_id'));
                 break;
 
             case 'Reverse curl':
-                return view('assessor.cwsn.forms.reverse_curl', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId'));
+                return view('assessor.cwsn.forms.reverse_curl', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId','pwd_category_id'));
                 break;
 
             case 'Seated Push-up':
             case 'Isometric Push-up':
-                return view('assessor.cwsn.forms.seated-pushup', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId'));
+                return view('assessor.cwsn.forms.seated-pushup', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId','pwd_category_id'));
                 break;
 
             case 'Shoulder Stretch':
-                return view('assessor.cwsn.forms.shoulder-streatch', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId'));
+                return view('assessor.cwsn.forms.shoulder-streatch', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId','pwd_category_id'));
                 break;
 
             case 'Modified Apley Test':                
-                return view('assessor.cwsn.forms.apleytest', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId'));
+                return view('assessor.cwsn.forms.apleytest', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId','pwd_category_id'));
                 break;
 
             case '40-Meter Push/Walk Test':                
-                return view('assessor.cwsn.forms.push-walk', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId'));
+                return view('assessor.cwsn.forms.push-walk', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','TestTypeId','pwd_category_id'));
                 break;
 
             default:
 
                 echo "default route"; exit;
-                return view('assessor.cwsn.forms.pacer', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','pwd_category_id','TestTypeId'));
+                return view('assessor.cwsn.forms.pacer', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId','pwd_category_id','TestTypeId','pwd_category_id'));
                 break;
         }
     }

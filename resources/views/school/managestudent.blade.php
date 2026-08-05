@@ -517,7 +517,7 @@
 
 {{-- edit student details modal  --}}
 <div class="modal fade" id="editStudentModal" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog modal-lg modal-dialog-centered">
+	<div class="modal-dialog modal-xl modal-dialog-centered">
 		<div class="modal-content">
 
 		<div class="modal-header">
@@ -605,16 +605,60 @@
 						<option value="1">Yes</option>
 					</select>
 				</div>
-				<div class="form-row pwd">
+				<div class="form-row col-md-12 pwd">
 					<div class="form-group pwd col-md-12">
 						<label for="pwdCategory"></label>
-						<div class="row" id="pwdContainer"></div>
+						<div class="row mx-3" id="pwdContainer"></div>
 					</div>
 				</div>				
 			</div>
+			
 			<div id="selectedPwdTypes" class="d-flex flex-wrap pwd"></div>
 			<div><span id="pwdTypes_errormsg"></span></div>
 
+			<div id="pwdCat7Edit" class="form-row mt-3" style="display:none;">
+				<div class="col-md-12">
+					<div class="form-group">
+						<strong>Anthropometric Measurment</strong>
+
+						@foreach($anthropometricData as $type => $values)
+
+							<div class="mt-3">
+
+								<span style="font-weight:bold;
+									color:{{ $type == 'height' ? '#6c5ce7' : '#fab005' }};
+									font-size:smaller;">
+
+									{{ ucfirst($type) == 'Height' ? 'Height Measurement' : 'Weight Measurement' }}
+
+								</span><br>
+
+								@foreach($values as $item)
+
+									<div class="form-check form-check-inline">
+										<input
+											class="form-check-input"
+											type="radio"
+											name="{{ $type }}_measurement_edit"
+											id="{{ $type }}_edit_{{ $item->id }}"
+											value="{{ $item->id }}">
+
+										<label class="form-check-label"
+											for="{{ $type }}_edit_{{ $item->id }}">
+											{{ $item->anthropometric_value }}
+										</label>
+									</div>
+
+								@endforeach
+
+							</div>
+
+						@endforeach
+
+					</div>
+				</div>
+			</div>
+			
 			<div class="modal-footer d-flex justify-content-between align-items-center mt-3">
 				<span class="text-danger" id="ageSuggetion" style="opacity: 0.92;"></span>
 				<div>
@@ -634,7 +678,7 @@
 
 <!-- Registration Form For Students -->
 <div class="modal fade bd-example-modal-lg" id="studentRegistrationForm" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+	<div class="modal-dialog modal-xl modal-dialog-centered" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="exampleModalLabel">Add Student</h5>
@@ -711,8 +755,6 @@
 						</div>
 					</div>
 					<div class="row">
-
-
 						<div class="col-md-4">
 							<div class="form-group">
 								<label for="studentRollno">Roll Number</label>
@@ -726,8 +768,7 @@
 								<label for="studentUserId">School Code</label>
 								<input class="form-control form-control-sm" type="text" name="school_code" value="{{ $studentsDetails[0]->school_code  ?? ''}}" readonly>
 							</div>
-						</div>
-				
+						</div>				
 
 						<div class="col-md-4">
 							<div class="form-group">
@@ -759,9 +800,9 @@
 					</div>
 					<div class="row">
 						<div class="col-md-12 pwd_add">
-							<div class="form-group pwd_add ">
+							<div class="form-group col-md-12 pwd_add ">
 								<label for="pwdContainerForAdd"></label>
-								<div class="row" id="pwdContainerForAdd"></div>
+								<div class="row mx-3" id="pwdContainerForAdd"></div>
 							</div>
 						</div>
 						<div id="selectedPwdTypes_foradd" class="d-flex flex-wrap pwd px-3"></div>
@@ -770,10 +811,53 @@
 						</div>
 					</div>
 
+					<div id="pwdCat7Add" class="row mt-3" style="display:none;">
+						<div class="col-md-12">
+							<div class="form-group">
+								<strong>Additional Information</strong>
+
+								@foreach($anthropometricData as $type => $values)
+
+									<div class="mt-3">
+
+										<span style="font-weight:bold;
+											color:{{ $type == 'height' ? '#6c5ce7' : '#fab005' }};
+											font-size:smaller;">
+
+											{{ ucfirst($type) == 'Height' ? 'Height Measurement' : 'Amputation Details' }}
+
+										</span><br>
+
+										@foreach($values as $item)
+
+											<div class="form-check form-check-inline">
+												<input
+													class="form-check-input"
+													type="radio"
+													name="{{ $type }}_measurement_add"
+													id="{{ $type }}_add_{{ $item->id }}"
+													value="{{ $item->id }}">
+
+												<label class="form-check-label"
+													for="{{ $type }}_add_{{ $item->id }}">
+													{{ $item->anthropometric_value }}
+												</label>
+											</div>
+
+										@endforeach
+
+									</div>
+
+								@endforeach
+
+							</div>
+						</div>
+					</div>
+
 				</div>
 
 				<div class="modal-footer">
-					<button type="submit" class="btn btn-sm btn-primary">Save</button>
+					<button type="submit" class="btn btn-md btn-primary">Save</button>
 				</div>
 			</form>
 		</div>
@@ -1212,15 +1296,12 @@
 							generateClassSectionCredentials();
 						}
 					},
-					@if(Auth::user()->id == 3251 ||  Auth::user()->id == 3139)
-						
-						{
-							text: 'Generate I-Cards',
-							action: function ( e, dt, node, config ) {							
-								generateICards();
-							}
-						},
-					@endif
+					{
+						text: 'Generate I-Cards',
+						action: function ( e, dt, node, config ) {							
+							generateICards();
+						}
+					},
 				],
 			}]
 		});
@@ -1346,6 +1427,7 @@
 			if (value == 0) {
 				selectedTypes = [];
 				$('input[name="pwdTypes[]"]').prop('checked', false);
+				toggleCategory7Div();
 				renderSelectedTypes();
 			}
 		});
@@ -1428,6 +1510,7 @@
 			if ($(this).is(':checked')) {
 				selectedTypes.push(value);
 			}
+			toggleCategory7Div();
 			renderSelectedTypes();
 		});
 		function renderSelectedTypes() {
@@ -1438,7 +1521,7 @@
 			selectedTypes.forEach(item  => {
 				let typeOnly = item.split('|')[0];
 				container.append(`
-					<span class="badge badge-light m-1 p-2" style="font-size: 12px; font-weight: 400;">
+					<span class="badge badge-info m-1 p-2" style="font-size: 12px; font-weight: 400;">
 						${typeOnly}
 						<span class="remove-type" data-type="${item}" style="cursor:pointer;margin-left:8px;">&times;</span>
 					</span>
@@ -1450,37 +1533,33 @@
 
 			selectedTypes = selectedTypes.filter(x => x !== type);
 			$(`input[name="pwdTypes[]"][value="${type}"], input[name="pwdTypesForAdd[]"][value="${type}"]`).prop('checked', false);
+			toggleCategory7Div();
 			renderSelectedTypes();
 		});
 
 
 		/* handle PWD add visibility */
 		const pwdAddDivs = document.querySelectorAll('.pwd_add');
+		
+		togglePwdSection();
 
 		function togglePwdSection() {
 			let value = $('#is_pwd_add').val();
-
-			// console.log('PWD Add Value:', value);
-
 			pwdAddDivs.forEach(div => {
 				div.style.display = (value == 1) ? 'block' : 'none';
 			});
-
 			// Reset checkboxes when No selected
 			if (value == 0) {
 				selectedTypes = [];
 				$('input[name="pwdTypesForAdd[]"]').prop('checked', false);
+				toggleCategory7Div();
 				renderSelectedTypes();
 			}
 		}
-
-		// for page load
-		togglePwdSection();
-
-		// Dropdown change effect
 		$('#is_pwd_add').on('change', function () {
 			togglePwdSection();
 		});
+		
 		let containerForAdd = $('#pwdContainerForAdd');
 		let pwdCategoriesForAdd = [...new Map(
 			pwdData.map(item => [
@@ -1536,6 +1615,7 @@
 			if ($(this).is(':checked')) {
 				selectedTypes.push(value);
 			}
+			toggleCategory7Div();
 			renderSelectedTypes();
 		});
 
@@ -1598,33 +1678,42 @@
 			$('#editStudentAdmissionNo').val(student.admissionnumber);
 			$('#editStudentStatus').val(student.status);
 			$('#is_pwd').val(student.is_pwd);
+
 			pwdDivs.forEach(div => {
 				div.style.display = student.is_pwd == 1 ? 'block' : 'none';
 			});
-			let disability = student.disability_types;
+			let disability = student.pwd_type_id;
 
 			selectedTypes = [];
 
 			if (disability) {
-				let parsed = JSON.parse(disability);
-				if (!Array.isArray(parsed)) {
-					parsed = [parsed];
-				}
-
 				$('input[name="pwdTypes[]"]').prop('checked', false);
 
-				parsed.forEach(typeOnly => {
-					$('input[name="pwdTypes[]"]').each(function () {
-						let [type, id] = $(this).val().split('|');
+				$('input[name="pwdTypes[]"]').each(function () {
+					let [type, id] = $(this).val().split('|');
 
-						if (type === typeOnly) {
-							$(this).prop('checked', true);
-							selectedTypes.push(`${type}|${id}`);
-						}
-					});
+					if (Number(id) === disability) {
+						$(this).prop('checked', true);
+						selectedTypes.push(`${type}|${id}`);
+					}
 				});
+
+				$('input[name="height_measurement_edit"]').prop('checked', false);
+				$('input[name="weight_measurement_edit"]').prop('checked', false);
+
+				// Set selected values
+				if (student.anthropo_ht_id) {
+					$('input[name="height_measurement_edit"][value="' + student.anthropo_ht_id + '"]')
+						.prop('checked', true);
+				}
+
+				if (student.anthropo_wt_id) {
+					$('input[name="weight_measurement_edit"][value="' + student.anthropo_wt_id + '"]')
+						.prop('checked', true);
+				}
 			}
 
+			toggleCategory7Div();
 			renderSelectedTypes();
 
 			$('#editStudentModal').modal('show');
@@ -1638,6 +1727,24 @@
 		$('#editStudentModal').on('hide.bs.modal', function () {
 			document.activeElement.blur();
 		});
+
+		// for additional info of Locomotor & Physical Disabilities 
+
+		function toggleCategory7Div() {
+
+			let editSelected = $('input[name="pwdTypes[]"]:checked')
+				.filter(function () {
+					return $(this).data('cat') == 7;
+				}).length > 0;
+
+			let addSelected = $('input[name="pwdTypesForAdd[]"]:checked')
+				.filter(function () {
+					return $(this).data('cat') == 7;
+				}).length > 0;
+
+			$('#pwdCat7Edit').toggle(editSelected);
+			$('#pwdCat7Add').toggle(addSelected);
+		}
 
 
 		$(document).ready(function () {
@@ -2661,8 +2768,19 @@
 	 * */
 	$(document).on('submit', 'form#RegistrationForm', function(e) {
 		e.preventDefault();
+		let formData = $('#RegistrationForm').serializeArray();
 
-		var data = new FormData($('form#RegistrationForm')[0]);
+		let pwd = formData.find(x => x.name === 'pwdTypesForAdd[]');
+
+		formData = formData.filter(x => x.name !== 'pwdTypesForAdd[]');
+
+		if (pwd) {
+			formData.push({
+				name: 'pwdTypesForAdd',
+				value: pwd.value
+			});
+		}
+
 		$('#student_name_errormsg').empty();
 
 		Swal.fire({
@@ -2682,15 +2800,12 @@
 			},
 			url: 'addstudent',
 			method: 'POST',
-			data: data,
+			data: $.param(formData),
 			dataType: 'json',
-			processData: false,
-			contentType: false,
 			success: function(response) {
 				Swal.close();
-				data.forEach(function(value, key) {
-					// $('#' + key + '_errormsg').empty();
-					let safeKey = key.replace(/\[\]/g, '');
+				formData.forEach(function(field) {
+					let safeKey = field.name.replace(/\[\]/g, '');
 					$('#' + safeKey + '_errormsg').empty();
 				});
 
@@ -2706,7 +2821,6 @@
 					<p> Student User Id :  ${response.StudentUserId}</p>
 					<p> Login Password  :  ${response.Password}</p>`;
 					$('#logindetails').empty().append(html);
-
 				}
 
 
@@ -2732,13 +2846,20 @@
 				}
 			},
 
-			error: function(xhr, status, error) {
-				$('#validation-errors').html('');
-				$.each(xhr.responseJSON.errors, function(key, value) {
-					console.log(key + value);
-					$('#validation-errors').append('<div class="alert alert-danger">' + value + '</div');
-				});
-			},
+			error: function(xhr) {
+				console.log(xhr.responseText);
+				if (xhr.responseJSON && xhr.responseJSON.error) {
+					$.each(xhr.responseJSON.error, function(key, value) {
+						var html = '';
+						$.each(value, function(index, errormesg) {
+							html += `<p class="alert alert-danger">${errormesg}</p>`;
+						});
+						$('#' + key + '_errormsg').html(html);
+					});
+				} else {
+					console.error(xhr.responseText);
+				}
+			}
 
 		});
 	})
@@ -2752,15 +2873,17 @@
 		var copydata = $('#logindetails').text();
 
 		navigator.clipboard.writeText(copydata).then(function() {
-				copyButton.text('Copied');
-				setTimeout(function() {
-					copyButton.text('Copy');
-				}, 1500);
-			})
-			.catch(function(err) {
-				console.error('Unable to copy to clipboard', err);
+			copyButton.text('Copied');
+			setTimeout(function() {
 				copyButton.text('Copy');
-			});
+					
+			}, 1500);
+		})
+		.catch(function(err) {
+			console.error('Unable to copy to clipboard', err);
+			copyButton.text('Copy');
+		});
+
 	}
 
 

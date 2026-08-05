@@ -32,15 +32,9 @@
                         <h1 class="mt-2 mt-md-0 ml-md-4 mb-0">{{$title}}</h1>                        
                     </div>
                 </div>
-
-                <div class="col-auto">
-                    <div class="btn-group toggle-btns" role="group" aria-label="Test Status Toggle">
-                        <button type="button" class="btn btn-outline-primary btn-sm" id="btn-all" data-value="all">All</button>
-                        <button type="button" class="btn btn-outline-primary btn-sm active" id="btn-remaining" data-value="remaining">Incomplete</button>
-                    </div>
-                </div>
             </div>
-            <div class="row text-center justify-content-md-center mt-3 mt-lg-4">
+
+            <div class="row text-center justify-content-md-center">
                 <div class="col-12 col-md-12 col-lg-12">
                     <div class="all-tests mb-5">                         
                         <br><h4 class="test-cat">Physical Fitness Assessment for CWSN</h4>

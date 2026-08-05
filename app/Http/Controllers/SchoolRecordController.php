@@ -986,7 +986,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 		$studentsQuery = DB::table('schools')
 		->join('students', 'students.school_id', '=' , 'schools.id')
-		->leftJoin('students_meta', 'students_meta.student_id', '=', 'students.id')
+		->leftJoin('student_rpwd_mapping', 'student_rpwd_mapping.student_id', '=', 'students.id')
 		->leftJoin('class', 'students.class_id', '=', 'class.id')
     	->leftJoin('custom_classes', 'students.custom_class_id', '=', 'custom_classes.id')
 		->select(
@@ -1004,7 +1004,9 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			'students.rollno',
 			'students.status',
 			'students.is_pwd',
-			'students_meta.disability_types',
+			'student_rpwd_mapping.pwd_type_id',
+			'student_rpwd_mapping.anthropo_ht_id',
+			'student_rpwd_mapping.anthropo_wt_id',
 			'students.created_at',
 			'students.academic_year',
 			'students.email_flag',
@@ -1246,6 +1248,9 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		$pwdDetails = DB::table('pwd_categories')
 		->join('pwd_types', 'pwd_types.pwd_cat_id', '=', 'pwd_categories.id')->get();
 
+		$anthropometricData = DB::table('anthropometric_table')->orderBy('id')->get()->groupBy('anthropometric_type');
+		
+
         $logs = \App\Models\StudentImportLog::with('user')
         ->where('user_id', Auth::id())->where('is_active', 'active')
         ->orderBy('created_at', 'desc')
@@ -1255,7 +1260,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
         ->get();
 
 		$title = 'Manage Students';
-		return view('school.managestudent', compact('title','studentsDetails','studentsDetails1','classes','check','classList','logs', 'promotionLog', 'data','pwdDetails','emailGroups','hasPreviousYearData'));
+		return view('school.managestudent', compact('title','studentsDetails','studentsDetails1','classes','check','classList','logs', 'promotionLog', 'data','pwdDetails','emailGroups','hasPreviousYearData', 'anthropometricData'));
 	} 	
 
 		// for age validation
@@ -1345,6 +1350,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				'editStudentEmail' => 'required|email:rfc,dns|max:255',
 				'editStudentSection' => 'required',
 				'editStudentGender' => 'required|in:Male,Female',
+				'editStudentStatus' => 'required|in:active,transfer',
 				'editStudentRollno' => [
 					'required',
 					'numeric',
@@ -1352,7 +1358,8 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 					'max:9999',
 					function ($attribute, $value, $fail) use ($request, $student) {
 						$exists = Sstudent::where('class_id', $request->input('editStudentClass'))
-							->where('school_id', $student->school_id)
+							->where('school_id', (string)$student->school_id)
+							->where('academic_year', '2026-2027')
 							->where('section_id', $request->editStudentSection)
 							->where('rollno', $value)
 							->where('id', '!=', $request->s_id)
@@ -1364,6 +1371,16 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 					}
 				],
 				'editStudentDOB' => 'required|date',
+				'is_pwd' => 'required|in:0,1',
+				'pwdTypes' => [
+					function ($attribute, $value, $fail) use ($request) {
+						if ($request->is_pwd == 1) {
+							if (empty($value) || $value === 'null') {
+								$fail('Please select at least one disability type.');
+							}
+						}
+					}
+				],
 			];
 
 			$customMessages = [
@@ -1379,6 +1396,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				'editStudentRollno.numeric' => 'Roll number must be a number.',
 				'editStudentRollno.min' => 'Roll number must be at least 1.',
 				'editStudentRollno.max' => 'Roll number cannot exceed 9999.',
+				'editStudentStatus.in' => 'Student status must be either active or transfer.',
 			];
 
 			$validator = Validator::make($request->all(), $rules, $customMessages);
@@ -1389,7 +1407,6 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 					'error' => $validator->errors()
 				]);
 			}
-
 			$age = \Carbon\Carbon::parse($request->editStudentDOB)->age;
 			$isValidAge = $this->isValidAge($request->editStudentClass, $age);
 
@@ -1417,6 +1434,15 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 					'message' => 'Custom class not found.'
 				]);
 			}
+			// list($disabilities, $pwd_type_id) = explode('|', $request->pwdTypes);
+			[$disabilities, $pwd_type_id] = array_pad(explode('|', $request->pwdTypes ?? ''), 2, null);
+			
+			
+			if (empty($disabilities) || $disabilities === 'null') {
+				$disabilities = null;
+			} elseif (is_string($disabilities)) {
+				$disabilities = array_filter(array_map('trim', explode(',', $disabilities)));
+			}
 
 			$words = explode(" ", $request->editStudentName);
 			$namefirstletter = $words[0];
@@ -1433,8 +1459,48 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				'section_id' => $request->editStudentSection,
 				'rollno' => $request->editStudentRollno,
 				'status' => $request->editStudentStatus,
+				'is_pwd' => $request->is_pwd,
+				'updated_at' => now(),
 			]);
-			Helper::auditLog('Student profile', 'Student profile updated by School');
+
+			$meta = DB::table('students_meta')
+				->where('student_id', $request->s_id)
+				->first();
+
+			
+			if ($meta) {
+				DB::table('students_meta')
+					->where('student_id', $request->s_id)
+					->update([
+						'is_pwd' => $request->is_pwd,
+						'disability_types' => $disabilities ? json_encode($disabilities) : null,
+						'anthropometric_height' =>$request->height_measurement_edit,
+						'anthropometric_weight' =>$request->weight_measurement_edit,
+						'updated_at' => now(),
+					]);
+			} else {
+				DB::table('students_meta')->insert([
+					'student_id' => $request->s_id,
+					'is_pwd' => $request->is_pwd,
+					'disability_types' => $disabilities ? json_encode($disabilities) : null,
+					'anthropometric_height' =>$request->height_measurement_edit,
+					'anthropometric_weight' =>$request->weight_measurement_edit,
+					'created_at' => now(),
+					'updated_at' => now(),
+				]);
+			}
+
+
+			if($request->is_pwd == 1){
+
+				DB::table('student_rpwd_mapping')->updateOrInsert([	'student_id' => $request->s_id,],
+					[
+						'pwd_type_id' => $pwd_type_id,
+						'anthropo_ht_id' => $request->height_measurement_edit ?? null,
+						'anthropo_wt_id' => $request->weight_measurement_edit ?? null,
+					]
+				);
+			}
 
 			return response()->json([
 				'status' => 'success',
@@ -1442,6 +1508,9 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			]);
 
 		} catch (\Exception $e) {
+			\Log::error('EditStudentDetails failed', [
+				'message' => $e->getMessage(),
+			]);
 
 			return response()->json([
 				'status' => 'fail',
@@ -1463,8 +1532,6 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			$age = \Carbon\Carbon::parse($newDate)->age;
 
 			$isValidAge = $this->isValidAge($student->class_id, $age);
-
-			// dd($request->has('force_update'));
 
 			if (!$isValidAge && !$request->boolean('force_update')) {
 
@@ -1574,7 +1641,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			'is_pwd_add' => 'required|in:0,1',
 			'pwdTypesForAdd' => [
 				function ($attribute, $value, $fail) use ($request) {
-					if ($request->is_pwd == 1) {
+					if ($request->is_pwd_add == 1) {
 						if (empty($value) || $value === 'null') {
 							$fail('Please select at least one disability type.');
 						}
@@ -1632,14 +1699,13 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
                 ? $year . '-' . ($year + 1)
                 : ($year - 1) . '-' . $year;
 
-			$pwdValue = $request->pwdTypesForAdd[0] ?? null;
-			[$disabilities, $pwd_type_id] = array_pad(
-				explode('|', $pwdValue ?? ''),
-				2,
-				null
-			);
+			[$disabilities, $pwd_type_id] = array_pad(explode('|', $request->pwdTypesForAdd ?? ''), 2, null);
 
-			dd($request->pwdTypesForAdd);
+			if (empty($disabilities) || $disabilities === 'null') {
+				$disabilities = null;
+			} elseif (is_string($disabilities)) {
+				$disabilities = array_filter(array_map('trim', explode(',', $disabilities)));
+			}
 
 	        if (!empty($custom_class_id)) {
 	            $data = Sstudent::create([
@@ -1665,6 +1731,8 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				DB::table('students_meta')->Insert(
 					[	'student_id' => $data->id,
 						'is_pwd' => $request->is_pwd_add,
+						'anthropometric_height' =>$request->height_measurement_add,
+						'anthropometric_weight' =>$request->weight_measurement_add,
 						'disability_types' => $disabilities ? json_encode($disabilities) : null,
 						'updated_at' => now(),
 						'created_at' => now(),
@@ -1672,9 +1740,12 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				);
 
 				if($request->is_pwd_add == 1){
+
 					DB::table('student_rpwd_mapping')->insert([
 						'student_id' => $data->id,
-						'pwd_type_id' => $pwd_type_id,				
+						'pwd_type_id' => $pwd_type_id,
+						'anthropo_ht_id' => $request->height_measurement_add ?? null,
+						'anthropo_wt_id' => $request->weight_measurement_add ?? null,				
 					]);
 				}
 
@@ -2016,7 +2087,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
    	 * */
    	public function downloadTemplate() {
       	
-        $templatePath = public_path('downloads/PersonalProfile.xlsx');
+        $templatePath = public_path('downloads/StudentDataUploadFormat.xlsx');
 
         $headers = [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -2261,7 +2332,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			)				
 			->where('students.status', 'active')
 	    	->whereIn('students.id', $studentIds)->get();
-
+			
         $activeCount = DB::table('students')
             ->whereIn('id', $studentIds)
             ->where('status', 'active')
@@ -2294,6 +2365,71 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
 		
     }
+
+	public function addClassNomenclature(Request $request){
+		
+		$classes = $request->input('classes', []);
+		$created = [];
+
+		$userId = Auth::id();
+		$schoolId = DB::table('school_reference')->where('school_user_id', $userId)->where('status', 1)->value('school_id');
+
+		// Loop over submitted classes
+		foreach ($classes as $class) {
+			if (!isset($class['id']) || !isset($class['nomenclature'])) {
+				continue; // skip incomplete entries
+			}
+
+			// Check if the class already exists for this school
+			$existing = ScustomClass::where('school_id', $schoolId)->where('class_id', $class['id'])->first();
+
+			if (!$existing) {
+	
+				$maxValue = ScustomClass::max('orders') ?? 0;
+				$newClass = new ScustomClass();
+				$newClass->school_id = $schoolId;
+				$newClass->class_id = $class['id'];
+				$newClass->section = 'A';     //default section A
+				$newClass->nomenclature = $class['nomenclature'];
+				$newClass->orders = $maxValue;
+				$newClass->status = 1;
+				$newClass->save();
+
+				$created[] = [
+					'id' => $newClass->class_id,
+					'nomenclature' => $newClass->nomenclature
+				];
+			}
+		}
+
+		return response()->json([
+			'status' => 'success',
+			'message' => count($created) . ' class(es) created.',
+			'createdClasses' => $created
+		]);
+	}
+
+	public function deleteSelectedClass(Request $request) {
+
+    	$classId = $request->input('class_id');
+    	$userId = Auth::user()->id;
+		$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+	    $deleted = \DB::table('custom_classes')->where('class_id', $classId)->where('school_id', $schoolId ?? null)->delete();
+
+	    if ($deleted) {
+	        return response()->json(['success' => true]);
+	    } else {
+	        return response()->json(['success' => false, 'message' => 'Class not found or already deleted.']);
+	    }
+    }
+	
+	public function resetSelectedClass(Request $request) {
+
+	    $userId = Auth::user()->id;
+		$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+	    DB::table('custom_classes')->where('school_id', $schoolId)->delete();
+	    return response()->json(['success' => true]);
+	}
 
 	
 	public function DOTNETREPORT(Request $request) 

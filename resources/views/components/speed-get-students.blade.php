@@ -3,6 +3,8 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
+            <input type="hidden" id="cwsn_type" value="{{ $cwsnType ?? 'None Specified' }}">
+
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"
                 style="left:20px; z-index:5; background:#fff;">
                 <span aria-hidden="true">&times;</span>
@@ -137,6 +139,7 @@
 
                 let school_id = $('#SchoolId').val();
                 let skillReportId = $("input[name='skillReportId']").val();
+                let cwsn_type = $('#cwsn_type').val();
 
                 $.ajax({
                     url: '{{ route("fetch.student.detail") }}',
@@ -145,7 +148,8 @@
                         student_reg_no: student_reg_no,
                         skillReportId: skillReportId,
                         testType: testType,
-                        school_id: school_id
+                        school_id: school_id,
+                        cwsn_type:cwsn_type,
                     },
                     success: function(response) {
                         Swal.close();
@@ -225,6 +229,10 @@
             let testType = $('#student_id').data('test-type');
             const testStatus = localStorage.getItem("testStatus");
 
+            
+            let cwsn_type = $('#cwsn_type').val();
+            
+
             $('#student_name').text('Student Name');
             $('#student_class').text('Class');
             $('#student_registration_no').text('Registration Number');
@@ -237,7 +245,7 @@
             studentDropdown.innerHTML = '<option value="">Loading...</option>';
 
             if (classCustom) {
-                fetch(`{{ route('studentRollNo.autocomplete') }}?class_id=${classCustom}&test_status=${testStatus}&skillReportId=${skillReportId}&testType=${testType}&query=`)
+                fetch(`{{ route('studentRollNo.autocomplete') }}?class_id=${classCustom}&test_status=${testStatus}&skillReportId=${skillReportId}&testType=${testType}&cwsn_type=${cwsn_type}&query=`)
                     .then(response => response.json())
                     .then(data => {
                         studentDropdown.innerHTML = '';

@@ -411,6 +411,9 @@ Route::prefix('school')->group(function(){
 	Route::get('import/download-duplicates', [SchoolRecordController::class, 'downloadDuplicates'])->name('downloadDuplicates');
 	Route::get('import/downloadErrorList', [SchoolRecordController::class, 'downloadErrorList'])->name('downloadErrorList');	
 	Route::post('import-student-data', [SchoolRecordController::class, 'importStudentData'])->name('import-student-data');
+	Route::post('save-class-nomenclature', [SchoolRecordController::class, 'addClassNomenclature'])->name('saveclassnomenclature');
+	Route::post('delete-class', [SchoolRecordController::class, 'deleteSelectedClass'])->name('class.delete');
+    Route::post('reset-selected-classes', [SchoolRecordController::class, 'resetSelectedClass'])->name('classes.reset');
 
 	
 	/* Generate I-Card */

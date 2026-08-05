@@ -1,77 +1,98 @@
 <div>
     <!-- I begin to speak only when I am certain what I will say is not better left unsaid. - Cato the Younger -->
     <div class="form-row my-2">
-            <input type="hidden" id="all_classes" value='@json($classes)'>
-            <div class="col-12 col-md-4">
-                <div class="form mt-1 mt-md-3">
-                    <label for="class_id" class="form-label">Select Class</label>
-                    <div class="input-group1 mb-3">
-                        <select name="class_id" id="class_id" class="form-control">
-                        <option value="">-- Select Class --</option>
+        <input type="hidden" id="all_classes" value='@json($classes)'>
+        <input type="hidden" id="cwsn_type" value="{{ $cwsnType ?? 'None Specified' }}">
 
-                            @foreach ($classes as $customcls)
-                        <option value="{{ $customcls->id . '-' . $customcls->class_id.'-'.$customcls->section }}">
-                            {{ $customcls->classname . '-' . $customcls->section}}
-                        </option>
-                            @endforeach
+        <div class="col-12 col-md-4">
+            <div class="form mt-1 mt-md-3">
+                <label for="class_id" class="form-label">Select Class</label>
+                <div class="input-group1 mb-3">
+                    <select name="class_id" id="class_id" class="form-control">
+                    <option value="">-- Select Class --</option>
 
-                        </select>
-                    </div>
+                        @foreach ($classes as $customcls)
+                    <option value="{{ $customcls->id . '-' . $customcls->class_id.'-'.$customcls->section }}">
+                        {{ $customcls->classname . '-' . $customcls->section}}
+                    </option>
+                        @endforeach
+
+                    </select>
                 </div>
             </div>
-				
-            <div class="col-12 col-md-7">
-                <div class="form mt-1 mt-md-3">
-                    <label for="student_id" class="form-label">Select Student</label>
-                    <div class="input-group1 mb-3">
-                        <select name="student_id" id="student_id" data-test-type="{{$type}}" class="form-control">
-                            <option value="">-- Select Student --</option>
-                        </select>
-                    </div>
+        </div>
+			
+        <div class="col-12 col-md-7">
+            <div class="form mt-1 mt-md-3">
+                <label for="student_id" class="form-label">Select Student</label>
+                <div class="input-group1 mb-3">
+                    <select name="student_id" id="student_id" data-test-type="{{$type}}" class="form-control">
+                        <option value="">-- Select Student --</option>
+                    </select>
                 </div>
-            </div> 
+            </div>
+        </div> 
 
 
-             @php
-            $userId  = \Auth::id();
-            $trainerName = auth()->user()->name;
-            @endphp
+         @php
+        $userId  = \Auth::id();
+        $trainerName = auth()->user()->name;
+        @endphp
+    
         
-            
-            @if(Auth::user()->id == '995')
+        @if(Auth::user()->id == '995')
 
-            <div class="col-12 col-md-1">
-                <div class="form mt-1 mt-md-3">
-                    <div class="mb-3" style="margin-top:32px;">
-                       <a href="{{ route('scan') }}"
-                            class="btn btn-outline-secondary px-3 ml-0 d-flex justify-content-center align-items-center border-btn" id="scanner_btn" 
-                            style="gap: 5px" data-toggle="modal" data-target=".bd-scan-modal-lg"><span
-                                class="d-flex"><i class="bi bi-qr-code"></i></span>
-                            <span>Scan</span>
-                        </a>
+        <div class="col-12 col-md-1">
+            <div class="form mt-1 mt-md-3">
+                <div class="mb-3" style="margin-top:32px;">
+                   <a href="{{ route('scan') }}"
+                        class="btn btn-outline-secondary px-3 ml-0 d-flex justify-content-center align-items-center border-btn" id="scanner_btn" 
+                        style="gap: 5px" data-toggle="modal" data-target=".bd-scan-modal-lg"><span
+                            class="d-flex"><i class="bi bi-qr-code"></i></span>
+                        <span>Scan</span>
+                    </a>
 
-                    </div>
-                </div>
-            </div> 
-            @endif
-
-        </div>
-
-
-        <div class="row my-2">
-            <div class="col-12">
-                <div class="card alert alert-warning border-0" style="box-shadow: none; min-height:auto;">
-                    <div class="student-details p-0">
-                        <div class="__details">
-                            <p><span class="h6" id="student_name">Student Name </span>&nbsp;|&nbsp;<span
-                                    id="student_registration_no"> Registration Number: </span> </p>
-                            <p><span id="student_class"> Class</span>&nbsp;|&nbsp;Roll No: <span
-                                    id="student_roll_no"></span></p>
-                        </div>                    
-                    </div>
                 </div>
             </div>
+        </div> 
+        @endif
+    </div>
+
+
+    <div class="row my-2">
+        <div class="col-12">
+            <div class="card alert alert-warning border-0" style="box-shadow: none; min-height:auto;">
+
+                <div class="d-flex w-100 align-items-center">
+                    
+                    <!-- Left Side (Takes up exactly 50% width) -->
+                    <div class="w-50 pe-3">
+                        <p class="mb-1 text-dark">
+                            <strong id="student_name">Student Name </strong>&nbsp;|&nbsp;<span id="student_registration_no"> Registration Number: </span> 
+                        </p>
+                        <p class="mb-0 text-dark">
+                            <span id="student_class"> Class</span>&nbsp;|&nbsp;Roll No: <span id="student_roll_no"></span>
+                        </p>
+                    </div>
+                    @if($cwsnType == 7)
+                   <div style="border-left: 1px solid #343a40; opacity: 0.3; height: 40px; margin: 0 20px;"></div>
+                    <div class="w-50 border-start border-dark ps-4">
+                        <p class="mb-1 text-dark">
+                            <strong id="anthropometric_id">Anthropometric Measurement</strong>
+                        </p>
+                        <p class="mb-0 text-dark">
+                            <strong>Height:</strong> <span id="height_value"></span>&nbsp;|&nbsp;
+                            <strong>Weight:</strong> <span id="weight_value"></span>
+                        </p>
+                    </div>
+                    @endif
+
+                </div>
+                
+            </div>
         </div>
+    </div>
+
 </div>
 
 
@@ -261,13 +282,16 @@ function openFastAPIScreen() {
     window.open(aiUrl, 'FastAPIAIWindow', 'width=1280,height=800,scrollbars=yes,resizable=yes');
 }
 	
-	
-	
 </script>
 
 
 
+
+
+
+
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
 <script>
     function domReady(fn) {
         if (document.readyState === "complete" || document.readyState === "interactive") {
@@ -278,8 +302,9 @@ function openFastAPIScreen() {
     }
     let htmlscanner; 
     let testType = '';
+
     domReady(function () {
-        
+
         $('.bd-scan-modal-lg').on('shown.bs.modal', function () {
             testType = $('#student_id').data('test-type');
             if (!htmlscanner) {
@@ -370,6 +395,12 @@ function openFastAPIScreen() {
                         $('#selected_student_id').val(response.data.student_id);
                         $('#student_roll_no').text(response.data.student_roll_no);
                         $('#AGE_GENDER_ID').attr('placeholder', response.data.Age+ '/' + response.data.Gender);
+
+                        $('#anthropo_ht_id').val(response.data.anthropo_ht_id);
+                        $('#anthropo_wt_id').val(response.data.anthropo_wt_id);
+
+
+                        //console.log('response', response.data)
                     },
                     error: function(xhr, status, error) {
                         Swal.close();
@@ -393,11 +424,10 @@ function openFastAPIScreen() {
         }
     });
 
-</script>
 
-<script>
+
     $(document).ready(function () {
-       if(localStorage.getItem("selected_class")){
+        if(localStorage.getItem("selected_class")){
             let savedClass = localStorage.getItem("selected_class");
             document.getElementById('class_id').value = savedClass;
             getStudents(savedClass);
@@ -412,6 +442,7 @@ function openFastAPIScreen() {
             let skillReportId = $("input[name='skillReportId']").val();
             let testType = $('#student_id').data('test-type');
             const testStatus = localStorage.getItem("testStatus");
+            let cwsn_type = $('#cwsn_type').val();
 
             $('#student_name').text('Student Name');
             $('#student_class').text('Class');
@@ -421,11 +452,18 @@ function openFastAPIScreen() {
             $('#student_roll_no').text('');
             $('#roll_no_id').val('');
 
+            $('#anthropo_ht_id').val('');
+            $('#anthropo_wt_id').val('');
+            $('#height_value').text('');
+            $('#weight_value').text('');
+
+
+
             let studentDropdown = document.getElementById('student_id');
             studentDropdown.innerHTML = '<option value="">Loading...</option>';
 
             if (classCustom) {
-                fetch(`{{ route('studentRollNo.autocomplete') }}?class_id=${classCustom}&test_status=${testStatus}&skillReportId=${skillReportId}&testType=${testType}&query=`)
+                fetch(`{{ route('studentRollNo.autocomplete') }}?class_id=${classCustom}&test_status=${testStatus}&skillReportId=${skillReportId}&testType=${testType}&cwsn_type=${cwsn_type}&query=`)
                     .then(response => response.json())
                     .then(data => {
                         studentDropdown.innerHTML = '';
@@ -560,6 +598,9 @@ function openFastAPIScreen() {
         const selectedStudent = selectElement.options[selectElement.selectedIndex];
         const studentId = selectedStudent.getAttribute('data-id');
 
+        let cwsn_type = $('#cwsn_type').val();
+
+
         let [custom_class_id, class_id] = classValue.split('-');
         let testType = $('#student_id').data('test-type');
         $.ajax({
@@ -605,6 +646,15 @@ function openFastAPIScreen() {
                     $('#selected_student_id').val(response.data.student_id);
                     $('#student_roll_no').text(response.data.student_roll_no);
                     $('#AGE_GENDER_ID').attr('placeholder', response.data.Age+ '/' + response.data.Gender);
+
+                    $('#anthropo_ht_id').val(response.data.anthropo_ht_id);
+                    $('#anthropo_wt_id').val(response.data.anthropo_wt_id);
+                    $('#height_value').text(response.data.height_value ?? 'N.A.')
+                    $('#weight_value').text(response.data.weight_value ?? 'N.A.')
+
+                    if(cwsn_type == 7){
+                        handleAdaptationChange();
+                    }
                     
                 } else {
 

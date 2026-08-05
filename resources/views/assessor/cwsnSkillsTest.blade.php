@@ -5,8 +5,7 @@
 <div class="container">
     <div class="t-mrg2 mb-5 pb-5">
         <div class="row">
-            <div class="col-12">
-                
+            <div class="col-12">            
                 <div class="row"> <x-back-button :title="$title" /> </div>             
 
                 <div class="row text-center justify-content-md-center mt-2 mt-lg-4">
