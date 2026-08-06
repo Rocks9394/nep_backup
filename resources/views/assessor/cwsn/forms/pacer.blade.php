@@ -94,28 +94,66 @@
 
 @push('cwsn-module-script')
 <script>
+
+    
+    
+    function WhistelSound(isLevelChange = false){
+        const button = document.getElementById('startBtn');
+        const whistleSound = document.getElementById('whistleSound');
+        whistleSound.play().catch(error => {
+            console.error('Error playing sound:', error);
+        });
+    }
+
+    function stopWhistleSound(isLevelChange = false) {
+        const whistleSound = document.getElementById('whistleSound');
+        whistleSound.pause();
+        whistleSound.currentTime = 0;
+    }
+
+
     // Standard PACER Matrix: { Level: Number of Shuttles }
     const pacerMatrix = {
         1: 7,  2: 8,  3: 8,  4: 9,  5: 9,  6: 10, 7: 10, 8: 11,
-        9: 11, 10: 11, 11: 12, 12: 12, 13: 13, 14: 13, 15: 14, 
+        9: 11, 10: 11, 11: 12, 12: 12, 13: 13, 14: 13, 15: 14,
         16: 14, 17: 15, 18: 15, 19: 16, 20: 16, 21: 16
     };
 
-    // Standard PACER Speeds per level (in km/h).
-    const speedMatrix = {
-        1: 8.0,  2: 8.5,  3: 9.0,  4: 9.5,  5: 10.0, 6: 10.5, 7: 11.0, 8: 11.5,
-        9: 12.0, 10: 12.5, 11: 13.0, 12: 13.5, 13: 14.0, 14: 14.5, 15: 15.0,
-        16: 15.5, 17: 16.0, 18: 16.5, 19: 17.0, 20: 17.5, 21: 18.0
+    const pacerTiming = {
+        // 20-meter PACER
+        20: {1: 9.00, 2: 8.50, 3: 8.00, 4: 7.50, 5: 7.00, 6: 6.50, 7: 6.00, 8: 5.50, 9: 5.00, 10: 4.50, 11: 4.00,
+            12: 3.50, 13: 3.00, 14: 2.80, 15: 2.60, 16: 2.40, 17: 2.20, 18: 2.00, 19: 1.90, 20: 1.80, 21: 1.70 
+        },
+
+        // 15-meter PACER
+        15: {1: 6.75, 2: 6.25, 3: 5.75, 4: 5.25, 5: 4.75, 6: 4.25, 7: 3.75, 8: 3.25, 9: 2.75, 10: 2.50, 11: 2.30, 12: 2.10,
+            13: 1.95,  14: 1.85, 15: 1.75,  16: 1.65, 17: 1.55, 18: 1.50, 19: 1.45, 20: 1.40, 21: 1.35
+        }
     };
 
-    // Form settings
-    const formName = @json($TestTypeId);
-    const saveBtn = document.getElementById(`submit_${formName}`);
-    const startBtn = document.getElementById("startBtn");
-    const lapInput = document.getElementById('laps_completed');
-    const timerDisplay = document.getElementById("timer_display");
-    const minusBtn = document.getElementById("minus_btn");
-    const plusBtn = document.getElementById("plus_btn");
+    
+
+    const saveBtn      = document.getElementById(`submit_${formName}`);
+    const startBtn     = document.getElementById('startBtn');
+    const lapInput     = document.getElementById('laps_completed');
+    const timerDisplay = document.getElementById('timer_display');
+    const minusBtn     = document.getElementById('minus_btn');
+    const plusBtn      = document.getElementById('plus_btn');
+
+
+    const formName = parseInt(@json($TestTypeId), 10);
+    let distanceMeters;
+    if (formName === 1043) {
+        // 20 Meter PACER Test
+        distanceMeters = 20;
+    } else {
+        // 15 Meter PACER Test
+        distanceMeters = 15;
+    }
+
+    console.log('PACER Distance:', distanceMeters);
+    
+
 
     // Audio and Engine Tracking variables
     let audioCtx = null;
@@ -127,10 +165,9 @@
     let currentLevel = 1;
     let currentShuttle = 0;
     let totalLapsCount = 0;
-    const distanceMeters = 20; 
 
-    // Custom Web Audio Fox 40 Whistle Simulator Engine
-    // Custom Web Audio Fox 40 Whistle Simulator Engine with Extended Durations
+
+
     function playFox40Whistle(isLevelChange = false) {
         try {
             if (!audioCtx) {
@@ -153,16 +190,12 @@
 
             // Master volume gain control node
             const masterGain = audioCtx.createGain();
+
             masterGain.gain.setValueAtTime(0.0, now);
-            
-            // Hard, rapid attack phase (0.03s) to mimic full lung power blowing instantly
             masterGain.gain.linearRampToValueAtTime(0.85, now + 0.03); 
-            
-            // Hold the volume flat for 80% of the whistle duration so it stays loud and long
             masterGain.gain.setValueAtTime(0.85, now + (duration * 0.8));
-            
-            // Clean, definitive sound decay tail out over the remaining 20%
             masterGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
             masterGain.connect(audioCtx.destination);
 
             frequencies.forEach(freq => {
@@ -170,9 +203,9 @@
                 osc.type = 'sine'; 
                 osc.frequency.setValueAtTime(freq, now);
 
-                // Intense air-chamber modulation frequency wobble (vibrato)
                 const modulator = audioCtx.createOscillator();
                 const modGain = audioCtx.createGain();
+
                 modulator.frequency.setValueAtTime(135, now); // Rapid air flutter
                 modGain.gain.setValueAtTime(18, now);         // Deep pitch vibrato punch
 
@@ -199,9 +232,10 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         
-        startBtn.addEventListener("click", function() {
-            if (!isRunning) {
-                // START PACER TEST
+        startBtn.addEventListener("click", function() {     // Start and stop button
+
+            if (!isRunning) {                               // Start pacer
+                
                 isRunning = true;
                 totalLapsCount = 0;
                 currentLevel = 1;
@@ -231,15 +265,16 @@
             } else {
                 stopPacerTest(false);
             }
+            
         });
 
-        function runNextShuttle() {
+
+        function runNextShuttle() {         // main pacer l
             if (!isRunning) return;
 
             currentShuttle++;
 
-            // Check if level transition boundaries have been crossed
-            if (currentShuttle > pacerMatrix[currentLevel]) {
+            if (currentShuttle > pacerMatrix[currentLevel]) {   // Check if level transition boundaries have been crossed
                 currentLevel++;
                 currentShuttle = 1;
                 
@@ -247,11 +282,13 @@
                     stopPacerTest(true);
                     return;
                 }
-                // Play a slightly higher, longer whistle blast on Level Change
-                playFox40Whistle(true); 
+              
+                // playFox40Whistle(true); 
+                WhistelSound();
             } else {
-                // Play standard Fox 40 whistle blast
-                playFox40Whistle(false); 
+                
+                // playFox40Whistle(false); 
+                WhistelSound();
             }
 
             // Sync inputs instantly
@@ -259,12 +296,18 @@
             lapInput.value = totalLapsCount;
             document.getElementById('final_level').value = currentLevel;
             document.getElementById('final_shuttle').value = currentShuttle;
+
+
             document.getElementById('live_status_badge').textContent = `Level ${currentLevel}, Shuttle ${currentShuttle}`;
 
             // Calculate precise timing duration dynamically
-            let speedKmh = speedMatrix[currentLevel];
-            let speedMps = speedKmh / 3.6; 
-            let shuttleDurationMs = (distanceMeters / speedMps) * 1000;
+            // let speedKmh = speedMatrix[currentLevel];
+            // let speedMps = speedKmh / 3.6; 
+
+
+            const shuttleDurationMs = pacerTiming[distanceMeters][currentLevel] * 1000;
+
+            // let shuttleDurationMs = (distanceMeters / speedMps) * 1000;
 
             shuttleTimeout = setTimeout(() => {
                 runNextShuttle();
@@ -272,6 +315,9 @@
         }
 
         function stopPacerTest(hitMaxCeiling = false) {
+
+            // stopWhistleSound();
+
             isRunning = false;
             clearInterval(masterTimerInterval);
             clearTimeout(shuttleTimeout);
@@ -376,6 +422,8 @@
         document.getElementById('final_shuttle').value = calculatedShuttle;
         document.getElementById('live_status_badge').textContent = `Level ${calculatedLevel}, Shuttle ${calculatedShuttle}`;
     }
+
+
 
     $(document).ready(function() {
         $(`#${formName}`).submit(function(e) {

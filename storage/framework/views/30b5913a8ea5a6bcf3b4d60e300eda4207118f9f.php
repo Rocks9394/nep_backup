@@ -1,8 +1,8 @@
 <div>
     <!-- I begin to speak only when I am certain what I will say is not better left unsaid. - Cato the Younger -->
     <div class="form-row my-2">
-        <input type="hidden" id="all_classes" value='@json($classes)'>
-        <input type="hidden" id="cwsn_type" value="{{ $cwsnType ?? 'None Specified' }}">
+        <input type="hidden" id="all_classes" value='<?php echo json_encode($classes, 15, 512) ?>'>
+        <input type="hidden" id="cwsn_type" value="<?php echo e($cwsnType ?? 'None Specified'); ?>">
 
         <div class="col-12 col-md-4">
             <div class="form mt-1 mt-md-3">
@@ -11,11 +11,12 @@
                     <select name="class_id" id="class_id" class="form-control">
                     <option value="">-- Select Class --</option>
 
-                        @foreach ($classes as $customcls)
-                    <option value="{{ $customcls->id . '-' . $customcls->class_id.'-'.$customcls->section }}">
-                        {{ $customcls->classname . '-' . $customcls->section}}
+                        <?php $__currentLoopData = $classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customcls): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($customcls->id . '-' . $customcls->class_id.'-'.$customcls->section); ?>">
+                        <?php echo e($customcls->classname . '-' . $customcls->section); ?>
+
                     </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                     </select>
                 </div>
@@ -26,7 +27,7 @@
             <div class="form mt-1 mt-md-3">
                 <label for="student_id" class="form-label">Select Student</label>
                 <div class="input-group1 mb-3">
-                    <select name="student_id" id="student_id" data-test-type="{{$type}}" class="form-control">
+                    <select name="student_id" id="student_id" data-test-type="<?php echo e($type); ?>" class="form-control">
                         <option value="">-- Select Student --</option>
                     </select>
                 </div>
@@ -34,18 +35,18 @@
         </div> 
 
 
-         @php
+         <?php
         $userId  = \Auth::id();
         $trainerName = auth()->user()->name;
-        @endphp
+        ?>
     
         
-        @if(Auth::user()->id == '995')
+        <?php if(Auth::user()->id == '995'): ?>
 
         <div class="col-12 col-md-1">
             <div class="form mt-1 mt-md-3">
                 <div class="mb-3" style="margin-top:32px;">
-                   <a href="{{ route('scan') }}"
+                   <a href="<?php echo e(route('scan')); ?>"
                         class="btn btn-outline-secondary px-3 ml-0 d-flex justify-content-center align-items-center border-btn" id="scanner_btn" 
                         style="gap: 5px" data-toggle="modal" data-target=".bd-scan-modal-lg"><span
                             class="d-flex"><i class="bi bi-qr-code"></i></span>
@@ -55,7 +56,7 @@
                 </div>
             </div>
         </div> 
-        @endif
+        <?php endif; ?>
     </div>
 
 
@@ -74,7 +75,7 @@
                             <span id="student_class"> Class</span>&nbsp;|&nbsp;Roll No: <span id="student_roll_no"></span>
                         </p>
                     </div>
-                    @if($cwsnType == 7)
+                    <?php if($cwsnType == 7): ?>
                    <div style="border-left: 1px solid #343a40; opacity: 0.3; height: 40px; margin: 0 20px;"></div>
                     <div class="w-50 border-start border-dark ps-4">
                         <p class="mb-1 text-dark">
@@ -85,7 +86,7 @@
                             <strong>Weight:</strong> <span id="weight_value"></span>
                         </p>
                     </div>
-                    @endif
+                    <?php endif; ?>
 
                 </div>
                 
@@ -111,7 +112,7 @@
 
 </div>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 
 
 <script>
@@ -129,9 +130,9 @@ function openAIScreen() {
     }
 
     // Use Blade syntax to inject the values safely
-    const trainerName = "{{ $trainerName }}";
-    const exerciseTitle = "{{ $title }}";
-    const currentTrainerId = "{{ $userId }}";
+    const trainerName = "<?php echo e($trainerName); ?>";
+    const exerciseTitle = "<?php echo e($title); ?>";
+    const currentTrainerId = "<?php echo e($userId); ?>";
 
     const selectedOption = studentSelect.options[studentSelect.selectedIndex];
     const actualStudentId = selectedOption.getAttribute('data-id');
@@ -252,9 +253,9 @@ function openFastAPIScreen() {
     }
 
     // Blade context
-    const trainerName      = "{{ $trainerName }}";
-    const exerciseTitle    = "{{ $title }}";
-    const currentTrainerId = "{{ $userId }}";
+    const trainerName      = "<?php echo e($trainerName); ?>";
+    const exerciseTitle    = "<?php echo e($title); ?>";
+    const currentTrainerId = "<?php echo e($userId); ?>";
 
     // Clean test key formatted for FastAPI (e.g., "WingSpan" -> "wingspan")
     const testKey = exerciseTitle.toLowerCase().replace(/[^a-z0-9]/g, '_');
@@ -363,7 +364,7 @@ function openFastAPIScreen() {
                 let skillReportId = $("input[name='skillReportId']").val();
 
                 $.ajax({
-                    url: '{{ route("fetch.student.detail") }}',
+                    url: '<?php echo e(route("fetch.student.detail")); ?>',
                     method: 'GET',
                     data: {
                         student_reg_no: student_reg_no,
@@ -463,7 +464,7 @@ function openFastAPIScreen() {
             studentDropdown.innerHTML = '<option value="">Loading...</option>';
 
             if (classCustom) {
-                fetch(`{{ route('studentRollNo.autocomplete') }}?class_id=${classCustom}&test_status=${testStatus}&skillReportId=${skillReportId}&testType=${testType}&cwsn_type=${cwsn_type}&query=`)
+                fetch(`<?php echo e(route('studentRollNo.autocomplete')); ?>?class_id=${classCustom}&test_status=${testStatus}&skillReportId=${skillReportId}&testType=${testType}&cwsn_type=${cwsn_type}&query=`)
                     .then(response => response.json())
                     .then(data => {
                         studentDropdown.innerHTML = '';
@@ -531,7 +532,7 @@ function openFastAPIScreen() {
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: "{{ route('delete-student-test') }}", 
+                        url: "<?php echo e(route('delete-student-test')); ?>", 
                         type: "POST",
                         data: {
                             student_id: response.data.student_id,
@@ -604,7 +605,7 @@ function openFastAPIScreen() {
         let [custom_class_id, class_id] = classValue.split('-');
         let testType = $('#student_id').data('test-type');
         $.ajax({
-            url: '{{ route("fetch.student.detail") }}',
+            url: '<?php echo e(route("fetch.student.detail")); ?>',
             method: 'GET',
             data: {
                 class_id: class_id,
@@ -668,10 +669,6 @@ function openFastAPIScreen() {
         });
         
     });
-
-
-   
-
 </script>
 
-@endpush
+<?php $__env->stopPush(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/components/get-student-list.blade.php ENDPATH**/ ?>

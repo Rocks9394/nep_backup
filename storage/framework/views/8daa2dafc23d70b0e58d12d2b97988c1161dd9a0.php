@@ -204,11 +204,245 @@
             </div>
          </div>
       </div>
+
+
+      
    </div>
 </div>
 
 
 <script>
+
+   $(document).ready(function () {
+
+      const defaultSelectedClassIds = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+      $('input[name="class_options[]"]').each(function () {
+         if (defaultSelectedClassIds.includes($(this).val())) {
+            $(this).prop('checked', true);
+             // $(this).prop('disabled', true);
+         }
+      });
+
+
+      $('body').on('blur', 'input[name="class_nomenclature[]"]', function () {
+         const originalValue = $(this).data('original');
+         const currentValue = $(this).val().trim();
+
+         if (currentValue === '') {
+            $(this).val(originalValue);  // Restore original
+         }
+      });
+
+      $('body').on("click", ".dropdown-menu", function (e) {
+         e.stopPropagation();
+      });
+
+      function updateNomenclatureHighlight(classId, highlight) {
+         const input = $('input[name="class_nomenclature[]"][data-class-id="' + classId + '"]');
+         input.toggleClass('highlighted', highlight);
+      }
+
+
+      $('.form-group').each(function () {
+         const container = $(this);
+         const selectAll = container.find('.selectall');
+         const checkboxes = container.find('.justone');
+         const dropdownText = container.find('.dropdown-text');
+         const selectText = container.find('.select-text');
+
+
+         selectAll.on('change', function () {
+            const isChecked = $(this).is(':checked');
+
+            // checkboxes.each(function () {
+            //    if (!defaultSelectedClassIds.includes($(this).val())) {
+            //       $(this).prop('checked', isChecked);
+            //    }
+            // });
+
+            checkboxes.prop('checked', isChecked);
+
+            if (dropdownText.length) {
+               dropdownText.text(`(${isChecked ? checkboxes.length : 0}) Selected`);
+            }
+
+            if (selectText.length) {
+               selectText.text(isChecked ? ' Deselect' : ' Select');
+            }
+
+            // Only update highlight for actual class list checkboxes
+            if (container.find('input[name="class_options[]"]').length) {
+               checkboxes.each(function () {
+                  updateNomenclatureHighlight($(this).val(), isChecked);
+               });
+            }
+         });
+
+
+         checkboxes.on('change', function () {
+
+            const checkedCount = checkboxes.filter(':checked').length;
+            const allChecked = checkedCount === checkboxes.length;
+
+            selectAll.prop('checked', allChecked);
+            if (selectText.length) {
+               selectText.text(allChecked ? ' Deselect' : ' Select');
+            }
+            if (dropdownText.length) {
+               dropdownText.text(`(${checkedCount}) Selected`);
+            }
+
+            // Highlight corresponding input if part of class list
+            if ($(this).attr('name') === 'class_options[]') {
+               updateNomenclatureHighlight($(this).val(), $(this).is(':checked'));
+            }
+         });
+      });
+
+
+      $('input[name="class_options[]"]:checked').each(function () {
+         const classId = $(this).val();
+
+         updateNomenclatureHighlight(classId, true);
+      }); 
+
+      $('.form-group').each(function () {
+         const checkboxes = $(this).find('.justone');
+         const checkedCount = checkboxes.filter(':checked').length;
+         const dropdownText = $(this).find('.dropdown-text');
+
+         if (dropdownText.length) {
+            dropdownText.text(`(${checkedCount}) Selected`);
+         }
+      });
+
+
+      $('#applyChangesBtn').off('click').on('click', function () {
+
+          if (!confirm('Are you sure you want to save these classes?')) return;
+
+         const selectedData = [];
+         $('input[name="class_options[]"]').each(function () {
+            const classId = $(this).val();
+            const isChecked = $(this).is(':checked');
+            const input = $('input[name="class_nomenclature[]"][data-class-id="' + classId + '"]');
+            const className = input.val().trim();
+
+            selectedData.push({
+               id: classId,
+               nomenclature: className,
+               selected: isChecked
+            });
+         });
+
+
+          const uniqueData = selectedData.filter((value, index, self) =>
+            index === self.findIndex((t) => t.id === value.id)
+         );
+
+         const finalSelected = uniqueData.filter(item => item.selected === true);
+
+         if (finalSelected.length === 0) {
+            alert('You have to select at least one class.');
+            return; // stop further execution
+         }
+
+         $.ajax({
+            url: '<?php echo e(route('saveclassnomenclature')); ?>',
+            method: 'POST',
+            headers: {
+               'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+            },
+            contentType: 'application/json',
+            data: JSON.stringify({ classes: finalSelected }),
+
+            success: function (response) {
+               if (response.status === 'success') {
+                  // Show confirmation
+                  alert('Classes saved successfully!');
+                  location.reload();
+               }
+            },
+            error: function (xhr) {
+               alert('An error occurred while saving.');
+               console.error(xhr.responseText);
+            }
+         });
+
+         
+      });
+   });
+
+
+
+   function deleteClass(classId) {
+       if (!confirm('Are you sure you want to delete this class?')) return;
+
+       fetch("<?php echo e(route('class.delete')); ?>", {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json',
+               'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+           },
+           body: JSON.stringify({ class_id: classId })
+       })
+       .then(response => response.json())
+       .then(data => {
+           if (data.success) {
+               const badge = document.getElementById('badge-' + classId);
+               if (badge) {
+                   badge.remove();
+                   console.log(`Badge #${classId} removed`);
+
+                  
+                   setTimeout(() => {
+                       const remainingBadges = document.querySelectorAll('.class-badge');
+                       console.log('Remaining badges:', remainingBadges.length);
+
+                       if (remainingBadges.length === 0) {
+                           location.reload(); 
+                       }
+                   }, 100); 
+               }
+           } else {
+               alert(data.message || 'Could not delete class.');
+           }
+       })
+       .catch(error => {
+           console.error('Error:', error);
+           alert('Something went wrong.');
+       });
+   }
+
+
+
+   function resetSelectedClasses() {
+
+      if (!confirm("Are you sure you want to reset all selected classes?")) return;
+      $.ajax({
+         url: "<?php echo e(route('classes.reset')); ?>",
+         method: 'POST',
+         headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+         },
+         data: {}, 
+         success: function(response) {
+            if (response.success) {            
+               $('.class-badge.selected_classs').remove();
+               $('#restbutton').hide();
+               $('input[name="class_options[]"]').prop('checked', false);
+               location.reload();                 
+            } else {
+               alert('Something went wrong. Please try again.');
+            }
+         },
+         error: function(xhr, status, error) {
+            console.error('AJAX Error:', error);
+            alert('Request failed.');
+         }
+      });
+   }
+
    function downloadStudentProfile() {
 
        Swal.fire({
@@ -259,6 +493,7 @@
            }
        });
    }
+
 
 </script>
 

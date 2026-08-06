@@ -81,7 +81,8 @@
                 @endphp
                 <x-reset-submit-btn :id="$id"/>
                 {{-- footer close --}}
-
+					<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center " 
+					onclick="openFastAPIScreen()" style="color: white; font-weight: bold;"> Switch to AI </button>	
             
             </form>	
             
@@ -138,68 +139,138 @@ $(document).ready(function() {
 });
 
 
-// height inputs restrictions
 
-document.getElementById("heightInput").addEventListener("input", function (e) {
-    let value = e.target.value;
+// Height inputs restrictions
+document.addEventListener("DOMContentLoaded", function () {
+    const heightInput = document.getElementById("heightInput");
 
-    value = value.replace(/[^0-9.]/g, '');
+    // Check if element exists on page before attaching listener
+    if (!heightInput) return;
 
-    const parts = value.split('.');
-    if (parts.length > 2) {
-        value = parts[0] + '.' + parts[1];
-    }
+    heightInput.addEventListener("input", function (e) {
+        let value = e.target.value;
 
-    let match = value.match(/^(\d{0,3})(\.(\d{0,2})?)?$/);
-    if (match) {
-        value = match[0];
-    } else {
-        value = value.slice(0, -1); 
-    }
+        // Allow only numbers and a single decimal point
+        value = value.replace(/[^0-9.]/g, '');
 
-    if (value && parseFloat(value) <= 0) {
-        value = '';
-        Swal.fire({
-            title: '',
-            text: 'Height can\'t be 0',
-            icon: 'warning'
-        });
-    }
+        // Prevent multiple decimal points
+        const parts = value.split('.');
+        if (parts.length > 2) {
+            value = parts[0] + '.' + parts[1];
+        }
 
-    e.target.value = value;
-});
+        // Limit to max 3 digits before decimal and 2 after (e.g. 175.50)
+        let match = value.match(/^(\d{0,3})(\.(\d{0,2})?)?$/);
+        if (match) {
+            value = match[0];
+        } else {
+            value = value.slice(0, -1);
+        }
 
-// weight inputs restrictions
+        e.target.value = value;
+    });
 
-document.getElementById("weightInput").addEventListener("input", function (e) {
-    let value = e.target.value;
-
-    value = value.replace(/[^0-9.]/g, '');
-
-    const parts = value.split('.');
-    if (parts.length > 2) {
-        value = parts[0] + '.' + parts[1];
-    }
-
-    let match = value.match(/^(\d{0,3})(\.(\d{0,2})?)?$/);
-    if (match) {
-        value = match[0];
-    } else {
-        value = value.slice(0, -1); 
-    }
-    
-    if (value && parseFloat(value) <= 0) {
-        value = '';
-        Swal.fire({
-            title: '',
-            text: 'Weight can\'t be 0',
-            icon: 'warning'
-        });
-    }
-    e.target.value = value;
+    // Validate 0 on blur (when user finishes typing and leaves field)
+    heightInput.addEventListener("change", function (e) {
+        let value = e.target.value;
+        if (value && parseFloat(value) <= 0) {
+            e.target.value = '';
+            Swal.fire({
+                title: '',
+                text: "Height can't be 0",
+                icon: 'warning'
+            });
+        }
+    });
 });
 
 
+// Weight inputs restrictions
+document.addEventListener("DOMContentLoaded", function () {
+    const weightInput = document.getElementById("weightInput");
+
+    // Guard clause: prevents script errors if element is missing
+    if (!weightInput) return;
+
+    weightInput.addEventListener("input", function (e) {
+        let value = e.target.value;
+
+        // Strip everything except digits and decimal point
+        value = value.replace(/[^0-9.]/g, '');
+
+        // Keep only the first decimal point
+        const parts = value.split('.');
+        if (parts.length > 2) {
+            value = parts[0] + '.' + parts[1];
+        }
+
+        // Allow up to 3 digits before decimal and 2 digits after (e.g., 120.55)
+        let match = value.match(/^(\d{0,3})(\.(\d{0,2})?)?$/);
+        if (match) {
+            value = match[0];
+        } else {
+            value = value.slice(0, -1);
+        }
+
+        e.target.value = value;
+    });
+
+    // Check for zero or negative values when the user finishes typing (blur event)
+    weightInput.addEventListener("change", function (e) {
+        let value = e.target.value;
+        if (value && parseFloat(value) <= 0) {
+            e.target.value = '';
+            Swal.fire({
+                title: '',
+                text: "Weight can't be 0",
+                icon: 'warning'
+            });
+        }
+    });
+});
+
+
+</script>
+
+
+<script>
+// Global Listener for data from the AI Scanner
+window.addEventListener('message', function(event) {
+    // 1. Security Check: Only accept messages from your goforfit.in domains
+    if (!event.origin.includes("goforfit.in")) return;
+
+    const data = event.data;
+	
+	console.log('---start here:---data value:');
+	
+	console.log(data);
+	
+	console.log('---end here---data value:');
+
+    // 2. Check for the specific Data Type we send from the AI Screen
+    if (data.type === "AI_SYNC_DATA") {
+        console.log("Biometric data received:", data);
+
+        // Fill Height field
+        const heightInput = document.getElementById('heightInput');
+        if (heightInput) {
+            heightInput.value = data.bmiScore;
+        }
+
+        // Optional: Fill Weight field with Wingspan if needed
+        // const weightInput = document.getElementById('weightInput');
+        // if (weightInput) weightInput.value = data.wingspan;
+
+        // 3. Success Feedback
+        Swal.fire({
+            icon: 'success',
+            title: 'AI Data Synced',
+            text: 'Height: ' + data.bmiScore + ' cm has been recorded.',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }
+}, false);
 </script>
 
 

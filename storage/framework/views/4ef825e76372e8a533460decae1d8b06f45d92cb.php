@@ -178,6 +178,22 @@
                             </ul>
                             <?php endif; ?>
 
+
+                            <br><h4 class="test-cat">Physical Fitness Assessment for CWSN</h4>
+                                <ul class="list-group mt-0">                        
+                                    <?php $__currentLoopData = $rpwdCategoriesData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php $encrypted = encrypt($category->PwdCategoryID); ?>
+
+                                        <li>
+                                            <a 
+                                            href="<?php echo e(route('assessor.cwsn.category', ['pwd_category_id' => $category->PwdCategoryID])); ?>">
+                                                <span><?php echo e($category->CategoryName); ?></span>
+                                                <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>                    
+                                </ul>
+
                         </div>
                     </div>
                 </div>

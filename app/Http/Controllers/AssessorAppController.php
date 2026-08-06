@@ -350,7 +350,6 @@ class AssessorAppController extends Controller
 		}
 		elseif($skillReport->skill_name == 'BMI' && $SeniorBMI == true)
 		{
-			die('---part2---');
 			$classes = $seniorclasses;
 			$title = $skillReport->skill_name;
 			return view('assessor.senior-bmi', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));

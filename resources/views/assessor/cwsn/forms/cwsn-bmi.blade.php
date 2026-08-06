@@ -14,7 +14,7 @@
 
 <h2 class="mb-4 mt-4 text-center">Enter Height and Weight Score</h2>
 
-<form method="POST" name="saveBMIRecord" id="save_bmi_record_id" action="" class="row form">
+<form class="row form" method="POST" name="{{ $TestTypeId }}" id="{{ $TestTypeId }}" action="javascript:void(0);">
     {{ method_field('post') }}
     @csrf
     
@@ -23,8 +23,8 @@
     <input type="hidden" id="SchoolId" name="SchoolId" value="{{ $SchoolId }}">
     <input type="hidden" id="selected_student_id" name="student_id">
 
-    <input type="hidden" id="anthropo_ht_id" value="">
-    <input type="hidden" id="anthropo_wt_id" value="">
+    <input type="hidden" name="anthropo_ht_id" id="anthropo_ht_id" value="">
+    <input type="hidden" name="anthropo_wt_id" id="anthropo_wt_id" value="">
 
 
     <!-- MAIN ROW: Core Input Group -->
@@ -95,6 +95,7 @@
 
 <script>
 
+    const formId = @json($TestTypeId);
     let pwd_category_id = parseInt(@json($pwd_category_id ?? 0), 10);
     
     $(document).ready(function() {
@@ -121,12 +122,10 @@
 	    });
 
 
-	    $('#save_bmi_record_id').on('submit', function(e) {
-
+	    $(`#${formId}`).on('submit', function(e) {
 	    	e.preventDefault();
 
 	    	const studentId = document.getElementById('selected_student_id').value;
-
 	    	if (!studentId) {
 	            handleResponseMessages( 'warning',  'Add Student', 'Please select the student');
 	            return;
@@ -222,11 +221,17 @@
                 
                 return false;
             }
+
+            let route = '{{ route("cwsn.types.submit") }}';
+            let formData =  $(this).serialize();
+            SubmitForm(formId, formData, route);
         });
-
-
-
     });
+
+    
+    function bmiCalcualtion(){
+
+    }
 
     function handleCategoryChange(pwd_category_id) {
         if (pwd_category_id === 7) {
@@ -238,10 +243,8 @@
     }
 
     function handleAdaptationChange() {
-
-    	$('#save_bmi_record_id')[0].reset();
-    	// console.log('called')
-        // Safe integer parsing with 0 fallback
+    	$(`#${formId}`)[0].reset();
+  
         let anthropo_ht_id = parseInt($('#anthropo_ht_id').val(), 10) || 0; 
         let anthropo_wt_id = parseInt($('#anthropo_wt_id').val(), 10) || 0;  
 
@@ -282,11 +285,16 @@
         	$segmentedPanel.removeClass('d-none').addClass('d-flex');
         }
 
+        if(anthropo_wt_id == 8){
+            $standardWeight.hide();
+            $wheelchairPanel.removeClass('d-none').addClass('d-flex');
+        }
+
         if(anthropo_ht_id == 3 && anthropo_wt_id == 8){
         	$standardWeight.hide();
         	$wheelchairPanel.removeClass('d-none').addClass('d-flex');
         }
-
     }
+
 </script>
 @endsection

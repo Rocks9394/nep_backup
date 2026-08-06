@@ -380,7 +380,6 @@ class CwsnController extends Controller
 
             case 58:
 
-
                 if (isset($alldata['assessment_result']) && $alldata['assessment_result'] !== '' && 
                     isset($alldata['heart_rate_status']) && $alldata['heart_rate_status'] !== '' && 
                     !empty($alldata['student_id'])) {
@@ -393,19 +392,74 @@ class CwsnController extends Controller
                     if($assessment_result == 1 && $heart_rate_status){
                         $TestScore = true;
                     }
-
                     
                     return $this->storeFormData($alldata, $TermMasterId, $userId, $TestScore, $levels);                    
                 } 
 
                 return response()->json(['success' => false, 'message' => 'Right Aplay /Left Aplay assessment result missing.']);
-
+            case 33:
+                
+                $TestScore  = $this->CwsnBmiCalcualtion($alldata);
+                $levels = 'N.A.';
+                return $this->storeFormData($alldata, $TermMasterId, $userId, $TestScore, $levels);
+                              
+                break;
             default:
                 return response()->json(['success' => false, 'message' => 'Invalid Test Type assignment mapping error.']);
                 break;
         }
     }
 
+    protected function CwsnBmiCalcualtion($alldata){
+
+        $height = 0; $weight = 0;
+
+        if (!empty($alldata['height']) && is_numeric($alldata['height'])) {
+            $height = (float) $alldata['height'];
+        } elseif (isset($alldata['segment_floor_to_knee'], $alldata['segment_knee_to_hip'], $alldata['segment_hip_to_head']) ) {
+            $height = (float) ($alldata['segment_floor_to_knee'] + $alldata['segment_knee_to_hip'] + $alldata['segment_hip_to_head']);
+        }
+
+        if(isset($alldata['amputation_raw_weight'] , $alldata['anthropo_wt_id'])){
+           
+            $rawWeight =  (float) $alldata['amputation_raw_weight'];
+
+            switch ($alldata['anthropo_wt_id']) {
+                case 5:
+
+                    $weight = $rawWeight + ($rawWeight/18);     //below knee amputaion
+                    break;
+
+                case 6:
+                    $weight = $rawWeight + ($rawWeight/9);      //Above knee amputaion 
+                    break;
+
+                case 7:
+                    $weight = $rawWeight + ($rawWeight/6);     // Hip amputation
+                    break;
+
+                default:
+                    $weight = $rawWeight;
+                    break;
+            }
+
+        } elseif (isset($alldata['total_combined_weight'], $alldata['wheelchair_tare_weight'])) {
+
+            $weight = (float)($alldata['total_combined_weight'] - $alldata['wheelchair_tare_weight']);
+
+        } elseif (!empty($alldata['weight']) && is_numeric($alldata['weight'])) {
+
+            $weight = (float)$alldata['weight'];
+        }
+
+        if ($height <= 0) {
+            return 0; 
+        }
+
+        $heightInMeters = $height / 100;
+        $bmiScore = $weight / ($heightInMeters * $heightInMeters);
+        return round($bmiScore, 2);
+    }
 
     protected function storeFormData($alldata, $TermMasterId, $userId, $TestScore, $levels){
 

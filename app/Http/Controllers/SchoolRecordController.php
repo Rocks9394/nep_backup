@@ -32,6 +32,7 @@ use Dompdf\Dompdf;
 use ZipArchive;
 use Illuminate\Support\Facades\Storage;
 use PDF;
+use App\Rules\ExcelHeaderValidation;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ImportStudentProfile;
@@ -50,6 +51,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Usermeta;
 use App\Models\TermMaster;
+use App\Jobs\ProcessStudentImport;
 use App\Traits\ReportHelperTrait;
 
 use App\Exports\StudentsCredentialsExport;
@@ -933,15 +935,15 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		$school = School::find($schoolId);
 		$classList = $school->getClasses;
 		foreach ($classList as $class) {
-		   // $class->name = Sclass::where('id', $class->class_id)->orderBy('orders')->first()->name;
 
 		    $originalClass = Sclass::where('id', $class->class_id)->orderBy('orders')->first();
 		    $class->name = !empty($class->nomenclature) 
 		        ? $class->nomenclature 
 		        : ($originalClass ? $originalClass->name : null);
-
+			$class->orders = optional($originalClass)->orders;
 		}
 
+		$classList = $classList->sortBy('orders')->values();
 
 		$classList->prepend((object)[
 	        'class_id' => '',
@@ -1041,7 +1043,8 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		        END AS isValidAge
 		    ")
 		)
-		->orderBy('students.class_id')
+		// ->orderBy('students.class_id')
+		->orderBy('class.orders')
 		->orderBy('students.section_id')
 		->where('students.school_code', $school->school_code);
 
@@ -1203,11 +1206,11 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			})
 
 			->addColumn('rollno', function($row) use($academicYear) {
-				if ($row->academic_year == $academicYear){
-					return '<input type="text" class="form-control rollno-input" data-rollno="'.$row->rollno.'"  value="'.$row->rollno.'" data-id="'.$row->student_id.'">';
-				}else{
-					return $row->rollno;
-				}
+				// if ($row->academic_year == $academicYear){
+				// 	return '<input type="text" class="form-control rollno-input" data-rollno="'.$row->rollno.'"  value="'.$row->rollno.'" data-id="'.$row->student_id.'">';
+				// }else{
+				// 	}
+				return $row->rollno;
 			})
 
 			->addColumn('edit_button', function($row) use($academicYear) {
@@ -2136,12 +2139,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
     
 
-    public function importStudentData(Request $request) {    
-	
-	
-	// echo "<pre>";
-	// print_r($request->all()); exit();
-	
+    public function importStudentData_bk(Request $request) {    
 	
 
     	$validator = Validator::make($request->all(), [
@@ -2303,6 +2301,658 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 	        return response()->json(['summary' => $summary, 'icon' => 'sucess']);
         }
+    }
+
+	public function importStudentData(Request $request) {    
+        $userId = Auth::user()->id;
+		$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+
+		// Step 1: Locking check
+	    DB::table('student_import_status')->updateOrInsert(
+	        ['school_id' => $schoolId],
+	        ['status' => DB::raw('status')]
+	    );
+
+	    $statusRow = DB::table('student_import_status')->where('school_id', $schoolId)->first();
+
+	    if ($statusRow->status === 'processing') {
+	        $lastUpdated = Carbon::parse($statusRow->updated_at);
+	        if ($lastUpdated->diffInMinutes(now()) <= 30) {
+	        	return response()->json([
+			    	'error' => 'error',
+			        'icon' => 'info',
+			        'title' => 'Import in Progress',
+			        'summary' => 'An import is already in progress. Please wait before uploading again.'
+			    ]);
+	        }
+
+	        DB::table('student_import_status')->where('school_id', $schoolId)->update(['status' => 'idle']);
+	    }
+
+	    try{
+
+
+			$validator = Validator::make($request->all(), [
+		    	// 'classnomenclature' => 'required',
+		        'upload_student_profile' => ['required','file','mimes:xls,xlsx','max:3000',new ExcelHeaderValidation,
+
+		        	function ($attribute, $value, $fail) {
+		                if ($value && $value->isValid()) {
+		                    try {
+		                        $realPath = $value->getRealPath();
+		                        $excelReader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($realPath);
+		              
+		                        if (!$excelReader->canRead($realPath)) {
+		                            $fail('The template format is invalid or corrupted. Please open the file in Excel, use "Save As", select "Excel Workbook (.xlsx)" and re-upload.');
+		                            return;
+		                        }
+
+		                        $excelReader->listWorksheetInfo($realPath);
+
+		                    } catch (\Throwable $ex) {
+
+		                       $fail('<strong>File layout configuration error detected.</strong><br><br>' .
+				                 '<strong>How to correct your file:</strong><br>' .
+				                 '<ol style="margin-top: 5px; padding-left: 20px;">' .
+				                 '  <li>Open your current file on your computer using <strong>Microsoft Excel</strong> or <strong>Google Sheets</strong>.</li>' .
+				                 '  <li>Navigate to the top menu, click on <strong>File</strong>, and select <strong>Save As</strong> (or <em>Download > Microsoft Excel (.xlsx)</em> if using Google Sheets).</li>' .
+				                 '  <li>In the file type dropdown menu, explicitly choose <strong>Excel Workbook (*.xlsx)</strong>.</li>' .
+				                 '  <li>Provide a new name for the file, click <strong>Save</strong>, and upload this new version instead.</li>' .
+				                 '</ol>');
+		                    }
+		                }
+		            }
+		           
+		        ],
+		    ], 
+		    [
+		        'upload_student_profile.required'=> 'Please select a document file.',
+		        'upload_student_profile.file'	 => 'No file has been selected. Please choose a file.',
+		        'upload_student_profile.mimes' 	 => 'The selected file must be in either the xls or xlsx format.',
+		        'upload_student_profile.max' 	 => 'File size should not be more than 3MB.',			
+		    ]);
+
+
+			if ($validator->fails()){
+	        	
+	            $errorContent = '<ul style="list-style-type: none;">';
+	            $dynamicTitle = 'Validation Error'; 
+
+
+	            foreach ($validator->errors()->getMessages() as $field => $validationErrors) {
+			        foreach ((array)$validationErrors as $validationError) {
+			            $errorContent .= '<li>'.$validationError.'</li>';		   
+			            if (str_contains($validationError, 'headers')) {
+			                $dynamicTitle = 'Template Format Error';
+			            } elseif (str_contains($validationError, 'size')) {
+			                $dynamicTitle = 'File Too Large';
+			            }elseif (str_contains($validationError, 'corrupted') || str_contains($validationError, 'layout')) {
+		                    $dynamicTitle = 'Corrupted Template File';
+		                }
+			        }
+			    }
+
+	            $errorContent .= '</ul>';
+
+	            return response()->json([
+			    	'error' => 'error',
+			        'icon' => 'error',
+			        'title' => $dynamicTitle,
+			        'summary' => $errorContent
+			    ]);
+	        }
+
+
+	        $file = $request->file('upload_student_profile');
+			$action = $request->post('event');        
+			$loggedInSchoolCode = \App\Models\School::find($schoolId)?->school_code;
+
+
+	        $importData = new ImportStudentProfile($schoolId, $action, $userId,$logId ='');
+			$dataArray = Excel::toArray($importData, $file);
+			$totalRecords = count($dataArray[0]);
+			$sheetData = $dataArray[0];
+
+
+			$seenCombos = [];
+			$excelDuplicates = 0;
+			$uniqueInExcel = [];
+			$excelDuplicatesData = [];
+
+			$invalidRows = [];		    
+			$validRows = [];
+
+			foreach ($sheetData as $index => $row) {
+		
+		    	$errors = [];
+
+		    	/* Check for empty rows */
+		    	$isEmptyRow = true;
+				foreach ($row as $cellValue) {
+					if (trim((string)$cellValue) !== '') {
+						$isEmptyRow = false;
+						break;
+					}
+				}
+
+				if ($isEmptyRow) {
+					$invalidRows[] = array_merge($row, [
+						'Row' => $index + 2,
+						'Error' => 'Blank row found at row '. $index + 2 .' . Please Delete empty rows and try again.'
+					]);
+					continue;
+				}
+
+
+				/* Check Missing School Code and Admission number */
+		    	$schoolCode = strtoupper(trim($row['school_code'] ?? ''));
+				$admissionNo = strtoupper(trim($row['admissionnumber'] ?? ''));	
+
+				if (empty($admissionNo)) {
+			        $invalidRows[] = array_merge($row, [
+			            'Row'   => $index + 2,
+			            'Error' => 'Admission number is missing.',
+			        ]);
+			        continue;
+			    }
+
+			    $combo = $schoolCode . '|' . $admissionNo;
+		        if (isset($seenCombos[$combo])) {
+		            $excelDuplicates++;
+		            $excelDuplicatesData[] = $row;
+		            $invalidRows[] = array_merge($row, [
+			            'Row' => $index + 2,
+			            'Error' => 'Duplicate admission number with same school code found in Excel.',
+			        ]);
+
+			        continue;
+
+		        } else {
+		            $seenCombos[$combo] = true;
+		            $uniqueInExcel[] = $row;
+		        }
+
+
+
+		        /* Validate School Code */
+		        $school_code = trim($row['school_code'] ?? null);
+		        if (empty($school_code)) {
+				    $errors[] = "School code number is missing.";
+				} else if ($school_code !== $loggedInSchoolCode) {
+				    $errors[] = "School code does not match the logged-in school code";
+				} else if (!preg_match('/^\S+$/', $school_code)) {
+				    $errors[] = "School code should not contain whitespace";
+				}
+
+
+		        /* Validate Admission Number */
+			    $admissionnumber = trim($row['admissionnumber'] ?? null);
+			    if (empty($admissionnumber)) {
+				    $errors[] = "Student Admission Number number is missing.";
+				}else if (!preg_match('/^[a-zA-Z0-9\/\\\\-]+$/', $admissionnumber)) {
+			        $errors[] = "Admission number can only contain letters, numbers, /, -, or \\ characters.";
+			    }
+		       
+
+			    /* Validate Name */
+			    $name = trim($row['name'] ?? null);			   
+			    if (empty($name)) {
+				    $errors[] = "Student Name is missing.";
+				} else if (!preg_match('/^[a-zA-Z][a-zA-Z\s.\']*$/u', $name)) {
+				    $errors[] = "Name should contain only letters, spaces, dots and apostrophes, and should not start with whitespace.";
+				} else if (mb_strlen($row['name']) > 100) {
+				    $errors[] = "Name should not exceed 100 characters and should not contain leading or trailing white spaces.";
+				}
+
+			    /* Validate Class */
+			    $validClasses = ['Pre Nursery','Nursery','LKG','UKG','KG','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+			    $class = trim($row['class'] ?? null);
+			    if (empty($class)) {
+				    $errors[] = "Class is missing.";
+				}else if (!in_array($class, $validClasses)) {
+			        $errors[] = "Class must be in required format only. Found: '{$class}'.";
+			    }
+
+			    /* Validate Gender */
+			    $validGender = ['M', 'F','m', 'f', 'Male', 'Female', 'male','female','MALE','FEMALE'];
+			    $gender = strtoupper(trim($row['gender'] ?? null));
+			    if (empty($gender)) {
+				    $errors[] = "Gender is missing.";
+				}else if (!in_array($gender, $validGender)) {
+			        $errors[] = "Gender should only be Male, Female, M, or F.";
+			    }
+
+			    /* Validate Section */
+			    $section = trim($row['section'] ?? null);
+			    if (empty($section)) {
+				    $errors[] = "Section is missing.";
+				}else if (!preg_match('/^[a-zA-Z0-9]+([ -][a-zA-Z0-9]+)*$/', $section)) {
+					$errors[] = "Section can only contain letters, numbers, single spaces, and single hyphens.";
+				}
+
+			    /* Validate Roll Number */
+			    $rollNo = trim($row['roll_no'] ?? null);
+			    if (empty($rollNo)) {
+				    $errors[] = "Roll Number is missing.";
+				}else if (!preg_match('/^[0-9]+$/', $rollNo)) {
+			        $errors[] = "Roll no. should be numeric value only";
+			    }
+
+			    /* Validate Date of Birth */		
+			    $dateValue = trim($row['dob_ddmmyyyy'] ?? null);
+				$validDate = null;
+
+				if (empty($dateValue)) {
+			    	$errors[] = "Date of Birth is missing.";
+				}else if (is_numeric($dateValue)) {
+			        $carbonDate = Carbon::instance(Date::excelToDateTimeObject($dateValue));
+			        $validDate = $carbonDate->format('d/m/Y');
+			    } elseif (preg_match('/^\d{2}[\/\-]\d{2}[\/\-]\d{4}$/', $dateValue)) {				        
+			        $dateValue = str_replace('-', '/', $dateValue);
+			        $carbonDate = Carbon::createFromFormat('d/m/Y', $dateValue);
+			        if ($carbonDate && $carbonDate->format('d/m/Y') === $dateValue) {
+			            $validDate = $dateValue;
+			        }
+			    }
+
+			    if (!$validDate) {
+			        $errors[] = "Invalid date format: $dateValue";
+			    }
+
+			    /* Validate Email */
+			    $email = trim($row['email'] ?? null);
+			    if (empty($email)) {
+			        $errors[] = "Email is missing.";
+			    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			        $errors[] = "Invalid Email format '{$email}'. Please enter a valid email like example@domain.com.";
+			    }
+
+
+			    /* Validate PWD */
+			    $is_pwd = trim($row['cwsn'] ?? null);
+			    if (!in_array($is_pwd, ['YES', 'NO'], true)) {
+					$errors[] = "Invalid 'cwsn' value '{$is_pwd}'. Allowed values: NO (Normal), YES (Person with disabilities).";
+				}
+
+			    if (!empty($errors)) {
+			        $invalidRows[] = array_merge($row, [
+			            'Row' => $index + 2,
+			            'Error' => implode(' | ', $errors),
+			        ]);
+			    } else {
+			        $validRows[] = $row;
+			    }
+
+		    }
+
+
+		    // 2. Check which unique records exist in database
+		    $dbDuplicates = [];
+		    $chunkSize = 1000; // Process in chunks for memory efficiency
+
+		    foreach(array_chunk($uniqueInExcel, $chunkSize) as $chunk){
+
+		        $conditions = array_map(function($row) {
+				    return [
+				        'student_uid' => strtoupper(trim($row['admissionnumber'])),
+				        'school_code' => strtoupper(trim($row['school_code'])),
+				    ];
+				}, $chunk);
+		        
+				$existing = DB::table('students')
+		        ->where('school_id', (string) $schoolId)
+		        ->where('academic_year', '2026-2027')
+		        ->where(function($query) use ($conditions) {
+	                foreach ($conditions as $condition) {
+	                    $query->orWhere([
+	                        ['school_code', $condition['school_code']],
+	                        ['student_uid', $condition['student_uid']]
+	                    ]);
+	                }
+	            })
+	            ->get(['school_code', 'student_uid as admissionnumber','student_name as name', 'gender','class_id as class', 'section_id as section','email_id as email','dob as dob_ddmmyyyy','rollno as roll_no']);
+
+	            $dbDuplicates = array_merge($dbDuplicates, $existing->toArray());
+		    }
+
+		    $newRecordsCount = count($uniqueInExcel) - count($dbDuplicates);
+
+		    /* Check for the same class */
+		    $sameClassStudents = [];
+
+		    $studentUids = collect($validRows)->pluck('admissionnumber')->map(fn($v) => strtoupper(trim($v)))
+		    ->unique()->values()->toArray();
+
+		    $previousStudents = DB::table('students')
+		    ->where('school_id', (string)$schoolId)
+		    ->where('academic_year', '2025-2026')
+		    ->where('status', 'active')
+		    ->whereIn('student_uid', $studentUids)
+		    ->get([
+		        'student_uid',
+		        'student_name',
+		        'class_id',
+		        'section_id'
+		    ])->keyBy('student_uid');
+
+
+		    foreach ($validRows as $row) {
+
+			    $admissionNo = strtoupper(trim($row['admissionnumber']));
+			    $section = strtoupper(trim($row['section'] ?? ''));
+			    $uploadedClass = trim($row['class']);
+			    $newClassId = $this->getClassId($uploadedClass);
+
+			    $oldStudent = $previousStudents[$admissionNo] ?? null;
+
+			    if (!$oldStudent || !$newClassId) {
+			        continue;
+			    }
+
+			    if ((int)$newClassId === (int)$oldStudent->class_id) {
+
+			        $sameClassStudents[] = [
+					    'school_code'         => $row['school_code'] ?? '',
+					    'admissionnumber'     => $admissionNo,
+					    'name'                => $row['name'] ?? '',
+					    'gender'              => $row['gender'] ?? '',
+					    'class'               => $uploadedClass,
+					    'section'             => $section,
+					    'roll_no'             => $row['roll_no'] ?? '',
+					    'dob_ddmmyyyy'    	  => $row['dob_ddmmyyyy'] ?? '',
+					    'email'               => $row['email'] ?? '',
+					    'rpwd'                => $row['rpwd'] ?? '',
+					    'apaarId'             => $row['apaarId'] ?? '',
+					    'Error'              => 'Student will continue in same class and will be marked as failed in Academic Year 2025-2026.'
+					];
+			    }
+			}
+
+
+	        if($action == 'preview'){
+
+	        	$summary = '';
+	        	$sameClassSummary = '';
+
+	    		$summary = 'The Excel file contains '.$totalRecords . ' records. Please review and confirm to proceed with the import.';
+		        $confirmButtonText = "Yes, Import it!";
+		        $buttonClass = 'btn-import';
+
+				/* Validate Rows  */
+		        if (!empty($invalidRows)) {
+
+		        	$timestamp = now()->format('Ymd');
+					$errorFilename = "invalid_excel/{$loggedInSchoolCode}_{$timestamp}.json";
+					Storage::disk('local')->put($errorFilename, json_encode($invalidRows));
+					Session::put('invalid_rows_file', $errorFilename);
+
+					$summary = "<p>The Excel file contains ".$totalRecords." records, out of which " . count($invalidRows) . " rows have errors.<a href='".route('downloadInvalidData')."'> Click to view the errors</a>. Please correct them and upload the file again.</p>" ;
+
+		           	return response()->json([
+				    	'error' => 'error',
+				        'icon' => 'info',
+				        'title' => 'Invalid Data Found',
+				        'summary' => $summary
+				    ]);
+				}
+
+
+		        if ($excelDuplicates > 0) {
+		        	$timestamp = now()->format('YmdHis');
+		        	$duplicateFilename = "duplicate_records/{$loggedInSchoolCode}_{$timestamp}.json";
+					Storage::disk('local')->put($duplicateFilename, json_encode($excelDuplicatesData));
+					Session::put('duplicate_records_file', $duplicateFilename);
+
+					$summary = '<p>The Excel file contains '.$totalRecords.' records with '.$excelDuplicates.' duplicate entries within the file	<a href="'.route('downloadDuplicates').'"> click to view</a></p>';
+		        }
+
+				
+
+		        if(count($dbDuplicates) > 0){
+		        	$timestamp = now()->format('YmdHis');
+		        	$duplicateFilename = "duplicate_records/{$loggedInSchoolCode}_{$timestamp}.json";
+					Storage::disk('local')->put($duplicateFilename, json_encode($dbDuplicates));
+					Session::put('duplicate_records_file', $duplicateFilename);
+
+		        	//Storage::disk('local')->put('duplicate_records.json', json_encode($duplicates));
+		        	$confirmButtonText = "Overwrite it!";
+		        	$buttonClass = 'btn-overwrite';
+		        	$summary = '<p>The Excel file contains '.$totalRecords.' records including '.count($dbDuplicates).' entries already exist in database. <a href="'.route('downloadDuplicates').'"> click to view</a></p>';
+		        }
+
+
+		        if($excelDuplicates > 0 && count($dbDuplicates) > 0){
+
+		        	$timestamp = now()->format('YmdHis');
+		        	$duplicateFilename = "duplicate_records/{$loggedInSchoolCode}_{$timestamp}.json";
+					Storage::disk('local')->put($duplicateFilename, json_encode($excelDuplicatesData));
+					Session::put('duplicate_records_file', $duplicateFilename);
+
+		        	$confirmButtonText = "Yes, Overwrite it!";
+		        	$buttonClass = 'btn-overwrite';
+		        	$summary = '<p>The Excel file contains '.$totalRecords.' records including '.count($dbDuplicates).'duplicate entries already exist in database and '.$excelDuplicates.' duplicate entries within the file	<a href="'.route('downloadDuplicates').'"> click to view</a></p>
+
+	    			<div class="form-group mt-2">
+	                    <label>Do you want to overwrite existing records?</label>
+	                    <input type="radio" id="overwrite" name="importOption" value="override" data-id="Yes, Overwrite it!" checked>
+	                    <label for="overwrite">Yes, Overwrite it</label><br>
+	                    <input type="radio" id="skip" name="importOption" value="skipandimport" data-id="Skip & Import">
+	                    <label for="skip">Skip Overwrite & Import New Records Only</label>
+	                </div>';
+		        }
+
+
+		       	if(!empty($dbDuplicates) && $newRecordsCount > 0){
+
+		       		$timestamp = now()->format('YmdHis');
+		        	$duplicateFilename = "duplicate_records/{$loggedInSchoolCode}_{$timestamp}.json";
+					Storage::disk('local')->put($duplicateFilename, json_encode($dbDuplicates));
+					Session::put('duplicate_records_file', $duplicateFilename);
+
+		        	$confirmButtonText = "Yes, Overwrite it!";
+		        	$buttonClass = 'btn-overwrite';
+		        	$summary = '<p>The Excel file contains '.$totalRecords.' records including '.count($dbDuplicates).' duplicate entries
+	        			<a href="'.route('downloadDuplicates').'"> click to view</a></p>
+
+	        			<div class="form-group mt-2">
+	                        <label>Do you want to overwrite existing records?</label>
+	                        <input type="radio" id="overwrite" name="importOption" value="override" data-id="Yes, Overwrite it!" checked>
+	                        <label for="overwrite">Yes, Overwrite it</label><br>
+	                        <input type="radio" id="skip" name="importOption" value="skipandimport" data-id="Skip & Import">
+	                        <label for="skip">Skip Overwrite & Import New Records Only</label>
+	                    </div>';
+
+		        }
+
+
+		        /* check duplicacy in db and new reocrds in excel */
+		        if (!empty($dbDuplicates) && $newRecordsCount > 0 && !empty($sameClassStudents) ) { 
+		        	$timestamp = now()->format('YmdHis');
+		        	$duplicateFilename = "existing_records/{$loggedInSchoolCode}_{$timestamp}.json";
+					
+					Storage::disk('local')->put($duplicateFilename, json_encode($sameClassStudents));
+					Session::put('existing_records_file', $duplicateFilename);
+		        	
+		        	$confirmButtonText = "Yes, Overwrite it!";
+		        	$buttonClass = 'btn-overwrite';
+
+		        	$summary = '
+		        	<p>The Excel file contains <strong>'.$totalRecords.' records </strong> including '.count($dbDuplicates).' entries already present for 2026-2027 <a href="'.route('downloadDuplicates').'"> click to view</a></p>
+		        	<p>and <strong>'.count($sameClassStudents).' students</strong>
+				            were found continuing in the same class for the new academic session.
+				            These students will be imported successfully but they will get marked as Failed. Please verify before proceeding.
+				            <a href="'.route('existingStudents').'"> click to view</a> 
+				        </p>
+
+				        <div class="form-group mt-2">
+	                        <label>Do you want to continue with this records?</label>
+	                        <input type="radio" id="import" name="importOption" value="override" data-id="Yes, Overwrite it!" required>
+	                    </div>';
+				}
+
+				/* Check same class students in 2026-2027 */
+				if (!empty($sameClassStudents)) { 
+
+		        	$timestamp = now()->format('YmdHis');
+		        	$duplicateFilename = "existing_records/{$loggedInSchoolCode}_{$timestamp}.json";
+					Storage::disk('local')->put($duplicateFilename, json_encode($sameClassStudents));
+					Session::put('existing_records_file', $duplicateFilename);
+		        	$confirmButtonText = "Yes, Import it!";
+		        	$buttonClass = 'btn-overwrite';
+
+	        		$summary = '
+						<p>
+							The uploaded Excel file contains <strong>'.$totalRecords.' records</strong>. 
+							Among them, <strong>'.count($sameClassStudents).' students</strong> were identified as continuing in the same class for the new academic session.
+						</p>
+
+						<p>
+							These students will be imported successfully; however, they will automatically be marked as <strong>Failed</strong>. 
+							Please review and verify the details before proceeding with the import.
+						</p>
+
+						<p>
+							<a href="'.route('existingStudents').'">
+								Click to view
+							</a>
+						</p>
+					';
+				}
+
+
+
+		       	return response()->json(['summary' => $summary,'icon' => 'info','cnfmText' => $confirmButtonText,'btnclass'=>$buttonClass]);
+
+
+
+	        } else if($action == 'import' || $action == 'skipandimport'){
+
+				$file = $request->file('upload_student_profile');
+				$timestamp = now()->format('YmdHis');
+				$filename = $loggedInSchoolCode . '_' . $timestamp . '.' . $file->getClientOriginalExtension();
+				$storedPath = $file->storeAs('import_students', $filename);
+
+				$uploadLog = \App\Models\StudentImportLog::create([
+				    'school_id'  => $schoolId,
+				    'user_id'    => $userId,
+				    'file_path'  => $storedPath,
+				    'filename'   => $filename,
+				    'status'     => 'queued',
+				    'action'     => $action,
+				    'is_active'  => 'active',
+				    'started_at' => now(),
+				]);
+
+				ProcessStudentImport::dispatch($schoolId, $action, $userId, $storedPath, $uploadLog->id)->onQueue('upload_test');
+
+				DB::table('school_password_jobs')->updateOrInsert(
+					['school_id' => $schoolId],
+					[
+						'status' => 'pending',
+						'updated_at' => now(),
+						'created_at' => now(),
+					]
+				);
+	        	$summary = 'The import process has been initiated and queued. Kindly check after some time for the updated results.';
+			    return response()->json(['summary' => $summary, 'icon' => 'success']);
+
+	        } else if($action == 'override'){
+
+				$file = $request->file('upload_student_profile');
+				$timestamp = now()->format('YmdHis');
+				$filename = $loggedInSchoolCode . '_' .$timestamp. '.' . $file->getClientOriginalExtension();
+				$storedPath = $file->storeAs('import_students', $filename);
+
+				$uploadLog = \App\Models\StudentImportLog::create([
+				    'school_id'  => $schoolId,
+				    'user_id'    => $userId,
+				    'file_path'  => $storedPath,
+				    'filename'   => $filename,
+				    'status'     => 'queued',
+				    'action'     => $action,
+				    'is_active'  => 'active',
+				    'started_at' => now(),
+				]);
+
+				ProcessStudentImport::dispatch($schoolId, $action, $userId, $storedPath, $uploadLog->id)->onQueue('upload_test');
+				DB::table('school_password_jobs')->updateOrInsert(
+					['school_id' => $schoolId],
+					[
+						'status' => 'pending',
+						'updated_at' => now(),
+						'created_at' => now(),
+					]
+				);
+	        	$summary = 'The import process has been initiated and queued. Kindly check after some time for the updated results.';
+			    return response()->json(['summary' => $summary, 'icon' => 'success']);	
+
+	        }
+	        
+	    } catch (\Throwable $e) {
+	   		
+        	$errorMessage = 'Import failed';
+	        $httpCode = 500;
+	        
+	        // Detect database lock errors
+	        if (str_contains($e->getMessage(), 'Lock wait timeout') || str_contains($e->getMessage(), 'deadlock') || str_contains($e->getMessage(), 'lock conflict')) {	            
+	            $errorMessage = 'The system is currently busy processing other requests. Please try again in a few moments.';
+	            $httpCode = 423; 
+	        }
+
+	        DB::table('student_import_status')->where('school_id', $schoolId)->update(['status' => 'idle','updated_at' => now()]);
+	        
+	        \Log::error("Import Error for School_id ".$schoolId  .": " . $e->getMessage());
+
+	        return response()->json([
+		    	'error' => 'error',
+		        'icon' => 'info',
+		        'title' => $httpCode,
+		        'summary' => $errorMessage
+		    ]);
+
+	    } 
+	    /*finally {
+	        DB::table('student_import_status')->where('school_id', $schoolId)->update(['status' => 'idle', 'updated_at' => now()]);
+	    }*/
+    }
+
+    protected function getClassId($roman) {
+
+	    $map = [
+	        'I'   			=> 1,
+	        'II'  			=> 2,
+	        'III' 			=> 3,
+	        'IV'  			=> 4,
+	        'V'   			=> 5,
+	        'VI'  			=> 6,
+	        'VII' 			=> 7,
+	        'VIII'			=> 8,
+	        'IX'  			=> 9,
+	        'X'   			=> 10,
+	        'XI'  			=> 11,
+	        'XII' 			=> 12,
+			'Nursery' 		=> 14,
+			'KG' 			=> 17,
+			'Pre Nursery' 	=> 18,
+			'LKG' 			=> 22,
+			'UKG' 			=> 23,
+	    ];
+
+	    return $map[trim($roman)] ?? null;
+	}
+
+	public function downloadUploadedFile($logId) {
+
+        $log = StudentImportLog::findOrFail($logId);
+	    $filePath = $log->file_path; 
+
+	    if (!$filePath || !Storage::disk('local')->exists($filePath)) {
+	        abort(404, 'File not found.');
+	    }
+
+	    return Storage::disk('local')->download( $filePath, basename($filePath),
+	        ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+	    );
     }
 
 	public function generateIdCard(Request $request) {

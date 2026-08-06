@@ -414,7 +414,8 @@ Route::prefix('school')->group(function(){
 	Route::post('save-class-nomenclature', [SchoolRecordController::class, 'addClassNomenclature'])->name('saveclassnomenclature');
 	Route::post('delete-class', [SchoolRecordController::class, 'deleteSelectedClass'])->name('class.delete');
     Route::post('reset-selected-classes', [SchoolRecordController::class, 'resetSelectedClass'])->name('classes.reset');
-
+	Route::get('uploaded-file/{logId}', [SchoolRecordController::class, 'downloadUploadedFile'])->name('download.uploadedfile');
+	
 	
 	/* Generate I-Card */
 	Route::post('generate-card', [SchoolRecordController::class, 'generateIdCard'])->name('generatecard');
