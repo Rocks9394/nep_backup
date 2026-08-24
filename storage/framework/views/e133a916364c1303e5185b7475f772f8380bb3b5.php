@@ -1,3 +1,4 @@
+
 <?php $__env->startSection('title','Edit Profile'); ?>
 <?php $__env->startSection('content'); ?>
 <style>
@@ -199,7 +200,7 @@ unset($__errorArgs, $__bag); ?>
 
 							<div class="form-group col-md-3" style="text-align:center">
 								<?php if($result->profile_picture): ?>
-									<img src="<?php echo e(asset('public/assets/uploads/profilePictures/users/' . $result->profile_picture)); ?>" id="profilePicturePreview" class="preview-img img-thumbnail" />
+									<img src="<?php echo e(asset('/assets/uploads/profilePictures/users/' . $result->profile_picture)); ?>" id="profilePicturePreview" class="preview-img img-thumbnail" />
 								<?php else: ?> .
 									<img id="profilePicturePreview" class="preview-img img-thumbnail d-none" />
 								<?php endif; ?>

@@ -30,7 +30,7 @@
                 <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
                     <a href="<?php echo e(route('sports.videos', $sport->id)); ?>" target="_self" class="img-grid">
                         <span><?php echo e($sport->name); ?></span>
-                        <img src="<?php echo e(asset('public/change-sports/' . $sport->img)); ?>" class="img-fluid rounded" alt="<?php echo e($sport->name); ?>">
+                        <img src="<?php echo e(asset('change-sports/' . $sport->img)); ?>" class="img-fluid rounded" alt="<?php echo e($sport->name); ?>">
                     </a>
                 </div>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

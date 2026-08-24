@@ -286,6 +286,338 @@
     .highcharts-credits{
         pointer-events: none;
     }
+
+
+    /* =========================================================
+       MOBILE NAVIGATION - 768px AND BELOW
+    ========================================================= */
+    .mobile-topbar,
+    .mobile-sidebar-overlay,
+    .mobile-sidebar-header,
+    .mobile-bottom-nav {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+
+        html, body {
+            height: auto;
+            min-height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        /* Top controls: hamburger + term in one aligned row */
+        .mobile-topbar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            width: 100%;
+            height: 64px;
+            padding: 10px 14px;
+            background: #ffffff;
+            border-bottom: 1px solid #ececec;
+            position: sticky;
+            top: 0;
+            z-index: 1001;
+            justify-content: space-between;
+        }
+
+        .mobile-menu-toggle {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            border: 0;
+            border-radius: 10px;
+            background: #434386;
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(67,67,134,.22);
+        }
+
+        .mobile-term-wrapper {
+            width: 50%;
+            margin-left: auto;  
+        }
+
+        .mobile-term-select {
+            width: 100%;
+            height: 42px;
+            border: 1px solid var(--org-color);
+            border-radius: 8px;
+            background: #ffffff;
+            color: var(--org-color);
+            padding: 0 12px;
+            font-size: 14px;
+            font-weight: 500;
+            outline: none;
+        }
+
+        /* Hide desktop term selector on mobile */
+        .main-content .select-terms {
+            display: none;
+        }
+
+        /* Main layout */
+        .container-fluid {
+            height: auto;
+            min-height: calc(100vh - 64px);
+            display: block;
+        }
+
+        .container-fluid > .row {
+            display: block;
+            overflow: visible;
+        }
+
+        .main-content {
+            width: 100% !important;
+            height: auto;
+            min-height: calc(100vh - 64px);
+            overflow: visible;
+            padding: 15px 15px 92px !important;
+        }
+
+        /* Drawer */
+        .sidebar {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            width: 290px !important;
+            min-width: 290px !important;
+            height: 100dvh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff;
+            border: 0;
+            transform: translateX(-105%);
+            transition: transform .28s ease;
+            z-index: 1200;
+            overflow-y: auto;
+            box-shadow: 10px 0 30px rgba(0,0,0,.18);
+        }
+
+        .sidebar.mobile-open {
+            transform: translateX(0);
+        }
+
+        .mobile-sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            padding: 0 16px 0 20px;
+            background: #434386;
+            color: #ffffff;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .mobile-sidebar-header span {
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: .2px;
+        }
+
+        .mobile-sidebar-close {
+            width: 40px;
+            height: 40px;
+            border: 0;
+            border-radius: 9px;
+            background: rgba(255,255,255,.14);
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .mobile-menu-content {
+            padding: 2px;
+        }
+
+        /* Existing sidebar items become clean horizontal rows */
+       .sidebar .d-flex {
+    width: 100%;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    text-align: left !important;
+}
+
+.sidebar .d-flex > div {
+    width: 100%;
+}
+
+       .sidebar .box {
+    width: 100%;
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start !important;
+    gap: 16px;
+
+    min-height: 58px;
+    padding: 10px 18px;
+    margin: 0 0 4px;
+
+    border-radius: 8px;
+    text-decoration: none;
+
+    text-align: left !important;
+    transition: background 0.2s ease;
+}
+
+.sidebar .box:hover,
+.sidebar .box:active {
+    background: #f5f5f5;
+}
+
+        .sidebar .box > div {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.sidebar .box img {
+    width: 32px !important;
+    height: 32px !important;
+
+    max-width: 32px !important;
+    max-height: 32px !important;
+
+    object-fit: contain;
+
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+ .sidebar .box span {
+    display: block;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    color: #2f3542;
+    font-size: 14px;
+    font-weight: 500;
+
+    line-height: 1.4;
+
+    text-align: left !important;
+}
+
+        /* Overlay */
+        .mobile-sidebar-overlay {
+            display: block;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.45);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .28s ease, visibility .28s ease;
+            z-index: 1190;
+        }
+
+        .mobile-sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Bottom navigation */
+        .mobile-bottom-nav {
+            display: flex;
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 70px;
+            background: #ffffff;
+            border-top: 1px solid #e9e9e9;
+            box-shadow: 0 -4px 16px rgba(0,0,0,.09);
+            z-index: 1100;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .bottom-nav-item {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+            height: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 5px 2px;
+            color: #666;
+            text-decoration: none;
+            font-size: 9px;
+            font-weight: 500;
+            line-height: 1.1;
+            text-align: center;
+        }
+
+        .bottom-nav-item img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .bottom-nav-item.active {
+            color: #434386;
+            font-weight: 700;
+        }
+
+        .bottom-nav-item.active::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 28px;
+            height: 3px;
+            border-radius: 0 0 5px 5px;
+            background: #434386;
+        }
+
+        /* Dashboard cards */
+        .stat-card {
+            height: 90px;
+        }
+
+        .stat-content h3 {
+            font-size: 24px;
+        }
+
+        .stat-content p {
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        .stat-icon i {
+            font-size: 40px;
+        }
+
+        #skillFilter {
+            width: 140px !important;
+            margin-left: 0 !important;
+        }
+    }
+
 </style>
 
 @if(Auth::user()->role_id == '4')
@@ -322,12 +654,41 @@
 		});
 	</script>
 @endif
+
+<!-- MOBILE TOP BAR -->
+<div class="mobile-topbar">
+    <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Open menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="mobile-term-wrapper">
+        <select name="term" id="mobileTerm" class="mobile-term-select">
+            @foreach($terms as $term)
+                <option value="{{ $term->id }}"
+                    {{ $selectedTerm == $term->id ? 'selected' : '' }}>
+                    {{ $term->academic_year }} | {{ $term->term_name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+</div>
+
+<div class="mobile-sidebar-overlay" id="mobileSidebarOverlay"></div>
+
 <div class="container-fluid">
     <div class="row">
 
         <!-- SIDEBAR -->
         <div class="col-auto sidebar pt-4 pb-4">
-            <div class="d-flex flex-column justify-content-md-center text-center">
+            <div class="mobile-sidebar-header">
+                <span>Menu</span>
+                <button type="button" class="mobile-sidebar-close" id="mobileSidebarClose" aria-label="Close menu">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="mobile-menu-content">
+                <div class="d-flex flex-column justify-content-md-center text-center">
             
                 @php  $getActiveTerm = Helper::getActiveTerm();  @endphp
 
@@ -471,7 +832,7 @@
 						--}}						
                     @endif
 
-
+                    {{-- super admin dashboard --}}
 					@if($user && $user->role_id == 2)
 					    @forelse($dashboardModules as $module)
 					        <div>
@@ -519,9 +880,6 @@
 					@endif
 
 
-
-
-
                     <!-- On Development Phase -->
 					@if(Auth::user()->id == 974 || Auth::user()->id == 995)
 						<!-- href="{{ route('activity.gallary') }}?p=2" -->
@@ -535,6 +893,7 @@
 							<img class="img-fluid" alt="" src="{{asset('uploads/icons/skills-report.svg') }}"></div><span>Skill Report</span></a>
 						</div>
 					@endif
+                </div>
             </div>
         </div>
 
@@ -542,10 +901,10 @@
         <div class="col pt-3 pb-4 mb-5 main-content">
             <div class="row mb-3">
                 <div class="col">
-                    <div class="heading-rw mt-0 mt-md-1 mb-0 p-0">
+                    {{-- <div class="heading-rw mt-0 mt-md-1 mb-0 p-0">
                         <h1 class="text-center text-bold">{{ $SchoolName->school_name ?? '' }}</h1>
                         
-                    </div>
+                    </div> --}}
                 </div>
                 <div class="col-auto">
                     <div class="select-terms">
@@ -562,7 +921,7 @@
             </div>
             <!-- CHARTS -->
 			<div class="row g-3 mb-4">
-				<div class="col-lg-3 col-6">
+				<div class="col-lg-3 col-6 mb-2">
 					<div class="stat-card blue">
                         <div class="stat-content">
                             <p>Registered Students</p>
@@ -683,6 +1042,31 @@
 </div>
 
 
+@if(Auth::user()->role_id == '3' && $hasSchools && $getActiveTerm)
+<div class="mobile-bottom-nav">
+    <a href="{{ route('fill.dart') }}" class="bottom-nav-item {{ request()->routeIs('fill.dart') ? 'active' : '' }}">
+        <img src="{{ asset('uploads/icons/Dart.svg') }}" alt="Fill DART">
+        <span>Fill DART</span>
+    </a>
+
+    <a href="{{ route('map.sports') }}" class="bottom-nav-item {{ request()->routeIs('map.sports') ? 'active' : '' }}">
+        <img src="{{ asset('uploads/icons/MAP-Students.svg') }}" alt="Map Students">
+        <span>Map Student</span>
+    </a>
+
+    <a href="{{ route('all-test') }}" class="bottom-nav-item {{ request()->routeIs('all-test') ? 'active' : '' }}">
+        <img src="{{ asset('uploads/icons/taketest.svg') }}" alt="Take Test">
+        <span>Take Test</span>
+    </a>
+
+    <a href="{{ route('activity.according.to.class') }}" class="bottom-nav-item {{ request()->routeIs('activity.according.to.class') ? 'active' : '' }}">
+        <img src="{{ asset('uploads/icons/activities.svg') }}" alt="Activity Planner">
+        <span>Activity</span>
+    </a>
+</div>
+@endif
+
+
 @if(!$hasSchools && Auth::user()->role_id == 3)
   <div class="alert alert-warning text-center mt-4 fixed-bottom" >
     <h4>No School Assigned</h4>
@@ -761,15 +1145,51 @@
 <script>
 
     document.addEventListener('DOMContentLoaded', function () {
-        const termSelect = document.getElementById('term');
+        const termSelects = document.querySelectorAll('#term, #mobileTerm');
 
-        termSelect.addEventListener('change', function () {
-            const selectedValue = this.value;
+        termSelects.forEach(function(termSelect) {
+            if (!termSelect) return;
 
-            const url = new URL(window.location.href);
-            url.searchParams.set('term_id', selectedValue);
+            termSelect.addEventListener('change', function () {
+                const selectedValue = this.value;
+                const url = new URL(window.location.href);
 
-            window.location.href = url.toString();
+                url.searchParams.set('term_id', selectedValue);
+                window.location.href = url.toString();
+            });
+        });
+
+        const menuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('mobileSidebarOverlay');
+        const closeButton = document.getElementById('mobileSidebarClose');
+
+        function openSidebar() {
+            if (!sidebar || !overlay) return;
+            sidebar.classList.add('mobile-open');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            if (!sidebar || !overlay) return;
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        if (menuToggle) menuToggle.addEventListener('click', openSidebar);
+        if (closeButton) closeButton.addEventListener('click', closeSidebar);
+        if (overlay) overlay.addEventListener('click', closeSidebar);
+
+        document.querySelectorAll('.sidebar .box').forEach(function(item) {
+            item.addEventListener('click', closeSidebar);
+        });
+
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeSidebar();
+            }
         });
     });
 

@@ -40,6 +40,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Sstudent;
 use Illuminate\Http\Request;
 
+use App\Http\Controllers\WarmupEmailController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -705,7 +707,13 @@ Route::get('/battery-of-test', [App\Http\Controllers\GeneralController::class, '
 Route::get('generatepdf', [App\Http\Controllers\GeneratePDF::class, 'generateActivityPDFshow'])->name('generateactivitypdfview');
 Route::post('generatepdf', [App\Http\Controllers\GeneratePDF::class, 'generateActivityPDF'])->name('generateactivitypdf');
 
+// loading form page frontend (GET)
+Route::get('sentmail', function() {
+    return view('homepages.warmup-email-form', ['title' => 'Warmup Email Form']);
+})->name('warmup.email.form');
 
+// save form data through ajax (POST)
+Route::post('sentmail', [WarmupEmailController::class, 'store'])->name('warmup.email.store');
 
 
 URL::forceScheme('https');
