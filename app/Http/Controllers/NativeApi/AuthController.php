@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Sstudent;
 use Illuminate\Support\Str;
+use Log;
 
 class AuthController extends Controller {
   
@@ -16,6 +17,9 @@ class AuthController extends Controller {
 
 
     public function login(Request $request) {
+
+
+        Log::warning('APi User profile updated.', ['user_id' => 1, 'action' => 'update']);
 
         $request->validate([
             'login_id' => 'required|string',
@@ -27,8 +31,6 @@ class AuthController extends Controller {
 
         $user = User::where('email', $loginId)->orWhere('userid', $loginId)->first();
 
-        
-        
 
         if ($user && Hash::check($password, $user->password)) {           
 
@@ -57,7 +59,11 @@ class AuthController extends Controller {
         }
 
 
-        $student = Sstudent::where('user_id', $loginId)->first();
+       // $student = Sstudent::where('user_id', $loginId)->first();
+
+        $student = Sstudent::where('user_id', $loginId)->where('status','<>','transfer')->where('is_active','<>', 0)->first();
+
+        Log::warning('APi User profile updated.', ['user_id' => 1, 'action' => 'update']);
 
         if ($student && Hash::check($password, $student->password)) {
 

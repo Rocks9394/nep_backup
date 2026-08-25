@@ -77,7 +77,7 @@
 							onclick="redirectToPython()" style="color: white; font-weight: bold;"> Switch to AI </button>-->
 							
 								<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center" 
-								onclick="openAIScreen()" style="color: white; font-weight: bold;"> Switch to AI </button>
+								onclick="openFastAPIScreen()" style="color: white; font-weight: bold;"> Switch to AI </button>
 							@endif
 							</div>
                         </div>
@@ -219,5 +219,39 @@ document.getElementById("count_total_number_id").addEventListener("input", funct
     }
     e.target.value = value;
 });
+</script>
+
+<script>
+window.addEventListener("message", (event) => {
+    // 1. Security check: only accept from your company domain
+    if (!event.origin.includes("goforfit.in")) return;
+
+    const data = event.data;
+
+    // 2. Check if the message is from our AI sync
+    if (data && data.type === "AI_SYNC_DATA") {
+        console.log("Wingspan AI data received:", data);
+
+        // Extract wingspan value (handles both wingspanScore and direct scalar)
+        const score = data.wingspanScore || data.wingspan || data.value;
+
+        // 3. Fill the Wingspan input field using ID: wingspan_height_id
+        const inputElem = document.getElementById('count_total_number_id');
+        if (score && inputElem) {
+            inputElem.value = score;
+        }
+
+        // 4. Reveal and Enable the Save / Submit button if hidden
+        const saveBtn = document.getElementById("submit_strength") || document.querySelector('button[type="submit"]');
+        if (saveBtn) {
+            saveBtn.classList.remove("hide");
+            saveBtn.style.pointerEvents = "auto";
+            saveBtn.style.opacity = "1";
+        }
+
+        alert("AI Results Received! Wingspan updated to " + score + " cm");
+    }
+}, false);
+
 </script>
 @endsection

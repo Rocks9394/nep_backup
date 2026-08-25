@@ -91,12 +91,11 @@ class StudentProfileController extends Controller
             'custom_classes.section',
             'students.rollno'
         )
-        ->where('students.status', 'active')
+         ->whereIn('students.status',['active','promoted'])
         ->where('students.id', $studentId)
         ->first();
 
-
-        $dob          = Carbon::parse($studentData->dob);
+        $dob    = Carbon::parse($studentData->dob);
         $studentAge   = $dob->age;        
         $ageGender = $studentAge . strtolower(substr($studentData->gender, 0, 1));
 

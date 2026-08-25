@@ -50,6 +50,7 @@ class StudentDashboardController extends Controller
             $studentId = Auth::guard('sstudent')->user()->id;
         }
 
+
         $currentDate = Carbon::now()->format('Y/m/d');
            
         $studentData = DB::table('students')        
@@ -74,11 +75,11 @@ class StudentDashboardController extends Controller
                 END AS className
             ")
         )
-        ->where('students.status', '=', 'active')
+       ->whereIn('students.status',['active','promoted'])
         ->where('students.id', $studentId)
         ->first();
 
-        // dd($studentData);
+         // echo "<pre>"; print_r($studentData); exit();
 
         $dob          = Carbon::parse($studentData->dob);
 	    $studentAge   = $dob->age;
@@ -222,7 +223,10 @@ class StudentDashboardController extends Controller
             ->where('academic_year', $academicYear)
 			->get();
 
-		$currentTerm = DB::table('term_masters')
+
+        // echo "<pre>"; print_r($terms); exit();
+        
+ 		$currentTerm = DB::table('term_masters')
 			->select('id', 'term_name', 'academic_year', 'term_start_date', 'term_end_date')
 			->where('school_id', $SchoolId)
 			->where('is_active', '1')

@@ -63,8 +63,8 @@
                     <tr>
                         <td style="border-collapse: collapse;">
                             <div style="width: 100%; position: relative; border-collapse: collapse;">
-                                <img src="{{ asset('public/assets/reports/report-graphic.png')}}" alt="" style="position: absolute; top:25%; right:40px; width: 200px; border-collapse: collapse;">
-                                <img src="{{ asset('public/assets/reports/report-cover-img.png')}}" alt="" style="width: 76%;">
+                                <img src="{{ asset('assets/reports/report-graphic.png')}}" alt="" style="position: absolute; top:25%; right:40px; width: 200px; border-collapse: collapse;">
+                                <img src="{{ asset('assets/reports/report-cover-img.png')}}" alt="" style="width: 76%;">
                             </div>
                         </td>
                     </tr>
@@ -85,8 +85,8 @@
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <img src="{{ asset('public/assets/uploads/logos/' . $GetSchoolLogo->logo) }}" alt="" style="width: auto; object-fit: contain; padding: 0px 0px 5px 46px; height: 100px;">
-                                                    <!-- <img src="{{ asset('public/assets/reports/gems-school-logo.png')}}" alt="" style="padding: 0px 0px 5px 46px; height: 100px;"> -->
+                                                    <img src="{{ asset('assets/uploads/logos/' . $GetSchoolLogo->logo) }}" alt="" style="width: auto; object-fit: contain; padding: 0px 0px 5px 46px; height: 100px;">
+                                                    <!-- <img src="{{ asset('assets/reports/gems-school-logo.png')}}" alt="" style="padding: 0px 0px 5px 46px; height: 100px;"> -->
                                                 </td>
                                             </tr>
                                             <tr>
@@ -236,7 +236,7 @@
                                             <td style="text-align:right; padding: 0px 0px 0px 46px; ">
                                                 <div style="float:right; text-align:center;">
                                                     <p style="margin-bottom:0px; color:#666; font-size:10px;">Powered by</p>
-                                                        <img src="{{ asset('public/assets/reports/fitness365-logo-web.png')}}" alt="fitness365 logo" style="height:28px;">
+                                                        <img src="{{ asset('assets/reports/fitness365-logo-web.png')}}" alt="fitness365 logo" style="height:28px;">
                                                 </div>
                                             </td>
                                         </tr> -->
@@ -268,20 +268,20 @@
                                      <td style="position: relative; vertical-align: top; width: 360px; height: 100%; " >                               
                                         @if(!empty($studentsData->logo))                                        
                                             <div style="position: absolute; top: 30px; left:22px; display: flex; align-items: center; z-index: 1;">
-                                                <img src="{{ asset('public/assets/uploads/logos/' . $GetSchoolLogo->logo) }}" alt="" style="width: auto; height: 50px; object-fit: contain;">
+                                                <img src="{{ asset('assets/uploads/logos/' . $GetSchoolLogo->logo) }}" alt="" style="width: auto; height: 50px; object-fit: contain;">
                                             </div>
                                         @else
                                             <div style="position: absolute; top: 30px; left:22px; display: flex; align-items: center; z-index: 1;">
-                                                <img src="{{ asset('public/assets/uploads/logos/default_school-logo.png' )}}" alt="" style="width: auto; height: 50px; object-fit: contain;">
+                                                <img src="{{ asset('assets/uploads/logos/default_school-logo.png' )}}" alt="" style="width: auto; height: 50px; object-fit: contain;">
                                             </div>
                                         @endif
                                     </td>
 
                                     <td rowspan="2" style="position: relative; vertical-align: top; width: auto; height: 100%; text-align: right;">
                                         <div style="position: absolute; top: 30px; right:30px; display: flex; align-items: center; z-index: 1; width: 90px; overflow: hidden;">
-                                            <img src="{{ asset('public/assets/reports/seqfast-logo.png')}}" alt="" style="width: inherit;">
+                                            <img src="{{ asset('assets/reports/seqfast-logo.png')}}" alt="" style="width: inherit;">
                                         </div>
-                                        <img src="{{ asset('public/assets/reports/inner-header-bg.png')}}" alt="" style="width: 450px; height:auto; position: relative; right:0px; top:0;">
+                                        <img src="{{ asset('assets/reports/inner-header-bg.png')}}" alt="" style="width: 450px; height:auto; position: relative; right:0px; top:0;">
                                     </td>
 
                                 </tr>
@@ -489,7 +489,7 @@
                                     <td style="width:74px;">
                                         <div style="float: left; position: relative; width: 60px;">
                                             <span style="position: absolute; left: 50%; top:50%; transform: translate(-50%, 0); color: #fff; z-index: 1; display: inline-block; padding: 2px 0 0 20px; font-size: 13px; font-weight: 600;"></span>
-                                            <img src="{{ asset('public/assets/reports/footer-bg.png')}}" alt="" style="width: inherit;">
+                                            <img src="{{ asset('assets/reports/footer-bg.png')}}" alt="" style="width: inherit;">
                                         </div>
                                     </td>
                                     <td style="text-align: right;">
@@ -505,7 +505,7 @@
                                                 <td style="text-align:right; padding: 0px 30px 0px 0px;">
                                                     <div style="float:right; text-align:center; position:relative;">
                                                         <p style="color:#666; font-size:10px; position:absolute; top:-17px; width:100%; text-align:center;">powered  by</p>
-                                                        <img src="{{ asset('public/assets/reports/fitness365-logo-web.png')}}" alt="fitness365 logo" style="height:28px;">
+                                                        <img src="{{ asset('assets/reports/fitness365-logo-web.png')}}" alt="fitness365 logo" style="height:28px;">
                                                     </div> 
                                                 </td>
                                             </tr>
@@ -543,11 +543,11 @@
                                     <td style="position: relative; vertical-align: top; width: 360px; height: 100%; " >                               
                                         @if(!empty($studentsData->logo))                                        
                                             <div style="position: absolute; top: 30px; right:30px; display: flex; align-items: center; z-index: 1;">
-                                                <img src="{{ asset('public/assets/uploads/logos/' . $GetSchoolLogo->logo) }}" alt="" style="width: auto; height: 50px; object-fit: contain;">
+                                                <img src="{{ asset('assets/uploads/logos/' . $GetSchoolLogo->logo) }}" alt="" style="width: auto; height: 50px; object-fit: contain;">
                                             </div>
                                         @else
                                             <div style="position: absolute; top: 30px; right:30px; display: flex; align-items: center; z-index: 1;">
-                                                <img src="{{ asset('public/assets/uploads/logos/default_school-logo.png' )}}" alt="" style="width: auto; height: 50px; object-fit: contain;">
+                                                <img src="{{ asset('assets/uploads/logos/default_school-logo.png' )}}" alt="" style="width: auto; height: 50px; object-fit: contain;">
                                             </div>
                                         @endif
                                     </td>
@@ -880,52 +880,51 @@
             </td>
         </tr>
        
-
         <tr>
-                                    <td>
-                                        <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
-                                            <tr>
-                                                <td style="height: 30px;"></td>
-                                                <td style="height: 30px;"></td>
-                                            </tr>
-                                            <tr>
-                                                <td style="text-align: right;">
-                                                    <table cellpadding="0" cellspacing="0" style="border: 0px; width: 100%;">
-                                                        <tr>
-                                                            <td style="height: 20px;"></td>
-                                                            <td style="height: 20px;"></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="text-align:left; padding: 0px 0px 0px 30px;">
-                                                                <div style="float:left; text-align:center; position:relative;">
-                                                                    <p style="color:#666; font-size:10px; position:absolute; top:-17px; width:100%; text-align:center;">powered  by</p>
-                                                                    <img src="{{ asset('public/assets/reports/fitness365-logo-web.png')}}" alt="fitness365 logo" style="height:28px;">
-                                                                </div> 
-                                                            </td>
-
-                                                            <td style="font-weight: 400; font-size: 13px; color:#666; text-align:right;">
-                                                                Physical Health and Fitness Assessment
-                                                            </td>
-                                                            
-                                                        </tr>
-
-                                                    </table>
-                                                </td>
-
-                                                <td style="width:74px;">
-                                                    <div style="float: right; position: relative; width: 60px;">
-                                                        <span style="position: absolute; left: 50%; top:50%; transform: translate(-50%, 0); color: #fff; z-index: 1; display: inline-block; padding: 2px 20px 0 0px; font-size: 13px; font-weight: 600;"></span>
-                                                        <img src="{{ asset('public/assets/reports/footer-bg2.png')}}" alt="" style="width: inherit;">
-                                                    </div>
-                                                </td>
-
-                                            </tr>
-                                            <tr>
-                                                <td style="height: 15px;"></td>
-                                            </tr>
-                                        </table>
-                                    </td>
+            <td>
+                <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+                    <tr>
+                        <td style="height: 30px;"></td>
+                        <td style="height: 30px;"></td>
                     </tr>
+                    <tr>
+                        <td style="text-align: right;">
+                            <table cellpadding="0" cellspacing="0" style="border: 0px; width: 100%;">
+                                <tr>
+                                    <td style="height: 20px;"></td>
+                                    <td style="height: 20px;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align:left; padding: 0px 0px 0px 30px;">
+                                        <div style="float:left; text-align:center; position:relative;">
+                                            <p style="color:#666; font-size:10px; position:absolute; top:-17px; width:100%; text-align:center;">powered  by</p>
+                                            <img src="{{ asset('assets/reports/fitness365-logo-web.png')}}" alt="fitness365 logo" style="height:28px;">
+                                        </div> 
+                                    </td>
+
+                                    <td style="font-weight: 400; font-size: 13px; color:#666; text-align:right;">
+                                        Physical Health and Fitness Assessment
+                                    </td>
+                                    
+                                </tr>
+
+                            </table>
+                        </td>
+
+                        <td style="width:74px;">
+                            <div style="float: right; position: relative; width: 60px;">
+                                <span style="position: absolute; left: 50%; top:50%; transform: translate(-50%, 0); color: #fff; z-index: 1; display: inline-block; padding: 2px 20px 0 0px; font-size: 13px; font-weight: 600;"></span>
+                                <img src="{{ asset('assets/reports/footer-bg2.png')}}" alt="" style="width: inherit;">
+                            </div>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td style="height: 15px;"></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
 
 
         <!-- Page 4 -->
@@ -947,11 +946,11 @@
                                     <td style="position: relative; vertical-align: top; width: 360px; height: 100%; " >                               
                                         @if(!empty($studentsData->logo))                                        
                                             <div style="position: absolute; top: 30px; left:30px; display: flex; align-items: center; z-index: 1; overflow: hidden;">
-                                                <img src="{{ asset('public/assets/uploads/logos/' . $GetSchoolLogo->logo) }}" alt="" style="width: auto; height: 50px; object-fit: contain;">
+                                                <img src="{{ asset('assets/uploads/logos/' . $GetSchoolLogo->logo) }}" alt="" style="width: auto; height: 50px; object-fit: contain;">
                                             </div>
                                         @else
                                             <div style="position: absolute; top: 30px; left:30px; display: flex; align-items: center; z-index: 1; overflow: hidden;">
-                                                <img src="{{ asset('public/assets/uploads/logos/default_school-logo.png' )}}" alt="" style="width: auto; height: 50px; object-fit: contain;">
+                                                <img src="{{ asset('assets/uploads/logos/default_school-logo.png' )}}" alt="" style="width: auto; height: 50px; object-fit: contain;">
                                             </div>
                                         @endif
                                     </td>
@@ -1292,7 +1291,7 @@
                                                 <td style="border: 1px solid transparent; width:50%;">
                                                     @if($studentsData->signature)
                                                         <div style="margin: 10px 0 0 0; text-align:center;">
-                                                            <img src="{{ asset('public/assets/uploads/signatures/' . $studentsData->signature) }}" alt="" style="height: 70px;">
+                                                            <img src="{{ asset('assets/uploads/signatures/' . $studentsData->signature) }}" alt="" style="height: 70px;">
                                                         </div>
                                                     @endif
                                                     <p style="text-align: center; font-weight: 600;">Signature of Principal with Stamp</p>

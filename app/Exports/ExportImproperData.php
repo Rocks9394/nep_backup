@@ -28,26 +28,44 @@ class ExportImproperData implements FromCollection, WithHeadings, WithEvents , W
     }
 
     public function collection()  {
-        return collect($this->data);
+        //return collect($this->data);
 
-        //echo "<pre>"; print_r(collect($this->data));exit();
+        return collect($this->data)->map(function($item) {
+            return [
+
+                $item['school_code'] ?? '',
+                $item['admissionnumber'] ?? '',
+                $item['name'] ?? '',
+                $item['gender'] ?? '',
+                $item['class'] ?? '',
+                $item['section'] ?? '',
+                $item['roll_no'] ?? '',
+                $item['dob_ddmmyyyy'] ?? '',
+                $item['email'] ?? '',
+                $item['rpwd'] ?? '',
+                //isset($item['aadhaarid']) ? "'" . $item['aadhaarid'] : '',
+                isset($item['apaarid']) ? "'" . $item['apaarid'] : '',
+                //isset($item['passportnumber']) ? "'" . $item['passportnumber'] : '',
+                $item['Error'] ?? '',
+            ];
+        });
 
     }
 
     public function columnFormats(): array {
         return [
-            'I1' => '@', // Format DOB column as text
+            'I' => '@',  // Email
+            'J' => '@',  // ApaarId
         ];
     }
 
     public function headings(): array {
 
         if($this->action == 'duplicate'){
-            return ['School Code','Student UID ','Name','Gender', 'Class' ,'Section','Roll No','DOB(DD/MM/YYYY)','Domicile (Hometown)','Favorite Sports','Hobbies','Email'];
+            return ['SchoolCode','AdmissionNumber ','Name','Gender', 'Class' ,'Section','Roll No','DOB(DD/MM/YYYY)','Email','RPWD','ApaarID'];
         }else{
-           return ['School Code','Student UID ','Name','Gender', 'Class' ,'Section','Roll No','DOB(DD/MM/YYYY)','Email','Domicile (Hometown)','Favorite Sports','Hobbies','Error'];
+           return ['SchoolCode','AdmissionNumber ','Name','Gender', 'Class' ,'Section','Roll No','DOB(DD/MM/YYYY)','Email','RPWD','ApaarID','Error'];
         }
-
     }
  
     public function registerEvents(): array {
@@ -78,9 +96,9 @@ class ExportImproperData implements FromCollection, WithHeadings, WithEvents , W
                     ],
                 ];
 
-                $sheet->getStyle('A1:I1')->applyFromArray($headerStyle);
+                $sheet->getStyle('A1:J1')->applyFromArray($headerStyle);
                 if($this->action == 'error_list'){
-                    $sheet->getStyle('M1')->applyFromArray($errorHeaderStyle);
+                    $sheet->getStyle('L1')->applyFromArray($errorHeaderStyle);
                 }
                 $event->sheet->getDelegate()->getColumnDimension('A')->setWidth(16);    //school code
                 $event->sheet->getDelegate()->getColumnDimension('B')->setWidth(21);    //student admission no.
@@ -90,12 +108,11 @@ class ExportImproperData implements FromCollection, WithHeadings, WithEvents , W
                 $event->sheet->getDelegate()->getColumnDimension('F')->setWidth(11);    //Section
                 $event->sheet->getDelegate()->getColumnDimension('G')->setWidth(10);    //Roll No.
                 $event->sheet->getDelegate()->getColumnDimension('H')->setWidth(20);    //DOB
-                $event->sheet->getDelegate()->getColumnDimension('I')->setWidth(43);    //Email                
-                $event->sheet->getDelegate()->getColumnDimension('J')->setWidth(34);    //Domicile (Hometown)
-                $event->sheet->getDelegate()->getColumnDimension('K')->setWidth(27);    //Favorite Sports
-                $event->sheet->getDelegate()->getColumnDimension('L')->setWidth(20);    //Email
+                $event->sheet->getDelegate()->getColumnDimension('I')->setWidth(43);    //Email
+                $event->sheet->getDelegate()->getColumnDimension('J')->setWidth(27);    //CWSN
+                $event->sheet->getDelegate()->getColumnDimension('K')->setWidth(27);    //ApaarID
                 if($this->action == 'error_list'){
-                    $event->sheet->getDelegate()->getColumnDimension('M')->setWidth(10); 
+                    $event->sheet->getDelegate()->getColumnDimension('L')->setWidth(80); 
                 }
             },
         ];

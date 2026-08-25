@@ -56,17 +56,25 @@
     <div class="col-12">
        <div class="form row mb-4">  
             <div class="card-body bg-light text-center">
+
+                {{--
+                <div class="input-group mb-3 text-center">
+                    <span class="form-control single-input">
+                        <label for="count_total_number_id" class="form-label">Counts</label>
+                        <input type="text" name="count_total_number" class="form-control form-control-lg text-center" id="count_total_number_id" placeholder="--">
+                    </span>
+                </div>
+                --}}
+
                 <!-- Centered Digital Timer Display Circle -->
                 <div class="d-flex justify-content-center align-items-center">
                     <div class="d-flex flex-column justify-content-center align-items-center text-dark" id="timer-display-box">
                         <!-- Updated default placeholder text to match SS:mm layout -->
-                        <span id="stopwatch_display" class="font-weight-bold" style="font-size: 2.4rem; font-family: monospace; line-height: 1;">00:00</span>  
-
-                        <small class="text-uppercase tracking-wider text-muted font-weight-bold m-2" id="timer-status" style="font-size: 0.65rem;">Ready</small>
+                        <span id="stopwatch_display" class="font-weight-bold m-2" style="font-size: 2.4rem; font-family: monospace; line-height: 1;">00:00</span>                         
                     </div>
                 </div>
 
-                <button type="button" id="btn-timer-control" class="btn btn-success w-100 d-flex justify-content-center" style="gap: 8px; border-radius: 8px;">
+                <button type="button" id="btn-timer-control" class="btn btn-success w-100 d-flex justify-content-center mt-2" style="gap: 8px; border-radius: 8px;">
                     <i class="bi bi-stopwatch"></i><span id="timer-btn-text">Start Timer</span>
                 </button>
             </div>
@@ -87,7 +95,12 @@
 </form>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+
+    const countInput = document.getElementById("count_total_number_id");
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+    // countInput.disabled = true;
 
     const testtype = `{{ $title }}`;
     const formName = @json($TestTypeId);
@@ -98,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let isRunning = false;
 
     const stopwatchDisplay = document.getElementById("stopwatch_display");
-    const timerStatus = document.getElementById("timer-status");
+
     const timerBox = document.getElementById("timer-display-box");
     const btnControl = document.getElementById("btn-timer-control");
     const btnReset = document.getElementById(`reset_${formName}`);
@@ -140,8 +153,6 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("timer-btn-text").textContent = "Stop";
         btnControl.classList.remove("btn-success");
         btnControl.classList.add("paused");
-
-        timerStatus.innerText = "Running";
         timerBox.style.borderColor = "#28a745"; 
 
         if (btnSubmit) {
@@ -197,7 +208,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         isRunning = false;
-
         if (animationFrame) {
             cancelAnimationFrame(animationFrame);
             animationFrame = null;
@@ -213,13 +223,10 @@ document.addEventListener("DOMContentLoaded", function () {
         btnControl.classList.remove("paused");
         btnControl.classList.add("btn-success");
         btnControl.disabled = true;
-
         if (maxReached) {
-            timerStatus.innerText = "Max Reached";
             document.getElementById("timer-btn-text").textContent = "Test Completed!";
             timerBox.style.borderColor = "#ffc107"; 
         } else {
-            timerStatus.innerText = "Saved";
             timerBox.style.borderColor = "#dc3545"; 
         }
 
@@ -235,15 +242,13 @@ document.addEventListener("DOMContentLoaded", function () {
             cancelAnimationFrame(animationFrame);
             animationFrame = null;
         }
-
+        
         isRunning = false;
         elapsedTime = 0;
         startTime = null;
 
         stopwatchDisplay.innerText = "00:00";
-        timerStatus.innerText = "Ready";
         timerBox.style.borderColor = "#4da3ff";
-
         hiddenScoreInput.value = "";
 
         btnControl.disabled = false;
@@ -268,10 +273,8 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!studentId) {
                 handleResponseMessages('warning', 'Select Student', 'Please select the student');
                 return;
-            }
-            
+            }            
             const finalMmInput = $('input[name="modified_pushup"]').val();
-
             if (finalMmInput === '' || finalMmInput === null || undefined === finalMmInput) {
                 handleResponseMessages('info', '', 'Please enter position of the student');
                 return;
@@ -280,7 +283,6 @@ document.addEventListener("DOMContentLoaded", function () {
             let route = '{{ route("cwsn.types.submit") }}';
             let formData = $(this).serialize();
             SubmitForm(formName, formData, route);
-            document.getElementById('live_status_badge').textContent = `Level 1, Shuttle 0`;
         });
     });
 });

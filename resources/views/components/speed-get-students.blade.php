@@ -41,7 +41,7 @@
                     </div>
                 </div>  
                 @if(Auth::user()->id==995)
-                <div class="col-4 col-sm-3 col-md-2 col-lg-1">
+                <div class="col-12">
                     <div class="form mt-1 mt-md-3">
                         <div class="mb-3" style="margin-top:32px;">
                         <a href="{{ route('scan') }}"

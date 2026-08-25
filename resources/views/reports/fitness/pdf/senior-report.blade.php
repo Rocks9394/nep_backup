@@ -1442,7 +1442,7 @@
             <td>
                 <table cellpadding="0" cellspacing="0" style="width: 100%; border:0; font-size:13px;">
                     <tr>
-                        <td style="background-color: #E60A00; height: 40px; padding: 0 30px; color:#fff;">CISCE Physical Health and Fitness Assessment</td>
+                        <td style="background-color: #E60A00; height: 40px; padding: 0 30px; color:#fff;">Physical Health and Fitness Assessment</td>
                         <td style="background-color: #00A923; height: 40px; width: 30%; padding: 0 30px; text-align:right; color:#fff;">powered by <strong>fitness365.me</strong></td>
                     </tr>
                 </table>

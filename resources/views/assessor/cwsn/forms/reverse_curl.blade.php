@@ -59,7 +59,7 @@
     @csrf
     <input type="hidden" name="skillReportId" value="{{ $skillReportId }}">
     <input type="hidden" name="TestTypeMasterID" value="{{ $TestTypeMasterID }}">
-    <input type="hidden" name="SchoolId" value="{{ $SchoolId }}">
+     <input type="hidden" id="SchoolId" name="SchoolId" value="{{ $SchoolId }}">
     <input type="hidden" name="student_id" id="selected_student_id">
 
     <!-- Backend score payload field -->

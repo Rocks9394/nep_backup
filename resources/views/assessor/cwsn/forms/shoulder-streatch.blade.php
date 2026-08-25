@@ -32,12 +32,30 @@
     <input type="hidden" name="score_right" id="score_right" value="">
 
     <div class="row">
-        <!-- Right Shoulder Assessment Card -->
+        <!-- Left Shoulder Assessment Card -->
+        <div class="col-12 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-body text-center">
+                    <h4 class="font-weight-bold text-uppercase mb-1" style="font-size: 1.1rem;">Left Arm Stretch</h4>
+                    <p class="small mb-2 text-muted">(Left arm over left shoulder, fingertips touching)</p>
+                    
+                    <div class="btn-group w-100 shoulder-toggle">
+                        <label class="btn btn-outline-danger font-weight-bold w-50" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
+                            <input type="radio" name="left_shoulder_status" id="left_fail" value="0" autocomplete="off" class="d-none"> FAIL
+                        </label>
+                        <label class="btn btn-outline-success font-weight-bold w-50" style="border-top-right-radius: 20px; border-bottom-right-radius: 20px;">
+                            <input type="radio" name="left_shoulder_status" id="left_pass" value="1" autocomplete="off" class="d-none"> PASS
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <!-- Right Shoulder Assessment Card -->
         <div class="col-12 col-md-6 mb-3">
             <div class="card border-0 shadow-sm" style="border-radius: 12px;">
                 <div class="card-body text-center">
                     <h4 class="font-weight-bold text-uppercase mb-1" style="font-size: 1.1rem;">Right Arm Stretch</h4>
-                    <p class="small mb-2 text-muted">(Right arm over right shoulder, reaching down)</p>
+                    <p class="small mb-2 text-muted">(Right arm over right shoulder,  fingertips touching)</p>
                     
                     <!-- REMOVED data-toggle="buttons" to prevent Bootstrap conflicts -->
                     <div class="btn-group w-100 shoulder-toggle">
@@ -46,25 +64,6 @@
                         </label>
                         <label class="btn btn-outline-success font-weight-bold w-50" style="border-top-right-radius: 20px; border-bottom-right-radius: 20px;">
                             <input type="radio" name="right_shoulder_status" id="right_pass" value="1" autocomplete="off" class="d-none"> PASS
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Left Shoulder Assessment Card -->
-        <div class="col-12 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-                <div class="card-body text-center">
-                    <h4 class="font-weight-bold text-uppercase mb-1" style="font-size: 1.1rem;">Left Arm Stretch</h4>
-                    <p class="small mb-2 text-muted">(Left arm over left shoulder, reaching down)</p>
-                    
-                    <div class="btn-group w-100 shoulder-toggle">
-                        <label class="btn btn-outline-danger font-weight-bold w-50" style="border-top-left-radius: 20px; border-bottom-left-radius: 20px;">
-                            <input type="radio" name="left_shoulder_status" id="left_fail" value="0" autocomplete="off" class="d-none"> FAIL
-                        </label>
-                        <label class="btn btn-outline-success font-weight-bold w-50" style="border-top-right-radius: 20px; border-bottom-right-radius: 20px;">
-                            <input type="radio" name="left_shoulder_status" id="left_pass" value="1" autocomplete="off" class="d-none"> PASS
                         </label>
                     </div>
                 </div>

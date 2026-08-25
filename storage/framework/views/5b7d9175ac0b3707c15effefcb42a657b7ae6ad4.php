@@ -319,7 +319,11 @@
             border-bottom: 1px solid #ececec;
             position: sticky;
             top: 0;
+<<<<<<< HEAD
             z-index: 1001;
+=======
+            z-index: 0;
+>>>>>>> c48266fc4e66f0d5c4b7d5a1bd326ccda4926efb
             justify-content: space-between;
         }
 
@@ -379,7 +383,11 @@
             height: auto;
             min-height: calc(100vh - 64px);
             overflow: visible;
+<<<<<<< HEAD
             padding: 15px 15px 92px !important;
+=======
+            /*padding: 15px 15px 92px !important;*/
+>>>>>>> c48266fc4e66f0d5c4b7d5a1bd326ccda4926efb
         }
 
         /* Drawer */
@@ -444,6 +452,7 @@
 
         /* Existing sidebar items become clean horizontal rows */
        .sidebar .d-flex {
+<<<<<<< HEAD
     width: 100%;
     display: flex !important;
     flex-direction: column !important;
@@ -521,6 +530,85 @@
 
     text-align: left !important;
 }
+=======
+		    width: 100%;
+		    display: flex !important;
+		    flex-direction: column !important;
+		    align-items: stretch !important;
+		    text-align: left !important;
+		}
+
+		.sidebar .d-flex > div {
+		    width: 100%;
+		}
+
+       .sidebar .box {
+		    width: 100%;
+		    display: flex !important;
+		    align-items: center;
+		    justify-content: flex-start !important;
+		    gap: 16px;
+
+		    min-height: 25px;
+		    padding: 4px 5px;
+		    margin: 0 0 4px;
+
+		    border-radius: 8px;
+		    text-decoration: none;
+
+		    text-align: left !important;
+		    transition: background 0.2s ease;
+		}
+
+		.sidebar .box:hover,
+		.sidebar .box:active {
+		    background: #f5f5f5;
+		}
+
+        .sidebar .box > div {
+		    width: 42px !important;
+		    height: 30px !important;
+		    min-width: 42px !important;
+
+		    display: flex !important;
+		    align-items: center;
+		    justify-content: center;
+
+		    background: transparent !important;
+		    border: none !important;
+		    border-radius: 0 !important;
+		    box-shadow: none !important;
+		}
+
+		.sidebar .box img {
+		    width: 32px !important;
+		    height: 32px !important;
+
+		    max-width: 32px !important;
+		    max-height: 32px !important;
+
+		    object-fit: contain;
+
+		    background: transparent !important;
+		    box-shadow: none !important;
+		    border: none !important;
+		}
+
+		 .sidebar .box span {
+		    display: block;
+
+		    margin: 0 !important;
+		    padding: 0 !important;
+
+		    color: #2f3542;
+		    font-size: 14px;
+		    font-weight: 500;
+
+		    line-height: 1.4;
+
+		    text-align: left !important;
+		}
+>>>>>>> c48266fc4e66f0d5c4b7d5a1bd326ccda4926efb
 
         /* Overlay */
         .mobile-sidebar-overlay {
@@ -563,12 +651,17 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+<<<<<<< HEAD
             gap: 4px;
+=======
+            gap: 0px;
+>>>>>>> c48266fc4e66f0d5c4b7d5a1bd326ccda4926efb
             padding: 5px 2px;
             color: #666;
             text-decoration: none;
             font-size: 9px;
             font-weight: 500;
+<<<<<<< HEAD
             line-height: 1.1;
             text-align: center;
         }
@@ -576,6 +669,19 @@
         .bottom-nav-item img {
             width: 24px;
             height: 24px;
+=======
+            line-height: 1.0;
+            text-align: center;
+        }
+
+        .bottom-nav-item span {
+		    font-size: 12px;
+		}
+
+        .bottom-nav-item img {
+            width: 50px;
+            height: 50px;
+>>>>>>> c48266fc4e66f0d5c4b7d5a1bd326ccda4926efb
             object-fit: contain;
         }
 
@@ -595,6 +701,20 @@
         }
 
         /* Dashboard cards */
+<<<<<<< HEAD
+=======
+
+        .main-content{
+        	padding-top: 0px !important;
+        }
+
+        .stat-card.blue { margin-right: -11px !important; }
+        .stat-card.green { margin-left: -11px !important; }
+        .stat-card.yellow {  margin-right: -11px !important; }
+        .stat-card.red { margin-left: -11px !important; }
+
+
+>>>>>>> c48266fc4e66f0d5c4b7d5a1bd326ccda4926efb
         .stat-card {
             height: 90px;
         }
@@ -701,6 +821,10 @@
                     </div>
 	                    
                     <?php if((Auth::user()->role_id == '3' && $hasSchools) && (Auth::user()->role_id == '3' && $getActiveTerm)): ?>
+                                  	
+	                    <div>
+	                        <a href="<?php echo e(route('all-test')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/taketest.svg')); ?>"></div><span>Take Test</span></a>
+	                    </div>   
 
 	                    <div data-id="<?php echo e(Auth::user()->role_id); ?>">
 	                        <a href="<?php echo e(route('fill.dart')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/Dart.svg')); ?>"></div><span>Fill DART</span></a>
@@ -716,11 +840,13 @@
 	                    	                  
 	                    <div>
 	                        <a href="<?php echo e(route('map.sports')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/MAP-Students.svg')); ?>"></div><span>Map Students</span></a>
-	                    </div>
-	                 		                 	
-	                    <div>
-	                        <a href="<?php echo e(route('all-test')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/taketest.svg')); ?>"></div><span>Take Test</span></a>
-	                    </div>                  
+	                    </div>	
+                        <?php if(Auth::user()->id == 995): ?>
+                        <div>
+                            <a href="<?php echo e(route ('trainer.cwsn.status')); ?>" class="box"><div>
+                            <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/lc_test-status.svg')); ?>"></div><span>CWSN Summary <br> (Class-6 & Above)</span></a>
+                        </div>
+                        <?php endif; ?>                 		                  
 	 	                    
 	                    <div>
 							<a href="<?php echo e(route('trainer.lowerclass.status')); ?>" class="box"><div>
@@ -738,47 +864,49 @@
 					<!-- School Dashboard -->
                     <?php if(Auth::user()->role_id == '4'): ?>
 
-
+                        
 	                    <div>
-	                        <a href="<?php echo e(route('viewschooldart')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/viewDart.svg')); ?>" ></div><span>View DART</span></a>
+	                        <a href="<?php echo e(route('managestudent')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/manage-stds.svg')); ?>"></div><span>Manage Students</span></a>
 	                    </div>
-
+                        
 	                    <div>
-	                        <a href="<?php echo e(route('activity.according.to.class')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/activities.svg')); ?>"></div><span>Activity Planner</span></a>
+	                        <a href="<?php echo e(route('mapping.trainer')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/MAP-Students.svg')); ?>"></div><span>Manage Trainers</span></a>
 	                    </div>
-
-	                    <div>
-							<a href="<?php echo e(route('fitness.report')); ?>" class="box"><div>
-							<img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/fa.svg')); ?>"></div><span>Assessment Reports</span></a>
-						</div>
-						<div>
+                        <div>
+                            <a href="<?php echo e(route('activity.according.to.class')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/activities.svg')); ?>"></div><span>Activity Planner</span></a>
+	                    </div>      
+                        <div>
+                            <a href="<?php echo e(route('viewschooldart')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/viewDart.svg')); ?>" ></div><span>View DART</span></a>
+                        </div>
+                        
+                        <?php if(Auth::user()->id == 974): ?>
+                        <div>
+                            <a href="<?php echo e(route ('trainer.cwsn.status')); ?>" class="box"><div>
+                            <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/lc_test-status.svg')); ?>"></div><span>CWSN Summary <br> (Class-6 & Above)</span></a>
+                        </div>
+                        <?php endif; ?>
+						
+                        <div>
 							<a href="<?php echo e(route ('trainer.lowerclass.status')); ?>" class="box"><div>
 							<img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/lc_test-status.svg')); ?>"></div><span>Test Summary <br> (Upto Class-3)</span></a>
 						</div>
-
 						<div>
 							<a href="<?php echo e(route ('trainer.higherclass.status')); ?>" class="box"><div>
 							<img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/hc_test-status.svg')); ?>"></div><span>
 							Test Summary <br> (Class-4 & Above)</span></a>
+						</div>                        
+	                    <div>
+							<a href="<?php echo e(route('fitness.report')); ?>" class="box"><div>
+							<img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/fa.svg')); ?>"></div><span>Assessment Reports</span></a>
 						</div>
-	                
-	                     <div>
-	                        <a href="<?php echo e(route('managestudent')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/manage-stds.svg')); ?>"></div><span>Manage Students</span></a>
-	                    </div>
-	                    
-	                    
 	                    <div>
 	                        <a href="<?php echo e(route('mapping.sports')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/mapSports.svg')); ?>"></div><span>Map Sports</span></a>
-	                    </div>
-						
+	                    </div>						
 					
 						<div>
 	                        <a href="<?php echo e(route('students-sports-mapping')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/activities.svg')); ?>"></div><span>Students Sport Mapping</span></a>
 	                    </div>
 	                   
-	                    <div>
-	                        <a href="<?php echo e(route('mapping.trainer')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/MAP-Students.svg')); ?>"></div><span>Manage Trainers</span></a>
-	                    </div>
 	                    
 	                    <div>
 	                        <a href="<?php echo e(route('schoolDashboard')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/Dashboard.svg')); ?>"></div><span>Dashboard</span></a>

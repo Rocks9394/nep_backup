@@ -319,7 +319,7 @@
             border-bottom: 1px solid #ececec;
             position: sticky;
             top: 0;
-            z-index: 1001;
+            z-index: 0;
             justify-content: space-between;
         }
 
@@ -379,7 +379,7 @@
             height: auto;
             min-height: calc(100vh - 64px);
             overflow: visible;
-            padding: 15px 15px 92px !important;
+            /*padding: 15px 15px 92px !important;*/
         }
 
         /* Drawer */
@@ -444,83 +444,83 @@
 
         /* Existing sidebar items become clean horizontal rows */
        .sidebar .d-flex {
-    width: 100%;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    text-align: left !important;
-}
+		    width: 100%;
+		    display: flex !important;
+		    flex-direction: column !important;
+		    align-items: stretch !important;
+		    text-align: left !important;
+		}
 
-.sidebar .d-flex > div {
-    width: 100%;
-}
+		.sidebar .d-flex > div {
+		    width: 100%;
+		}
 
        .sidebar .box {
-    width: 100%;
-    display: flex !important;
-    align-items: center;
-    justify-content: flex-start !important;
-    gap: 16px;
+		    width: 100%;
+		    display: flex !important;
+		    align-items: center;
+		    justify-content: flex-start !important;
+		    gap: 16px;
 
-    min-height: 58px;
-    padding: 10px 18px;
-    margin: 0 0 4px;
+		    min-height: 25px;
+		    padding: 4px 5px;
+		    margin: 0 0 4px;
 
-    border-radius: 8px;
-    text-decoration: none;
+		    border-radius: 8px;
+		    text-decoration: none;
 
-    text-align: left !important;
-    transition: background 0.2s ease;
-}
+		    text-align: left !important;
+		    transition: background 0.2s ease;
+		}
 
-.sidebar .box:hover,
-.sidebar .box:active {
-    background: #f5f5f5;
-}
+		.sidebar .box:hover,
+		.sidebar .box:active {
+		    background: #f5f5f5;
+		}
 
         .sidebar .box > div {
-    width: 42px !important;
-    height: 42px !important;
-    min-width: 42px !important;
+		    width: 42px !important;
+		    height: 30px !important;
+		    min-width: 42px !important;
 
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
+		    display: flex !important;
+		    align-items: center;
+		    justify-content: center;
 
-    background: transparent !important;
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-}
+		    background: transparent !important;
+		    border: none !important;
+		    border-radius: 0 !important;
+		    box-shadow: none !important;
+		}
 
-.sidebar .box img {
-    width: 32px !important;
-    height: 32px !important;
+		.sidebar .box img {
+		    width: 32px !important;
+		    height: 32px !important;
 
-    max-width: 32px !important;
-    max-height: 32px !important;
+		    max-width: 32px !important;
+		    max-height: 32px !important;
 
-    object-fit: contain;
+		    object-fit: contain;
 
-    background: transparent !important;
-    box-shadow: none !important;
-    border: none !important;
-}
+		    background: transparent !important;
+		    box-shadow: none !important;
+		    border: none !important;
+		}
 
- .sidebar .box span {
-    display: block;
+		 .sidebar .box span {
+		    display: block;
 
-    margin: 0 !important;
-    padding: 0 !important;
+		    margin: 0 !important;
+		    padding: 0 !important;
 
-    color: #2f3542;
-    font-size: 14px;
-    font-weight: 500;
+		    color: #2f3542;
+		    font-size: 14px;
+		    font-weight: 500;
 
-    line-height: 1.4;
+		    line-height: 1.4;
 
-    text-align: left !important;
-}
+		    text-align: left !important;
+		}
 
         /* Overlay */
         .mobile-sidebar-overlay {
@@ -563,19 +563,23 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 0px;
             padding: 5px 2px;
             color: #666;
             text-decoration: none;
             font-size: 9px;
             font-weight: 500;
-            line-height: 1.1;
+            line-height: 1.0;
             text-align: center;
         }
 
+        .bottom-nav-item span {
+		    font-size: 12px;
+		}
+
         .bottom-nav-item img {
-            width: 24px;
-            height: 24px;
+            width: 50px;
+            height: 50px;
             object-fit: contain;
         }
 
@@ -595,6 +599,17 @@
         }
 
         /* Dashboard cards */
+
+        .main-content{
+        	padding-top: 0px !important;
+        }
+
+        .stat-card.blue { margin-right: -11px !important; }
+        .stat-card.green { margin-left: -11px !important; }
+        .stat-card.yellow {  margin-right: -11px !important; }
+        .stat-card.red { margin-left: -11px !important; }
+
+
         .stat-card {
             height: 90px;
         }
@@ -694,6 +709,10 @@
 
 
                 	<!-- Trainers Dashboard  -->
+
+                	<div>
+                        <a href="{{ route('learn.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/Learn-Sports.svg') }}"></div><span>Learn Sports</span></a>
+                    </div>
 	                    
                     @if((Auth::user()->role_id == '3' && $hasSchools) && (Auth::user()->role_id == '3' && $getActiveTerm))
                                   	

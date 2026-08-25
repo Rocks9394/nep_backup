@@ -83,6 +83,23 @@ Route::get('/debug', function () {
 
 
 
+Route::get('loginpage', function(){
+	return view('auth.newloginpage');
+});
+
+Route::get('/new-dashboard', function () {
+    return view('backend.index');
+})->name('new-dashboard');
+
+
+Route::get('/new-page', function () {
+    return view('backend.menus.sample');
+})->name('demo-page');
+
+
+
+
+
 Route::get('get_classes_schoolwise', [App\Http\Controllers\Academy::class, 'getClassesSchoolWise'])->name('get_classes_schoolwise');
 
 Route::get('/assessor-app-index', [App\Http\Controllers\AssessorAppController::class, 'index']);
@@ -140,6 +157,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('higherclass/summary', [ReportController::class, 'HigherClassTestSummary'])->name('trainer.higherclass.status');
 	Route::get('lowerclass/summary', [ReportController::class, 'LowerClassTestSummary'])->name('trainer.lowerclass.status');
 	Route::get('report/{id}', [AssessorAppController::class, 'ViewFitnessReport'])->name('trainer.reports.view');
+	Route::get('cwsn/summary', [ReportController::class, 'cwsnTestSummary'])->name('trainer.cwsn.status');
 
 
 	/**
@@ -147,8 +165,8 @@ Route::group(['middleware' => 'auth'], function () {
 	 * Routes for CWSN Tests.
 	 * */
 	Route::prefix('cwsn')->group(function(){
-		Route::get('{pwd_category_id}', [CwsnController::class, 'showCWSNCategory'])->name('assessor.cwsn.category');
-		Route::get('{pwd_category_id}/category/{test_category_id}', [CwsnController::class, 'CWSNSkillsTest'])->name('assessor.cwsn.test');
+		Route::get('{TestcategoryId}', [CwsnController::class, 'showCWSNCategory'])->name('assessor.cwsn.category');
+		//Route::get('{pwd_category_id}/category/{test_category_id}', [CwsnController::class, 'CWSNSkillsTest'])->name('assessor.cwsn.test');
 		Route::get('{pwd_category_id}/test/{TestTypeId}', [CwsnController::class, 'CwsnTestTypes'])->name('cwsn.test.types');
 		Route::post('cwsn.types.submit',[CwsnController::class, 'SubmitCwsnTest'])->name('cwsn.types.submit');
 	});
@@ -328,6 +346,9 @@ Route::get('reports/{id?}/{term_id?}', [ReportController::class, 'ViewFitnessRep
 Route::get('reports-download/{id?}/{term_id?}', [ReportController::class, 'downloadFitnessReport'])->name('download.fitness.reports');
 Route::get('/fitness-report/available', [ReportController::class, 'CheckReportAvailablity'])->name('fitness.report.available');
 
+// view/download cwsn students report card 
+Route::get('cwsn-reports/{id?}/{term_id?}', [ReportController::class, 'ViewCWSNFitnessReport'])->name('cwsn.reports.view');
+Route::get('cwsn-downloadReport/{id?}/{term_id?}', [ReportController::class, 'downloadCWSNFitnessReport'])->name('cwsn.reports.download');
 
 
 
@@ -410,13 +431,15 @@ Route::prefix('school')->group(function(){
 	/* download template for bulk upload */
 	Route::get('download-template', [SchoolRecordController::class, 'downloadTemplate'])->name('download-template');
 	Route::get('sample-data', [SchoolRecordController::class, 'sampleData'])->name('sample-data');
-	Route::get('import/download-duplicates', [SchoolRecordController::class, 'downloadDuplicates'])->name('downloadDuplicates');
-	Route::get('import/downloadErrorList', [SchoolRecordController::class, 'downloadErrorList'])->name('downloadErrorList');	
+	Route::get('import/download-duplicates', [SchoolRecordController::class, 'downloadDuplicates'])->name('downloadDuplicates');	
 	Route::post('import-student-data', [SchoolRecordController::class, 'importStudentData'])->name('import-student-data');
 	Route::post('save-class-nomenclature', [SchoolRecordController::class, 'addClassNomenclature'])->name('saveclassnomenclature');
 	Route::post('delete-class', [SchoolRecordController::class, 'deleteSelectedClass'])->name('class.delete');
     Route::post('reset-selected-classes', [SchoolRecordController::class, 'resetSelectedClass'])->name('classes.reset');
 	Route::get('uploaded-file/{logId}', [SchoolRecordController::class, 'downloadUploadedFile'])->name('download.uploadedfile');
+	Route::get('invalid-file-data', [SchoolRecordController::class, 'downloadInvalidData'])->name('downloadInvalidData');
+	Route::get('import/existing-students', [SchoolRecordController::class, 'ExistingStudents'])->name('existingStudents');
+	Route::get('import/downloadErrorList', [SchoolRecordController::class, 'downloadErrorList'])->name('downloadErrorList');	
 	
 	
 	/* Generate I-Card */
