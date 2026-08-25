@@ -722,7 +722,7 @@ tr:nth-child(even) {
 .btn.exportButton::before {
     position: absolute;
     content: "";
-    background: url(/public/assets/imgs/export.svg) 5px 7px no-repeat;
+    background: url(/assets/imgs/export.svg) 5px 7px no-repeat;
     width: 24px;
     height: 24px;
     top: 0;
@@ -1021,7 +1021,7 @@ tbody {
     top: 15px;
 }
 .activity-info .activity-img::after {
-    background: #fff url(/public/assets/imgs/expand.svg) center no-repeat;
+    background: #fff url(/assets/imgs/expand.svg) center no-repeat;
     right: 15px;
     width: 24px;
     content: "";
@@ -1945,7 +1945,7 @@ input[placeholder="Fill date"].datepicker::-ms-input-placeholder {
     position: absolute;
     top: 10px;
     left: 0;
-    background: url(/public/assets/imgs/info-circle.svg) 0px 0px no-repeat;
+    background: url(/assets/imgs/info-circle.svg) 0px 0px no-repeat;
     width: 18px;
     height: 18px;
 }
@@ -2253,7 +2253,7 @@ h3.modal-title {
     top: 11px;
     left: 0;
     z-index: 1;
-    background: url(/public/assets/imgs/info-circle.svg) 0px 0px no-repeat;
+    background: url(/assets/imgs/info-circle.svg) 0px 0px no-repeat;
     background-size: 100%;
 }
 .btn-collapse:hover {
@@ -2282,7 +2282,7 @@ h3.modal-title {
 }
 .msg_info::before {
     content: "";
-    background: url(/public/assets/imgs/info-i.svg) center no-repeat;
+    background: url(/assets/imgs/info-i.svg) center no-repeat;
     width: 32px;
     height: 32px;
     position: absolute;

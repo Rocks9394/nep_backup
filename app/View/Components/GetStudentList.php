@@ -10,18 +10,19 @@ class GetStudentList extends Component
 	public $classes;
 	public $type;
 	public $title;
-
+	public $cwsnType;
     /**
      * Create a new component instance.
      *
      * @param array $classes
      */
 	// FIX: Move required parameters ($type, $title) before the optional one ($classes)
-	public function __construct($type, $title, $classes = [])
+	public function __construct($type, $title, $classes = [], $cwsnType = null)
 	{
 		$this->classes = $classes;
 		$this->type = $type;
 		$this->title = $title;
+		$this->cwsnType = $cwsnType;
 	}
      /**
      * Get the view / contents that represent the component.

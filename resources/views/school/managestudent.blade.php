@@ -47,13 +47,13 @@
 	#studentTableRecords th:nth-child(3),
 	#studentTableRecords td:nth-child(3) {
 		width: 7% !important;
-		min-width: 60px !important;
+		min-width: 90px !important;
 	}
 
 	#studentTableRecords th:nth-child(4),
 	#studentTableRecords td:nth-child(4) {
-		width: 12% !important;
-		min-width: 70px !important;
+		width: 10% !important;
+		min-width: 60px !important;
 	}
 
 	#studentTableRecords th:nth-child(5),
@@ -83,25 +83,34 @@
 	#studentTableRecords th:nth-child(9),
 	#studentTableRecords td:nth-child(9) {
 		width: 8% !important;
-		min-width: 95px !important;
+		min-width: 80px !important;
 	}
 
 	#studentTableRecords th:nth-child(10),
 	#studentTableRecords td:nth-child(10) {
-		width: 10% !important;
+		width: 8% !important;
 		min-width: 100px !important;
 	}
 
 	#studentTableRecords th:nth-child(11),
 	#studentTableRecords td:nth-child(11) {
 		width: 9% !important;
-		min-width: 95px !important;
+		min-width: 100px !important;
 	}
 
 	#studentTableRecords th:nth-child(12),
 	#studentTableRecords td:nth-child(12) {
+		width: 10% !important;
+		min-width: 90px !important;
+	}
+	#studentTableRecords th:nth-child(13),
+	#studentTableRecords td:nth-child(13) {
 		width: 7% !important;
 		min-width: 70px !important;
+	}
+
+	.dt-button-collection.dropdown-menu{
+		top: 37px !important;
 	}
 
 	#studentTableRecords select {
@@ -164,6 +173,33 @@
 		color: #000;
 		font-weight: bold;
 	}
+	
+	.academic-toggle-wrapper .toggle-btn{
+		height:35px !important;
+		min-width: 95px !important;
+		font-size: 14px !important;
+		padding: 0 !important;
+	}
+
+	.academic-toggle-wrapper .toggle-btn.active{
+		background:#0d6efd;
+		color:#fff;
+		border-color:#0d6efd;
+	}
+
+	.academic-toggle-wrapper .toggle-btn:not(.active){
+		background:#6c757d;
+		color:#fff;
+		border-color:#6c757d;
+	}
+
+	.swal2-actions {
+	    display: flex;
+	    width: 100%;
+	}
+
+	
+
 </style>
 
 <div class="container">
@@ -194,9 +230,11 @@
 							<a type="button" id="upload_btn" title="Upload Data" class="btn btn-primary custome-btn-i w-100 mr-3" data-toggle="modal" data-target="#uploadbulkdata"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-upload" viewBox="0 0 16 16"> <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z"/></svg><span>Upload Data</span> </a>
 							
 							<a type="button" id="addstudent" title="Add Student" class="btn btn-primary custome-btn-i w-100  mr-3" data-toggle="modal" data-target="#studentRegistrationForm"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg><span>Add Student</span></a>
-
-							@if($logs->isNotEmpty())
-							<a type="button" class="btn btn-primary custome-btn-i w-100" data-toggle="modal" data-target="#exampleModalCenter">
+							{{-- <a href="{{route ('students.promotion')}}" type="button" id="promoteStudents" title="Promote Students" class="btn btn-primary custome-btn-i w-100  mr-3"><i class="fa-solid fa-person-arrow-up-from-line"></i><span>Promote Classes</span></a> --}}
+							
+							@if($logs->isNotEmpty() || $promotionLog->isNotEmpty())
+							<a type="button" class="btn btn-primary custome-btn-i w-100" id="historyButton">
+							<!-- <a type="button" class="btn btn-primary custome-btn-i w-100" data-toggle="modal" data-target="#exampleModalCenter"> -->
 							 View History
 							</a>
 							@endif
@@ -208,10 +246,9 @@
 				</div>
 			</form>
 		</div>
-		
 
 		<!-- Modal -->
-		<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+		<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-backdrop="static" data-keyboard="false">
 			<div class="modal-dialog modal-lg modal-xl modal-dialog-centered">
 		      <div class="modal-content">
 		         
@@ -230,64 +267,70 @@
 				    </p>
 				</div>
 
-		          @if($logs->isNotEmpty())   
-		          <div class="row m-1">
-                 <div class="col">
-		          	<table class="table table-bordered table-striped table-hover">
-                           <thead class="table-dark">
-                               <tr>
-                                   <th>#</th>
-                                   <th>Uploaded By</th>
-                                   <th>Upload Time</th>
-                                   <th>Status</th>
-                                   <th>Message</th>
-                                   <th>Completed At</th>
-                                   <th>Uploaded File</th>
-                                   <th>Error File</th>
-                               </tr>
-                           </thead>
-                           <tbody>
-                               @foreach($logs as $index => $log)
-                               <tr>
-                                   <td>{{ $index + 1 }}</td>
-                                   <td>{{ $log->user->name ?? 'N/A' }}</td>
-                                   <td>{{ \Carbon\Carbon::parse($log->created_at)->format('d M Y h:i A') }}</td>
-                                   <td>
-                                       @if($log->status === 'completed')
-                                           <span class="badge bg-success" style="color:#ffffff;">Completed</span>
-                                       @elseif($log->status === 'processing')
-                                           <span class="badge bg-warning text-dark" style="color:#ffffff;">Processing</span>
-                                       @elseif($log->status === 'queued')
-                                           <span class="badge bg-info text-dark" style="color:#ffffff;">Queued</span>
-                                       @else
-                                           <span class="badge bg-danger" style="color:#ffffff;">Failed</span>
-                                       @endif
-                                   </td>
-                                   <td>{!! nl2br(e($log->message)) !!}</td>
-                                   <td>{{ $log->completed_at ? \Carbon\Carbon::parse($log->completed_at)->format('d M Y h:i A') : '-' }}</td>
-                                   
-                                    <td style="text-align: center;">
-                                       @if($log->file_path)
-                                           <a href="{{ route('download.uploadedfile', $log->id) }}" class="btn btn-sm btn-primary">View</a>
-                                       @endif
-                                   </td>
+				<div class="row m-1">
+					<div class="col">
+						<table class="table table-bordered table-striped table-hover">
+							<thead class="table-dark">
+								<tr>
+									<th>#</th>
+									<th>Uploaded By</th>
+									<th>Upload Time</th>
+									<th>Status</th>
+									<th>Message</th>
+									<th>Completed At</th>
+									<th>Uploaded File</th>
+									<th>Error File</th>
+								</tr>
+							</thead>
+							@if($logs->isNotEmpty())   
+								<tbody>
+									@foreach($logs as $index => $log)
+									<tr>
+										<td>{{ $index + 1 }}</td>
+										<td>{{ $log->user->name ?? 'N/A' }}</td>
+										<td>{{ \Carbon\Carbon::parse($log->created_at)->format('d M Y h:i A') }}</td>
+										<td>
+											@if($log->status === 'completed')
+												<span class="badge bg-success" style="color:#ffffff;">Completed</span>
+											@elseif($log->status === 'processing')
+												<span class="badge bg-warning text-dark" style="color:#ffffff;">Processing</span>
+											@elseif($log->status === 'queued')
+												<span class="badge bg-info text-dark" style="color:#ffffff;">Queued</span>
+											@else
+												<span class="badge bg-danger" style="color:#ffffff;">Failed</span>
+											@endif
+										</td>
+										<td>{!! nl2br(e($log->message)) !!}</td>
+										<td>{{ $log->completed_at ? \Carbon\Carbon::parse($log->completed_at)->format('d M Y h:i A') : '-' }}</td>
+										
+											<td style="text-align: center;">
+											@if($log->file_path)
+												<a href="{{ route('download.uploadedfile', $log->id) }}" class="btn btn-sm btn-primary">View</a>
+											@endif
+										</td>
 
-                                   <td style="text-align: center;">
-	                                    @if($log->error_file)
-	                                        <a href="{{ route('download.errorfile', $log->id) }}" class="btn btn-sm btn-primary">View</a>
-	                                    @endif                      
-                                   </td>
-                                 </tr>
+										<td style="text-align: center;">
+												@if($log->error_file)
+													<a href="{{ route('download.errorfile', $log->id) }}" class="btn btn-sm btn-primary">View</a>
+												@endif                      
+										</td>
+										</tr>
 
-                               @endforeach
-                           </tbody>
-                       </table>
-                    </div>
-                 </div>
-		          @endif
-		      </div>
-		   </div>
+									@endforeach
+								</tbody>
+								@else
+								<tbody>
+									<td class="text-" colspan="8">No upload Students History found</td>
+								</tbody>
+
+		          				@endif
+							</table>
+						</div>
+					</div>				 
+		      	</div>
+		   	</div>
 		</div>
+		@include('modals.class-promotion-status')
 
 
 		@if($check == 'false')
@@ -295,6 +338,44 @@
 		@endif
 
 		@if($check == 'true')
+			<div class="alert alert-info d-flex align-items-start gap-2 mt-2" role="alert" style="border-left: 4px solid #0d6efd;">  
+				<i class="bi bi-info-circle-fill text-primary"></i>
+				<div>
+					<strong>&nbsp;&nbsp;Promotion Guidelines (Session 2026–2027):</strong>
+					<ul class="mb-0 mt-1">
+						<li>By default, the student list displays records for the <strong>2025–2026 Session</strong>.</li>
+						<li>
+							<b>Method A — Promote Students Using Bulk Action:</b>
+							Select the required students using the checkboxes, then choose
+							<strong>"Promote Students"</strong> from the Bulk Action menu.
+						</li>
+						<li>
+							Students will be promoted from their current class to the
+							<strong>next higher class</strong>. Existing section and roll number
+							will remain unchanged and must be updated manually if needed.
+						</li>
+						<li>
+							<strong>Class 12 Students:</strong>
+							After promotion, all Class 12 students will automatically be moved to the
+							<strong>Transfer List</strong>.
+						</li>
+						<li>
+							<strong>This action is permanent and cannot be reversed.</strong>
+							Please verify all information carefully before proceeding.
+						</li>
+						<li>
+							<b>Method B — Promotion via Excel Upload:</b>
+							To promote students using an Excel sheet, please refer to the instructions provided in
+							<strong>Upload Data</strong>.
+						</li>
+						<li>
+							<b>Method B(1) — Important Before Downloading the Excel Template:</b>
+							Ensure that all Class 12 students and any other students who need to be transferred
+							are marked as <strong>Transfer</strong> before downloading the template.
+						</li>
+					</ul>
+				</div>
+			</div>
 			<div class="container-fluid p-0">
 				<div class="responsive m-0 mt-4 pt-2" id="record_table">
 
@@ -312,6 +393,7 @@
 								<th scope="col">Gender</th>
 								<th scope="col">Birth Date</th>
 								<th scope="col">Status</th>						
+								<!-- <th scope="col">Reg. Date</th>						 -->
 								<th scope="col">Action</th>
 							</tr>
 						</thead>
@@ -320,10 +402,98 @@
 
 				</div>
 			</div>
+		
+			<div class="text-right">
+				<small>CWSN: Children with Special Needs</small>
+			</div>
 		@endif
-
+		
 	</div>
 </div>
+
+@php
+    $hasDuplicates = collect($emailGroups)->contains(function ($students) {
+        return count($students) > 1;
+    });
+@endphp
+@if($hasDuplicates)
+	<div class="modal fade" id="duplicateEmail" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" aria-labelledby="dobIssueLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Confirm or Modify Parent's Email Id</h5>
+					<button type="button" class="close" data-dismiss="modal">
+						<span>&times;</span>
+					</button>
+				</div>
+
+				<div class="modal-body">
+					<p class="text-danger mb-2">
+						<b>Action to be taken:</b><br>
+						<b>a.</b> The identified email ID has been assigned to multiple students. Please confirm or modify the highlighted parent email ID.<br>
+						<b>b.</b> Click on the "Confirm/Modify" button if the email ID is correctly assigned.<br>
+						<b>Note:</b> To update email IDs in bulk, kindly visit the <strong>Parent Email Update</strong> module and follow the instructions.</p>
+					<div style="max-height:400px; overflow:auto;">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>Class</th>
+									<th>Section</th>
+									<th>Roll No</th>
+									<th>Student Name</th>
+									<th>Admission No.</th>
+									<th>Parent's Email Id</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+
+							<tbody>
+								@foreach($emailGroups as $email => $students)
+									@if(count($students) > 1)
+										
+										@foreach($students as $student)
+										<tr class="">
+											<td>{{ $loop->iteration }}</td>
+											<td>{{ $student->display_classname }}</td>
+											<td>{{ $student->section_id }}</td>
+											<td>{{ $student->rollno }}</td>
+											<td>{{ $student->student_name }}</td>
+											<td>{{ $student->admissionnumber }}</td>
+											<!-- <td>{{ $student->email_id }}</td> -->
+											<td class="align-middler">
+												<div class="d-flex align-items-center">
+													<input type="email"
+														class="form-control form-control-sm email-input mr-2"
+														style="width: 250px; color:red;"
+														data-id="{{ $student->student_id }}"
+														value="{{ $student->email_id }}">																								
+												</div>
+											</td>
+											<td>
+												<button class="btn btn-sm btn-success save-email"
+														style="height: 40px; line-height: 1;"
+														data-id="{{ $student->student_id }}">
+													Confirm/Modify
+												</button>
+											</td>
+										</tr>
+										@endforeach
+									@endif
+								@endforeach
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">
+						Close
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+@endif
 
 <!-- Bulk Upload form -->
 <div class="modal fade" id="uploadbulkdata" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel1" aria-hidden="true">
@@ -347,7 +517,7 @@
 
 {{-- edit student details modal  --}}
 <div class="modal fade" id="editStudentModal" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog modal-lg modal-dialog-centered">
+	<div class="modal-dialog modal-xl modal-dialog-centered">
 		<div class="modal-content">
 
 		<div class="modal-header">
@@ -421,12 +591,75 @@
 					<select type="date" name="editStudentStatus" id="editStudentStatus" class="form-control">
 						<option value="active">Active</option>
 						<option value="transfer">Transfer</option>
-					</select>
+					</select>					
+					<span id="editStudentStatus_errormsg"></span>
 				</div>
 
 			</div>
 
-			<div class="modal-footer d-flex justify-content-between align-items-center">
+			<div class="form-row"> 
+				<div class="form-group col-md-4">
+					<label for="is_pwd">Children with Special Needs</label>
+					<select id="is_pwd" name="is_pwd" class="form-control">
+						<option value="0">No</option>
+						<option value="1">Yes</option>
+					</select>
+				</div>
+				<div class="form-row col-md-12 pwd">
+					<div class="form-group pwd col-md-12">
+						<label for="pwdCategory"></label>
+						<div class="row mx-3" id="pwdContainer"></div>
+					</div>
+				</div>				
+			</div>
+			
+			<div id="selectedPwdTypes" class="d-flex flex-wrap pwd"></div>
+			<div><span id="pwdTypes_errormsg"></span></div>
+
+			<div id="pwdCat7Edit" class="form-row mt-3" style="display:none;">
+				<div class="col-md-12">
+					<div class="form-group">
+						<strong>Anthropometric Measurment</strong>
+
+						@foreach($anthropometricData as $type => $values)
+
+							<div class="mt-3">
+
+								<span style="font-weight:bold;
+									color:{{ $type == 'height' ? '#6c5ce7' : '#fab005' }};
+									font-size:smaller;">
+
+									{{ ucfirst($type) == 'Height' ? 'Height Measurement' : 'Weight Measurement' }}
+
+								</span><br>
+
+								@foreach($values as $item)
+
+									<div class="form-check form-check-inline">
+										<input
+											class="form-check-input"
+											type="radio"
+											name="{{ $type }}_measurement_edit"
+											id="{{ $type }}_edit_{{ $item->id }}"
+											value="{{ $item->id }}">
+
+										<label class="form-check-label"
+											for="{{ $type }}_edit_{{ $item->id }}">
+											{{ $item->anthropometric_value }}
+										</label>
+									</div>
+
+								@endforeach
+
+							</div>
+
+						@endforeach
+
+					</div>
+				</div>
+			</div>
+			
+			<div class="modal-footer d-flex justify-content-between align-items-center mt-3">
 				<span class="text-danger" id="ageSuggetion" style="opacity: 0.92;"></span>
 				<div>
 					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -441,12 +674,11 @@
 	</div>
 </div>
 
-
 {{-- edit student details modal close  --}}
 
 <!-- Registration Form For Students -->
 <div class="modal fade bd-example-modal-lg" id="studentRegistrationForm" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+	<div class="modal-dialog modal-xl modal-dialog-centered" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="exampleModalLabel">Add Student</h5>
@@ -523,8 +755,6 @@
 						</div>
 					</div>
 					<div class="row">
-
-
 						<div class="col-md-4">
 							<div class="form-group">
 								<label for="studentRollno">Roll Number</label>
@@ -538,8 +768,7 @@
 								<label for="studentUserId">School Code</label>
 								<input class="form-control form-control-sm" type="text" name="school_code" value="{{ $studentsDetails[0]->school_code  ?? ''}}" readonly>
 							</div>
-						</div>
-				
+						</div>				
 
 						<div class="col-md-4">
 							<div class="form-group">
@@ -558,10 +787,77 @@
 						</div>
 					</div>
 
+					<div class="row">
+						<div class="col-md-4">
+							<div class="form-group">
+								<label for="is_pwd_add">Children with Special Needs</label>
+								<select id="is_pwd_add" name="is_pwd_add" class="form-control">
+									<option value="0">No</option>
+									<option value="1">Yes</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12 pwd_add">
+							<div class="form-group col-md-12 pwd_add ">
+								<label for="pwdContainerForAdd"></label>
+								<div class="row mx-3" id="pwdContainerForAdd"></div>
+							</div>
+						</div>
+						<div id="selectedPwdTypes_foradd" class="d-flex flex-wrap pwd px-3"></div>
+						<div>
+							<span id="pwdTypesForAdd_errormsg"></span>
+						</div>
+					</div>
+
+					<div id="pwdCat7Add" class="row mt-3" style="display:none;">
+						<div class="col-md-12">
+							<div class="form-group">
+								<strong>Additional Information</strong>
+
+								@foreach($anthropometricData as $type => $values)
+
+									<div class="mt-3">
+
+										<span style="font-weight:bold;
+											color:{{ $type == 'height' ? '#6c5ce7' : '#fab005' }};
+											font-size:smaller;">
+
+											{{ ucfirst($type) == 'Height' ? 'Height Measurement' : 'Amputation Details' }}
+
+										</span><br>
+
+										@foreach($values as $item)
+
+											<div class="form-check form-check-inline">
+												<input
+													class="form-check-input"
+													type="radio"
+													name="{{ $type }}_measurement_add"
+													id="{{ $type }}_add_{{ $item->id }}"
+													value="{{ $item->id }}">
+
+												<label class="form-check-label"
+													for="{{ $type }}_add_{{ $item->id }}">
+													{{ $item->anthropometric_value }}
+												</label>
+											</div>
+
+										@endforeach
+
+									</div>
+
+								@endforeach
+
+							</div>
+						</div>
+					</div>
+
 				</div>
 
 				<div class="modal-footer">
-					<button type="submit" class="btn btn-sm btn-primary">Save</button>
+					<button type="submit" class="btn btn-md btn-primary">Save</button>
 				</div>
 			</form>
 		</div>
@@ -597,6 +893,7 @@
 <script>
 
 	$(document).ready(function() {
+		$('#duplicateEmail').modal('show');
 		function setMaxDate() {
 			var today = new Date();
 			var year = today.getFullYear();
@@ -612,6 +909,30 @@
 
 
 	$(document).ready(function() {
+
+		let selectedAcademicYear;
+		const years = getAcademicYears();
+		function getAcademicYears() {
+
+			const now = new Date();
+			const year = now.getFullYear();
+			const month = now.getMonth() + 1;
+
+			let academicYear = (month >= 4)
+				? `${year}-${year + 1}`
+				: `${year - 1}-${year}`;
+
+			let parts = academicYear.split('-');
+			let startYear = parseInt(parts[0]);
+			let endYear = parseInt(parts[1]);
+
+			let previousAcademicYear = `${startYear - 1}-${endYear - 1}`;
+
+			return {
+				academicYear,
+				previousAcademicYear
+			};
+		}
 
 		var table = $('#studentTableRecords').DataTable({
 
@@ -629,24 +950,29 @@
 			ajax: {
 				url: "{{ route('managestudent') }}",
 				data: function(d) {
-               d.class_id = $('#select_class').val();
-               d.section_id = $('#select_section').val();
-               d.status = $('#select_status').val();
-            }
+					d.class_id = $('#select_class').val();
+					d.section_id = $('#select_section').val();
+					d.status = $('#select_status').val() || 'active';
+					d.academic_year = selectedAcademicYear;
+					// d.is_pwd = $('#select_pwd').val();
+					d.is_pwd = ($('#select_pwd').val() !== undefined) ? $('#select_pwd').val() : 0;
+            	}
 			},
 			columns: [
-				{	
-					targets: 0,
-					data: null,
-					name: 'checkbox',
-					orderable: false,
-					searchable: false,
-					className: 'no-sort text-center',
-					defaultContent: '',
-					render: function(data, type, row) {
-						return `<input type="checkbox" name="checkbox" class="row-select" data-id="${row.student_id}">`;
-					}
-				},
+				// {	
+				// 	targets: 0,
+				// 	data: null,
+				// 	name: 'checkbox',
+				// 	orderable: false,
+				// 	searchable: false,
+				// 	className: 'no-sort text-center',
+				// 	defaultContent: '',
+				// 	render: function(data, type, row) {
+				// 		return `<input type="checkbox" name="checkbox" class="row-select" data-id="${row.student_id}">`;
+				// 	}
+				// },
+				
+				{	data: 'checkbox', name: 'checkbox' },
 				{
 	                data: null,
 	                name: 'serial_no',
@@ -659,36 +985,14 @@
 				{	data: 'class_id', name: 'class_id' },
 				{  data: 'section_id', name: 'section_id'	},
 				{	data: 'rollno', name: 'rollno' },
-				{  data: 'student_name', name: 'student_name' },
+				{  data: 'student_display_name', name: 'student_display_name' },
 	            {  data: 'admissionnumber', name: 'admissionnumber' },
 	            {  data: 'email_id', name: 'email_id' },
 				{ 	data: 'gender', name: 'gender' },
 				{	data: 'dob', name: 'dob' },
 				{	data: 'status', name: 'status'},							
-				{
-					data: null,
-					orderable: false,
-					searchable: false,
-					className: 'text-center',
-					defaultContent: '',
-					render: function(data, type, row) {
-						return `
-						<div class="d-flex align-items-center gap-4">
-							<button class="btn btn-sm mx-1 edit-student" 
-									data-id="${row.student_id}" 
-									title="edit ${row.student_name} details" style="background:#8f8f8f;">
-								<i class="fas fa-edit"></i>
-							</button>
-
-							<button class="btn btn-sm btn-primary mx-1 login-as-student" 
-									data-id="${row.student_id}" 
-									title="Login as ${row.student_name}">
-								<i class="fa-solid fa-right-to-bracket"></i>
-							</button>
-						</div>
-						`;
-					}
-				},
+				// {	data: 'created_at', name: 'created_at'},	
+				{	data: 'edit_button', name: 'edit_button'},
 			],
 						
 			createdRow: function(row, data, dataIndex) {
@@ -706,12 +1010,61 @@
 			"initComplete": function() {
             $('.dt-search input[type="search"]').attr('placeholder', 'Search here...');
 
+			const hasPreviousYearData = @json($hasPreviousYearData);
+
+			const years = getAcademicYears();
+
+			const toggleHtml = `
+			<div class="text-center academic-toggle-wrapper">
+				<button class="btn ${hasPreviousYearData ? 'btn-primary active' : 'btn-secondary'} toggle-btn"
+						id="previousAcademicYear"
+						data-year="${years.previousAcademicYear}">
+					${years.previousAcademicYear}
+				</button>
+				<button class="btn ${!hasPreviousYearData ? 'btn-primary active' : 'btn-secondary'} toggle-btn"
+						id="academicYear"
+						data-year="${years.academicYear}">
+					${years.academicYear}
+				</button>
+			</div>
+			`;
+
+			$('#studentTableRecords_wrapper .dt-search').append(toggleHtml);
+
+			selectedAcademicYear = hasPreviousYearData
+				? years.previousAcademicYear
+				: years.academicYear;
+
+			$(document).on('click', '.academic-toggle-wrapper .toggle-btn', function () {
+				$('.academic-toggle-wrapper .toggle-btn')
+					.removeClass('active btn-primary')
+					.addClass('btn-secondary');
+
+				$(this)
+					.addClass('active btn-primary')
+					.removeClass('btn-secondary');
+
+				selectedAcademicYear = $(this).data('year');
+
+				// if (selectedAcademicYear === years.academicYear) {
+				// 	if ($('#select_action option[value="delete"]').length === 0) {
+				// 		$('#select_action option[value="promote"]')
+				// 			.before('<option value="delete">Delete</option>');
+				// 	}
+				// } else {
+				// 	$('#select_action option[value="delete"]').remove();
+				// }
+
+				table.ajax.reload();
+			});
+
+
 			const $dropdown2 = $('<select class="form-control" id="select_action"></select>');
 
 			var status = [
 				{ name: 'Bulk Action', status: '',},
-				{ name: 'Delete', status: 'delete', },
-				// { name: 'Promote', status: 'promote', },
+				// { name: 'Delete', status: 'delete', },
+				{ name: 'Promote Students', status: 'promote', },
 			];
 			status.forEach(option => {
 			    const section = option.status ? ` - ${option.status}` : '';
@@ -743,7 +1096,7 @@
 				Swal.fire({
 
 					icon: 'warning',
-					title: `Are you sure you want to ${action} the selected ${selectedIds.length} student(s)?`,
+					title: `Are you sure you want to ${action} the selected ${selectedIds.length} students?`,
 					text: "You won't be able to revert this!",
 					showCancelButton: true,
 					confirmButtonColor: "#3085d6",
@@ -753,7 +1106,6 @@
 					reverseButtons: true,
 				}).then((result) => {
 					if (result.isConfirmed) {
-
 						Swal.fire({
 							title: 'Processing...',
 							text: 'Please wait while we perform the action.',
@@ -767,7 +1119,7 @@
 							// url: "{{ route('del-student') }}",
 							url: action === 'delete'
 								? "{{ route('del-student') }}"
-								: "{{ route('promote-student') }}",
+								: "{{ route('promote.student.ids') }}",
 							method: 'POST',
 							data: {
 								_token: $('meta[name="csrf-token"]').attr('content'),
@@ -801,8 +1153,8 @@
 								}
 
 								Swal.fire({
-									icon: 'error',
-									title: 'Error',
+									icon: 'warning',
+									title: 'Failed',
 									text: message,
 									confirmButtonText: 'OK',
 									allowOutsideClick: false
@@ -864,22 +1216,52 @@
 
 
 			var status = [
-				{ name: 'Select Status', status: '',},
 				{ name: 'Active', status: 'active', },
 				{ name: 'Transfer', status: 'transfer', },
+				{ name: 'Promoted', status: 'promoted', },
+				{ name: 'Failed', status: 'failed', },
+				{ name: 'All Students', status: 'all',},
 			];
 			const $dropdown1 = $('<select class="form-control" id="select_status"></select>');
 			status.forEach(option => {
 				const section = option.status ? ` - ${option.status}` : '';
 				const displayText = option.name;
 				const value = option.status;
+				const isSelected = option.status == 'active';
 
-				$dropdown1.append(new Option(displayText, value));
+				$dropdown1.append(new Option(displayText, value, isSelected, isSelected));
 			});
             $('<div class="pull-right"></div>').append($dropdown1).appendTo("#studentTableRecords_wrapper .top").next('.dt-length').addClass("pull-right");
             $dropdown1.on('change', function() {
                table.ajax.reload();
             });
+
+			// var statusList2 = [
+			// 	{ name: 'All', status: '' },
+			// 	{ name: 'Normal', status: 0 },
+			// 	{ name: 'Person with a Disability', status: 1 },
+			// ];
+
+			// var statusList2 = [
+			// 	// { name: 'All', status: '' },
+			// 	{ name: 'Yet to be Promoted', status: 0 },
+			// 	{ name: 'Promoted', status: 1 },
+			// ];
+
+			// const $dropdown3 = $('<select class="form-control" id="select_pwd"></select>');
+			// statusList2.forEach(option => {
+			// 	$dropdown3.append(new Option(option.name, option.status));
+			// });
+			// $dropdown3.val(0);
+
+			// $('<div class="pull-right"></div>')
+			// 	.append($dropdown3)
+			// 	.appendTo("#studentTableRecords_wrapper .top");
+
+			// $dropdown3.on('change', function () {
+			// 	table.ajax.reload();
+			// });
+			
         },
 
 
@@ -902,94 +1284,12 @@
 				className: 'exportButton',
 				buttons: [
 					{
-						extend: 'excelHtml5', 
-						text: 'Excel',
-						filename: function() {
-							return getTimestamp();
-						},
-						action: function (e, dt, button, config) {
-							// Check if any students are selected
-							if (!hasSelectedStudents()) {
-								showNoSelectionAlert('export to Excel');
-								return;
-							}
-							// Proceed with Excel export
-							$.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
-						},
-						exportOptions: {
-							modifier: {
-								selected: true
-							},
-							columns: function (idx, data, node) {
-								return idx !== 0 && idx != 11;
-							},
-							format: {
-								body: function(data, row, column, node) {
-									return processExportData(data, row, column, node);
-								}
-							},
-						},
-					},
-
-					{
-						extend: 'csvHtml5',
-						text: 'CSV',
-						filename: function() {
-							return getTimestamp();
-						},
-						action: function (e, dt, button, config) {
-							// Check if any students are selected
-							if (!hasSelectedStudents()) {
-								showNoSelectionAlert('export to CSV');
-								return;
-							}
-							// Proceed with CSV export
-							$.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
-						},
-						exportOptions: {
-							modifier: {
-								selected: true
-							},
-							columns: function (idx, data, node) {
-								return idx !== 0 && idx != 11;
-							},							
-							format: {
-								body: function(data, row, column, node) {
-									return processExportData(data, row, column, node);
-								}
-							}
+						text: 'Bulk Student Download',
+						action: function ( e, dt, node, config ) {							
+							downloadStudentProfile();
 						}
-					},
-
-					{
-						extend: 'pdfHtml5',
-						text: 'PDF',
-						filename: function() {
-							return getTimestamp();
-						},
-						orientation: 'landscape',
-						pageSize: 'A4', 
-						action: function (e, dt, button, config) {
-							if (!hasSelectedStudents()) {
-								showNoSelectionAlert('export to PDF');
-								return;
-							}
-							$.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
-						},
-						exportOptions: {
-							modifier: {
-								selected: true
-							},
-							columns: function (idx, data, node) {
-								return idx !== 0 && idx != 11;
-							},
-							format: {
-								body: function(data, row, column, node) {
-									return processExportData(data, row, column, node);
-								}
-							}
-						}
-					},
+					},			
+				
 					{
 						text: 'Parents Login-Credentials',
 						action: function ( e, dt, node, config ) {							
@@ -1038,10 +1338,12 @@
 			$('#selectAll').prop('checked', allChecked);
 		});
 
-		$('#selectAll').on('click', function() {
+		$('#selectAll').on('click', function () {
 			var checked = this.checked;
-			$('#studentTableRecords tbody input.row-select').prop('checked', checked);
-			
+
+			$('#studentTableRecords tbody input.row-select:not(:disabled)')
+				.prop('checked', checked);
+
 			if (checked) {
 				table.rows().select();
 			} else {
@@ -1095,6 +1397,11 @@
 				}
 				return inputElement.val() || inputElement.text() || data;
 			}
+			if (column === 5) {
+				let clone = $node.clone();
+				clone.find('span').remove();
+				return clone.text();
+			}
 			return data;
 		}
 
@@ -1108,14 +1415,227 @@
 			let seconds = String(now.getSeconds()).padStart(2, '0');
 			return `Students Record ${day}-${month}-${year}`;
 		}
+		
+		const pwdDivs = document.querySelectorAll('.pwd');
+
+		$('#is_pwd').on('change', function () {
+			let value = $(this).val();
+
+			pwdDivs.forEach(div => {
+				div.style.display = (value == 1) ? 'block' : 'none';
+			});
+			if (value == 0) {
+				selectedTypes = [];
+				$('input[name="pwdTypes[]"]').prop('checked', false);
+				toggleCategory7Div();
+				renderSelectedTypes();
+			}
+		});
+
+		let pwdData = @json($pwdDetails);
+		let container = $('#pwdContainer');
+
+		// Generate unique categories
+		let categories = [...new Map(
+			pwdData.map(item => [
+				item.pwd_cat_id,
+				item.disability_category
+			])
+		).entries()];
+
+		// Color palette (add more if needed)
+		let colors = [
+			'#ff6b6b',
+			'#4ecdc4',
+			'#ffa94d',
+			'#6c5ce7',
+			'#45b7d1',
+			'#96c93d',
+			'#f06595',
+			'#20c997',
+			'#fab005'
+		];
+
+		let chunkSize = 3;
+		for (let i = 0; i < categories.length; i += chunkSize) {
+
+			let chunk = categories.slice(i, i + chunkSize);
+
+			let columnHtml = `
+				<div class="col-md-4">
+			`;
+
+			chunk.forEach(([catId, catName], index) => {
+
+				let color = colors[(i + index) % colors.length];
+				let types = pwdData.filter(item => item.pwd_cat_id == catId);
+
+				columnHtml += `
+					<div class="category-box mb-3">
+						
+						<label class="m-0" style="font-weight: bold; color: ${color};">
+							${catName}
+						</label>
+
+						<div class="type-list px-1">
+							${types.map(type => `
+								<div>
+									<label class="m-0">
+										<input type="checkbox" 
+											name="pwdTypes[]" 
+											value="${type.disability_type}|${type.id}" 
+											data-cat="${catId}" style="width: 13px;height: 13px;">
+										${type.disability_type}
+									</label>
+								</div>
+							`).join('')}
+						</div>
+
+					</div>
+				`;
+			});
+
+			columnHtml += `</div>`;
+
+			container.append(columnHtml);
+		}
+		let selectedTypes = [];
+		$(document).on('change', 'input[name="pwdTypes[]"]', function () {
+			$('#pwdTypes_errormsg').html('');
+
+			let value = $(this).val();
+			$('input[name="pwdTypes[]"]').not(this).prop('checked', false);
+			selectedTypes = [];
+
+			if ($(this).is(':checked')) {
+				selectedTypes.push(value);
+			}
+			toggleCategory7Div();
+			renderSelectedTypes();
+		});
+		function renderSelectedTypes() {
+			// let container = $('#selectedPwdTypes');
+			let container = $('#selectedPwdTypes, #selectedPwdTypes_foradd');
+			container.empty();
+
+			selectedTypes.forEach(item  => {
+				let typeOnly = item.split('|')[0];
+				container.append(`
+					<span class="badge badge-info m-1 p-2" style="font-size: 12px; font-weight: 400;">
+						${typeOnly}
+						<span class="remove-type" data-type="${item}" style="cursor:pointer;margin-left:8px;">&times;</span>
+					</span>
+				`);
+			});
+		}
+		$(document).on('click', '.remove-type', function () {
+			let type = $(this).data('type');
+
+			selectedTypes = selectedTypes.filter(x => x !== type);
+			$(`input[name="pwdTypes[]"][value="${type}"], input[name="pwdTypesForAdd[]"][value="${type}"]`).prop('checked', false);
+			toggleCategory7Div();
+			renderSelectedTypes();
+		});
+
+
+		/* handle PWD add visibility */
+		const pwdAddDivs = document.querySelectorAll('.pwd_add');
+		
+		togglePwdSection();
+
+		function togglePwdSection() {
+			let value = $('#is_pwd_add').val();
+			pwdAddDivs.forEach(div => {
+				div.style.display = (value == 1) ? 'block' : 'none';
+			});
+			// Reset checkboxes when No selected
+			if (value == 0) {
+				selectedTypes = [];
+				$('input[name="pwdTypesForAdd[]"]').prop('checked', false);
+				toggleCategory7Div();
+				renderSelectedTypes();
+			}
+		}
+		$('#is_pwd_add').on('change', function () {
+			togglePwdSection();
+		});
+		
+		let containerForAdd = $('#pwdContainerForAdd');
+		let pwdCategoriesForAdd = [...new Map(
+			pwdData.map(item => [
+				item.pwd_cat_id,
+				item.disability_category
+			])
+		).entries()];
+
+
+		let chunkSizeForAdd = 3;
+		for (let i = 0; i < pwdCategoriesForAdd.length; i += chunkSizeForAdd) {
+			let chunk = pwdCategoriesForAdd.slice(i, i + chunkSizeForAdd);
+			let columnHtml = `<div class="col-md-4">
+			`;
+
+			chunk.forEach(([catId, catName], index) => {
+				let color = colors[(i + index) % colors.length];
+				let types = pwdData.filter(item => item.pwd_cat_id == catId);
+				columnHtml += `
+					<div class="category-box mb-3">
+						<label class="m-0" style="font-weight: bold; color: ${color};">
+							${catName}
+						</label>
+
+						<div class="type-list px-1">
+							${types.map(type => `
+								<div>
+									<label class="m-0">
+										<input type="checkbox" 
+											name="pwdTypesForAdd[]" 
+											value="${type.disability_type}|${type.id}" 
+											data-cat="${catId}" style="width: 13px;height: 13px;">
+										${type.disability_type}
+									</label>
+								</div>
+							`).join('')}
+						</div>
+
+					</div>
+				`;
+			});
+			columnHtml += `</div>`;
+			containerForAdd.append(columnHtml);
+		}
+
+		$(document).on('change', 'input[name="pwdTypesForAdd[]"]', function () {
+			$('#pwdTypesForAdd_errormsg').html('');
+
+			let value = $(this).val();
+			$('input[name="pwdTypesForAdd[]"]').not(this).prop('checked', false);
+			selectedTypes = [];
+
+			if ($(this).is(':checked')) {
+				selectedTypes.push(value);
+			}
+			toggleCategory7Div();
+			renderSelectedTypes();
+		});
 
 		$('#studentTableRecords').on('click', '.edit-student', function() {
 			let studentId = $(this).data('id');
-			let classes = @json($classes);
-			console.log(classes); 
+			let classes = @json($classes); 
 			let sections = @json($data); 
-			let students = @json($studentsDetails);
+			let students = @json($studentsDetails1);
 			let student = students.find(s => s.student_id == studentId);
+
+			if(student.status=='transfer'){
+				Swal.fire({
+					icon: 'info',
+					title: 'Student Transferred',
+					text: 'This student has already been transferred and cannot be edited.',
+					allowOutsideClick: false,
+					confirmButtonText: 'OK'
+				});
+				return;
+			}
 			
 			$('#s_id').val(student.student_id);
 			$('#editStudentName').val(student.student_name);
@@ -1129,7 +1649,7 @@
 			classes.forEach(cls => {
 				let option = document.createElement('option');
 				option.value = cls.id;
-				option.textContent = cls.className;
+				option.textContent = cls.nomenclature;
 				if(cls.id == student.class_id) {
 					option.selected = true;
 				}
@@ -1157,6 +1677,44 @@
 			$('#editStudentRollno').val(student.rollno);
 			$('#editStudentAdmissionNo').val(student.admissionnumber);
 			$('#editStudentStatus').val(student.status);
+			$('#is_pwd').val(student.is_pwd);
+
+			pwdDivs.forEach(div => {
+				div.style.display = student.is_pwd == 1 ? 'block' : 'none';
+			});
+			let disability = student.pwd_type_id;
+
+			selectedTypes = [];
+
+			if (disability) {
+				$('input[name="pwdTypes[]"]').prop('checked', false);
+
+				$('input[name="pwdTypes[]"]').each(function () {
+					let [type, id] = $(this).val().split('|');
+
+					if (Number(id) === disability) {
+						$(this).prop('checked', true);
+						selectedTypes.push(`${type}|${id}`);
+					}
+				});
+
+				$('input[name="height_measurement_edit"]').prop('checked', false);
+				$('input[name="weight_measurement_edit"]').prop('checked', false);
+
+				// Set selected values
+				if (student.anthropo_ht_id) {
+					$('input[name="height_measurement_edit"][value="' + student.anthropo_ht_id + '"]')
+						.prop('checked', true);
+				}
+
+				if (student.anthropo_wt_id) {
+					$('input[name="weight_measurement_edit"][value="' + student.anthropo_wt_id + '"]')
+						.prop('checked', true);
+				}
+			}
+
+			toggleCategory7Div();
+			renderSelectedTypes();
 
 			$('#editStudentModal').modal('show');
 		});
@@ -1170,10 +1728,34 @@
 			document.activeElement.blur();
 		});
 
+		// for additional info of Locomotor & Physical Disabilities 
+
+		function toggleCategory7Div() {
+
+			let editSelected = $('input[name="pwdTypes[]"]:checked')
+				.filter(function () {
+					return $(this).data('cat') == 7;
+				}).length > 0;
+
+			let addSelected = $('input[name="pwdTypesForAdd[]"]:checked')
+				.filter(function () {
+					return $(this).data('cat') == 7;
+				}).length > 0;
+
+			$('#pwdCat7Edit').toggle(editSelected);
+			$('#pwdCat7Add').toggle(addSelected);
+		}
+
 
 		$(document).ready(function () {
 			$('#editStudentForm').on('submit', function (e) {
 				e.preventDefault();
+				$('<input>').attr({
+					type: 'hidden',
+					name: 'pwdTypes',
+					value: selectedTypes.join(',')
+				}).appendTo(this);
+
 				submitForm($(this));
 			});
 
@@ -1224,26 +1806,34 @@
 								title: 'Success',
 								text: response.message,
 								icon: 'success',
-								allowOutsideClick: false
-							});
+								allowOutsideClick: false,
+								confirmButtonText: 'OK'
+							}).then(() => {
+								$('#editStudentModal').modal('hide');
+								location.reload();
 
-							$('#editStudentModal').modal('hide');
-							$('#studentTableRecords').DataTable().ajax.reload();
+							});
 							return;
 						}
 						if (response.status === 'fail' && response.error) {
 
 							form.find('input, select, textarea').each(function() {
 								let name = $(this).attr('name');
-								$('#' + name + '_errormsg').empty();
+								if (!name) return;
+
+								let safeName = $.escapeSelector(String(name).replace(/\[\]/g, ''));
+								$('#' + safeName + '_errormsg').empty();
 							});
 
 							$.each(response.error, function(key, value) {
-								let errorHtml = '';
-								$.each(value, function(index, errormsg) {
-									errorHtml += `<p class="alert alert-danger">${errormsg}</p>`;
-								});
-								$('#' + key + '_errormsg').html(errorHtml);
+
+								let safeKey = $.escapeSelector(String(key).replace(/\[\]/g, ''));
+
+								let errorHtml = value.map(msg =>
+									`<p class="alert alert-danger">${msg}</p>`
+								).join('');
+
+								$('#' + safeKey + '_errormsg').html(errorHtml);
 							});
 
 							return;
@@ -1264,7 +1854,7 @@
 		});
 
 		$('#studentTableRecords').on('click', '.login-as-student', function() {
-			const studentId = $(this).data('id');
+			let studentId = $(this).data('id');
 			console.log(studentId);
 
 			$.ajax({
@@ -1429,6 +2019,101 @@
 					}
 				}
 			});
+		}
+
+
+		function downloadStudentProfile() {
+
+
+			let selectedYear = $('.toggle-btn.active').data('year');
+
+		    var studentIds = [];
+		    $('#studentTableRecords tbody input.row-select:checked').each(function () {
+		        studentIds.push($(this).data('id'));
+		    });
+
+		    if (studentIds.length === 0) {
+		        Swal.fire({
+		            icon: 'warning',
+		            title: 'No students selected',
+		            text: 'Please select at least one student'
+		        });
+		        return;
+		    }
+
+		    Swal.fire({
+		        icon: 'info',
+		        title: "Please wait while loading the data",
+		        html: "Generating student profile file...",
+		        allowOutsideClick: false,
+		        didOpen: () => {
+		            Swal.showLoading();
+		        }
+		    });
+
+		    $.ajax({
+		        url: "{{ route('download.student.profile') }}",
+				type: "POST",
+				contentType: "application/json",
+				processData: false,
+
+				data: JSON.stringify({
+					_token: "{{ csrf_token() }}",
+					student_ids: studentIds,
+					selectedYear: selectedYear
+				}),
+
+				xhrFields: {
+					responseType: "blob"
+				},
+
+		        success: function (data, textStatus, xhr) {
+
+		            Swal.close();
+
+		            let filename = 'StudentDataUploadFormat.xlsx';
+		            const disposition = xhr.getResponseHeader('Content-Disposition');
+		            if (disposition && disposition.indexOf('attachment') !== -1) {
+		                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+		                const matches = filenameRegex.exec(disposition);
+		                if (matches != null && matches[1]) {
+		                    filename = matches[1].replace(/['"]/g, '');
+		                }
+		            }
+
+		            const blob = new Blob([data]);
+		            const downloadUrl = window.URL.createObjectURL(blob);
+		            const link = document.createElement('a');
+		            link.href = downloadUrl;
+		            link.download = filename;
+		            document.body.appendChild(link);
+		            link.click();
+		            document.body.removeChild(link);
+		            window.URL.revokeObjectURL(downloadUrl);
+		            Swal.fire({
+							icon: "success",
+							title: "Download Complete!",
+							text: "Student profile downloaded successfully."
+		            });
+		        },
+
+		        error: function (xhr) {
+		            Swal.close();
+		            let errorMessage = "An error occurred while generating file.";
+
+		            try {
+		                const response = JSON.parse(xhr.responseText);
+		                errorMessage = response.message || errorMessage;
+
+		            } catch (e) {}
+
+		            Swal.fire({
+		                icon: 'error',
+		                title: 'Download Failed',
+		                text: errorMessage
+		            });
+		        }
+		    });
 		}
 
 		function generateClassSectionCredentials() {
@@ -1629,6 +2314,9 @@
 					case 'gender':
 						changegender(studentId, gender);
 						break;
+					case 'roll number':
+						changeRoll(studentId, newdata);
+						break;
 					default:
 						console.log('nothing is selected');
 				}
@@ -1636,6 +2324,57 @@
 
 		});
 	}
+
+	// update roll number 
+	$(document).on('change', '.rollno-input', function () {
+		var studentId = $(this).attr('data-id');
+		var olddata = $(this).attr('data-rollno');
+		var newdata = $(this).val();
+		var event = 'roll number';
+
+		setTimeout(function () {
+			updateContent(event, olddata, newdata, studentId, classId = '', section = '', newDate = '', status = '', gender = '');
+		}, 1000);
+	});
+
+	function changeRoll(studentId, newdata){
+		$.ajax({
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+
+			url: "{{ route('update.rollno') }}",
+			method: 'POST',
+			data: {
+				student_id: studentId,
+				rollNo: newdata,
+			},
+			success: function(response) {
+
+				if (response.status === 'success') {
+					Swal.fire({
+						title: "Success!",
+						text: response.message,
+						icon: "success",
+						confirmButtonText: "OK",
+						allowOutsideClick: false,
+					}).then(() => {
+						location.reload();
+					});
+				}
+			},
+
+			error: function() {
+				Swal.fire({
+					title: "Error!",
+					text: "Something went wrong. Please try again.",
+					icon: "error"
+				});
+			}
+					
+		});
+	}
+
 
 	$(document).on('change', '#section', function() {
 		var option = $(this).find('option:selected');
@@ -1677,12 +2416,90 @@
 
 
 	$(document).on('change', '#studentStatus', function() {
+		var $this = $(this);
 		var option = $(this).find('option:selected');
 		var studentId = $(this).attr('data-id');
 		var status = option.val();
 
 		var event = 'status';
 		var oldstatus = $(this).attr('data-status');
+		if(oldstatus === 'promoted' || oldstatus === 'failed'){
+			var formattedStatus = oldstatus.charAt(0).toUpperCase() + oldstatus.slice(1).toLowerCase();
+
+			Swal.fire({
+				icon: "warning",
+				title: `Already ${formattedStatus}`,
+				text: `Student is already ${oldstatus}. You can\'t change the status`,
+				allowOutsideClick: false,
+			});
+			$this.val(oldstatus);
+			return;
+		}
+		if (status === 'promoted') {
+			Swal.fire({
+				icon: 'warning',
+					title: `Are you sure you want to Promote the students`,
+					text: "You won't be able to revert this!",
+					showCancelButton: true,
+					confirmButtonColor: "#3085d6",
+					confirmButtonText: "Yes, proceed!",
+					cancelButtonText: "Cancel",
+					allowOutsideClick: false,
+					reverseButtons: true,
+				}).then((result) => {
+					if (result.isConfirmed){
+						$.ajax({
+							url:"{{ route('promote.student.ids') }}",
+							method: 'POST',
+							data: {
+								_token: $('meta[name="csrf-token"]').attr('content'),
+								ids: [studentId]
+							},	
+							success: function (response) {
+								Swal.close();
+								Swal.fire({
+									icon: 'success',
+									title: 'Success',
+									text: response.message,
+									confirmButtonText: 'OK',
+									allowOutsideClick: false
+								}).then((result) => {
+									if (result.isConfirmed) {
+										$('#studentTableRecords').DataTable().ajax.reload();
+										$('#select_action').val('');
+									}
+								});
+							},
+							error: function (xhr) {
+								Swal.close();
+
+								let message = 'Something went wrong.';
+
+								if (xhr.responseJSON && xhr.responseJSON.message) {
+									message = xhr.responseJSON.message;
+								}
+
+								Swal.fire({
+									icon: 'warning',
+									title: 'Failed',
+									text: message,
+									confirmButtonText: 'OK',
+									allowOutsideClick: false
+								}).then((result) => {
+									if (result.isConfirmed) {
+										location.reload();
+									}
+								});
+							}						
+						})
+
+					}else{
+						$this.val(oldstatus);
+					}
+				});
+			return;
+		}
+
 		var olddata = `${oldstatus}`;
 		var newdata = `${status}`;
 		updateContent(event, olddata, newdata, studentId, classId = '', section = '', newDate = '', status);
@@ -1771,9 +2588,18 @@
 			},
 			success: function(response) {
 				Swal.fire({
-					title: "success!",
+					icon: 'success',
+					title: 'Success',
 					text: response,
-					icon: "success"
+					confirmButtonText: 'OK',
+					allowOutsideClick: false
+				}).then((result) => {
+
+					if (result.isConfirmed) {
+						$('#studentTableRecords').DataTable().ajax.reload();
+						$('#select_action').val('');
+					}
+
 				});
 			},
 			error: function(xhr, status, error) {
@@ -1820,7 +2646,7 @@
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 			},
-			url: 'updatedob',
+			url: 'upadatedob',
 			method: 'POST',
 			data: {
 				student_id: studentId,
@@ -1942,9 +2768,31 @@
 	 * */
 	$(document).on('submit', 'form#RegistrationForm', function(e) {
 		e.preventDefault();
+		let formData = $('#RegistrationForm').serializeArray();
 
-		var data = new FormData($('form#RegistrationForm')[0]);
+		let pwd = formData.find(x => x.name === 'pwdTypesForAdd[]');
+
+		formData = formData.filter(x => x.name !== 'pwdTypesForAdd[]');
+
+		if (pwd) {
+			formData.push({
+				name: 'pwdTypesForAdd',
+				value: pwd.value
+			});
+		}
+
 		$('#student_name_errormsg').empty();
+
+		Swal.fire({
+	   	  icon:'info',
+	        title: 'Processing...',
+	        text: 'Please wait while adding the student.',
+	        allowOutsideClick: false,
+	        showConfirmButton: false,
+	        didOpen: () => {
+	            Swal.showLoading();
+	        }
+	    });
 
 		$.ajax({
 			headers: {
@@ -1952,14 +2800,13 @@
 			},
 			url: 'addstudent',
 			method: 'POST',
-			data: data,
+			data: $.param(formData),
 			dataType: 'json',
-			processData: false,
-			contentType: false,
 			success: function(response) {
-
-				data.forEach(function(value, key) {
-					$('#' + key + '_errormsg').empty();
+				Swal.close();
+				formData.forEach(function(field) {
+					let safeKey = field.name.replace(/\[\]/g, '');
+					$('#' + safeKey + '_errormsg').empty();
 				});
 
 				if (response.status == 'success') {
@@ -1974,33 +2821,45 @@
 					<p> Student User Id :  ${response.StudentUserId}</p>
 					<p> Login Password  :  ${response.Password}</p>`;
 					$('#logindetails').empty().append(html);
-
 				}
 
 
 				if (response.status == 'fail') {
+					Swal.close();
 					$.each(response.error, function(key, value) {
 						var html = '';
 						$.each(value, function(index, errormesg) {
 							html += `<p class="alert alert-danger"> ${errormesg}</p>`;
 						});
 						$('#' + key + '_errormsg').html(html);
+						let safeKey = key.replace(/\[\]/g, '');
+						$('#' + safeKey + '_errormsg').html(html);
 					});
 
 				} else {
+					Swal.close();
 					$.each(response.error, function(key, value) {
-						$('#' + key + '_errormsg').empty();
+						// $('#' + key + '_errormsg').empty();
+						let safeKey = key.replace(/\[\]/g, '');
+						$('#' + safeKey + '_errormsg').empty();
 					});
 				}
 			},
 
-			error: function(xhr, status, error) {
-				$('#validation-errors').html('');
-				$.each(xhr.responseJSON.errors, function(key, value) {
-					console.log(key + value);
-					$('#validation-errors').append('<div class="alert alert-danger">' + value + '</div');
-				});
-			},
+			error: function(xhr) {
+				console.log(xhr.responseText);
+				if (xhr.responseJSON && xhr.responseJSON.error) {
+					$.each(xhr.responseJSON.error, function(key, value) {
+						var html = '';
+						$.each(value, function(index, errormesg) {
+							html += `<p class="alert alert-danger">${errormesg}</p>`;
+						});
+						$('#' + key + '_errormsg').html(html);
+					});
+				} else {
+					console.error(xhr.responseText);
+				}
+			}
 
 		});
 	})
@@ -2014,15 +2873,17 @@
 		var copydata = $('#logindetails').text();
 
 		navigator.clipboard.writeText(copydata).then(function() {
-				copyButton.text('Copied');
-				setTimeout(function() {
-					copyButton.text('Copy');
-				}, 1500);
-			})
-			.catch(function(err) {
-				console.error('Unable to copy to clipboard', err);
+			copyButton.text('Copied');
+			setTimeout(function() {
 				copyButton.text('Copy');
-			});
+					
+			}, 1500);
+		})
+		.catch(function(err) {
+			console.error('Unable to copy to clipboard', err);
+			copyButton.text('Copy');
+		});
+
 	}
 
 
@@ -2037,6 +2898,7 @@
       var formData = new FormData(this);
       
 	   Swal.fire({
+	   	  icon:'info',
 	        title: 'Processing...',
 	        text: 'Please wait while the data is being imported. This may take some time.',
 	        allowOutsideClick: false,
@@ -2075,6 +2937,7 @@
 					$('#import_msg').text('');
 
 					Swal.fire({
+						icon:'info',
 					   title: response.title,
 					   html: ` <div> ${response.summary} </div> `,
 					   icon: response.icon,
@@ -2137,6 +3000,7 @@
 	function importdata(formData){
 		
 	    Swal.fire({
+	    	  icon:'info',
 	        title: 'Processing...',
 	        text: 'Please wait while the data is being imported. This may take some time.',
 	        allowOutsideClick: false,
@@ -2158,12 +3022,12 @@
 			dataType: 'json',
 			success: function(response) {
 				Swal.close();
-
+				console.log(response.icon);
 				Swal.fire({
-					title: "Thank you for uploading the data.",
-				   html: ` <div> ${response.summary} </div> `,
-				   icon: "success",
-				   allowOutsideClick: false
+					icon: response.icon || 'info',
+					title: response.title || "Thank you for uploading the data.",
+				   	html: ` <div> ${response.summary} </div> `,
+				   	allowOutsideClick: false
 				}).then(function(result){
 					location.reload();
 				});
@@ -2242,6 +3106,98 @@
 		});
 	}
 
+	$(document).on('click', '#historyButton', function() {
+		Swal.fire({
+			icon: 'info',
+			title: 'View History',
+			showCancelButton: true,
+			confirmButtonColor: '#ff8000',
+			confirmButtonText: "Upload History",
+			cancelButtonText: "Promotion History",
+			allowOutsideClick: true,
+			reverseButtons: true,
+		}).then((result) => {
+			if (result.isConfirmed) {
+				$('#exampleModalCenter').modal('show');
+			}else if (result.dismiss === Swal.DismissReason.cancel) {
+				document.getElementById('promotionHistoryContent').innerHTML =
+					'<div class="text-center text-muted">Loading...</div>';
+
+				$('#promotionHistoryModal').modal('show');
+				fetch("{{ route('fetch.promotionIds.status') }}")
+				.then(res => res.json())
+				.then(data => {
+					document.getElementById('promotionHistoryContent').innerHTML = data.html;
+				})
+				.catch(() => {
+					document.getElementById('promotionHistoryContent').innerHTML =
+						'<p class="text-danger text-center">Failed to load data</p>';
+				});
+			}
+		});
+	});
+
+
+	$(document).on('click', '.save-email', function () {
+		let id = $(this).data('id');
+		let row = $(this).closest('tr');
+		let email = row.find('.email-input').val()?.trim();
+
+		if (!email) {
+			Swal.fire({
+				icon: 'warning',
+				title: 'Missing Email',
+				text: 'Please enter a valid email ID before updating.',
+				allowOutsideClick: false,
+				showConfirmButton: true
+			});
+			return;
+		}
+		$.ajax({
+			url: "{{ route('update.email') }}",
+			type: "POST",
+			data: {
+				_token: "{{ csrf_token() }}",
+				student_id: id,
+				email: email
+			},
+			success: function (res) {
+
+				if (res.status === 'success') {
+					Swal.fire({
+						icon: 'success',
+						title: 'Updated',
+						text: res.message,
+						allowOutsideClick: false,
+						showConfirmButton: true
+					}).then((result) => {
+						if (result.isConfirmed) {
+							location.reload();
+						}
+					});
+				} else {
+					Swal.fire({
+						icon: 'error',
+						title: 'Failed',
+						text: res.message,
+						allowOutsideClick: false,
+						showConfirmButton: true
+					});
+				}
+			},
+
+			error: function () {
+				Swal.fire({
+					icon: 'error',
+					title: 'Server Error',
+					text: 'Something went wrong while updating email.',
+					allowOutsideClick: false,
+					showConfirmButton: true
+				});
+			}
+		});
+
+	});
 </script>
 
 @endsection

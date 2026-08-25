@@ -35,6 +35,8 @@
                 document.getElementById('total_milisecond_id').value = "";
                 break;
             case "reset_strength":
+            case "reset_1019":
+            case "reset_1020":  
                 startBtn.classList.remove("hide");
                 clearInterval(timerInterval);
                 saveBtn.classList.add("hide");
@@ -64,6 +66,10 @@
                 document.getElementById("net_score").style.display = "none";
                 break;
             case "reset_pushups":
+             case "reset_1021":
+            case "reset_1023":
+            case "reset_1022":
+            case "reset_1042":
                 clearInterval(timerInterval);
                 elapsed = 0;
                 running = false;
@@ -71,6 +77,20 @@
                 display.innerHTML = "00:00:00";
                 pushUpInput.value = "";
                 break;
+            case "reset_1043":
+            case "reset_1017":
+                document.getElementById('live_status_badge').textContent = `Level 1, Shuttle 0`;
+                break;
+            case "reset_1041":
+                document.getElementById("btn-fail").classList.remove("btn-danger");
+                document.getElementById("btn-fail").classList.add("btn-outline-danger");
+                document.getElementById("btn-pass").classList.remove("btn-success");
+                document.getElementById("btn-pass").classList.add("btn-outline-success");   
+                document.getElementById('reverse_curlup').value = '';         
+                break;
+            case "reset_1025":
+                document.getElementById('best_score').style.display = "none";
+            
             default:
                 break;
         }

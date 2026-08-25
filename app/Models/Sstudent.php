@@ -2,20 +2,23 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 
 class Sstudent extends Authenticatable
 {
-   use HasFactory ,  HasApiTokens;
+    use HasFactory, HasApiTokens, Notifiable;
 
-   protected $guarded = [];
-   protected $table = 'students';
+    protected $guarded = [];
+    protected $table = 'students';
  
-   protected $fillable = ['school_id','school_code','student_uid','student_name','gender','class_id','custom_class_id','section_id','dob','user_id','password', 'password_generated', 'email_id','rollno','status','academic_year','apaarId','student_image','domicile','mobile','hobbies','last_updated','is_active'];
+    protected $fillable = ['school_id','school_code','student_uid','student_name','gender','class_id','custom_class_id','section_id','dob','user_id','password','password_generated','email_id','mobile','rollno','status','academic_year','is_pwd','profile_picture','batchId','paymentStatus','batchCreatedAt','careersPaymentRef','paidOn','updatedOn','remember_token','created_at','updated_at','domicile','fav_sport','hobbies','apaarId','program_id',];
 
 	// protected $guard = 'sstudent';
-	
+
+	protected $hidden = ['password','remember_token'];
+
    public function getAuthIdentifierName() {
 		return 'id';
 	}
@@ -39,7 +42,10 @@ class Sstudent extends Authenticatable
 	}
 	
 	
-	
+	public function classData()
+	{
+	    return $this->belongsTo(ScustomClass::class, 'custom_class_id');
+	}
 	
 	public function class()
     {
@@ -57,15 +63,10 @@ class Sstudent extends Authenticatable
         return $this->hasOne(StudentInfo::class, 'student_id');
     }
 
-    public function school() {
-    
-        return $this->belongsTo(School::class, 'school_id');
-    }
+	public function school()
+	{
+		return $this->belongsTo(School::class, 'school_code', 'school_code');
+	}
 
-	
-	protected $hidden = [
-	    'password',
-	    'remember_token',
-	];
 	
 }

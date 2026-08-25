@@ -8,7 +8,7 @@ use Illuminate\Contracts\Validation\Rule;
 class ExcelHeaderValidation implements Rule
 {
      private $expectedHeaders = [
-        'School Code','AdmissionNumber','Name','Gender','Class','Section','Roll No','DOB (DD/MM/YYYY)','Email','ApaarID'];
+        'School Code','AdmissionNumber','Name','Gender','Class','Section','Roll No','DOB (DD/MM/YYYY)','Email','CWSN','ApaarID'];
 
 
 

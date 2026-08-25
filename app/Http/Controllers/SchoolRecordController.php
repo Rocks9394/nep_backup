@@ -32,10 +32,13 @@ use Dompdf\Dompdf;
 use ZipArchive;
 use Illuminate\Support\Facades\Storage;
 use PDF;
+use App\Rules\ExcelHeaderValidation;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ImportStudentProfile;
 use App\Exports\ExportImproperData;
+use App\Exports\ExportStudentProfile;
+use App\Jobs\PromoteStudentsByIdsJob;
 use App\Models\Sport; 
 use App\Models\ViewDart;
 use App\Models\Teacher;
@@ -48,6 +51,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Usermeta;
 use App\Models\TermMaster;
+use App\Jobs\ProcessStudentImport;
 use App\Traits\ReportHelperTrait;
 
 use App\Exports\StudentsCredentialsExport;
@@ -908,9 +912,9 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
      * */
 
 	public function ManageStudents(Request $request){
-
-
+   
     	$userId = Auth::user()->id;
+
 		$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
 		$data = ScustomClass::where('school_id', $schoolId)->select('class_id','section')->get()->toArray();
 		$customClass1 = array();
@@ -936,44 +940,55 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		    $class->name = !empty($class->nomenclature) 
 		        ? $class->nomenclature 
 		        : ($originalClass ? $originalClass->name : null);
-
+			$class->orders = optional($originalClass)->orders;
 		}
+
 		$classList = $classList->sortBy('orders')->values();
+
 		$classList->prepend((object)[
 	        'class_id' => '',
 	        'name' => 'Select Class',
 	        'section' => ''
 	    ]);
-			
-		$sub = DB::table('custom_classes')
-		    ->select(DB::raw('MIN(id) as min_id'))
-		    ->where('school_id', $schoolId)
-		    ->groupBy('class_id');
 
-		$classes = DB::table('custom_classes')
-	    ->join('class', 'class.id', '=', 'custom_classes.class_id')
-	    ->join('schools', 'schools.id', '=', 'custom_classes.school_id')
-	    ->whereIn('custom_classes.id', $sub)
-	    ->select(
-	        'schools.id as schools_id',
-	        'custom_classes.id as custom_class_id',
-	        'custom_classes.class_id as id',
-	        'custom_classes.section',
-	        DB::raw("
-	            CASE 
-	                WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-	                THEN custom_classes.nomenclature 
-	                ELSE class.name 
-	            END AS className
-	        ")
-	    )
-	    ->orderBy('school_id')->orderby('custom_classes.orders')
-	    ->get();
+
+		$year = date('Y');
+        $month = date('m');
+		$academicYear = ($month >= 4)
+			? $year . '-' . ($year + 1)
+			: ($year - 1) . '-' . $year;
+
+			[$startYear, $endYear] = explode('-', $academicYear);
+			$previousAcademicYear = ($startYear - 1) . '-' . ($endYear - 1);
+
+		if ($request->filled('academic_year')) {
+			$selectedYear = $request->academic_year;
+		} else {
+
+			$hasPreviousYearData = DB::table('students')
+				->where('school_code', $school->school_code)
+				->where('academic_year', $previousAcademicYear)
+				->exists();
+			$selectedYear = $hasPreviousYearData
+				? $previousAcademicYear
+				: $academicYear;
+		}
+
+		$classes = DB::table('schools')
+			->select('class.id','class.name as className', 'nomenclature')
+			->join('custom_classes' ,'custom_classes.school_id' ,'=' ,'schools.id')
+			->join('class','class.id','=','custom_classes.class_id')
+			->where('schools.id' ,$schoolId )
+			->where('class.status' , 1 )
+			->groupBy('class.id','class.name','nomenclature')
+			->orderBY('class.orders')
+			->get();
 
 		//echo "<pre>"; print_r($classes);exit();
 
 		$studentsQuery = DB::table('schools')
 		->join('students', 'students.school_id', '=' , 'schools.id')
+		->leftJoin('student_rpwd_mapping', 'student_rpwd_mapping.student_id', '=', 'students.id')
 		->leftJoin('class', 'students.class_id', '=', 'class.id')
     	->leftJoin('custom_classes', 'students.custom_class_id', '=', 'custom_classes.id')
 		->select(
@@ -990,6 +1005,13 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			'students.email_id',
 			'students.rollno',
 			'students.status',
+			'students.is_pwd',
+			'student_rpwd_mapping.pwd_type_id',
+			'student_rpwd_mapping.anthropo_ht_id',
+			'student_rpwd_mapping.anthropo_wt_id',
+			'students.created_at',
+			'students.academic_year',
+			'students.email_flag',
 			DB::raw("CASE 
                     WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
                     THEN custom_classes.nomenclature 
@@ -1014,24 +1036,33 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		                    (students.class_id = 9 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 12 AND 17) OR
 		                    (students.class_id = 10 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 13 AND 18) OR
 		                    (students.class_id = 11 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 14 AND 19) OR
-		                    (students.class_id = 12 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 15 AND 20) OR
-							(students.class_id = 14 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 3 AND 5) OR
-							(students.class_id = 17 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 3 AND 5) OR
-							(students.class_id = 18 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 3 AND 5) OR
-							(students.class_id = 22 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 3 AND 6) OR
-							(students.class_id = 23 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 4 AND 7) 
+		                    (students.class_id = 12 AND TIMESTAMPDIFF(YEAR, students.dob, CURDATE()) BETWEEN 15 AND 20)
 		                )
 		            THEN 1
 		            ELSE 0
 		        END AS isValidAge
 		    ")
 		)
-		->where('students.school_code', $school->school_code)
-		->orderBy('students.class_id')
+		// ->orderBy('students.class_id')
+		->orderBy('class.orders')
 		->orderBy('students.section_id')
-		->orderBy('students.rollno', 'asc');;
+		->where('students.school_code', $school->school_code);
 
+		$emailGroups = (clone $studentsQuery)
+		->where('students.academic_year', $academicYear)
+		->where('students.email_flag', '0')
+		->get()
+		->groupBy('email_id');
 
+		$studentsDetails1 = (clone $studentsQuery)->get();
+		$emailCounts = $studentsDetails1->groupBy('email_id')->map->count();
+
+		if ($request->filled('academic_year')) {
+			$studentsQuery->where('students.academic_year', $request->academic_year);
+		} else {
+			$studentsQuery->where('students.academic_year', $selectedYear);
+		}
+		
 		if ($request->filled('class_id')) {
 			$studentsQuery->where('students.class_id', $request->class_id);
 		}
@@ -1040,56 +1071,58 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			$studentsQuery->where('students.section_id', $request->section_id);
 		}
 
-        if ($request->has('status')) {
-	        $status = $request->input('status');
-	        if (!empty($status)) {
-	        	$studentsQuery->where('students.status', $status);
-	        }
+        if ($request->filled('status')) {
+			$status = $request->input('status');
+			if ($status === 'all') {
+				$studentsQuery->whereIn('students.status', ['active', 'transfer', 'promoted', 'failed',]);
+			}else{
+				$studentsQuery->where('students.status', $status);			
+			}
 	    }
-	    $studentsDetails = $studentsQuery->get();
+		// for physically disabled
+		// if ($request->filled('is_pwd')) {
+		// 	$studentsQuery->where('students.is_pwd', $request->input('is_pwd'));
+		// }
 
+		$studentsDetails  = (clone $studentsQuery)->get();
 
     	if($request->ajax()){
 
 			return Datatables::of($studentsDetails)
 	        ->addIndexColumn()
 
-			->addColumn('checkbox', function($row) {
-		        return '<input type="checkbox" class="row-select" value="'.$row->student_id.'">';
+			->addColumn('checkbox', function($row) use ($academicYear){
+				if($row->academic_year != $academicYear && $row->status != 'active') {
+					return '<input type="checkbox" class="row-select abc" value="'.$row->student_id.'" data-id=" '.$row->student_id .'" disabled>';
+				}else{
+					return '<input type="checkbox" class="row-select" value="'.$row->student_id.'" data-id="'. $row->student_id .'">';
+				}
 		    })
 
 	        ->addColumn('class_id', function($row) {
 	        	return $row->display_classname;
-                // return \App\Helpers\Helper::className($row->class_id);
             })
 
-	        ->addColumn('section_id', function($row) use ($customClass1){
-	        	$html = '<select class="form-control mx-0 w-100" name="section_id" data-section="'.$row->section_id.'" data-id= '.$row->student_id.' id="section" value="'.$row->class_id.'" >
-	                <option value="">Section</option>';
-                	foreach ($customClass1[$row->class_id] as $section) {
-					    $html .= '<option value="' . $row->class_id . '"';
-					    if ($row->section_id == $section) {
-					        $html .= ' selected';
-					    }
-					    $html .= '>' . $section . '</option>';
-					}
-	        	$html .= '</select>';
-                return $html;
+			->addColumn('section_id', function($row) use ($customClass1, $academicYear){
+				if ($row->academic_year == $academicYear){
+					$html = '<select class="form-control mx-0 w-100" name="section_id" data-section="'.$row->section_id.'" data-id= '.$row->student_id.' id="section" value="'.$row->class_id.'" >
+						<option value="">Section</option>';
+						foreach ($customClass1[$row->class_id] as $section) {
+							$html .= '<option value="' . $row->class_id . '"';
+							if ($row->section_id == $section) {
+								$html .= ' selected';
+							}
+							$html .= '>' . $section . '</option>';
+						}
+					$html .= '</select>';
+					return $html;
+				}else{ 	
+					return $row->section_id;
+				}       	
             })
 
             ->addColumn('gender' , function($row) {
-            	$gender = ['Male','Female'];
-            	$genderHtml = '<select class="form-control form-control-sm" name="gender" id="studentGender" data-gender="'.$row->gender.'" data-id="'.$row->student_id.'" >
-	                <option value="">Select Gender</option>';
-					foreach ($gender as $data) {
-						$genderHtml .= '<option value="' . $data . '"';
-						if ($data == $row->gender) {
-							$genderHtml .= ' selected';
-						}
-						$genderHtml .= '>' . $data . '</option>';
-					}
-				$genderHtml .= '</select>';
-            	return $genderHtml;
+				return $row->gender;
             })
 
 	        ->addColumn('dob', function($row) {
@@ -1112,20 +1145,43 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				if ((isset($row->isValidAge) && $row->isValidAge === 0) || $formatted_date == 'Fill date') {
 					$hasDobError = true;
 				}
-
+				$formattedDob = date('d M Y', strtotime($row->dob));
 
 				if ($hasDobError) {
-					return '<input class="datepicker has-dob-error" data-dob-error="true" data-dob="'.date('d-m-Y', strtotime($row->dob)).'" data-id="'.$row->student_id.'" type="date" name="birth_date" value="'.$formatted_date.'" id="updated_date">';
+					return '<span class="has-dob-error"
+						data-dob-error="true"
+						data-dob="'.$formattedDob.'"
+						data-id="'.$row->student_id.'">'
+						.$formattedDob.
+					'</span>';
+				} else {
+					$datehtml .= '<span
+						data-dob="'.$formattedDob.'"
+						data-id="'.$row->student_id.'">'
+						.$formattedDob.
+					'</span>';
 				}
-		        else{
-		    		$datehtml .= '<input class="datepicker" data-dob="'.date('d-m-Y', strtotime($row->dob)).'" data-id="'.$row->student_id.'" type="date" name="birth_date" value="'.$formatted_date.'" id="updated_date">';
-		        } 
 
                 return $datehtml;
             })
 
-	        ->addColumn('status', function($row){
-	        	$status = ['active','transfer'];
+			->addColumn('email_id', function ($row) use ($emailCounts) {
+				$count = $emailCounts[$row->email_id] ?? 0;
+				$email = ($row->email_id);
+				// if ($count >= 2) {
+				// 	$email .= ' <span class="badge badge-danger"><i class="fa fa-ban" title="This email id is used '  . $count . ' times"></i></span>';
+				// }
+				return $email;
+			})
+
+	        ->addColumn('status', function($row) use ($academicYear){
+				$status = null;
+				if ($row->academic_year == $academicYear){
+					$status = ['active','transfer'];
+				}else{
+					$status = ['active','transfer','promoted','failed'];
+				}
+	        	
             	$statusHtml = '<select class="form-control" name="status" id="studentStatus" data-status="'.$row->status.'" data-id="'.$row->student_id.'" >
 	                <!--option value="">Select Status</option-->';
 					foreach ($status as $data) {
@@ -1138,8 +1194,49 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				$statusHtml .= '</select>';
             	return $statusHtml;
             })
+			->addColumn('student_display_name', function($row) {
+				if($row->is_pwd == 1){
+					return $row->student_name . ' <span style="color:white; background:#e74c3c; padding:2px 6px; border-radius:4px; font-size:10px;">CWSN</span>';
+				} else {
+					return $row->student_name;
+				}
+			})
+			->addColumn('created_at', function($row) {
+				return Carbon::parse($row->created_at)->format('d-m-Y');
+			})
 
-            ->rawColumns(['checkbox','gender','class_id','section_id','dob','status'])
+			->addColumn('rollno', function($row) use($academicYear) {
+				// if ($row->academic_year == $academicYear){
+				// 	return '<input type="text" class="form-control rollno-input" data-rollno="'.$row->rollno.'"  value="'.$row->rollno.'" data-id="'.$row->student_id.'">';
+				// }else{
+				// 	}
+				return $row->rollno;
+			})
+
+			->addColumn('edit_button', function($row) use($academicYear) {
+
+				if ($row->academic_year == $academicYear){
+					return '<div class="d-flex align-items-center">
+								<button class="btn btn-sm btn-primary edit-student" 
+										data-id="'.$row->student_id.'" 
+										title="edit '.$row->student_name.' details">
+									<i class="fas fa-edit"></i>
+								</button>
+								<button class="btn btn-sm btn-primary mx-1 login-as-student" 
+										data-id="'.$row->student_id.'" 
+										title="Login as '.$row->student_name.'">
+									<i class="fa-solid fa-right-to-bracket"></i>
+								</button>
+							</div>';
+				}else{
+					return '<button class="btn btn-sm btn-secondary" disabled>
+								<i class="fas fa-edit"></i>
+							</button>';
+				}
+			})
+			
+
+            ->rawColumns(['checkbox','student_display_name','gender','class_id','section_id','rollno','dob','email_id','status','created_at','edit_button'])
 	        ->toJson();
         }
 
@@ -1151,13 +1248,22 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
         	$classList = Sclass::select('id','name')->where('status', 1)->orderBy('orders')->get();
         }
 
+		$pwdDetails = DB::table('pwd_categories')
+		->join('pwd_types', 'pwd_types.pwd_cat_id', '=', 'pwd_categories.id')->get();
+
+		$anthropometricData = DB::table('anthropometric_table')->orderBy('id')->get()->groupBy('anthropometric_type');
+		
+
         $logs = \App\Models\StudentImportLog::with('user')
         ->where('user_id', Auth::id())->where('is_active', 'active')
         ->orderBy('created_at', 'desc')
         ->get();
+		$promotionLog = DB::table('students_promotion_status')->where('school_id',$schoolId)
+		->orderBy('created_at', 'desc')
+        ->get();
 
 		$title = 'Manage Students';
-		return view('school.managestudent', compact('title','studentsDetails','classes','check','classList','logs', 'data'));
+		return view('school.managestudent', compact('title','studentsDetails','studentsDetails1','classes','check','classList','logs', 'promotionLog', 'data','pwdDetails','emailGroups','hasPreviousYearData', 'anthropometricData'));
 	} 	
 
 		// for age validation
@@ -1247,6 +1353,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				'editStudentEmail' => 'required|email:rfc,dns|max:255',
 				'editStudentSection' => 'required',
 				'editStudentGender' => 'required|in:Male,Female',
+				'editStudentStatus' => 'required|in:active,transfer',
 				'editStudentRollno' => [
 					'required',
 					'numeric',
@@ -1254,7 +1361,8 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 					'max:9999',
 					function ($attribute, $value, $fail) use ($request, $student) {
 						$exists = Sstudent::where('class_id', $request->input('editStudentClass'))
-							->where('school_id', $student->school_id)
+							->where('school_id', (string)$student->school_id)
+							->where('academic_year', '2026-2027')
 							->where('section_id', $request->editStudentSection)
 							->where('rollno', $value)
 							->where('id', '!=', $request->s_id)
@@ -1266,6 +1374,16 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 					}
 				],
 				'editStudentDOB' => 'required|date',
+				'is_pwd' => 'required|in:0,1',
+				'pwdTypes' => [
+					function ($attribute, $value, $fail) use ($request) {
+						if ($request->is_pwd == 1) {
+							if (empty($value) || $value === 'null') {
+								$fail('Please select at least one disability type.');
+							}
+						}
+					}
+				],
 			];
 
 			$customMessages = [
@@ -1281,6 +1399,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				'editStudentRollno.numeric' => 'Roll number must be a number.',
 				'editStudentRollno.min' => 'Roll number must be at least 1.',
 				'editStudentRollno.max' => 'Roll number cannot exceed 9999.',
+				'editStudentStatus.in' => 'Student status must be either active or transfer.',
 			];
 
 			$validator = Validator::make($request->all(), $rules, $customMessages);
@@ -1291,7 +1410,6 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 					'error' => $validator->errors()
 				]);
 			}
-
 			$age = \Carbon\Carbon::parse($request->editStudentDOB)->age;
 			$isValidAge = $this->isValidAge($request->editStudentClass, $age);
 
@@ -1319,6 +1437,15 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 					'message' => 'Custom class not found.'
 				]);
 			}
+			// list($disabilities, $pwd_type_id) = explode('|', $request->pwdTypes);
+			[$disabilities, $pwd_type_id] = array_pad(explode('|', $request->pwdTypes ?? ''), 2, null);
+			
+			
+			if (empty($disabilities) || $disabilities === 'null') {
+				$disabilities = null;
+			} elseif (is_string($disabilities)) {
+				$disabilities = array_filter(array_map('trim', explode(',', $disabilities)));
+			}
 
 			$words = explode(" ", $request->editStudentName);
 			$namefirstletter = $words[0];
@@ -1335,8 +1462,48 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				'section_id' => $request->editStudentSection,
 				'rollno' => $request->editStudentRollno,
 				'status' => $request->editStudentStatus,
+				'is_pwd' => $request->is_pwd,
+				'updated_at' => now(),
 			]);
-			Helper::auditLog('Student profile', 'Student profile updated by School');
+
+			$meta = DB::table('students_meta')
+				->where('student_id', $request->s_id)
+				->first();
+
+			
+			if ($meta) {
+				DB::table('students_meta')
+					->where('student_id', $request->s_id)
+					->update([
+						'is_pwd' => $request->is_pwd,
+						'disability_types' => $disabilities ? json_encode($disabilities) : null,
+						'anthropometric_height' =>$request->height_measurement_edit,
+						'anthropometric_weight' =>$request->weight_measurement_edit,
+						'updated_at' => now(),
+					]);
+			} else {
+				DB::table('students_meta')->insert([
+					'student_id' => $request->s_id,
+					'is_pwd' => $request->is_pwd,
+					'disability_types' => $disabilities ? json_encode($disabilities) : null,
+					'anthropometric_height' =>$request->height_measurement_edit,
+					'anthropometric_weight' =>$request->weight_measurement_edit,
+					'created_at' => now(),
+					'updated_at' => now(),
+				]);
+			}
+
+
+			if($request->is_pwd == 1){
+
+				DB::table('student_rpwd_mapping')->updateOrInsert([	'student_id' => $request->s_id,],
+					[
+						'pwd_type_id' => $pwd_type_id,
+						'anthropo_ht_id' => $request->height_measurement_edit ?? null,
+						'anthropo_wt_id' => $request->weight_measurement_edit ?? null,
+					]
+				);
+			}
 
 			return response()->json([
 				'status' => 'success',
@@ -1344,6 +1511,9 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			]);
 
 		} catch (\Exception $e) {
+			\Log::error('EditStudentDetails failed', [
+				'message' => $e->getMessage(),
+			]);
 
 			return response()->json([
 				'status' => 'fail',
@@ -1365,8 +1535,6 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			$age = \Carbon\Carbon::parse($newDate)->age;
 
 			$isValidAge = $this->isValidAge($student->class_id, $age);
-
-			// dd($request->has('force_update'));
 
 			if (!$isValidAge && !$request->boolean('force_update')) {
 
@@ -1447,16 +1615,16 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 
    		$rules = [
-		    'student_name'  => 'required|string|max:100|regex:/^[a-zA-Z][a-zA-Z\s.\']*$/u',	
+		    'student_name'  => 'required|string|max:100|regex:/^[a-zA-Z][a-zA-Z\s.]*$/u',		    				
 		    'studentuid'    => 'required|min:8',
 		    'email'         => 'required|email|max:255',
 		    'gender'        => 'required|in:Male,Female',
 		    'dob'           => 'required|date',
 		    'section'       => 'required|not_in:0',
 		    'class'         => 'required|not_in:0',
-		    'rollno'        => ['required', 'numeric','digits_between:1,4',
+		    'rollno'        => ['required', 'alpha_num','digits_between:1,4',
 		    function ($attribute, $value, $fail) use ($request) {
-		        $exists = Sstudent::where('class_id', $request->input('class'))->where('school_id', $request->input('schools_id'))->where('section_id', $request->input('section'))->where('rollno', $value)->value('student_name');
+		        $exists = Sstudent::where('class_id', $request->input('class'))->where('school_id', $request->input('schools_id'))->where('academic_year', '2026-2027')->where('section_id', $request->input('section'))->where('rollno', $value)->value('student_name');
 
 		            if ($exists) {
 		                $fail('The roll number is already assigned to : ' .$exists );
@@ -1464,25 +1632,36 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		        }
 		    ],
 
-		    'student_uid'   => ['required', 'numeric',
+		    // 'student_uid'   => ['required', 'digits_between:1,12',
+		     'student_uid'   => ['required',
 		        function ($attribute, $value, $fail) use ($request) {
-		            $existingStudent = Sstudent::where('student_uid', $value) ->where('school_id', $request->input('schools_id'))->first();
+		            $existingStudent = Sstudent::where('student_uid', $value) ->where('school_id', $request->input('schools_id'))->where('academic_year', '2026-2027')->first();
 		            if ($existingStudent) {
 		                $fail('The registration number is already assigned to : ' . ucfirst($existingStudent->student_name));
 		            }
 		        }
+			],
+			'is_pwd_add' => 'required|in:0,1',
+			'pwdTypesForAdd' => [
+				function ($attribute, $value, $fail) use ($request) {
+					if ($request->is_pwd_add == 1) {
+						if (empty($value) || $value === 'null') {
+							$fail('Please select at least one disability type.');
+						}
+					}
+				}
 			],
 		];
 
 		// Custom validation messages
 		$customMessages = [
 		    'student_name.required' => 'Please enter student name',
-		    'student_name.regex'   => 'Name should contain only letters, spaces, and dots and apostrophe.',
+		    'student_name.regex'    => 'Name should contain only letters, spaces, and dots.',
 		    'student_name.max'      => 'Maximum character length is 100',
 
 		    'student_uid.required'   => 'Please enter student registration number',
 		    'student_uid.numeric'    => 'Registration number should only contain numeric values',
-		    // 'student_uid.digits_between' => 'Registration number should be between 1 and 12 digits',
+		    // 'student_uid.digits_between' => 'Registration number should be between 1 and 7 digits',
 
 		    'email.required'        => 'Email address is required!',
 		    'email.email'           => 'Please provide a valid email address',
@@ -1493,7 +1672,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		    'section.required'      => 'Please assign class section',
 
 		    'rollno.required'       => 'Please assign roll number to the student',
-		    'rollno.numeric'        => 'Roll number should only contain numeric values',
+		    'rollno.alpha_num'      => 'Roll Number can only contain letters and numbers.',
 		    'rollno.digits_between' => 'Roll number should be between 1 and 4 digits',
 
 		    'studentuid.required'   => 'Please provide student user id',
@@ -1517,12 +1696,18 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	        $namefirstletter = $words[0];
 	        $password = strtolower($namefirstletter) . '@' . $request->post('student_uid');
 			$year = date('Y');
-			$month = date('m');
+            $month = date('m');
 
-			if ($month >= 4) {
-				$academicYear = $year . '-' . ($year + 1);
-			} else {
-				$academicYear = ($year - 1) . '-' . $year;
+            $academicYear = ($month >= 4)
+                ? $year . '-' . ($year + 1)
+                : ($year - 1) . '-' . $year;
+
+			[$disabilities, $pwd_type_id] = array_pad(explode('|', $request->pwdTypesForAdd ?? ''), 2, null);
+
+			if (empty($disabilities) || $disabilities === 'null') {
+				$disabilities = null;
+			} elseif (is_string($disabilities)) {
+				$disabilities = array_filter(array_map('trim', explode(',', $disabilities)));
 			}
 
 	        if (!empty($custom_class_id)) {
@@ -1537,12 +1722,35 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	                'section_id'    => $request->post('section'),
 	                'dob'           => $request->post('dob'),
 	                'user_id'       => $request->post('studentuid'),
-	                'password'      => $password,
+	                'password'      => Hash::make($password),
+					'password_generated' => 1,
 	                'email_id'      => $request->post('email'),
 	                'rollno'        => $request->post('rollno'),
 	                'status'        => $request->post('status'),
-					'academic_year'	=> $academicYear
+					'is_pwd' => 	$request->is_pwd_add,
+					'academic_year' => $academicYear,
 	            ]);
+
+				DB::table('students_meta')->Insert(
+					[	'student_id' => $data->id,
+						'is_pwd' => $request->is_pwd_add,
+						'anthropometric_height' =>$request->height_measurement_add,
+						'anthropometric_weight' =>$request->weight_measurement_add,
+						'disability_types' => $disabilities ? json_encode($disabilities) : null,
+						'updated_at' => now(),
+						'created_at' => now(),
+					]
+				);
+
+				if($request->is_pwd_add == 1){
+
+					DB::table('student_rpwd_mapping')->insert([
+						'student_id' => $data->id,
+						'pwd_type_id' => $pwd_type_id,
+						'anthropo_ht_id' => $request->height_measurement_add ?? null,
+						'anthropo_wt_id' => $request->weight_measurement_add ?? null,				
+					]);
+				}
 
 	            $className = Sclass::find($data->class_id)->value('name');
 	            return response()->json([
@@ -1611,16 +1819,58 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
 
 			if($request->ajax()){
+
 				Sstudent::find($request->post('studentId'))->update([
 					'status' => $request->post('status'),
+					'updated_at' => now(),
 				]);
+
+				if($request->input('status') && $request->input('status') === 'failed'){
+
+					$student = Sstudent::find($request->post('studentId'));
+
+					Sstudent::create([
+                        'school_id'         => $student->school_id,
+                        'school_code'       => $student->school_code,
+                        'student_uid'       => $student->student_uid,
+                        'student_name'      => $student->student_name,
+                        'gender'            => $student->gender,
+                        'class_id'          => $student->class_id,
+                        'custom_class_id'   => $student->custom_class_id,
+                        'section_id'        => $student->section_id,
+                        'dob'               => $student->dob,
+                        'user_id'           => $student->user_id,
+                        'password'          => $student->password,
+                        'email_id'          => $student->email_id,
+                        'rollno'            => $student->rollno,
+                        'domicile'          => $student->domicile,
+                        'fav_sport'         => $student->fav_sport,
+                        'hobbies'           => $student->hobbies,
+                        'apaarId'           => $student->apaarId,
+                        'aadhaarId'         => $student->aadhaarId,
+                        'passport'          => $student->passport,
+                        'status'            => 'active',
+                        'academic_year'     => '2026-2027',
+                    ]);
+				}
 
 				echo 'Status updated sucessfully';
 			}
 
 		} catch (\Exception $e) {
-			return $e->getMessage();
-		}
+	        $errorMessage = 'Update failed';
+	        $httpCode = 500;
+	        
+	        // Detect database lock errors
+	        if (str_contains($e->getMessage(), 'Lock wait timeout') || str_contains($e->getMessage(), 'deadlock') || str_contains($e->getMessage(), 'lock conflict')) {	            
+	            $errorMessage = 'The system is currently busy processing other requests. Please try again in a few moments.';
+	            $httpCode = 423; 
+	        }
+	        
+	        // Log::error('Status update failed: '.$e->getMessage());
+	        Log::error('Status update failed');
+	        return response()->json(['error' => $errorMessage], $httpCode);
+	    }
    	}
 	
 	
@@ -1628,177 +1878,209 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
    	 * Delete students 23_Feb
    	 * */
 	
-	public function DeleteStudent(Request $request){
-		try {
+	public function DeleteStudent(Request $request) {
 
-			$action = $request->input('action');
-			$ids = $request->input('ids', []);
+	    $action = $request->input('action');
+	    $ids = $request->input('ids', []);
 
-			if (empty($ids)) {
-				return response()->json([
-					'status' => false,
-					'message' => 'No students selected.'
-				], 422);
-			}
+	    if (empty($ids) || !in_array($action, ['delete', 'trash'])) {
+	        return response()->json(['message' => 'Invalid request.'], 400);
+	    }
+		$year = date('Y');
+		$month = date('m');
+		$academicYear = ($month >= 4)
+			? $year . '-' . ($year + 1)
+			: ($year - 1) . '-' . $year;
 
-			if (!in_array($action, ['delete', 'trash'])) {
-				return response()->json([
-					'status' => false,
-					'message' => 'Invalid action requested.'
-				], 400);
-			}
-			$students = DB::table('students')
-				->whereIn('id', $ids)
-				->get();
+		if ($action === 'delete') {
+			
+			
+		    $students = DB::table('students')->select('id', 'school_id', 'school_code', 'student_uid', 'student_name', 'gender', 'class_id', 'custom_class_id', 'section_id','dob','user_id','email_id','rollno','academic_year','is_pwd','batchId','paymentStatus','batchCreatedAt','careersPaymentRef','gatewayTxnId','paidOn','updatedOn','apaarId')
+		        ->whereIn('id', $ids)->where('academic_year', $academicYear)->get();
 
-			if ($students->isEmpty()) {
-				return response()->json([
-					'status' => false,
-					'message' => 'Selected students not found.'
-				], 404);
-			}
+		    $deletedData = [];
+		    $now = now(); 
+		    $userId = Auth::id();
 
-			$deletedData = [];
-			$now = now();
+		    foreach ($students as $student) {
+		        $deletedData[] = [
+		            'student_id'       => $student->id,
+		            'name'             => $student->student_name,
+		            'deleted_by'       => $userId,
+		            'deleted_at'       => $now,
+		            'school_id'        => $student->school_id,
+		            'custom_class_id'  => $student->custom_class_id,
+		            'student_uid'      => $student->student_uid,
+		            'json_data'        => json_encode((array) $student),
+		        ];
+		    }
+
+		    if (!empty($deletedData)) {
+		        DB::table('deleted_students')->insert($deletedData);
+		    }
+
+		    $deletedCount = DB::table('students')->whereIn('id', $ids)->where('academic_year', $academicYear)->delete();
+		    AuditHelper::log('action', 'Deleted Students');
+
+		    return response()->json([
+				'status' => true,
+				'deleted' => $deletedCount,
+				'message' => "$deletedCount student(s) deleted successfully."
+			]);
+		}
+
+
+
+	    if ($action === 'trash') {
+	        Sstudent::whereIn('id', $ids)->update(['status' => 'trashed']);
+
+
+	        return response()->json(['message' => 'Selected students moved to trash successfully.']);
+	    }
+
+	    return response()->json(['message' => 'Action performed successfully.']);
+	}
+
+	/**
+   	 * Promote students by students Id 22_Apr
+   	 * */
+	
+	public function PromoteStudentIds(Request $request){
+
+		try {	
+
 			$userId = Auth::id();
 
-			foreach ($students as $student) {
-				$deletedData[] = [
-					'student_id'      => $student->id,
-					'name'            => $student->student_name,
-					'deleted_by'      => $userId,
-					'deleted_at'      => $now,
-					'school_id'       => $student->school_id,
-					'custom_class_id' => $student->custom_class_id,
-					'student_uid'     => $student->student_uid,
-					'json_data'       => json_encode((array) $student),
-				];
+			$ids = $request->input('ids', []);
+			
+			$year = date('Y');
+			$month = date('m');
+			$academicYear = ($month >= 4)
+				? $year . '-' . ($year + 1)
+				: ($year - 1) . '-' . $year;
+
+			[$startYear, $endYear] = explode('-', $academicYear);
+			$previousAcademicYear = ($startYear - 1) . '-' . ($endYear - 1);
+				
+			$studentIds = Sstudent::whereIn('id', $ids)
+				->where('status', 'active')
+				->where('academic_year', $previousAcademicYear)
+				->pluck('id')
+				->toArray();
+			
+
+			$schoolId = DB::table('school_reference')
+					->where('school_user_id', $userId)
+					->where('status', 1)
+					->value('school_id');
+
+			if (empty($studentIds)) {
+				return response()->json([
+					'status' => false,
+					'message' => 'Selected students have already been promoted.'
+				], 400);
 			}
 
-			DB::table('deleted_students')->insert($deletedData);
-			DB::table('students')->whereIn('id', $ids)->delete();
+			$promotionId = DB::table('students_promotion_status')->insertGetId([
+				'school_id' => $schoolId,
+				'total_students' => count($studentIds),
+				'promoted_students' => 0,
+				'transferred_students' => 0,
+				'status' => 'pending'
+			]);
+
+			PromoteStudentsByIdsJob::dispatch($studentIds, $schoolId, $promotionId)->onQueue('upload_test');
 
 			return response()->json([
 				'status' => true,
-				'message' => count($ids) . ' student(s) permanently deleted successfully.'
-			], 200);
-
-		} catch (\Exception $e) {
-
+				'message' => 'Promotion Request Submitted Successfully.'
+			]);
+		} catch (\Throwable $th) {
+			$promotionId = DB::table('students_promotion_status')->where('school_id', $schoolId,)->update([				
+				'status' => 'failed'
+			]);
 			return response()->json([
 				'status' => false,
-				'message' => 'Failed to process request.',
-				'error'   => $e->getMessage()
+				'message' => 'Failed to start promotion.',
+				'error' => $e->getMessage()
 			], 500);
 		}
 	}
 
+	public function PromotionIdsStatus(){
+		$userId = Auth::id();
+		$schoolId = DB::table('school_reference')
+			->where('school_user_id', $userId)
+			->where('status', 1)
+			->value('school_id');
+
+		$logs = DB::table('students_promotion_status as sps')
+			->select(
+				'sps.total_students',
+				'sps.promoted_students',
+				'sps.transferred_students',
+				'sps.status',
+				'sps.updated_at',
+				'sps.completed_at',
+			)
+			->where('sps.school_id', $schoolId)
+			->orderByDesc('sps.id')
+			->get();
+
+		return response()->json([
+			'html' => view('modals.students-promotion-status-table', compact('logs'))->render()
+		]);
+	}
+
+
 	/**
-   	 * Promote students 23_Feb
-   	 * */
-	
-	public function PromoteStudent(Request $request) {
+	* download students record 
+	* 01-Aug
+	**/ 
+	public function downloadStudentProfile(Request $request) {
+	    try {
 
-		try{
-			$userId = Auth::id();
+	        $userId = Auth::id();
 
-			$schoolId = DB::table('school_reference')
-				->where('school_user_id', $userId)
-				->where('status', 1)
-				->value('school_id');
+	        $schoolId = DB::table('school_reference')
+	            ->where('school_user_id', $userId)
+	            ->where('status', 1)
+	            ->value('school_id');
 
-			$ids = $request->input('ids');
+	        $studentIds = [];
+	        $selectAll = true;
 
-			$students = Sstudent::whereIn('id', $ids)->where('status', 'active')->get();
+	       
+	      	$selectedYear = $request->input('selectedYear');
+	        if(empty($selectedYear)){
+	        	$selectedYear = '2025-2026';
+	        }
 
-			if ($students->isEmpty()) {
-				return response()->json([
-					'status' => false,
-					'message' => 'No active students found for promotion.'
-				], 404);
-			}
-			$classes = DB::table('class')->orderBy('orders')->get();
-			$nextClassMap = [];
-			for ($i = 0; $i < $classes->count() - 1; $i++) {
-				$nextClassMap[$classes[$i]->id] = $classes[$i + 1]->id;
-			}
+	        if ($request->filled('student_ids')) {
+	            $studentIds = array_map('intval', (array) $request->student_ids);
+	            if (empty($studentIds)) {
+	                return response()->json([
+	                    'status' => false,
+	                    'message' => 'No students selected.'
+	                ], 400);
+	            }
+	            $selectAll = false;
+	        }
+	        $fileName = 'StudentDataUploadFormat' . now()->format('Ymd_His') . '.xlsx';
 
-			$nextClassPairs = $students->map(function ($student) use ($nextClassMap) {
-				return [
-					'next_class_id' => $nextClassMap[$student->class_id] ?? null,
-					'section_id'    => $student->section_id,
-				];
-			})->unique();
+	        return Excel::download( new ExportStudentProfile(  $schoolId, $studentIds, $selectAll, $selectedYear), $fileName );
 
-			$customClasses = DB::table('custom_classes')
-				->where('school_id', $schoolId)
-				->whereIn('class_id', $nextClassPairs->pluck('next_class_id'))
-				->whereIn('section', $nextClassPairs->pluck('section_id'))
-				->get()
-				->keyBy(function ($item) {
-					return $item->class_id . '_' . $item->section;
-				});
-			$year = date('Y');
-			$month = date('m');
+	    } catch (\Throwable $e) {
 
-			if ($month >= 4) {
-				$academicYear = $year . '-' . ($year + 1);
-			} else {
-				$academicYear = ($year - 1) . '-' . $year;
-			}
+	        \Log::error('Student export failed: ' . $e->getMessage());
 
-			$promotedCount = 0;
-			$transferredCount = 0;
-
-			foreach ($students as $student) {
-				if ($student->class_id == 12) {
-					$student->update([
-						'status' => 'transfer',
-					]);
-					$transferredCount++;
-					continue;
-				}
-
-				$nextClassId = $student->class_id + 1;
-				$key = $nextClassId . '_' . $student->section_id;
-
-				$customClassId = $customClasses[$key]->id ?? null;
-
-				if (!$customClassId) {
-                    $maxValue = ScustomClass::max('orders') ?? 0;
-
-                    $customClass = ScustomClass::create([
-                        'school_id' => $schoolId,
-                        'class_id'  => $nextClassId,
-                        'section'   => $student->section_id,
-                        'orders'    => $maxValue + 1,
-                        'status'    => 1,
-                    ]);
-
-                    $customClassId = $customClass->id;
-                }
-
-				$student->update([
-					'class_id'			=> $nextClassId,
-					'custom_class_id'	=> $customClassId,
-					'academic_year'		=> $academicYear
-				]);
-				$promotedCount++;
-			}
-
-			return response()->json([
-				'status' => true,
-				'message' => "$promotedCount student(s) promoted successfully. $transferredCount student(s) transferred."
-			], 200);
-
-		} catch (\Exception $e) {
-
-			return response()->json([
-				'status' => false,
-				'message' => 'Failed to promote students.',
-				'error'   => $e->getMessage()
-			], 500);
-		}
+	        return response()->json([
+	            'status' => false,
+	            'message' => $e->getMessage(),
+	            'line' => $e->getLine(),
+	            'file' => $e->getFile(),
+	        ], 500);
+	    }
 	}
 
 
@@ -1808,7 +2090,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
    	 * */
    	public function downloadTemplate() {
       	
-        $templatePath = public_path('downloads/PersonalProfile.xlsx');
+        $templatePath = public_path('downloads/StudentDataUploadFormat.xlsx');
 
         $headers = [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -1857,12 +2139,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
     
 
-    public function importStudentData(Request $request) {    
-	
-	
-	// echo "<pre>";
-	// print_r($request->all()); exit();
-	
+    public function importStudentData_bk(Request $request) {    
 	
 
     	$validator = Validator::make($request->all(), [
@@ -2026,6 +2303,658 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
         }
     }
 
+	public function importStudentData(Request $request) {    
+        $userId = Auth::user()->id;
+		$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+
+		// Step 1: Locking check
+	    DB::table('student_import_status')->updateOrInsert(
+	        ['school_id' => $schoolId],
+	        ['status' => DB::raw('status')]
+	    );
+
+	    $statusRow = DB::table('student_import_status')->where('school_id', $schoolId)->first();
+
+	    if ($statusRow->status === 'processing') {
+	        $lastUpdated = Carbon::parse($statusRow->updated_at);
+	        if ($lastUpdated->diffInMinutes(now()) <= 30) {
+	        	return response()->json([
+			    	'error' => 'error',
+			        'icon' => 'info',
+			        'title' => 'Import in Progress',
+			        'summary' => 'An import is already in progress. Please wait before uploading again.'
+			    ]);
+	        }
+
+	        DB::table('student_import_status')->where('school_id', $schoolId)->update(['status' => 'idle']);
+	    }
+
+	    try{
+
+
+			$validator = Validator::make($request->all(), [
+		    	// 'classnomenclature' => 'required',
+		        'upload_student_profile' => ['required','file','mimes:xls,xlsx','max:3000',new ExcelHeaderValidation,
+
+		        	function ($attribute, $value, $fail) {
+		                if ($value && $value->isValid()) {
+		                    try {
+		                        $realPath = $value->getRealPath();
+		                        $excelReader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($realPath);
+		              
+		                        if (!$excelReader->canRead($realPath)) {
+		                            $fail('The template format is invalid or corrupted. Please open the file in Excel, use "Save As", select "Excel Workbook (.xlsx)" and re-upload.');
+		                            return;
+		                        }
+
+		                        $excelReader->listWorksheetInfo($realPath);
+
+		                    } catch (\Throwable $ex) {
+
+		                       $fail('<strong>File layout configuration error detected.</strong><br><br>' .
+				                 '<strong>How to correct your file:</strong><br>' .
+				                 '<ol style="margin-top: 5px; padding-left: 20px;">' .
+				                 '  <li>Open your current file on your computer using <strong>Microsoft Excel</strong> or <strong>Google Sheets</strong>.</li>' .
+				                 '  <li>Navigate to the top menu, click on <strong>File</strong>, and select <strong>Save As</strong> (or <em>Download > Microsoft Excel (.xlsx)</em> if using Google Sheets).</li>' .
+				                 '  <li>In the file type dropdown menu, explicitly choose <strong>Excel Workbook (*.xlsx)</strong>.</li>' .
+				                 '  <li>Provide a new name for the file, click <strong>Save</strong>, and upload this new version instead.</li>' .
+				                 '</ol>');
+		                    }
+		                }
+		            }
+		           
+		        ],
+		    ], 
+		    [
+		        'upload_student_profile.required'=> 'Please select a document file.',
+		        'upload_student_profile.file'	 => 'No file has been selected. Please choose a file.',
+		        'upload_student_profile.mimes' 	 => 'The selected file must be in either the xls or xlsx format.',
+		        'upload_student_profile.max' 	 => 'File size should not be more than 3MB.',			
+		    ]);
+
+
+			if ($validator->fails()){
+	        	
+	            $errorContent = '<ul style="list-style-type: none;">';
+	            $dynamicTitle = 'Validation Error'; 
+
+
+	            foreach ($validator->errors()->getMessages() as $field => $validationErrors) {
+			        foreach ((array)$validationErrors as $validationError) {
+			            $errorContent .= '<li>'.$validationError.'</li>';		   
+			            if (str_contains($validationError, 'headers')) {
+			                $dynamicTitle = 'Template Format Error';
+			            } elseif (str_contains($validationError, 'size')) {
+			                $dynamicTitle = 'File Too Large';
+			            }elseif (str_contains($validationError, 'corrupted') || str_contains($validationError, 'layout')) {
+		                    $dynamicTitle = 'Corrupted Template File';
+		                }
+			        }
+			    }
+
+	            $errorContent .= '</ul>';
+
+	            return response()->json([
+			    	'error' => 'error',
+			        'icon' => 'error',
+			        'title' => $dynamicTitle,
+			        'summary' => $errorContent
+			    ]);
+	        }
+
+
+	        $file = $request->file('upload_student_profile');
+			$action = $request->post('event');        
+			$loggedInSchoolCode = \App\Models\School::find($schoolId)?->school_code;
+
+
+	        $importData = new ImportStudentProfile($schoolId, $action, $userId,$logId ='');
+			$dataArray = Excel::toArray($importData, $file);
+			$totalRecords = count($dataArray[0]);
+			$sheetData = $dataArray[0];
+
+
+			$seenCombos = [];
+			$excelDuplicates = 0;
+			$uniqueInExcel = [];
+			$excelDuplicatesData = [];
+
+			$invalidRows = [];		    
+			$validRows = [];
+
+			foreach ($sheetData as $index => $row) {
+		
+		    	$errors = [];
+
+		    	/* Check for empty rows */
+		    	$isEmptyRow = true;
+				foreach ($row as $cellValue) {
+					if (trim((string)$cellValue) !== '') {
+						$isEmptyRow = false;
+						break;
+					}
+				}
+
+				if ($isEmptyRow) {
+					$invalidRows[] = array_merge($row, [
+						'Row' => $index + 2,
+						'Error' => 'Blank row found at row '. $index + 2 .' . Please Delete empty rows and try again.'
+					]);
+					continue;
+				}
+
+
+				/* Check Missing School Code and Admission number */
+		    	$schoolCode = strtoupper(trim($row['school_code'] ?? ''));
+				$admissionNo = strtoupper(trim($row['admissionnumber'] ?? ''));	
+
+				if (empty($admissionNo)) {
+			        $invalidRows[] = array_merge($row, [
+			            'Row'   => $index + 2,
+			            'Error' => 'Admission number is missing.',
+			        ]);
+			        continue;
+			    }
+
+			    $combo = $schoolCode . '|' . $admissionNo;
+		        if (isset($seenCombos[$combo])) {
+		            $excelDuplicates++;
+		            $excelDuplicatesData[] = $row;
+		            $invalidRows[] = array_merge($row, [
+			            'Row' => $index + 2,
+			            'Error' => 'Duplicate admission number with same school code found in Excel.',
+			        ]);
+
+			        continue;
+
+		        } else {
+		            $seenCombos[$combo] = true;
+		            $uniqueInExcel[] = $row;
+		        }
+
+
+
+		        /* Validate School Code */
+		        $school_code = trim($row['school_code'] ?? null);
+		        if (empty($school_code)) {
+				    $errors[] = "School code number is missing.";
+				} else if ($school_code !== $loggedInSchoolCode) {
+				    $errors[] = "School code does not match the logged-in school code";
+				} else if (!preg_match('/^\S+$/', $school_code)) {
+				    $errors[] = "School code should not contain whitespace";
+				}
+
+
+		        /* Validate Admission Number */
+			    $admissionnumber = trim($row['admissionnumber'] ?? null);
+			    if (empty($admissionnumber)) {
+				    $errors[] = "Student Admission Number number is missing.";
+				}else if (!preg_match('/^[a-zA-Z0-9\/\\\\-]+$/', $admissionnumber)) {
+			        $errors[] = "Admission number can only contain letters, numbers, /, -, or \\ characters.";
+			    }
+		       
+
+			    /* Validate Name */
+			    $name = trim($row['name'] ?? null);			   
+			    if (empty($name)) {
+				    $errors[] = "Student Name is missing.";
+				} else if (!preg_match('/^[a-zA-Z][a-zA-Z\s.\']*$/u', $name)) {
+				    $errors[] = "Name should contain only letters, spaces, dots and apostrophes, and should not start with whitespace.";
+				} else if (mb_strlen($row['name']) > 100) {
+				    $errors[] = "Name should not exceed 100 characters and should not contain leading or trailing white spaces.";
+				}
+
+			    /* Validate Class */
+			    $validClasses = ['Pre Nursery','Nursery','LKG','UKG','KG','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+			    $class = trim($row['class'] ?? null);
+			    if (empty($class)) {
+				    $errors[] = "Class is missing.";
+				}else if (!in_array($class, $validClasses)) {
+			        $errors[] = "Class must be in required format only. Found: '{$class}'.";
+			    }
+
+			    /* Validate Gender */
+			    $validGender = ['M', 'F','m', 'f', 'Male', 'Female', 'male','female','MALE','FEMALE'];
+			    $gender = strtoupper(trim($row['gender'] ?? null));
+			    if (empty($gender)) {
+				    $errors[] = "Gender is missing.";
+				}else if (!in_array($gender, $validGender)) {
+			        $errors[] = "Gender should only be Male, Female, M, or F.";
+			    }
+
+			    /* Validate Section */
+			    $section = trim($row['section'] ?? null);
+			    if (empty($section)) {
+				    $errors[] = "Section is missing.";
+				}else if (!preg_match('/^[a-zA-Z0-9]+([ -][a-zA-Z0-9]+)*$/', $section)) {
+					$errors[] = "Section can only contain letters, numbers, single spaces, and single hyphens.";
+				}
+
+			    /* Validate Roll Number */
+			    $rollNo = trim($row['roll_no'] ?? null);
+			    if (empty($rollNo)) {
+				    $errors[] = "Roll Number is missing.";
+				}else if (!preg_match('/^[0-9]+$/', $rollNo)) {
+			        $errors[] = "Roll no. should be numeric value only";
+			    }
+
+			    /* Validate Date of Birth */		
+			    $dateValue = trim($row['dob_ddmmyyyy'] ?? null);
+				$validDate = null;
+
+				if (empty($dateValue)) {
+			    	$errors[] = "Date of Birth is missing.";
+				}else if (is_numeric($dateValue)) {
+			        $carbonDate = Carbon::instance(Date::excelToDateTimeObject($dateValue));
+			        $validDate = $carbonDate->format('d/m/Y');
+			    } elseif (preg_match('/^\d{2}[\/\-]\d{2}[\/\-]\d{4}$/', $dateValue)) {				        
+			        $dateValue = str_replace('-', '/', $dateValue);
+			        $carbonDate = Carbon::createFromFormat('d/m/Y', $dateValue);
+			        if ($carbonDate && $carbonDate->format('d/m/Y') === $dateValue) {
+			            $validDate = $dateValue;
+			        }
+			    }
+
+			    if (!$validDate) {
+			        $errors[] = "Invalid date format: $dateValue";
+			    }
+
+			    /* Validate Email */
+			    $email = trim($row['email'] ?? null);
+			    if (empty($email)) {
+			        $errors[] = "Email is missing.";
+			    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			        $errors[] = "Invalid Email format '{$email}'. Please enter a valid email like example@domain.com.";
+			    }
+
+
+			    /* Validate PWD */
+			    $is_pwd = trim($row['cwsn'] ?? null);
+			    if (!in_array($is_pwd, ['YES', 'NO'], true)) {
+					$errors[] = "Invalid 'cwsn' value '{$is_pwd}'. Allowed values: NO (Normal), YES (Person with disabilities).";
+				}
+
+			    if (!empty($errors)) {
+			        $invalidRows[] = array_merge($row, [
+			            'Row' => $index + 2,
+			            'Error' => implode(' | ', $errors),
+			        ]);
+			    } else {
+			        $validRows[] = $row;
+			    }
+
+		    }
+
+
+		    // 2. Check which unique records exist in database
+		    $dbDuplicates = [];
+		    $chunkSize = 1000; // Process in chunks for memory efficiency
+
+		    foreach(array_chunk($uniqueInExcel, $chunkSize) as $chunk){
+
+		        $conditions = array_map(function($row) {
+				    return [
+				        'student_uid' => strtoupper(trim($row['admissionnumber'])),
+				        'school_code' => strtoupper(trim($row['school_code'])),
+				    ];
+				}, $chunk);
+		        
+				$existing = DB::table('students')
+		        ->where('school_id', (string) $schoolId)
+		        ->where('academic_year', '2026-2027')
+		        ->where(function($query) use ($conditions) {
+	                foreach ($conditions as $condition) {
+	                    $query->orWhere([
+	                        ['school_code', $condition['school_code']],
+	                        ['student_uid', $condition['student_uid']]
+	                    ]);
+	                }
+	            })
+	            ->get(['school_code', 'student_uid as admissionnumber','student_name as name', 'gender','class_id as class', 'section_id as section','email_id as email','dob as dob_ddmmyyyy','rollno as roll_no']);
+
+	            $dbDuplicates = array_merge($dbDuplicates, $existing->toArray());
+		    }
+
+		    $newRecordsCount = count($uniqueInExcel) - count($dbDuplicates);
+
+		    /* Check for the same class */
+		    $sameClassStudents = [];
+
+		    $studentUids = collect($validRows)->pluck('admissionnumber')->map(fn($v) => strtoupper(trim($v)))
+		    ->unique()->values()->toArray();
+
+		    $previousStudents = DB::table('students')
+		    ->where('school_id', (string)$schoolId)
+		    ->where('academic_year', '2025-2026')
+		    ->where('status', 'active')
+		    ->whereIn('student_uid', $studentUids)
+		    ->get([
+		        'student_uid',
+		        'student_name',
+		        'class_id',
+		        'section_id'
+		    ])->keyBy('student_uid');
+
+
+		    foreach ($validRows as $row) {
+
+			    $admissionNo = strtoupper(trim($row['admissionnumber']));
+			    $section = strtoupper(trim($row['section'] ?? ''));
+			    $uploadedClass = trim($row['class']);
+			    $newClassId = $this->getClassId($uploadedClass);
+
+			    $oldStudent = $previousStudents[$admissionNo] ?? null;
+
+			    if (!$oldStudent || !$newClassId) {
+			        continue;
+			    }
+
+			    if ((int)$newClassId === (int)$oldStudent->class_id) {
+
+			        $sameClassStudents[] = [
+					    'school_code'         => $row['school_code'] ?? '',
+					    'admissionnumber'     => $admissionNo,
+					    'name'                => $row['name'] ?? '',
+					    'gender'              => $row['gender'] ?? '',
+					    'class'               => $uploadedClass,
+					    'section'             => $section,
+					    'roll_no'             => $row['roll_no'] ?? '',
+					    'dob_ddmmyyyy'    	  => $row['dob_ddmmyyyy'] ?? '',
+					    'email'               => $row['email'] ?? '',
+					    'rpwd'                => $row['rpwd'] ?? '',
+					    'apaarId'             => $row['apaarId'] ?? '',
+					    'Error'              => 'Student will continue in same class and will be marked as failed in Academic Year 2025-2026.'
+					];
+			    }
+			}
+
+
+	        if($action == 'preview'){
+
+	        	$summary = '';
+	        	$sameClassSummary = '';
+
+	    		$summary = 'The Excel file contains '.$totalRecords . ' records. Please review and confirm to proceed with the import.';
+		        $confirmButtonText = "Yes, Import it!";
+		        $buttonClass = 'btn-import';
+
+				/* Validate Rows  */
+		        if (!empty($invalidRows)) {
+
+		        	$timestamp = now()->format('Ymd');
+					$errorFilename = "invalid_excel/{$loggedInSchoolCode}_{$timestamp}.json";
+					Storage::disk('local')->put($errorFilename, json_encode($invalidRows));
+					Session::put('invalid_rows_file', $errorFilename);
+
+					$summary = "<p>The Excel file contains ".$totalRecords." records, out of which " . count($invalidRows) . " rows have errors.<a href='".route('downloadInvalidData')."'> Click to view the errors</a>. Please correct them and upload the file again.</p>" ;
+
+		           	return response()->json([
+				    	'error' => 'error',
+				        'icon' => 'info',
+				        'title' => 'Invalid Data Found',
+				        'summary' => $summary
+				    ]);
+				}
+
+
+		        if ($excelDuplicates > 0) {
+		        	$timestamp = now()->format('YmdHis');
+		        	$duplicateFilename = "duplicate_records/{$loggedInSchoolCode}_{$timestamp}.json";
+					Storage::disk('local')->put($duplicateFilename, json_encode($excelDuplicatesData));
+					Session::put('duplicate_records_file', $duplicateFilename);
+
+					$summary = '<p>The Excel file contains '.$totalRecords.' records with '.$excelDuplicates.' duplicate entries within the file	<a href="'.route('downloadDuplicates').'"> click to view</a></p>';
+		        }
+
+				
+
+		        if(count($dbDuplicates) > 0){
+		        	$timestamp = now()->format('YmdHis');
+		        	$duplicateFilename = "duplicate_records/{$loggedInSchoolCode}_{$timestamp}.json";
+					Storage::disk('local')->put($duplicateFilename, json_encode($dbDuplicates));
+					Session::put('duplicate_records_file', $duplicateFilename);
+
+		        	//Storage::disk('local')->put('duplicate_records.json', json_encode($duplicates));
+		        	$confirmButtonText = "Overwrite it!";
+		        	$buttonClass = 'btn-overwrite';
+		        	$summary = '<p>The Excel file contains '.$totalRecords.' records including '.count($dbDuplicates).' entries already exist in database. <a href="'.route('downloadDuplicates').'"> click to view</a></p>';
+		        }
+
+
+		        if($excelDuplicates > 0 && count($dbDuplicates) > 0){
+
+		        	$timestamp = now()->format('YmdHis');
+		        	$duplicateFilename = "duplicate_records/{$loggedInSchoolCode}_{$timestamp}.json";
+					Storage::disk('local')->put($duplicateFilename, json_encode($excelDuplicatesData));
+					Session::put('duplicate_records_file', $duplicateFilename);
+
+		        	$confirmButtonText = "Yes, Overwrite it!";
+		        	$buttonClass = 'btn-overwrite';
+		        	$summary = '<p>The Excel file contains '.$totalRecords.' records including '.count($dbDuplicates).'duplicate entries already exist in database and '.$excelDuplicates.' duplicate entries within the file	<a href="'.route('downloadDuplicates').'"> click to view</a></p>
+
+	    			<div class="form-group mt-2">
+	                    <label>Do you want to overwrite existing records?</label>
+	                    <input type="radio" id="overwrite" name="importOption" value="override" data-id="Yes, Overwrite it!" checked>
+	                    <label for="overwrite">Yes, Overwrite it</label><br>
+	                    <input type="radio" id="skip" name="importOption" value="skipandimport" data-id="Skip & Import">
+	                    <label for="skip">Skip Overwrite & Import New Records Only</label>
+	                </div>';
+		        }
+
+
+		       	if(!empty($dbDuplicates) && $newRecordsCount > 0){
+
+		       		$timestamp = now()->format('YmdHis');
+		        	$duplicateFilename = "duplicate_records/{$loggedInSchoolCode}_{$timestamp}.json";
+					Storage::disk('local')->put($duplicateFilename, json_encode($dbDuplicates));
+					Session::put('duplicate_records_file', $duplicateFilename);
+
+		        	$confirmButtonText = "Yes, Overwrite it!";
+		        	$buttonClass = 'btn-overwrite';
+		        	$summary = '<p>The Excel file contains '.$totalRecords.' records including '.count($dbDuplicates).' duplicate entries
+	        			<a href="'.route('downloadDuplicates').'"> click to view</a></p>
+
+	        			<div class="form-group mt-2">
+	                        <label>Do you want to overwrite existing records?</label>
+	                        <input type="radio" id="overwrite" name="importOption" value="override" data-id="Yes, Overwrite it!" checked>
+	                        <label for="overwrite">Yes, Overwrite it</label><br>
+	                        <input type="radio" id="skip" name="importOption" value="skipandimport" data-id="Skip & Import">
+	                        <label for="skip">Skip Overwrite & Import New Records Only</label>
+	                    </div>';
+
+		        }
+
+
+		        /* check duplicacy in db and new reocrds in excel */
+		        if (!empty($dbDuplicates) && $newRecordsCount > 0 && !empty($sameClassStudents) ) { 
+		        	$timestamp = now()->format('YmdHis');
+		        	$duplicateFilename = "existing_records/{$loggedInSchoolCode}_{$timestamp}.json";
+					
+					Storage::disk('local')->put($duplicateFilename, json_encode($sameClassStudents));
+					Session::put('existing_records_file', $duplicateFilename);
+		        	
+		        	$confirmButtonText = "Yes, Overwrite it!";
+		        	$buttonClass = 'btn-overwrite';
+
+		        	$summary = '
+		        	<p>The Excel file contains <strong>'.$totalRecords.' records </strong> including '.count($dbDuplicates).' entries already present for 2026-2027 <a href="'.route('downloadDuplicates').'"> click to view</a></p>
+		        	<p>and <strong>'.count($sameClassStudents).' students</strong>
+				            were found continuing in the same class for the new academic session.
+				            These students will be imported successfully but they will get marked as Failed. Please verify before proceeding.
+				            <a href="'.route('existingStudents').'"> click to view</a> 
+				        </p>
+
+				        <div class="form-group mt-2">
+	                        <label>Do you want to continue with this records?</label>
+	                        <input type="radio" id="import" name="importOption" value="override" data-id="Yes, Overwrite it!" required>
+	                    </div>';
+				}
+
+				/* Check same class students in 2026-2027 */
+				if (!empty($sameClassStudents)) { 
+
+		        	$timestamp = now()->format('YmdHis');
+		        	$duplicateFilename = "existing_records/{$loggedInSchoolCode}_{$timestamp}.json";
+					Storage::disk('local')->put($duplicateFilename, json_encode($sameClassStudents));
+					Session::put('existing_records_file', $duplicateFilename);
+		        	$confirmButtonText = "Yes, Import it!";
+		        	$buttonClass = 'btn-overwrite';
+
+	        		$summary = '
+						<p>
+							The uploaded Excel file contains <strong>'.$totalRecords.' records</strong>. 
+							Among them, <strong>'.count($sameClassStudents).' students</strong> were identified as continuing in the same class for the new academic session.
+						</p>
+
+						<p>
+							These students will be imported successfully; however, they will automatically be marked as <strong>Failed</strong>. 
+							Please review and verify the details before proceeding with the import.
+						</p>
+
+						<p>
+							<a href="'.route('existingStudents').'">
+								Click to view
+							</a>
+						</p>
+					';
+				}
+
+
+
+		       	return response()->json(['summary' => $summary,'icon' => 'info','cnfmText' => $confirmButtonText,'btnclass'=>$buttonClass]);
+
+
+
+	        } else if($action == 'import' || $action == 'skipandimport'){
+
+				$file = $request->file('upload_student_profile');
+				$timestamp = now()->format('YmdHis');
+				$filename = $loggedInSchoolCode . '_' . $timestamp . '.' . $file->getClientOriginalExtension();
+				$storedPath = $file->storeAs('import_students', $filename);
+
+				$uploadLog = \App\Models\StudentImportLog::create([
+				    'school_id'  => $schoolId,
+				    'user_id'    => $userId,
+				    'file_path'  => $storedPath,
+				    'filename'   => $filename,
+				    'status'     => 'queued',
+				    'action'     => $action,
+				    'is_active'  => 'active',
+				    'started_at' => now(),
+				]);
+
+				ProcessStudentImport::dispatch($schoolId, $action, $userId, $storedPath, $uploadLog->id)->onQueue('upload_test');
+
+				DB::table('school_password_jobs')->updateOrInsert(
+					['school_id' => $schoolId],
+					[
+						'status' => 'pending',
+						'updated_at' => now(),
+						'created_at' => now(),
+					]
+				);
+	        	$summary = 'The import process has been initiated and queued. Kindly check after some time for the updated results.';
+			    return response()->json(['summary' => $summary, 'icon' => 'success']);
+
+	        } else if($action == 'override'){
+
+				$file = $request->file('upload_student_profile');
+				$timestamp = now()->format('YmdHis');
+				$filename = $loggedInSchoolCode . '_' .$timestamp. '.' . $file->getClientOriginalExtension();
+				$storedPath = $file->storeAs('import_students', $filename);
+
+				$uploadLog = \App\Models\StudentImportLog::create([
+				    'school_id'  => $schoolId,
+				    'user_id'    => $userId,
+				    'file_path'  => $storedPath,
+				    'filename'   => $filename,
+				    'status'     => 'queued',
+				    'action'     => $action,
+				    'is_active'  => 'active',
+				    'started_at' => now(),
+				]);
+
+				ProcessStudentImport::dispatch($schoolId, $action, $userId, $storedPath, $uploadLog->id)->onQueue('upload_test');
+				DB::table('school_password_jobs')->updateOrInsert(
+					['school_id' => $schoolId],
+					[
+						'status' => 'pending',
+						'updated_at' => now(),
+						'created_at' => now(),
+					]
+				);
+	        	$summary = 'The import process has been initiated and queued. Kindly check after some time for the updated results.';
+			    return response()->json(['summary' => $summary, 'icon' => 'success']);	
+
+	        }
+	        
+	    } catch (\Throwable $e) {
+	   		
+        	$errorMessage = 'Import failed';
+	        $httpCode = 500;
+	        
+	        // Detect database lock errors
+	        if (str_contains($e->getMessage(), 'Lock wait timeout') || str_contains($e->getMessage(), 'deadlock') || str_contains($e->getMessage(), 'lock conflict')) {	            
+	            $errorMessage = 'The system is currently busy processing other requests. Please try again in a few moments.';
+	            $httpCode = 423; 
+	        }
+
+	        DB::table('student_import_status')->where('school_id', $schoolId)->update(['status' => 'idle','updated_at' => now()]);
+	        
+	        \Log::error("Import Error for School_id ".$schoolId  .": " . $e->getMessage());
+
+	        return response()->json([
+		    	'error' => 'error',
+		        'icon' => 'info',
+		        'title' => $httpCode,
+		        'summary' => $errorMessage
+		    ]);
+
+	    } 
+	    /*finally {
+	        DB::table('student_import_status')->where('school_id', $schoolId)->update(['status' => 'idle', 'updated_at' => now()]);
+	    }*/
+    }
+
+    protected function getClassId($roman) {
+
+	    $map = [
+	        'I'   			=> 1,
+	        'II'  			=> 2,
+	        'III' 			=> 3,
+	        'IV'  			=> 4,
+	        'V'   			=> 5,
+	        'VI'  			=> 6,
+	        'VII' 			=> 7,
+	        'VIII'			=> 8,
+	        'IX'  			=> 9,
+	        'X'   			=> 10,
+	        'XI'  			=> 11,
+	        'XII' 			=> 12,
+			'Nursery' 		=> 14,
+			'KG' 			=> 17,
+			'Pre Nursery' 	=> 18,
+			'LKG' 			=> 22,
+			'UKG' 			=> 23,
+	    ];
+
+	    return $map[trim($roman)] ?? null;
+	}
+
+	public function downloadUploadedFile($logId) {
+
+        $log = StudentImportLog::findOrFail($logId);
+	    $filePath = $log->file_path; 
+
+	    if (!$filePath || !Storage::disk('local')->exists($filePath)) {
+	        abort(404, 'File not found.');
+	    }
+
+	    return Storage::disk('local')->download( $filePath, basename($filePath),
+	        ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+	    );
+    }
+
 	public function generateIdCard(Request $request) {
 
 		$request->validate([
@@ -2035,7 +2964,10 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
         $studentIds = $request->input('student_ids', []);
 
-		$students = DB::table('schools')->select(
+		$students = DB::table('schools')
+			->join('students','students.school_id', 'schools.id')
+			->join('class','class.id', 'students.class_id')
+			->select(
 			'schools.school_name',
 			'schools.logo',
 			'schools.school_code',
@@ -2047,11 +2979,10 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			'students.custom_class_id',
 			'class.name as class_name',
 			'students.section_id'
-			)->join('students','students.school_id', 'schools.id')
-			->join('class','class.id', 'students.class_id')				
+			)				
 			->where('students.status', 'active')
 	    	->whereIn('students.id', $studentIds)->get();
-
+			
         $activeCount = DB::table('students')
             ->whereIn('id', $studentIds)
             ->where('status', 'active')
@@ -2084,6 +3015,71 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
 		
     }
+
+	public function addClassNomenclature(Request $request){
+		
+		$classes = $request->input('classes', []);
+		$created = [];
+
+		$userId = Auth::id();
+		$schoolId = DB::table('school_reference')->where('school_user_id', $userId)->where('status', 1)->value('school_id');
+
+		// Loop over submitted classes
+		foreach ($classes as $class) {
+			if (!isset($class['id']) || !isset($class['nomenclature'])) {
+				continue; // skip incomplete entries
+			}
+
+			// Check if the class already exists for this school
+			$existing = ScustomClass::where('school_id', $schoolId)->where('class_id', $class['id'])->first();
+
+			if (!$existing) {
+	
+				$maxValue = ScustomClass::max('orders') ?? 0;
+				$newClass = new ScustomClass();
+				$newClass->school_id = $schoolId;
+				$newClass->class_id = $class['id'];
+				$newClass->section = 'A';     //default section A
+				$newClass->nomenclature = $class['nomenclature'];
+				$newClass->orders = $maxValue;
+				$newClass->status = 1;
+				$newClass->save();
+
+				$created[] = [
+					'id' => $newClass->class_id,
+					'nomenclature' => $newClass->nomenclature
+				];
+			}
+		}
+
+		return response()->json([
+			'status' => 'success',
+			'message' => count($created) . ' class(es) created.',
+			'createdClasses' => $created
+		]);
+	}
+
+	public function deleteSelectedClass(Request $request) {
+
+    	$classId = $request->input('class_id');
+    	$userId = Auth::user()->id;
+		$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+	    $deleted = \DB::table('custom_classes')->where('class_id', $classId)->where('school_id', $schoolId ?? null)->delete();
+
+	    if ($deleted) {
+	        return response()->json(['success' => true]);
+	    } else {
+	        return response()->json(['success' => false, 'message' => 'Class not found or already deleted.']);
+	    }
+    }
+	
+	public function resetSelectedClass(Request $request) {
+
+	    $userId = Auth::user()->id;
+		$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+	    DB::table('custom_classes')->where('school_id', $schoolId)->delete();
+	    return response()->json(['success' => true]);
+	}
 
 	
 	public function DOTNETREPORT(Request $request) 

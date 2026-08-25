@@ -202,7 +202,7 @@
 
 									<div class="col-md-2">
 										@if($schoolData->logo)
-											<img src="{{ asset('public/assets/uploads/logos/' . $schoolData->logo) }}" id="imagePreview" class="preview-img img-thumbnail" />
+											<img src="{{ asset('assets/uploads/logos/' . $schoolData->logo) }}" id="imagePreview" class="preview-img img-thumbnail" />
 										@else .
 											<img id="imagePreview" class="preview-img img-thumbnail d-none" />
 										@endif
@@ -333,7 +333,7 @@
 
 									<div class="form-group col-md-2" style="text-align:center">
 										@if($schoolData->profile_picture)
-											<img src="{{ asset('public/assets/uploads/profilePictures/users/' . $schoolData->profile_picture) }}" id="profilePicturePreview" class="preview-img img-thumbnail" />
+											<img src="{{ asset('assets/uploads/profilePictures/users/' . $schoolData->profile_picture) }}" id="profilePicturePreview" class="preview-img img-thumbnail" />
 										@else .
 											<img id="profilePicturePreview" class="preview-img img-thumbnail d-none" />
 										@endif
@@ -349,7 +349,7 @@
 
 									<div class="form-group col-md-2" style="text-align:center">
 										@if($schoolData->signature)
-											<img src="{{ asset('public/assets/uploads/signatures/' . $schoolData->signature) }}" id="signaturePreview" class="preview-img img-thumbnail" />
+											<img src="{{ asset('assets/uploads/signatures/' . $schoolData->signature) }}" id="signaturePreview" class="preview-img img-thumbnail" />
 										@else .
 											<img id="signaturePreview" class="preview-img img-thumbnail d-none" />
 										@endif

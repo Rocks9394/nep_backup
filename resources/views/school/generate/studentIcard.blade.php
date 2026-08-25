@@ -20,13 +20,13 @@
                         <tr>
                             <th style="padding: 3px 6px; border: 1px solid #ddd; text-align: center;">
                                 @if($student->logo == '')
-                                    <img src="{{ asset('public/assets/imgs/icard/school-logo.jpeg') }}" alt="school-logo" style="height:24px;">
+                                    <img src="{{ public_path('resources/images/gofor-fit-logo.png') }}" alt="school-logo" style="height:24px;">
                                 @else
-                                    <img src="{{ asset('public/logo/' . $student->logo) }}" alt="school" style="height:24px;">
+                                    <img src="{{ public_path('assets/uploads/logos/' . $student->logo) }}" alt="school" style="height:24px;">
                                 @endif
                             </th>
                             <th style="padding: 3px 6px 3px 6px; border: 1px solid #ddd; text-align: center; ">
-                                <img src="{{ asset('public/assets/imgs/icard/f365.jpg') }}" alt="f365" style="height: 24px;">
+                                <img src="{{ public_path('assets/imgs/icard/f365.jpg') }}" alt="f365" style="height: 24px;">
                             </th>
                         </tr>
 
@@ -49,7 +49,7 @@
 
                         <tr>
                           <td colspan="2" style="padding: 6px; border: 1px solid #ddd;">
-                            <img src="{{ asset('public/assets/imgs/icard/sign.png') }}" alt="Issuing Authority Signature" style="height: 30px;">
+                            <img src="{{ public_path('assets/imgs/icard/sign.png') }}" alt="Issuing Authority Signature" style="height: 30px;">
                             <p style="margin: 0; padding: 0; font-size:11px;">Issuing Authority</p>
                           </td> 
                         </tr>
@@ -70,11 +70,11 @@
 
                           @if($student->gender == 'Male')
                           <td style="text-align: center; padding: 5px; border: 1px solid #ddd; ">
-                            <img src="{{ asset('public/assets/imgs/icard/boy.png') }}" alt="Student Image" style="width: 60px;">
+                            <img src="{{ public_path('assets/imgs/icard/boy.png') }}" alt="Student Image" style="width: 60px;">
                           </td>
                           @else
                           <td style="text-align: center; padding: 5px; border: 1px solid #ddd; ">
-                            <img src="{{ asset('public/assets/imgs/icard/female.png') }}" alt="Student Image" style="width: 60px;">
+                            <img src="{{ public_path('assets/imgs/icard/female.png') }}" alt="Student Image" style="width: 60px;">
                           </td>
                           @endif
                         </tr>

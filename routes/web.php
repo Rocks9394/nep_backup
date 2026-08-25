@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\Auth\UserController;
@@ -39,6 +38,8 @@ use App\Http\Controllers\Auth\ChangePasswordController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Sstudent;
 use Illuminate\Http\Request;
+
+use App\Http\Controllers\CwsnController;
 
 use App\Http\Controllers\WarmupEmailController;
 
@@ -133,6 +134,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('assessor-app-partial-curl-up-record-submit',[App\Http\Controllers\AssessorAppController::class, 'SubmitPartialCurlUpRecord'])->name('partial.curl.up.record.submit');
 	Route::post('assessor-app-sit-and-reach-record-submit',[App\Http\Controllers\AssessorAppController::class, 'SubmitSitAndReachRecord'])->name('sit.and.reach.record.submit');
 	Route::post('assessor-app-speed-record-submit',[App\Http\Controllers\AssessorAppController::class, 'SubmitSpeedRecord'])->name('speed.record.submit');
+	Route::post('assessor-app-wingspan-record-submit',[App\Http\Controllers\AssessorAppController::class, 'SubmitWingSpanRecord'])->name('wingspan.record.submit');
 
 	// to view reports on trainer 
 	Route::get('higherclass/summary', [ReportController::class, 'HigherClassTestSummary'])->name('trainer.higherclass.status');
@@ -140,6 +142,17 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('report/{id}', [AssessorAppController::class, 'ViewFitnessReport'])->name('trainer.reports.view');
 
 
+	/**
+	 * Date : 09-07-2026
+	 * Routes for CWSN Tests.
+	 * */
+	Route::prefix('cwsn')->group(function(){
+		Route::get('{pwd_category_id}', [CwsnController::class, 'showCWSNCategory'])->name('assessor.cwsn.category');
+		Route::get('{pwd_category_id}/category/{test_category_id}', [CwsnController::class, 'CWSNSkillsTest'])->name('assessor.cwsn.test');
+		Route::get('{pwd_category_id}/test/{TestTypeId}', [CwsnController::class, 'CwsnTestTypes'])->name('cwsn.test.types');
+		Route::post('cwsn.types.submit',[CwsnController::class, 'SubmitCwsnTest'])->name('cwsn.types.submit');
+	});
+	
 });
 
 
@@ -376,7 +389,12 @@ Route::prefix('school')->group(function(){
 	Route::post('promote-student',[SchoolRecordController::class, 'PromoteStudent'])->name('promote-student');
 
 	Route::get('fetchStudents',[SchoolRecordController::class, 'fetchStudents'])->name('fetchStudents');
+	Route::post('update-rollno',[SchoolRecordController::class, 'updateRollno'])->name('update.rollno');
+	Route::post('update-email',[SchoolRecordController::class, 'updateEmailId'])->name('update.email');
 
+	Route::post('promote-student-ids',[SchoolRecordController::class, 'PromoteStudentIds'])->name('promote.student.ids');
+	Route::get('fetch-promotion-ids-status',[SchoolRecordController::class, 'PromotionIdsStatus'])->name('fetch.promotionIds.status');
+	Route::post('download-student-profile', [SchoolRecordController::class, 'downloadStudentProfile'])->name('download.student.profile');
 
 	Route::get('mapping-sports', [SchoolRecordController::class,'MapSports'])->name('mapping.sports')->middleware('module_access:mapping.sports');
 	Route::put('mapping-sports/{id}', [SchoolRecordController::class,'SaveMappedSports'])->name('mapping.sports.update');
@@ -395,7 +413,11 @@ Route::prefix('school')->group(function(){
 	Route::get('import/download-duplicates', [SchoolRecordController::class, 'downloadDuplicates'])->name('downloadDuplicates');
 	Route::get('import/downloadErrorList', [SchoolRecordController::class, 'downloadErrorList'])->name('downloadErrorList');	
 	Route::post('import-student-data', [SchoolRecordController::class, 'importStudentData'])->name('import-student-data');
-
+	Route::post('save-class-nomenclature', [SchoolRecordController::class, 'addClassNomenclature'])->name('saveclassnomenclature');
+	Route::post('delete-class', [SchoolRecordController::class, 'deleteSelectedClass'])->name('class.delete');
+    Route::post('reset-selected-classes', [SchoolRecordController::class, 'resetSelectedClass'])->name('classes.reset');
+	Route::get('uploaded-file/{logId}', [SchoolRecordController::class, 'downloadUploadedFile'])->name('download.uploadedfile');
+	
 	
 	/* Generate I-Card */
 	Route::post('generate-card', [SchoolRecordController::class, 'generateIdCard'])->name('generatecard');

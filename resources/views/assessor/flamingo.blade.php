@@ -47,7 +47,7 @@
   </style>
 
     <!-- Audio element for the whistle sound -->
-    <audio id="whistleSound" src="{{ asset('public/assets/audio/whistle.mp3') }}"></audio>
+    <audio id="whistleSound" src="{{ asset('assets/audio/whistle.mp3') }}"></audio>
 
 <div class="all-chaptr-cards">
   <div class="container">

@@ -3,255 +3,403 @@
 namespace App\Imports;
 
 use DB;
+use Auth;
+use DateTime;
+use App\Models\School; 
 use App\Models\Sclass;
 use App\Models\Sstudent;
 use App\Models\ScustomClass;
+use App\Models\StudentImportLog;
+use App\Exports\ExportImproperData;
+
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+
+use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-// use Maatwebsite\Excel\Concerns\WithStartRow;
-use DateTime;
-use Auth;
-use App\Models\School;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 
-use PhpOffice\PhpSpreadsheet\Shared\Date;
+// use Maatwebsite\Excel\Concerns\WithEvents;
+// use Maatwebsite\Excel\Events\AfterImport;
 
+class ImportStudentProfile implements ToCollection, WithHeadingRow , WithChunkReading  {
 
-class ImportStudentProfile implements ToCollection, WithHeadingRow  {
-
+    protected $logId;
+    protected $userId;
     protected $schoolId;
+    protected $schoolCode;
     protected $action;
     protected $insertedRowIds = [];
     protected $importedData = [];
     protected $imProperFormatData = [];
+    protected $skippedCount = 0;
+    protected $insertData = [];
 
-    function __construct($schoolId,$action){
+    // function __construct($schoolId,$action){
+    function __construct($schoolId,$action,$userId,$logId) {
         $this->school_id = $schoolId;
         $this->action = $action;
+        $this->userId = $userId;
+        $this->logId = $logId;
+        $this->schoolCode = School::where('id', $schoolId)->value('school_code');
     }
 
-    public function getInsertedRowIds() {
-        return $this->insertedRowIds;
-    }
+    public function getInsertedRowIds() { return $this->insertedRowIds; }
+    public function getImportedData(){ return $this->importedData; }
+    public function imProperFormatData(){ return $this->imProperFormatData;}
+    public function getSkippedCount() { return $this->skippedCount;}
 
-    public function getImportedData(){
-        return $this->importedData;
-    }
 
-    public function imProperFormatData(){
-        return $this->imProperFormatData;
-    }
+    public function collection(Collection $rows)  {
 
-    public function checkduplciate(){
+        try{
 
-    }
-
-    public function convertRomanToNumeric($roman) {
-
-        $map = array('X' => 10, 'IX' => 9, 'V' => 5, 'IV' => 4, 'I' => 1);
-        $returnValue = 0;
-        $length = strlen($roman);
-
-        if (!preg_match('/^[IVX]+$/', $roman)) {            
-            if($roman == 'Pre-Nur'){
-                $roman = 'Pre Nursery';
+            $insertData = [];
+           
+            $admissionNumbers = $rows->pluck('admissionnumber')->filter()->unique()->map(fn($val) => (string) trim($val))->toArray();
+            if (empty($admissionNumbers)) {
+                return;
             }
-            return $roman;
-        }
+            $existingStudentsMap = Sstudent::where('school_id', (string)$this->school_id)
+            ->where('academic_year', '2026-2027')
+            ->whereIn('student_uid', $admissionNumbers)->pluck('id', 'student_uid');
 
-        for ($i = 0; $i < $length; $i++) {
-            $currentSymbol = $roman[$i];
-            $nextSymbol = $i + 1 < $length ? $roman[$i + 1] : '';
+            if ($this->action === 'override') { 
+                Sstudent::where('school_id', (string)$this->school_id)
+                ->where('academic_year', '2026-2027')
+                ->whereIn('student_uid', $admissionNumbers)->delete();
 
-            if (isset($map[$currentSymbol . $nextSymbol])) {
-                $returnValue += $map[$currentSymbol . $nextSymbol];
-                $i++; // Skip next symbol
-            } else {
-                $returnValue += $map[$currentSymbol];
-            }
-        }
-
-        return 'Class ' .$returnValue;
-    }
-
-
-    public function collection(Collection $rows) {
-
-        $invalidData = collect();
-
-        $rows->each(function($row, $key) use ($invalidData) {
-
-            if (isset($row['dob_ddmmyyyy']) && is_numeric($row['dob_ddmmyyyy'])) {
-                try {
-                    $date = Date::excelToDateTimeObject($row['dob_ddmmyyyy']);
-                    $row['dob_ddmmyyyy'] = $date->format('d/m/Y'); 
-                } catch (\Exception $e) {
-                   
-                }
+                 $existingStudentsMap = [];
             }
 
-            $class = self::convertRomanToNumeric(trim($row['class']));
-            $section = trim($row['section']);
+            $alreadyInserted = []; 
 
-            $validation = $this->validateRow($row, $this->action);
+            foreach ($rows as $key => $row) {
+                $row = $row->toArray();
+                $rowNumber = $key + 2;
 
-            if (!$validation->passes()) {
-                foreach ($validation->errors()->all() as $error) {
-                    $this->errormessage[] = [
-                        'row' => $key + 1,
-                        'errors' => $error,
-                    ];
+                $admissionNo = trim($row['admissionnumber'] ?? '');
+
+                if ($this->action === 'skipandimport') {
+                    if ($existingStudentsMap->has($admissionNo) || isset($alreadyInserted[$admissionNo])) {
+                        $this->skippedCount++;
+                        continue;
+                    }
+                    // Track in current chunk
+                    $alreadyInserted[$admissionNo] = true;
+                    // $existingStudentsMap[$admissionNo] = true;
                 }
 
-                $this->imProperFormatData[] = array_merge($row->toArray(), ['Error' => implode(', ', $validation->errors()->all())]);
-                $invalidData->push($row->toArray());
 
-            } else {
+                if (isset($existingStudentsMap[$admissionNo])) {
 
+                    $this->skippedCount++;
 
-               $dob = \Carbon\Carbon::createFromFormat('d/m/Y', $row['dob_ddmmyyyy'])->format('Y-m-d');
-
-                $name = explode(' ', $row['name']);
-                $class_id = Sclass::whereRaw('LOWER(REPLACE(name, " ", "")) LIKE ?', ['%' . strtolower(str_replace(' ', '', trim($class))) . '%'])->value('id');
-                $custom_class_id = DB::table('custom_classes')
-                    ->where('class_id', $class_id)
-                    ->where('section', $section)
-                    ->where('school_id', $this->school_id)
-                    ->value('id');
-
-                if (is_null($custom_class_id)) {
-                    $maxValue = ScustomClass::max('orders') ?? 0;
-
-                    $customClass = ScustomClass::create([
-                        'school_id' => $this->school_id,
-                        'class_id'  => $class_id,
-                        'section'   => $section,
-                        'orders'    => $maxValue + 1,
-                        'status'    => 1,
+                    $this->imProperFormatData[] = array_merge($row, [
+                        'Error' => "Student already exists for academic year 2026-2027"
                     ]);
 
-                    $custom_class_id = $customClass->id;
+                    continue;
                 }
-                $year = date('Y');
-                $month = date('m');
+                
 
-                if ($month >= 4) {
-                    $academicYear = $year . '-' . ($year + 1);
-                } else {
-                    $academicYear = ($year - 1) . '-' . $year;
+                $gender = $this->normalizeGender($row['gender'] ?? '');
+                $class_id = $this->getClassId(trim($row['class']), $row);
+                // $class_id = Sclass::whereRaw('LOWER(REPLACE(name, " ", "")) LIKE ?', ['%' .strtolower(str_replace(' ', '',trim($class))) .'%'])->value('id');
+                if (!$class_id) {
+                    $this->imProperFormatData[] = array_merge($row, ['Error' => 'Class not found']);
+                    continue;
                 }
 
-                $studentData = [
+                $section = strtoupper(trim($row['section'] ?? ''));
+                $rollNo = trim($row['roll_no'] ?? '');
+                $dob = trim($row['dob_ddmmyyyy'] ?? '');
+                $pwdValue = trim($row['cwsn'] ?? '');
+                if($pwdValue === 'YES'){
+                    $is_pwd = '1';
+                }else{
+                    $is_pwd = '0';
+                }
+
+
+                try {
+                    if (is_numeric($dob)) {
+
+                        $dob = Date::excelToDateTimeObject($dob)->format('Y-m-d');
+                    } else {
+                        $formats = ['d/m/Y', 'd-m-Y'];
+
+                        $parsedDate = null;
+                        foreach ($formats as $format) {
+                            try {
+                                $parsedDate = \Carbon\Carbon::createFromFormat($format, $dob);
+                                break; 
+                            } catch (\Exception $e) {
+                                // Try next format
+                            }
+                        }
+
+                        if (!$parsedDate) {
+                            throw new \Exception('Invalid date format');
+                        }
+
+                        $dob = $parsedDate->format('Y-m-d');
+                    }
+                } catch (\Exception $e) {
+
+                    $this->imProperFormatData[] = array_merge($row, [
+                        'Error' => "Invalid DOB format ({$row['dob_ddmmyyyy']}). Allowed formats: Excel date or dd/mm/yyyy"
+                    ]);
+
+                    continue;
+                }
+
+                $alreadyInserted[$admissionNo] = true;
+
+                $customClassId = $this->findOrCreateCustomClass($class_id, $section);
+                $name = trim($row['name'] ?? '');
+                $firstName = explode(' ', $name);
+                $data = [
                     'school_id'     => $this->school_id,
-                    'school_code'   => $row['school_code'],
-                    'student_uid'   => $row['student_uid'],
-                    'student_name'  => $row['name'],
-                    'gender'        => $row['gender'],
+                    'school_code'   => trim($row['school_code'] ?? ''),
+                    'student_uid'   => $admissionNo,
+                    'student_name'  => $name,
+                    'gender'        => $gender,
                     'class_id'      => $class_id,
-                    'custom_class_id'=> $custom_class_id,
-                    'section_id'    => $row['section'],
+                    'custom_class_id' => $customClassId,
+                    'section_id'    => $section,
                     'dob'           => $dob,
-                    'user_id'       => $row['school_code'] . $row['student_uid'],
-                    'password'      => strtolower($name[0]) . '@' . $row['student_uid'],
-                    'email_id'      => $row['email'] ?? '',
-                    'rollno'        => $row['roll_no'],
-                    'domicile'      => $row['domicile_hometown'],
-                    'fav_sport'     => $row['favorite_sports'],
-                    'hobbies'       => $row['hobbies'],
+                    'user_id'       => trim($row['school_code']) . $admissionNo,
+                    'password'      => strtolower($firstName[0]) . '@' . $admissionNo,
+                    'email_id'      => trim($row['email'] ?? ''),
+                    'rollno'        => trim($row['roll_no'] ?? ''),
+                    'domicile'      => trim($row['domicile_hometown'] ?? ''),
+                    'fav_sport'     => trim($row['favorite_sports'] ?? ''),
+                    'hobbies'       => trim($row['hobbies'] ?? ''),
+                    'apaarId'       => trim($row['apaarid'] ?? ''),
                     'status'        => 'active',
-                    'academic_year'	=> $academicYear
+                    'academic_year' => '2026-2027',
+                    'is_pwd'        => $is_pwd,
                 ];
 
-                // Check if the student already exists
-                $existingStudent = Sstudent::where('school_id', $this->school_id)
-                    ->where('student_uid', $row['student_uid'])
-                    ->first();
-
-                if ($existingStudent) {
-                    $existingStudent->update($studentData);
-                    $newRecord = $existingStudent;
+                if ($this->action === 'override') {
+                    $insertData[] = $data;           
+                } elseif ($this->action === 'skipandimport') {
+                    if (!$existingStudentsMap->has($admissionNo)) {
+                        $insertData[] = $data;
+                    }else {
+                        $this->skippedCount++;
+                    }
                 } else {
-                    $newRecord = Sstudent::create($studentData);
+                    $insertData[] = $data;
                 }
-
-                $this->insertedRowIds[] = $newRecord->id;
-                $this->importedData[] = $newRecord->toArray();
             }
 
-        });
+            if (!empty($insertData)) {
+                $previousStudents = DB::table('students')
+                    ->where('school_id', (string)$this->school_id)
+                    ->where('academic_year', '2025-2026')
+                    // ->where('status', 'active')
+                    ->whereIn('status', ['active', 'failed', 'promoted'])
+                    ->whereIn('student_uid', array_column($insertData, 'student_uid'))
+                    ->get(['student_uid','class_id','section_id'])
+                    ->keyBy('student_uid');
+
+                $chunks = array_chunk($insertData, 100);
+
+                foreach ($chunks as $chunk) {
+                    Sstudent::insert($chunk);
+
+                   /* foreach ($chunk as $student) {
+                        $existingStudentsMap[$student['student_uid']] = true;
+                    }
+                    */
+                    $promotedStudentUids = [];
+                    $failedStudentUids = [];
+
+                    foreach ($chunk as $student) {
+                        $oldStudent = $previousStudents[$student['student_uid']] ?? null;                        
+                        if (!$oldStudent) {
+                            continue;
+                        }
+
+                        if ((int) $student['class_id'] > (int) $oldStudent->class_id) {
+                            $promotedStudentUids[] = $student['student_uid'];
+
+                        }elseif ((int) $student['class_id'] === (int) $oldStudent->class_id) {
+    
+                            $failedStudentUids[] = $student['student_uid'];
+                        }
+                    }
+
+                    if (!empty($promotedStudentUids)) {
+
+                        DB::table('students')
+                        ->where('school_id', (string)$this->school_id)
+                        ->where('academic_year', '2025-2026')
+                        // ->where('status', 'active')
+                         ->whereIn('status', ['active', 'failed', 'promoted'])
+                        ->whereIn('student_uid', $promotedStudentUids)
+                        ->update([
+                            'status' => 'promoted',
+                            'updated_at' => now(),
+                        ]);
+                    }
+
+                    if (!empty($failedStudentUids)) {
+                        DB::table('students')
+                        ->where('school_id', (string)$this->school_id)
+                        ->where('academic_year', '2025-2026')
+                        ->whereIn('student_uid', $failedStudentUids)
+                        ->update(['status' => 'failed', 'updated_at' => now()]);
+                    }
+                }
+
+                $this->importedData = array_merge(
+                    $this->importedData,
+                    $insertData
+                );
+            }
+
+
+           $this->updateImportLog();
+
+        } catch (\Throwable $e) {
+
+
+            $errorMessage = 'Import failed';
+            $httpCode = 500;
+            
+            // Detect database lock errors
+            if (str_contains($e->getMessage(), 'Lock wait timeout') || str_contains($e->getMessage(), 'deadlock') || str_contains($e->getMessage(), 'lock conflict')) {             
+                $errorMessage = 'The system is currently busy processing other requests. Please try again in a few moments.';
+                $httpCode = 423; 
+            }
+
+            \Log::error("Error in collection import for school_id {$this->school_id}: " . $e->getMessage());
+
+            throw $e;
+        } 
+
     }
 
 
-    public function rules($action): array {
+    protected function updateImportLog() {
 
-        $rules = [];
-        $rules = [
-            'name'                  => 'required|string',
-            'gender'                => 'required|in:Male,Female',
-            'section'               => 'required|string',
-            'dob_ddmmyyyy'          => 'required|date_format:d/m/Y',
-            'email_id'              => 'nullable|email|unique:students,email_id',
-            'roll_no'               => 'required|integer',
-            'class'                 => 'required|string',
-            'domicile_hometown'     => 'nullable|string',
-            'favorite_sports'       => 'nullable|string',
-            'hobbies'               => 'nullable|string',
-            'school_code'           => ['required', function ($attribute, $value, $fail){
-                $school_user_id = Auth::user()->id;
-                $school_id = \DB::table('school_reference')->where('school_user_id', $school_user_id)->value('school_id');
-                $school_code = School::find($school_id);
-                if($school_code === null || $school_code->school_code != $value){
-                    $fail('School code does not match with school code provided by fitness365.');
-                }
-            }
-            ],
-        ];
+        $log = StudentImportLog::find($this->logId);
+        $school_code = School::find($this->school_id)?->school_code;
+        $timestamp = $log->created_at->format('YmdHis');
+        $jsonFileName = 'import_errors/' . $school_code . '_' . $timestamp . '_errors.json';
+        $jsonPath = storage_path("app/{$jsonFileName}");
 
-        if($action == 'override'){
-            $rules['student_uid'] = 'required';
-        }else{
-            $rules['student_uid'] = 'required|unique:students,student_uid';
+        $directory = 'import_errors';
+        if (!Storage::disk('local')->exists($directory)) {
+            Storage::disk('local')->makeDirectory($directory);
         }
 
-        return $rules;
+        $existingErrors = [];
+        if (file_exists($jsonPath)) {
+            $existingErrors = json_decode(file_get_contents($jsonPath), true) ?? [];
+        }
+
+        $mergedErrors = array_merge($existingErrors, $this->imProperFormatData);
+
+        if (!empty($mergedErrors)) {
+            file_put_contents($jsonPath, json_encode($mergedErrors, JSON_PRETTY_PRINT));
+        }
+
+
+        $this->imProperFormatData = [];
+        if (!empty($mergedErrors)) {
+            StudentImportLog::where('id', $this->logId)->update([
+                'error_file' => $jsonFileName,
+                'status' => 'failed',
+                'message' => 'Import completed with errors. Download error file.',
+                'completed_at' => now(),
+            ]);
+        } else {
+            StudentImportLog::where('id', $this->logId)->update([
+                'status' => 'completed',
+                'error_file' => '',
+                'message' => 'Successfully imported students.',
+                'completed_at' => now(),
+            ]);
+        }
     }
 
-    public function customValidationMessages() {
-        return [
-            'school_code.required'          => 'School Code should no empty',
-            // 'school_code.integer'           => 'School Code should be an numeric value',
-            'student_uid.required'          => 'Student Admission Number should not be a empty',
-            // 'student_uid.integer'           => 'Student Admission Number should be a numeric value',
-            'student_uid.unique'            => 'Student Admission Number already exist',
-            'name.required'                 => 'Student Name should be a empty',
-            'name.string'                   => 'Student Name should be a string',
-            'gender.required'               => 'Gender should not be a empty',
-            'gender.in'                     => 'Gender should be either Male or Female',
-            'class.required'                => 'Class should not be a empty',
-            'class.string'                  => 'Class should be character',
-            'section.required'              => 'Section should not be a empty',
-            'section.string'                => 'Section should not be an numeric value',
-            'dob_ddmmyyyy.required'          => 'Date of Birth not be a empty',
-            'dob_ddmmyyyy.date_format'       => 'Date of Birth should be in the format dd/mm/YYYY',
-            'email_id.unique'               => 'Student Email ID already exist',
-            'roll_no.required'              => 'Roll Number not be a empty',
-            'roll_no.integer'               => 'Roll Number should be an numeric value',
-            'domicile_hometown.string'      => 'Hometown name should be a string',
-            'favorite_sports.string'        => 'Sports should be a string',
-            'hobbies.string'                => 'Hobbies should be a string',
 
-        ];
+
+    protected function getClassId($roman) {
+
+        $map = [
+	        'I'   			=> 1,
+	        'II'  			=> 2,
+	        'III' 			=> 3,
+	        'IV'  			=> 4,
+	        'V'   			=> 5,
+	        'VI'  			=> 6,
+	        'VII' 			=> 7,
+	        'VIII'			=> 8,
+	        'IX'  			=> 9,
+	        'X'   			=> 10,
+	        'XI'  			=> 11,
+	        'XII' 			=> 12,
+			'Nursery' 		=> 14,
+			'KG' 			=> 17,
+			'Pre Nursery' 	=> 18,
+			'LKG' 			=> 22,
+			'UKG' 			=> 23,
+	    ];
+
+	    return $map[trim($roman)] ?? null;
     }
 
-    public function validateRow(Collection $row, $action)  {
 
-        $validator = \Validator::make(
-            $row->toArray(),
-            $this->rules($action),
-            $this->customValidationMessages()
-        );
+    protected function findOrCreateCustomClass($classId, $section) {
 
-        return $validator;
+        $custom_class_id = DB::table('custom_classes')->where('class_id', $classId)->where('section', $section)->where('school_id', $this->school_id)->value('id');
+
+        if (is_null($custom_class_id)) {
+
+            $nomenclature = ScustomClass::where('class_id', $classId)->where('school_id', $this->school_id)->value('nomenclature');
+            $maxOrder = ScustomClass::where('school_id', $this->school_id)->max('orders') ?? 0;
+            $customClass = ScustomClass::create([
+                'school_id' => $this->school_id,
+                'class_id' => $classId,
+                'section' => $section,
+                'nomenclature' => $nomenclature ?? 'Class ' . $classId,
+                'orders' => $maxOrder + 1,
+                'status' => 1,
+            ]);
+
+            $custom_class_id = $customClass->id;
+        }
+
+
+        return $custom_class_id;
+    }
+
+
+    protected function normalizeGender($genderRaw) {
+
+        $genderRaw = strtolower(trim($genderRaw));
+
+        if (in_array($genderRaw, ['m', 'male','MALE'])) {
+            return 'Male';
+        } elseif (in_array($genderRaw, ['f', 'female','FEMALE'])) {
+            return 'Female';
+        }
+        return null;
+    }
+
+    public function chunkSize(): int {
+        return 300;
     }
 }
 
