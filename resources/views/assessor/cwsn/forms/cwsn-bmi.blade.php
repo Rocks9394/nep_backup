@@ -47,19 +47,20 @@
             <span class="form-control d-none" id="segmented-fields">         
                 <span class="form-control">
                     <label class="form-label">Floor to Knee (cm)</label>
-                    <input type="text" name="segment_floor_to_knee" step="0.1" class="form-control form-control-lg decimal-input"  placeholder="--">
+                    <input type="text" name="segment_floor_to_knee" step="0.1" class="form-control form-control-lg decimal-input segment-calc"  placeholder="--">
                 </span>
                 
                 <span class="form-control">
                     <label class="form-label">Knee to Hip (cm)</label>
-                    <input type="text" name="segment_knee_to_hip" step="0.1" class="form-control form-control-lg decimal-input" placeholder="--">
+                    <input type="text" name="segment_knee_to_hip" step="0.1" class="form-control form-control-lg decimal-input segment-calc" placeholder="--">
                 </span>
                 
                 <span class="form-control">
                     <label class="form-label">Hip to Head (cm)</label>
-                    <input type="text" name="segment_hip_to_head" step="0.1" class="form-control form-control-lg decimal-input" placeholder="--">
-                </span>
+                    <input type="text" name="segment_hip_to_head" step="0.1" class="form-control form-control-lg decimal-input segment-calc" placeholder="--">
+                </span>               
             </span>
+
             
             <!-- Standard Weight Cell -->
             <span class="form-control" id="standard-weight-cell">
@@ -86,7 +87,17 @@
                 </span>
             </span>
 
+            <!-- TOTAL SEGMENTED HEIGHT -->
+           
         </div>
+
+
+        <div id="total_broprot_height" style="display:none; text-align: center;">
+            <b>Total Height:</b> <span id="final_result_id"></span>
+        </div>
+
+      
+
     </div>
 
     @php $id = "bmi"; @endphp
@@ -120,6 +131,41 @@
 
 	        $(this).val(value);
 	    });
+
+       // Dynamic Calculation: Segmented Height Total
+        $(document).on('input', '.segment-calc', function() {
+            let kneeToFloor = parseFloat($('input[name="segment_floor_to_knee"]').val()) || 0;
+            let kneeToHip   = parseFloat($('input[name="segment_knee_to_hip"]').val()) || 0;
+            let hipToHead   = parseFloat($('input[name="segment_hip_to_head"]').val()) || 0;
+
+          
+            let total = kneeToFloor + kneeToHip + hipToHead;
+            let formattedTotal = total > 0 ? total.toFixed(2) : '';
+
+            $('#final_result_id').text(formattedTotal);
+
+            console.log('total' + total)
+            if (total > 0) {
+                $('#total_broprot_height').show();
+            } else {
+                $('#total_broprot_height').hide();
+            }
+        });
+
+        // Dynamic Calculation: Wheelchair Net Weight
+        $(document).on('input', '.wheelchair-calc', function() {
+
+            let totalWithChair = parseFloat($('#total_combined_weight').val()) || 0;
+            let chairWeight    = parseFloat($('#wheelchair_tare_weight').val()) || 0;
+            let netWeight = totalWithChair - chairWeight;
+
+
+            if (totalWithChair > 0 && chairWeight > 0 && netWeight > 0) {
+                $('#total_wheelchair_net_weight').val(netWeight.toFixed(2));
+            } else {
+                $('#total_wheelchair_net_weight').val('');
+            }
+        });
 
 
 	    $(`#${formId}`).on('submit', function(e) {
@@ -229,12 +275,9 @@
     });
 
     
-    function bmiCalcualtion(){
-
-    }
-
     function handleCategoryChange(pwd_category_id) {
-        if (pwd_category_id === 7) {
+
+        if (pwd_category_id === 3) {
             handleAdaptationChange();    
         } else {
             $('#adaptation_type').val('none');
@@ -243,6 +286,7 @@
     }
 
     function handleAdaptationChange() {
+
     	$(`#${formId}`)[0].reset();
   
         let anthropo_ht_id = parseInt($('#anthropo_ht_id').val(), 10) || 0; 
@@ -266,6 +310,7 @@
         $amputationPanel.hide();
         $wheelchairPanel.hide();
         $adaptationRow.hide();
+
 
         // 2. Height Adaptation Logic
         if (anthropo_ht_id === 3) { // Segmented Height

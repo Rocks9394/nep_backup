@@ -2,35 +2,49 @@
 @section('title', 'CISCE | ' . $title)
 @section('content')
 
+
 <div class="container">
     <div class="t-mrg2 mb-5 pb-5">
-        <div class="row">
-            <div class="col-12">            
-                <div class="row"> <x-back-button :title="$title" /> </div>             
-
-                <div class="row text-center justify-content-md-center mt-2 mt-lg-4">
-                    <div class="col-12 col-md-12 col-lg-12">
-                        <div class="all-tests">
-                            <ul class="list-group tests mt-3">
-                                @foreach($testType as $key => $val)
-                                    <li>
-                                        <div class="get_ready">
-                                            <a href="{{ route('cwsn.test.types', ['TestTypeId' => $val->TestTypeID,'pwd_category_id' => $pwd_category_id]) }}">
-                                                <span>{{ $val->TestTypeName }}</span>
-                                                <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
-                                            </a>
-                                        </div>
-                                        <a href="javascript:void(0);" class="play" data-toggle="modal" 
-                                            data-target="#playModal" data-testtypeid="{{ $val->TestTypeID }}" data-testname="{{ $val->TestPerformed }}"> <i class="bi bi-play-circle"></i> 
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-
-                        </div>
-                    </div> 
+        <div class="all-chaptr-cards">
+           
+            <div class="row">
+                <div class="col">
+                    <div class="heading-rw mt-0 mt-md-1 mb-0 p-0"> 
+                        <x-back-button :title="$title" /> 
+                    </div>  
                 </div>
             </div>
+        
+            <div class="row text-center justify-content-md-center">
+                <div class="col-12">
+                    <div class="row text-center justify-content-md-center mt-2 mt-lg-4">
+                        <div class="col-12 col-md-12 col-lg-12">
+                            <div class="all-tests">
+
+
+                                <h3><span class="badge badge-pill badge-secondary" style="font-size:14px;">Conduct any one of the following tests</span></h3>
+
+                                
+                                <ul class="list-group tests mt-3">
+                                    @foreach($testType as $key => $val)
+                                        <li>
+                                            <div class="get_ready">
+                                                <a href="{{ route('cwsn.test.types', ['TestTypeId' => $val->TestTypeID,'pwd_category_id' => $pwd_category_id]) }}">
+                                                    <span>{{ $val->TestTypeName }}</span>
+                                                    <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
+                                                </a>
+                                            </div>
+                                            <a href="javascript:void(0);" class="play" data-toggle="modal" 
+                                                data-target="#playModal" data-testtypeid="{{ $val->TestTypeID }}" data-testname="{{ $val->TestPerformed }}"> <i class="bi bi-play-circle"></i> 
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div> 
+                    </div>
+                </div>
+            </div>           
         </div>
     </div>
 

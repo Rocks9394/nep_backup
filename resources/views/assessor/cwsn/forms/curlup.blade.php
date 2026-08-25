@@ -11,8 +11,6 @@
         background-color: #ff0000 !important;
         color: #fff !important;
     }
-
-
 </style>
 
 <form class="row" method="POST" name="{{ $TestTypeId }}" id="{{ $TestTypeId }}" action="javascript:void(0);">
@@ -46,8 +44,6 @@
     <x-reset-submit-btn :id="$TestTypeId"/>
 </form>
 
-
-
 <script>
 let TestTypeId = @json($TestTypeId);
 const saveBtn = document.getElementById(`submit_${TestTypeId}`);
@@ -67,17 +63,20 @@ function playBeep() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
 
-        oscillator.type = 'sine'; // Smooth, friendly tone
-            oscillator.frequency.value = 880; // High Pitch (A5) -> "UP"
-            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.2);
+        oscillator.type = 'sine'; 
+        oscillator.frequency.value = 880; 
+        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.2);
     } catch (e) {
         console.error("Audio dynamic beep initialization failed: ", e);
     }
@@ -88,13 +87,11 @@ window.onload = function() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    let lastBeepTimeIndex = -1;
+    let lastBeepTimeIndex = 0;
 
     startBtn.addEventListener("click", function() {
         if (!isRunning) {
             isRunning = true;
-            currentRepCount = 0;
-            countInput.value = ""; 
             countInput.disabled = true; 
 
             if (window.AudioContext || window.webkitAudioContext) {
@@ -107,27 +104,30 @@ document.addEventListener("DOMContentLoaded", function () {
             startBtn.classList.add("btn-danger-stop");
 
             startTime = Date.now();
-            playBeep(); 
             lastBeepTimeIndex = 0;
-            currentRepCount = 1; 
+            currentRepCount = 0; 
+            countInput.value = currentRepCount; // Starts at 0, updates on 3rd second
 
             timerInterval = setInterval(() => {
                 let msElapsed = Date.now() - startTime;
                 
                 if (msElapsed >= maxTimeMs) {
                     currentRepCount = 75;
+                    countInput.value = currentRepCount;
                     stopTest(true); 
                 } else {
                     updateTimerDisplay(msElapsed);
                     
                     let currentSecondBlock = Math.floor(msElapsed / 3000);
+                    // Fires sound and increments counter at 3s, 6s, 9s, etc.
                     if (currentSecondBlock > lastBeepTimeIndex) {
                         playBeep();
                         lastBeepTimeIndex = currentSecondBlock;
                         currentRepCount++; 
+                        countInput.value = currentRepCount;
                     }
                 }
-            }, 30); // Higher resolution tracking rate to capture millisecond precision fluidly
+            }, 30); 
 
         } else {
             stopTest(false);
@@ -160,7 +160,8 @@ document.addEventListener("DOMContentLoaded", function () {
         resetBtn.addEventListener("click", function() {
             isRunning = false;
             clearInterval(timerInterval);
-            timerDisplay.textContent = "00:00:00"; // Fixed clear format layout rule
+            currentRepCount = 0;
+            timerDisplay.textContent = "00:00:00"; 
             
             startBtn.innerHTML = '<i class="bi bi-stopwatch"></i><span>Start Timer</span>';
             startBtn.className = "btn btn-success py-2 w-100 d-flex justify-content-center";
@@ -172,13 +173,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// Full conversion format system explicitly breaking intervals out to min:ss:mm
 function updateTimerDisplay(ms) {
     let totalSeconds = Math.floor(ms / 1000);
     
     let minutes = Math.floor(totalSeconds / 60);
     let seconds = totalSeconds % 60;
-    let centiseconds = Math.floor((ms % 1000) / 10); // Standard digital stopwatch styling logic
+    let centiseconds = Math.floor((ms % 1000) / 10); 
     
     let minsStr = String(minutes).padStart(2, '0');
     let secsStr = String(seconds).padStart(2, '0');

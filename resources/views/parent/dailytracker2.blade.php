@@ -56,7 +56,7 @@
                     </div>
                 </div>
                 
-                <div class="student-info">
+                <div class="student-info" id="personal_info">
                     <div class="row">
 
                         <div class="col-12 col-lg-12 col-xl">
@@ -74,8 +74,10 @@
                         <div class="col-6 col-lg-3 col-xl">
                             <span class="lb">Gender:</span>{{ $dailyReportCard['studentProfile']['gender'] }}<span></span>
                         </div>
+
                     </div>
-                </div>    
+                </div> 
+
             </div>
      
             <div class=""> 
@@ -279,8 +281,6 @@
 						}
 						
                 });
-
-
             }
         });
 	  
@@ -301,7 +301,32 @@
                 },
                 success: function (response) {
                     swal.close()
+
                     $('#report_card_container').html(response.html);
+
+
+                    var html = `<div class="row">
+
+                        <div class="col-12 col-lg-12 col-xl">
+                            <span class="lb">Name:</span>${response.personalinfo.student_name}<span></span>
+                        </div>
+                        <div class="col-6 col-lg-3 col-xl">
+                            <span class="lb">Class:</span>${response.personalinfo.className}<span></span>
+                        </div>
+                        <div class="col-6 col-lg-3 col-xl">
+                            <span class="lb">Roll No:</span>${response.personalinfo.rollno}<span></span>
+                        </div>
+                        <div class="col-6 col-lg-3 col-xl">
+                            <span class="lb">DOB:</span>${response.personalinfo.dob}<span></span>
+                        </div>
+                        <div class="col-6 col-lg-3 col-xl">
+                            <span class="lb">Gender:</span>${response.personalinfo.gender}<span></span>
+                        </div>
+
+                    </div>`;
+
+
+                    $('#personal_info').empty().html(html)
                 },
                 error: function () {
                     $('#report_card_container').html('<div class="text-danger">Something went wrong.</div>');

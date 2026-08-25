@@ -107,9 +107,9 @@
 
 <body oncopy="return false" oncut="return false" class="{{ last(request()->segments()) }}  common-inner-cls" >
 
-    <nav class="navbar navbar-light top_nav_bar px-0">
+    <nav class="navbar navbar-light top_nav_bar px-0 cwsn">
         <div class="container d-flex justify-content-between w-100">
-	
+            <div class="ml-0 ml-sm-0">
             <!-- Left Logo -->
             @php  $SchoolDetails = Helper::GetSchoolDetails();  @endphp
 
@@ -120,19 +120,19 @@
                     <p>School: {{ $SchoolDetails->school_name }} @if($SchoolDetails->school_code)| {{ $SchoolDetails->school_code }}@endif</p>
                 @endif
             @endif
-            
+            </div>
 
             <!-- Mid-Logo -->
             @if(auth()->guard('sstudent')->check())
-                <a class="navbar-brand logo d-lg-block d-none" href="{{ route('student.dashboard') }}">
+                <a class="navbar-brand logo d-md-block d-none" href="{{ route('student.dashboard') }}">
                     <img src="{{ asset('resources/images/gofor-fit-logo.png') }}" class="d-inline-block align-top" alt="student">
                 </a>
             @else
-                <a class="navbar-brand logo d-lg-block d-none" href="{{ route('filldart.dashboard') }}">
+                <a class="navbar-brand logo d-md-block d-none" href="{{ route('filldart.dashboard') }}">
                     <img src="{{ asset('resources/images/gofor-fit-logo.png') }}" class="d-inline-block align-top" alt="others">
                 </a>
             @endif
-        
+            
             <!-- Right Side DropDown -->
             <div class="btn-group">
                 <div class="user-cred order-md-12">

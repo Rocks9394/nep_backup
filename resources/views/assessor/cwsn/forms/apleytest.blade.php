@@ -45,36 +45,7 @@ h4.text-uppercase {
     <input type="hidden" name="aplay_test" id="aplay_test" value="">
 
     <div class="row ">
-
-        <div class="col-12 col-md-6 px-2 mb-3">
-            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-                <div class="card-body p-0">
-                    <h4 class="font-weight-bold text-primary text-center mb-1 text-uppercase" style="font-size: 1.1rem;">Right Arm Reach</h4>
-                    <p class="small text-muted text-center mb-1">Reaching towards Left side landmarks</p>
-                    
-                    <div class="d-flex flex-column gap-2">
-                        <label class="list-group-item pr-3">
-                            <input type="radio" name="right_apley_level" value="3" onchange="syncApleyPayload()">
-                            <strong class="ml-2">Score 3:</strong> Touches superior medial angle of opposite scapula
-                        </label>
-                        <label class="list-group-item pr-3">
-                            <input type="radio" name="right_apley_level" value="2" onchange="syncApleyPayload()">
-                            <strong class="ml-2">Score 2:</strong> Touches the top of the head
-                        </label>
-                        <label class="list-group-item pr-3">
-                            <input type="radio" name="right_apley_level" value="1" onchange="syncApleyPayload()">
-                            <strong class="ml-2">Score 1:</strong> Touches the mouth cleanly
-                        </label>
-                        <label class="list-group-item pr-3">
-                            <input type="radio" name="right_apley_level" value="0" onchange="syncApleyPayload()" checked>
-                            <strong class="ml-2">Score 0:</strong> Unable to touch the mouth
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ==================== LEFT ARM PROGRESSION ==================== -->
+        <!-- ==================== Left ARM PROGRESSION ==================== -->
         <div class="col-12 col-md-6 px-2 mb-3">
             <div class="card border-0 shadow-sm" style="border-radius: 12px;">
                 <div class="card-body p-0">
@@ -103,6 +74,34 @@ h4.text-uppercase {
                 </div>
             </div>
         </div>
+        <!-- ==================== Right ARM PROGRESSION ==================== -->
+        <div class="col-12 col-md-6 px-2 mb-3">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-body p-0">
+                    <h4 class="font-weight-bold text-primary text-center mb-1 text-uppercase" style="font-size: 1.1rem;">Right Arm Reach</h4>
+                    <p class="small text-muted text-center mb-1">Reaching towards Left side landmarks</p>
+                    
+                    <div class="d-flex flex-column gap-2">
+                        <label class="list-group-item pr-3">
+                            <input type="radio" name="right_apley_level" value="3" onchange="syncApleyPayload()">
+                            <strong class="ml-2">Score 3:</strong> Touches superior medial angle of opposite scapula
+                        </label>
+                        <label class="list-group-item pr-3">
+                            <input type="radio" name="right_apley_level" value="2" onchange="syncApleyPayload()">
+                            <strong class="ml-2">Score 2:</strong> Touches the top of the head
+                        </label>
+                        <label class="list-group-item pr-3">
+                            <input type="radio" name="right_apley_level" value="1" onchange="syncApleyPayload()">
+                            <strong class="ml-2">Score 1:</strong> Touches the mouth cleanly
+                        </label>
+                        <label class="list-group-item pr-3">
+                            <input type="radio" name="right_apley_level" value="0" onchange="syncApleyPayload()" checked>
+                            <strong class="ml-2">Score 0:</strong> Unable to touch the mouth
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>        
     </div>
 
     <x-reset-submit-btn :id="$TestTypeId"/>

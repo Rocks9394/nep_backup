@@ -71,6 +71,11 @@
             case "reset_1022":
             case "reset_1042":
                 clearInterval(timerInterval);
+                clearInterval(beepInterval);
+                clearInterval(cadenceInterval);
+
+                resetTest();
+
                 elapsed = 0;
                 running = false;
                 startPauseBtn.textContent = "Start Timer";

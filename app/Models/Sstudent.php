@@ -17,8 +17,7 @@ class Sstudent extends Authenticatable
 
 	// protected $guard = 'sstudent';
 
-	protected $hidden = ['password','remember_token'];
-
+	
    public function getAuthIdentifierName() {
 		return 'id';
 	}
@@ -69,4 +68,5 @@ class Sstudent extends Authenticatable
 	}
 
 	
+	protected $hidden = [ 'password', 'remember_token', 'user_id',];
 }

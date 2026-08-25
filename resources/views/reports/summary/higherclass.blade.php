@@ -24,6 +24,13 @@
     color: #000;
     font-weight: bold;
 }
+.heading-rw {
+        padding: 0 50px;
+        display: flex;
+        align-content: center;
+        align-items: center;
+        justify-content: flex-start;
+    }
 </style>
 
 <div class="container-fluid">

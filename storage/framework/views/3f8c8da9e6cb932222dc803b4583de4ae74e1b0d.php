@@ -47,7 +47,7 @@
 	#studentTableRecords th:nth-child(3),
 	#studentTableRecords td:nth-child(3) {
 		width: 7% !important;
-		min-width: 70px !important;
+		min-width: 90px !important;
 	}
 
 	#studentTableRecords th:nth-child(4),

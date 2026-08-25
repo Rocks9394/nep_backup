@@ -517,11 +517,8 @@ class FillDartController extends Controller
 	}
 
 
-	function getStudents(Request $request)
-	{
+	function getStudents(Request $request) {
 		
-		
-			//die('---hello india--');
 			// Perform a join between student_map_sports and students to get the necessary data
 			/*$students = DB::table('student_map_sports as sms')
 			->join('students as s', 'sms.student_id', '=', 's.id')
@@ -580,34 +577,35 @@ class FillDartController extends Controller
 		$custm_cls_id  =  $myArray[0];
 		$class_id      =  $myArray[1];
 		
-		if($skillarea_id == 2)
-		{
+		if($skillarea_id == 2) {   		//for specialised sports
+			$gtstud = DB::table('student_map_sports')
+			->join('students','students.id', '=','student_map_sports.student_id')
+			->select('students.id','student_name')
+			->where('student_map_sports.school_id', $school_id)
+			->where('student_map_sports.custom_class_id', $custm_cls_id)
+			->where('student_map_sports.class_id', $class_id)
+			->where('student_map_sports.sports_id', $sports_id)
+			->where('students.status', 'active')
+			->get();
 			
-		$gtstud = DB::table('student_map_sports')
-		->join('students','students.id', '=','student_map_sports.student_id')
-		->select('students.id','student_name')
-		->where('student_map_sports.school_id', $school_id)
-		->where('student_map_sports.custom_class_id', $custm_cls_id)
-		->where('student_map_sports.class_id', $class_id)
-		->where('student_map_sports.sports_id', $sports_id)
-		->where('students.status', 'active')
-		->get();
-		
-		}else
-		{
+		} else {
 			
-		$gtstud = DB::table('students')
-		->select('students.id','student_name')
-		->where('school_id', $school_id)
-		->where('custom_class_id', $custm_cls_id)
-		->where('class_id', $class_id)
-		->where('status', 'active')
-		->get();
-		
-		#echo "<pre>";
-		#print_r($gtstud);
-		#die('---light weight dgg	---');
-			
+			$gtstud = DB::table('students')
+
+			->select('students.id','student_name')
+			->where('academic_year', '2026-2027')
+			->where('school_id', $school_id)
+			->where('custom_class_id', $custm_cls_id)
+			->where('class_id', $class_id)
+			->where('status', 'active')
+			->get();
+				
+
+			//echo "<pre>"; print_r($gtstud); exit();
+
+			#echo "<pre>";
+			#print_r($gtstud);
+			#die('---light weight dgg	---')
 		}
 				
 	    $getActivity = Activity::where('id', $request->activity_id)->first();

@@ -1,3 +1,9 @@
+@php
+        $userId  = \Auth::id();
+        $trainerName = auth()->user()->name;
+        @endphp
+
+
 <div>
     <!-- I begin to speak only when I am certain what I will say is not better left unsaid. - Cato the Younger -->
     <div class="form-row my-2">
@@ -22,7 +28,7 @@
             </div>
         </div>
 			
-        <div class="col-12 col-md-7">
+        <div class="col-12 col-md-6">
             <div class="form mt-1 mt-md-3">
                 <label for="student_id" class="form-label">Select Student</label>
                 <div class="input-group1 mb-3">
@@ -33,29 +39,22 @@
             </div>
         </div> 
 
-
-         @php
-        $userId  = \Auth::id();
-        $trainerName = auth()->user()->name;
-        @endphp
-    
-        
         @if(Auth::user()->id == '995')
+            <div class="col-12 col-md-2">
+                <div class="form mt-1 mt-md-3">
+                    <div class="mb-3 scanner-conatiner" style="margin-top:32px;">
+                       <a href="{{ route('scan') }}"
+                            class="btn btn-outline-secondary px-3 ml-0 d-flex justify-content-center align-items-center border-btn" id="scanner_btn" 
+                            style="gap: 5px" data-toggle="modal" data-target=".bd-scan-modal-lg"><span
+                                class="d-flex"><i class="bi bi-qr-code"></i></span>
+                            <span>Scan</span>
+                        </a>
 
-        <div class="col-12 col-md-1">
-            <div class="form mt-1 mt-md-3">
-                <div class="mb-3" style="margin-top:32px;">
-                   <a href="{{ route('scan') }}"
-                        class="btn btn-outline-secondary px-3 ml-0 d-flex justify-content-center align-items-center border-btn" id="scanner_btn" 
-                        style="gap: 5px" data-toggle="modal" data-target=".bd-scan-modal-lg"><span
-                            class="d-flex"><i class="bi bi-qr-code"></i></span>
-                        <span>Scan</span>
-                    </a>
-
+                    </div>
                 </div>
-            </div>
-        </div> 
+            </div> 
         @endif
+    
     </div>
 
 
@@ -74,9 +73,9 @@
                             <span id="student_class"> Class</span>&nbsp;|&nbsp;Roll No: <span id="student_roll_no"></span>
                         </p>
                     </div>
-                    @if($cwsnType == 7)
-                   <div style="border-left: 1px solid #343a40; opacity: 0.3; height: 40px; margin: 0 20px;"></div>
-                    <div class="w-50 border-start border-dark ps-4">
+                    @if($cwsnType == 3)
+                    <div style="border-left: 1px solid #343a40; opacity: 0.3; height: 40px; margin: 0 20px;" class="anthropometric_id"></div>
+                    <div class="w-50 border-start border-dark ps-4 anthropometric_id">
                         <p class="mb-1 text-dark">
                             <strong id="anthropometric_id">Anthropometric Measurement</strong>
                         </p>
@@ -253,8 +252,14 @@ function openFastAPIScreen() {
 
     // Blade context
     const trainerName      = "{{ $trainerName }}";
-    const exerciseTitle    = "{{ $title }}";
+    let exerciseTitle    = "{{ $title }}";
     const currentTrainerId = "{{ $userId }}";
+	
+	if(exerciseTitle === "Partial curl up 30 sec")
+		exerciseTitle = "curl_up";
+	
+	if(exerciseTitle === "Alternative Hand Wall Toss Test")
+		exerciseTitle = "wall_toss";
 
     // Clean test key formatted for FastAPI (e.g., "WingSpan" -> "wingspan")
     const testKey = exerciseTitle.toLowerCase().replace(/[^a-z0-9]/g, '_');
@@ -293,6 +298,14 @@ function openFastAPIScreen() {
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <script>
+
+    let skillReportId = $("input[name='skillReportId']").val();
+    if(skillReportId != 33){
+         console.log('skillReportId' + skillReportId)
+        $('.anthropometric_id').css('display','none')
+    }
+
+
     function domReady(fn) {
         if (document.readyState === "complete" || document.readyState === "interactive") {
             setTimeout(fn, 1000);
@@ -330,6 +343,8 @@ function openFastAPIScreen() {
         }
 
         function onScanSuccess(decodeText, decodeResult) {
+
+            let cwsn_type = $('#cwsn_type').val();
             let allClasses = $('#all_classes').val(); 
             let parsedClasses = [];
             let studentDropdown = document.getElementById('student_id');
@@ -362,6 +377,17 @@ function openFastAPIScreen() {
                 let school_id = $('#SchoolId').val();
                 let skillReportId = $("input[name='skillReportId']").val();
 
+                const formdata = {
+                    'student_reg_no': student_reg_no,
+                    'skillReportId': skillReportId,
+                    'testType': testType,
+                    'school_id': school_id,                        
+                    'scan_classes': parsedClasses 
+                }
+
+                getStudentsDetails(formdata, cwsn_type)
+
+                /*
                 $.ajax({
                     url: '{{ route("fetch.student.detail") }}',
                     method: 'GET',
@@ -412,6 +438,7 @@ function openFastAPIScreen() {
                         });
                     }
                 });
+                */
 
             }).catch(err => {
                 console.error('Failed to clear htmlscanner:', err);
@@ -427,6 +454,7 @@ function openFastAPIScreen() {
 
 
     $(document).ready(function () {
+
         if(localStorage.getItem("selected_class")){
             let savedClass = localStorage.getItem("selected_class");
             document.getElementById('class_id').value = savedClass;
@@ -512,8 +540,11 @@ function openFastAPIScreen() {
                 studentDropdown.innerHTML = '<option value="">-- Select Class First --</option>';
             }
         };
+        
 
         window.clearExistingRecords = function(response, skillReportId, school_id, class_id, testType) {
+
+            let cwsn_type = $('#cwsn_type').val();
             const selectElement = document.getElementById('student_id');
             const selectedStudent = selectElement.options[selectElement.selectedIndex];
             const studentId = selectedStudent ? selectedStudent.getAttribute('data-id') : null;
@@ -530,6 +561,7 @@ function openFastAPIScreen() {
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+
                     $.ajax({
                         url: "{{ route('delete-student-test') }}", 
                         type: "POST",
@@ -551,26 +583,24 @@ function openFastAPIScreen() {
                                 }
                             });
                         },
+
                         success: function(deleteResponse) {
                             Swal.close();
 
                             if (deleteResponse.success) {
-
                                 Swal.fire("Deleted!", deleteResponse.message , "success")
+                                .then(() => {
 
-                            .then(() => {
+                                    $('#student_name').text(response.data.name);
+                                    $('#student_class').text(response.data.class_name);
+                                    $('#student_registration_no').text(response.data.student_registration_no);
+                                    $('#selected_student_id').val(response.data.student_id);
+                                    $('#student_roll_no').text(response.data.student_roll_no);
+                                    $('#AGE_GENDER_ID').attr('placeholder', response.data.Age+ '/' + response.data.Gender);
+                                    });
 
-                                $('#student_name').text(response.data.name);
-                                $('#student_class').text(response.data.class_name);
-                                $('#student_registration_no').text(response.data.student_registration_no);
-                                $('#selected_student_id').val(response.data.student_id);
-                                $('#student_roll_no').text(response.data.student_roll_no);
-                                $('#AGE_GENDER_ID').attr('placeholder', response.data.Age+ '/' + response.data.Gender);
-                                }); 
-                                
-
-                            } else {
-                                Swal.fire("Error", deleteResponse.message, "error");
+                                } else {
+                                    Swal.fire("Error", deleteResponse.message, "error");
                             }
                         }
                     });
@@ -603,6 +633,21 @@ function openFastAPIScreen() {
 
         let [custom_class_id, class_id] = classValue.split('-');
         let testType = $('#student_id').data('test-type');
+
+        const formdata = {
+            'class_id': class_id,
+            'custom_class_id': custom_class_id,
+            'studentId': studentId,
+            'roll_no': rollNo,
+            'class_name': displayText,
+            'skillReportId':skillReportId,
+            'testType':testType,
+            'school_id':school_id
+        }
+
+        getStudentsDetails(formdata, cwsn_type);
+
+        /*
         $.ajax({
             url: '{{ route("fetch.student.detail") }}',
             method: 'GET',
@@ -652,6 +697,9 @@ function openFastAPIScreen() {
                     $('#height_value').text(response.data.height_value ?? 'N.A.')
                     $('#weight_value').text(response.data.weight_value ?? 'N.A.')
 
+                    console.log('cwsn_type' +cwsn_type)
+                     console.log('1040' + skillReportId)
+
                     if(cwsn_type == 7){
                         handleAdaptationChange();
                     }
@@ -666,11 +714,73 @@ function openFastAPIScreen() {
                  handleResponseMessages('warning', 'Error', 'Something went wrong while fetching student. Please try later');
             }
         });
+        */
         
     });
 
 
-   
+    function getStudentsDetails(formdata, cwsn_type){
+
+        $.ajax({
+            url: '{{ route("fetch.student.detail") }}',
+            method: 'GET',
+            data: formdata,
+
+            beforeSend: function () {
+                Swal.fire({
+                    icon:'info',
+                    title: 'Getting Student Data...',
+                    text: 'Please wait while we load the student details.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            },
+
+            success: function(response) {
+
+                Swal.close();
+
+
+                console.log(response.data)
+
+                if (response.success) {
+
+                    if (response.data.test_already_given === true) {
+                        clearExistingRecords(response, formdata.skillReportId, formdata.school_id, formdata.class_id, formdata.testType);
+                        return; 
+                    }
+                        
+                    $('#student_name').text(response.data.name);
+                    $('#student_class').text(response.data.class_name);
+                    $('#student_registration_no').text(response.data.student_registration_no);
+                    $('#selected_student_id').val(response.data.student_id);
+                    $('#student_roll_no').text(response.data.student_roll_no);
+                    $('#AGE_GENDER_ID').attr('placeholder', response.data.Age+ '/' + response.data.Gender);
+
+                    $('#anthropo_ht_id').val(response.data.anthropo_ht_id);
+                    $('#anthropo_wt_id').val(response.data.anthropo_wt_id);
+                    $('#height_value').text(response.data.height_value ?? 'Standard Measurement')
+                    $('#weight_value').text(response.data.weight_value ?? 'Standard Measurement')
+
+                   
+                    if(cwsn_type == 3){   // for BMI chaneg the UI
+                        handleAdaptationChange();
+                    }
+                    
+                } else {
+
+                    showMessages('info', 'Student not found', response.message);
+                }
+            },
+            error: function() {
+                 Swal.close();
+                 handleResponseMessages('warning', 'Error', 'Something went wrong while fetching student. Please try later');
+            }
+        });
+    }
+
 
 </script>
 

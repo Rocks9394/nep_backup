@@ -29,24 +29,9 @@
                 <div class="card-body p-3">
                     <h4 class="text-center text-primary text-uppercase font-weight-bold" style="font-size: 1.1rem;">Left Leg Evaluation</h4>
                     
-                    <div class="row mt-2">
-                        <!-- Left Initial Position Grid -->
-                        <div class="col-6 border-right">
-                            <h5 class="mb-2 text-center text-muted font-weight-bold" style="font-size:1.0rem;">Initial Position</h5>
-                            <div class="row no-gutters">
-                                <div class="col-6 px-1">
-                                    <label for="left_initial_cm" class="small font-weight-bold text-muted mb-1 d-block text-center">Cms</label>
-                                    <input type="text" name="left_initial_cm" onkeyup="calculateLegScore('left')" class="form-control text-center font-weight-bold" id="left_initial_cm" placeholder="00" inputmode="numeric" style="font-size: 1.25rem;">
-                                </div>
-                                <div class="col-6 px-1">
-                                    <label for="left_initial_mm" class="small font-weight-bold text-muted mb-1 d-block text-center">mm</label>
-                                    <input type="text" name="left_initial_mm" onkeyup="calculateLegScore('left')" class="form-control text-center font-weight-bold" id="left_initial_mm" placeholder="0" inputmode="numeric" style="font-size: 1.25rem;">
-                                </div>
-                            </div>
-                        </div>
-
+                    <div class="row mt-2 justify-content-center">
                         <!-- Left Final Position Grid -->
-                        <div class="col-6">
+                        <div class="col-8">
                             <h5 class="mb-2 text-center text-muted font-weight-bold" style="font-size:1.0rem;">Final Position</h5>
                             <div class="row no-gutters">
                                 <div class="col-6 px-1">
@@ -76,24 +61,9 @@
                 <div class="card-body p-3">
                     <h4 class="text-center font-weight-bold text-success text-uppercase" style="font-size: 1.1rem;">Right Leg Evaluation</h4>
                     
-                    <div class="row mt-2">
-                        <!-- Right Initial Position Grid -->
-                        <div class="col-6 border-right">
-                            <h5 class="mb-2 text-center text-muted font-weight-bold" style="font-size:1.0rem;">Initial Position</h5>
-                            <div class="row no-gutters">
-                                <div class="col-6 px-1">
-                                    <label for="right_initial_cm" class="small font-weight-bold text-muted mb-1 d-block text-center">Cms</label>
-                                    <input type="text" name="right_initial_cm" onkeyup="calculateLegScore('right')" class="form-control text-center font-weight-bold" id="right_initial_cm" placeholder="00" inputmode="numeric" style="font-size: 1.25rem;">
-                                </div>
-                                <div class="col-6 px-1">
-                                    <label for="right_initial_mm" class="small font-weight-bold text-muted mb-1 d-block text-center">mm</label>
-                                    <input type="text" name="right_initial_mm" onkeyup="calculateLegScore('right')" class="form-control text-center font-weight-bold" id="right_initial_mm" placeholder="0" inputmode="numeric" style="font-size: 1.25rem;">
-                                </div>
-                            </div>
-                        </div>
-
+                    <div class="row mt-2 justify-content-center">
                         <!-- Right Final Position Grid -->
-                        <div class="col-6">
+                        <div class="col-8">
                             <h5 class="mb-2 text-center text-muted font-weight-bold" style="font-size:1.0rem;">Final Position</h5>
                             <div class="row no-gutters">
                                 <div class="col-6 px-1">
@@ -130,46 +100,37 @@ function getTotalInMm(cm, mm) {
 
 // Side-specific calculation isolates DOM lookups cleanly
 function calculateLegScore(side) {
-    let initialCm = document.getElementById(`${side}_initial_cm`).value;
-    let initialMm = document.getElementById(`${side}_initial_mm`).value;
     let finalCm = document.getElementById(`${side}_final_cm`).value;
     let finalMm = document.getElementById(`${side}_final_mm`).value;
 
-    // Wait until at least one parameter has value to toggle indicators safely
-    if (!initialCm && !initialMm && !finalCm && !finalMm) {
+    // Hide indicator if both fields are completely empty
+    if (finalCm === '' && finalMm === '') {
         document.getElementById(`${side}_net_score_container`).style.display = "none";
         document.getElementById(`score_${side}`).value = "";
         return 0;
     }
 
-    let initialTotalMm = getTotalInMm(initialCm, initialMm);
-    let finalTotalMm = getTotalInMm(finalCm, finalMm);
-    let totalMm = finalTotalMm - initialTotalMm;
+    let totalMm = getTotalInMm(finalCm, finalMm);
 
     document.getElementById(`${side}_net_score_container`).style.display = "block";
     
-    if (totalMm < 0) {
-        document.getElementById(`${side}_final_result`).innerHTML = `<span class="text-danger">Final position lower than initial</span>`;
-        document.getElementById(`score_${side}`).value = "";
-    } else {
-        let displayCm = Math.floor(totalMm / 10);
-        let displayMm = totalMm % 10;
-        document.getElementById(`${side}_final_result`).innerHTML = `${displayCm} cm, ${displayMm} mm`;
-        
-        // Convert total millimeters to standard float centimeters for backend processing
-        let finalFloatCm = (totalMm / 10).toFixed(1); 
-        document.getElementById(`score_${side}`).value = finalFloatCm;
-    }
+    let displayCm = Math.floor(totalMm / 10);
+    let displayMm = totalMm % 10;
+    document.getElementById(`${side}_final_result`).innerHTML = `${displayCm} cm, ${displayMm} mm`;
+    
+    // Convert total millimeters to standard float centimeters for backend processing
+    let finalFloatCm = (totalMm / 10).toFixed(1); 
+    document.getElementById(`score_${side}`).value = finalFloatCm;
+
     return totalMm;
 }
 
-
 // Setup input sizing filters to constrain input ranges
 const inputConfigs = [
-    { id: 'left_initial_cm', size: 2 }, { id: 'left_final_cm', size: 2 },
-    { id: 'right_initial_cm', size: 2 }, { id: 'right_final_cm', size: 2 },
-    { id: 'left_initial_mm', size: 1 }, { id: 'left_final_mm', size: 1 },
-    { id: 'right_initial_mm', size: 1 }, { id: 'right_final_mm', size: 1 }
+    { id: 'left_final_cm', size: 2 },
+    { id: 'right_final_cm', size: 2 },
+    { id: 'left_final_mm', size: 1 },
+    { id: 'right_final_mm', size: 1 }
 ];
 
 inputConfigs.forEach(config => {
@@ -184,8 +145,6 @@ inputConfigs.forEach(config => {
         });
     }
 });
-
-
 
 $(document).ready(function() {
     const formId = @json($TestTypeId);
@@ -218,22 +177,10 @@ $(document).ready(function() {
             return;
         }
 
-        let leftInitialMm = getTotalInMm($('#left_initial_cm').val(), $('#left_initial_mm').val());
-        let leftFinalMm = getTotalInMm($('#left_final_cm').val(), $('#left_final_mm').val());
-        let rightInitialMm = getTotalInMm($('#right_initial_cm').val(), $('#right_initial_mm').val());
-        let rightFinalMm = getTotalInMm($('#right_final_cm').val(), $('#right_final_mm').val());
-        
-        if ((leftFinalMm - leftInitialMm) < 0 || (rightFinalMm - rightInitialMm) < 0) {
-            handleResponseMessages('info', 'Invalid Input', "Calculated net configurations cannot possess negative values.");
-            return;
-        }
-        
-
         let route = '{{ route("cwsn.types.submit") }}';
-        let formData =  $(this).serialize();
+        let formData = $(this).serialize();
         SubmitForm(formId, formData, route);
     });
 });
-
 </script>
 @endsection

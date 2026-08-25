@@ -1,3 +1,4 @@
+
 @extends('layouts.icsce-master-app')
 @section('title', 'Goforfit | ' . $title)
 @section('content')
@@ -97,6 +98,7 @@
                            
                         </div>
                     </div>
+                    {{--
                     <div class="col-auto">
                         <div class="select-terms">
                             <select name="term" id="term" class="term-select">
@@ -109,6 +111,7 @@
                             </select>
                         </div>
                     </div>
+                    --}}
 
                     <div class="col-auto">
                         <div class="btn-group toggle-btns" role="group" aria-label="Test Status Toggle">
@@ -119,18 +122,34 @@
                 </div>
                 <div class="row text-center justify-content-md-center mt-3 mt-lg-4">
                     <div class="col-12 col-md-12 col-lg-12">
+
+
+
                         <div class="all-tests mb-5">
-                            <h4 class="test-cat">Development Skills for Age 5-8 (Class 1-3)</h4>
-                            <ul class="list-group mt-0">
+
+                           <!--  <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                            Link with href
+                            </a> -->
+
+                            <div class="collapse" id="collapseExample">
+                              <div class="card card-body">
+                                Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.
+                              </div>
+                            </div>
+
+                            <h4 class="test-cat d-flex justify-content-between">
+                                <div>Development Skills for Age 5-8 (Class 1-3)</div>
+                                <!-- <div><span class=>+</span></div> -->
+                            </h4>
                             
+                            <ul class="list-group mt-0">
                             @foreach($juniorData as $key => $val)
                                 <li>
                                     <a href="{{ route('assessor-app-test', ['TestcategoryId' => $val->TestCategoryID]) }}"><span>{{ $val->TestCategoryName }}</span><span class="arrow-i"><i class="bi bi-arrow-right"></i></span></a>
                                 </li>
-                            @endforeach     
-                             
-                           
+                            @endforeach  
                             </ul>
+
                             <br>
                             <h4 class="test-cat">Physical Fitness Assessment for Age 5-8 (Class 1-3)</h4>
                             <ul class="list-group mt-0">
@@ -178,20 +197,41 @@
                             @endif
 
 
-                            <br><h4 class="test-cat">Physical Fitness Assessment for CWSN</h4>
-                                <ul class="list-group mt-0">                        
-                                    @foreach($rpwdCategoriesData as $category)
-                                        @php $encrypted = encrypt($category->PwdCategoryID); @endphp
+                            {{--
+                            <br>
+                            <h4 class="test-cat">Physical Fitness Assessment for CWSN</h4>
+                            <ul class="list-group mt-0">                        
+                                @foreach($rpwdCategoriesData as $category)
+                                    @php $encrypted = encrypt($category->PwdCategoryID); @endphp
 
-                                        <li>
-                                            <a 
-                                            href="{{ route('assessor.cwsn.category', ['pwd_category_id' => $category->PwdCategoryID]) }}">
-                                                <span>{{ $category->CategoryName }}</span>
-                                                <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
-                                            </a>
-                                        </li>
-                                    @endforeach                    
-                                </ul>
+                                    <li>
+                                        <a 
+                                        href="{{ route('assessor.cwsn.category', ['pwd_category_id' => $category->PwdCategoryID]) }}">
+                                            <span>{{ $category->CategoryName }}</span>
+                                            <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
+                                        </a>
+                                    </li>
+                                @endforeach                    
+                            </ul>
+                            --}}
+
+
+                            <br>
+                            <h4 class="test-cat">Physical Fitness Assessment for CWSN</h4>
+                            <ul class="list-group mt-0">                        
+                                @foreach($cwsnCategory as $category)
+                                    @php $encrypted = encrypt($category->TestCategoryID); @endphp
+
+                                    <li>
+                                        <a 
+                                        href="{{ route('assessor.cwsn.category', ['TestcategoryId' => $encrypted]) }}">
+                                            <span>{{ $category->TestCategoryName }}</span>
+                                            <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
+                                        </a>
+                                    </li>
+                                @endforeach                    
+                            </ul>
+
 
                         </div>
                     </div>
@@ -202,6 +242,9 @@
 
 </div>
 <script>
+    window.addEventListener('pageshow', function (event) {
+        localStorage.removeItem('selected_class');
+    });
     document.addEventListener('DOMContentLoaded', function () {
         localStorage.removeItem('selected_class');
         const termSelect = document.getElementById('term');

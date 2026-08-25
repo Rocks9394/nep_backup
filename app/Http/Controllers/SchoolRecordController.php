@@ -1466,10 +1466,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				'updated_at' => now(),
 			]);
 
-			$meta = DB::table('students_meta')
-				->where('student_id', $request->s_id)
-				->first();
-
+			$meta = DB::table('students_meta')->where('student_id', $request->s_id)->first();
 			
 			if ($meta) {
 				DB::table('students_meta')
@@ -1494,17 +1491,33 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			}
 
 
-			if($request->is_pwd == 1){
+			if ((int) $request->is_pwd === 1) {
 
-				DB::table('student_rpwd_mapping')->updateOrInsert([	'student_id' => $request->s_id,],
-					[
-						'pwd_type_id' => $pwd_type_id,
-						'anthropo_ht_id' => $request->height_measurement_edit ?? null,
-						'anthropo_wt_id' => $request->weight_measurement_edit ?? null,
-					]
-				);
+			    if (in_array((int) $pwd_type_id, [15, 16, 17, 18,19])) {  //check for physical/locomotor disability.
+			       DB::table('student_rpwd_mapping')->updateOrInsert([	'student_id' => $request->s_id,],
+						[
+							'pwd_type_id' => $pwd_type_id,
+							'anthropo_ht_id' => $request->height_measurement_edit ,
+							'anthropo_wt_id' => $request->weight_measurement_edit ,
+						]
+					);
+			    }else{
+				    DB::table('student_rpwd_mapping')->updateOrInsert(
+				        ['student_id' => $request->s_id],
+				        [
+				            'pwd_type_id'      => $pwd_type_id,
+				            'anthropo_ht_id'   => null,
+				            'anthropo_wt_id'   => null,
+				        ]
+				    );
+			    }
 			}
 
+			if ((int) $request->is_pwd === 0) {
+				DB::table('student_rpwd_mapping')->where('student_id',$request->s_id)->delete();
+			}
+
+		
 			return response()->json([
 				'status' => 'success',
 				'message' => 'Student details updated successfully.'
@@ -2118,23 +2131,47 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 
     public function downloadDuplicates(){
-        $failedRecordsPath = storage_path('app/duplicate_records.json');
-        if (!file_exists($failedRecordsPath)) {
-            abort(404, 'No failed import records found.');
-        }
 
-        $failedRecords = json_decode(file_get_contents($failedRecordsPath), true);
-        return Excel::download(new ExportImproperData($failedRecords, 'duplicate'), 'DuplicateRecords_'.date("d-m-Y H:i:s").'.xlsx');
+    	$filename = Session::get('duplicate_records_file');
+    	if (!$filename || !Storage::disk('local')->exists($filename)) {
+	        abort(404, 'No failed import records found.');
+	    }
+
+	    $duplicateRecords = json_decode(Storage::disk('local')->get($filename), true);
+        return Excel::download(new ExportImproperData($duplicateRecords, 'duplicate'), 'DuplicateRecords_'.Carbon::now()->format('d-m-Y_H-i-s').'.xlsx');
     }
 
-    public function downloadErrorList(){
-        $failedRecordsPath = storage_path('app/failed_imports.json');
-        if (!file_exists($failedRecordsPath)) {
-            abort(404, 'No failed import records found.');
-        }
+	public function ExistingStudents(){
 
-        $failedRecords = json_decode(file_get_contents($failedRecordsPath), true);
-        return Excel::download(new ExportImproperData($failedRecords,'error_list'), 'ErrorList_'.date("d-m-Y H:i:s").'.xlsx');
+    	$filename = Session::get('existing_records_file');
+    	if (!$filename || !Storage::disk('local')->exists($filename)) {
+	        abort(404, 'No failed import records found.');
+	    }
+
+	    $duplicateRecords = json_decode(Storage::disk('local')->get($filename), true);
+        return Excel::download(new ExportImproperData($duplicateRecords, 'duplicate'), 'ExistingRecords_'.Carbon::now()->format('d-m-Y_H-i-s').'.xlsx');
+    }
+
+	public function downloadInvalidData(){
+
+    	$filename = Session::get('invalid_rows_file');
+        if (!$filename || !Storage::disk('local')->exists($filename)) {
+	        abort(404, 'No failed import records found.');
+	    }
+
+        $failedRecords = json_decode(Storage::disk('local')->get($filename), true);
+        return Excel::download(new ExportImproperData($failedRecords,'error_list'), 'ErrorList_'.Carbon::now()->format('d-m-Y_H-i-s').'.xlsx')->deleteFileAfterSend(false);
+    }
+	
+    public function downloadErrorList(){
+
+    	$filename = Session::get('failed_imports_file');
+        if (!$filename || !Storage::disk('local')->exists($filename)) {
+	        abort(404, 'No failed import records found.');
+	    }
+
+        $failedRecords = json_decode(Storage::disk('local')->get($filename), true);
+        return Excel::download(new ExportImproperData($failedRecords,'error_list'), 'ErrorList_'.Carbon::now()->format('d-m-Y_H-i-s').'.xlsx')->deleteFileAfterSend(false);
     }
 
     

@@ -9,15 +9,8 @@ class TermMaster extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'school_id',
-        'term_name',
-        'camp_type',
-        'academic_year',
-        'term_start_date',
-        'term_end_date',
-        'is_active',
-    ];
+    protected $fillable = ['id', 'school_id', 'term_name', 'camp_type', 'academic_year', 'term_start_date', 'term_end_date',
+        'is_active'];
 
     // Relationship to School
     public function school()

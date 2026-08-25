@@ -122,16 +122,6 @@ class Helper
 	    }
 
 	    return null;
-
-	    
-        /*$data =  DB::table('custom_classes')
-        ->select('custom_classes.section','class.name')
-        ->join('class','class.id','=', 'custom_classes.class_id')
-        ->where('custom_classes.id', $custom_class_id)->get();
-        foreach($data as $value){
-        	$classandsection = $value->name .'-'.$value->section;
-        }
-        return $classandsection;*/
     }
 
 	public static function getActiveTerm(){

@@ -150,7 +150,12 @@ class ReportController extends Controller {
 
         ->addCustomColumn('viewReport', function ($row) {
             $id  = Crypt::encryptString($row->student_id);
-            $url = route('reports.view.test', ['id' => $id, 'term_id' => $row->term_id]);
+			if($row->is_pwd === '1'){
+				$url = route('cwsn.reports.view', ['id' => $id, 'term_id' => $row->term_id]);
+			}else{
+				$url = route('reports.view.test', ['id' => $id, 'term_id' => $row->term_id]);
+			}
+            
 			$html = "<a href='{$url}' target='_blank'>View</a>";
 			
 			// for heal and activity record (cbse)
@@ -163,7 +168,13 @@ class ReportController extends Controller {
 
         ->addCustomColumn('downloadReport', function ($row) {
             $id  = Crypt::encryptString($row->student_id);
-            $url = route('download.fitness.reports', ['id' => $id, 'term_id' => $row->term_id]);
+
+			if($row->is_pwd === '1'){
+				$url = route('cwsn.reports.download', ['id' => $id, 'term_id' => $row->term_id]);
+			}else{
+				$url = route('download.fitness.reports', ['id' => $id, 'term_id' => $row->term_id]);
+			}
+            
             return "<a href='{$url}' class='btn btn-sm btn-primary'>  <i class='fa-solid fa-download'></i> </a>";
         })
         ->render($request);
@@ -223,6 +234,7 @@ class ReportController extends Controller {
 	    if (in_array($studentsData->class_id, $this->higherClasses)) {
 
 			[$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport);
+			// echo"<pre>";print_r($orderedReportData);exit();
 			return view('reports.fitness.html.senior-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'));
 	    } else {
 
@@ -524,7 +536,8 @@ class ReportController extends Controller {
 					'custom_classes.section'
 	            )
 			    ->whereIn('class.id', $higherClass)		
-				->where('s.status', 'active')      
+				// ->where('s.status', 'active')   
+				->where('s.status','!=', 'transfer')   
 		        ->where('s.school_code', $school->school_code)
 				->orderBy('s.class_id')
 				->orderBy('s.section_id');
@@ -741,7 +754,9 @@ class ReportController extends Controller {
 	            ->leftJoin('class', 's.class_id', '=', 'class.id')
 	            ->leftJoin('custom_classes', 's.custom_class_id', '=', 'custom_classes.id')
 	            ->where('s.school_code', $school->school_code)
-				->where('s.status', 'active')
+				
+				->where('s.status','!=', 'transfer')
+	            
 	            ->whereIn('class.id', $lowerClass)
 	            ->select(
 	                's.id',
@@ -1454,6 +1469,470 @@ class ReportController extends Controller {
 		return $pdf->download($filename);
     }
 
+	/*
+	* CWSN Test Summary
+	* 10-Aug-2026
+	*/
+
+	public function cwsnTestSummary(Request $request)  {
+
+        $userId = Auth::user()->id;
+      	$role_id =  \Auth::user()->role_id;
+        if($role_id == 3){
+
+        	if(Session::get('SelectSchoolId')) {
+				$schoolId = Session::get('SelectSchoolId');
+			}else{
+				$schoolId = DB::table('school_trainers')
+				->join('schools','schools.id','=','school_trainers.school_id')
+				->where('school_trainers.trainer_id',$userId)->where('school_trainers.status', 1)->value('school_trainers.school_id');
+			}
+        }else{
+			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
+		}
+
+		$TermMasterId = $this->getTermId($schoolId);
+
+		$TermIds = $this->getCurrentAndPreviousTermIds($schoolId, (int) $TermMasterId);
+		
+		$terms = TermMaster::whereIn('id', $TermIds)->get();
+		
+        $ajaxUrl = route('trainer.cwsn.status');
+
+        $school = School::find($schoolId);
+
+		$cwsnClassess = [6, 7, 8, 9, 10, 11, 12];
+		$classList = $school->getClasses
+			->filter(function ($class) use ($cwsnClassess) {
+		        return in_array($class->class_id, $cwsnClassess);
+		    })
+			->map(function ($class) {
+	        $originalClass = Sclass::where('id', $class->class_id)
+	            ->orderBy('orders')
+	            ->first();
+
+	        $class->name = !empty($class->nomenclature)
+	            ? $class->nomenclature
+	            : ($originalClass ? $originalClass->name : null);
+
+	        return $class;
+	    });
+
+		$classList->prepend((object)[
+	        'class_id' => '',
+	        'name' => 'All Class',
+	        'section' => ''
+	    ]);
+
+        if ($request->ajax()) {
+
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 100);
+
+			$year = date('Y');
+			$month = date('m');
+			$academicYear = ($month >= 4)
+				? $year . '-' . ($year + 1)
+				: ($year - 1) . '-' . $year;
+
+			if ($request->input('term')) {
+		        $termDetails = $request->input('term');
+				list($academicYear, $selectedTerm) = explode('|', $termDetails);
+		        if (!empty($selectedTerm)) {
+					$TermMasterId = $selectedTerm;
+		        }
+		    }
+			
+		
+            $query = DB::table('students as s')
+				->leftJoin('student_rpwd_mapping', 'student_rpwd_mapping.student_id', '=', 's.id' )
+		        ->leftJoin('CwsnTestResultSummary as r', function($join) use ($TermMasterId) {
+					$join->on('s.id', '=', 'r.student_id')
+						->where('r.term_id', '=', $TermMasterId);
+				})
+		        ->leftJoin('class', 's.class_id', '=', 'class.id')
+				->leftJoin('custom_classes', 's.custom_class_id', '=', 'custom_classes.id')
+			        ->select( 
+					's.id',
+					's.student_name',					
+					's.class_id',
+					's.section_id',
+					's.rollno',
+					's.dob',
+					's.is_pwd',
+					'student_rpwd_mapping.pwd_type_id',
+					'r.20m_pacer as twenty_m_pacer',
+					'r.15m_pacer as fifteen_m_pacer',
+					'r.1mile_run_walk as oneMile_run_walk',
+					'r.shoulder_stretch', 
+					'r.sit_and_reach', 
+					'r.modified_apley_test', 
+					'r.curlup', 
+					'r.modified_curlup', 
+					'r.dumbbell_press', 
+					'r.pullup', 
+					'r.pushup', 
+					'r.seated_pushup', 
+					'r.trunk_lift', 
+					'r.Isometric_pushup', 
+					'r.reverse_curl', 
+					'r.modified_pullup', 
+					'r.40m_push_walk as push_walk',  
+					'r.cwsn_bmi',
+					'r.height',
+					'r.weight',
+			             DB::raw("CASE 
+							WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
+							THEN custom_classes.nomenclature 
+							ELSE class.name 
+						 END AS display_classname"),
+					'custom_classes.section'
+	            )
+		        ->where('s.school_code', $school->school_code)
+				->where('s.academic_year', $academicYear)    
+				->where('s.status','!=', 'transfer')    
+				->where('s.is_pwd', '1')    
+			    ->whereIn('class.id', $cwsnClassess)							
+				->orderBy('class.id')
+				->orderBy('custom_classes.section')
+				->orderBy('s.rollno');	
+		      
+				// echo"<pre>";print_r($$query->get());exit();
+
+			if ($request->input('class')) {
+		        $classFilter = $request->input('class');
+
+		        list($class_id, $section_id) = explode('-', $classFilter, 2);
+		        if (!empty($class_id)) {
+		            $query->where('s.class_id', $class_id);
+		        }
+		        if (!empty($section_id)) {
+		            $query->where('s.section_id', $section_id);
+		        }
+		    }
+
+
+		    $status = $request->input('status');
+			$tests  = $request->input('test', []);
+
+			$testColumnMap = [
+				'twenty_m_pacer'      => '20m_pacer',
+				'fifteen_m_pacer'     => '15m_pacer',
+				'oneMile_run_walk'    => '1mile_run_walk',
+				'shoulder_stretch'    => 'shoulder_stretch',
+				'sit_and_reach'       => 'sit_and_reach',
+				'modified_apley_test' => 'modified_apley_test',
+				'curlup'              => 'curlup',
+				'modified_curlup'     => 'modified_curlup',
+				'dumbbell_press'      => 'dumbbell_press',
+				'pullup'              => 'pullup',
+				'pushup'              => 'pushup',
+				'seated_pushup'       => 'seated_pushup',
+				'trunk_lift'          => 'trunk_lift',
+				'Isometric_pushup'    => 'Isometric_pushup',
+				'reverse_curl'        => 'reverse_curl',
+				'modified_pullup'     => 'modified_pullup',
+				'push_walk'           => '40m_push_walk',
+				'cwsn_bmi'            => 'cwsn_bmi',
+				'height'              => 'height',
+				'weight'              => 'weight',
+			];
+
+			if (in_array($status, ['complete', 'incomplete'])) {
+
+				$dbTests = [];
+
+				foreach ($tests as $test) {
+					if (isset($testColumnMap[$test])) {
+						$dbTests[] = $testColumnMap[$test];
+					}
+				}
+				if (empty($dbTests)) {
+					$dbTests = array_values($testColumnMap);
+				}
+
+				if ($status === 'complete') {
+					$query->where(function ($q) use ($dbTests) {
+
+						foreach ($dbTests as $column) {
+							$q->whereNotNull("r.$column")
+							->where("r.$column", '<>', '');
+						}
+
+					});
+
+				} else {
+					$query->where(function ($q) use ($dbTests) {
+						foreach ($dbTests as $column) {
+							$q->orWhereNull("r.$column")
+							->orWhere("r.$column", '');
+						}
+
+					});
+				}
+			}
+
+	        $searchValue = $request->input('search.value');
+	        if (!empty($searchValue)) {
+			    $query->where(function ($q) use ($searchValue) {
+			        $q->orWhere('s.student_name', 'LIKE', "%{$searchValue}%")
+			          ->orWhere('s.rollno', 'LIKE', "%{$searchValue}%");
+			    });
+			}
+
+
+	        if ($request->has('order')) {
+	            $order = $request->order[0];
+	            $colIndex = $order['column'];
+	            $direction = $order['dir']; // asc | desc
+	            $colName = $request->columns[$colIndex]['data'];
+
+	            $sortableColumns = [
+	                'class_name'     => DB::raw("display_classname"),
+					'rollno'   		 => 's.rollno',
+	                'student_name'   => 's.student_name',
+					'age'   		 => 's.dob',
+	                '20m_pacer'          => 'r.20m_pacer',
+					'15m_pacer'          => 'r.15m_pacer',
+					'1mile_run_walk'     => 'r.1mile_run_walk',
+					'shoulder_stretch'   => 'r.shoulder_stretch',
+					'sit_and_reach'      => 'r.sit_and_reach',
+					'modified_apley_test'=> 'r.modified_apley_test',
+					'curlup'             => 'r.curlup',
+					'modified_curlup'    => 'r.modified_curlup',
+					'dumbbell_press'     => 'r.dumbbell_press',
+					'pullup'             => 'r.pullup',
+					'pushup'             => 'r.pushup',
+					'seated_pushup'      => 'r.seated_pushup',
+					'trunk_lift'         => 'r.trunk_lift',
+					'Isometric_pushup'   => 'r.Isometric_pushup',
+					'reverse_curl'       => 'r.reverse_curl',
+					'modified_pullup'    => 'r.modified_pullup',
+					'40m_push_walk'      => 'r.40m_push_walk',
+					'cwsn_bmi'           => 'r.cwsn_bmi',
+					'height'             => 'r.height',
+					'weight'             => 'r.weight',
+
+	            ];
+
+	            if (array_key_exists($colName, $sortableColumns)) {
+	                $query->orderBy($sortableColumns[$colName], $direction);
+	            }
+	        }
+
+            $recordsTotal = $query->count();
+        	$draw = intval($request->input('draw'));
+        	$studentlist = $query->skip($start)
+            ->take($length == -1 ? $recordsTotal : $length)->get();
+	
+	        $flattenedList = $studentlist->map(function ($item) use ($role_id, $TermMasterId) {
+				$id  = Crypt::encryptString($item->id);
+           		$view_link = route('cwsn.reports.view', ['id' => $id, 'term_id' => $TermMasterId]);
+
+	        	// $view_link = route('reports.view', ['id' => Crypt::encryptString($item->id)]);
+
+				$age = \Carbon\Carbon::parse($item->dob)->age;
+				$isValid = $this->isValidAge($item->class_id, $age);
+
+				$studentAge = $isValid ? $age : $age;
+
+	            return [
+	                'id' => $item->id,
+	                'student_name' => $item->student_name,					
+					'age'			=> $studentAge,
+					'invalid_age' => $isValid ? 0 : 1, 
+					'pwd_type_id' => $item->pwd_type_id,
+	           		'class_name' => $item->display_classname.'-'. $item->section,
+	           		'rollno' => $item->rollno ?? 'N.A.',
+					'twenty_m_pacer' => isset($item->twenty_m_pacer) ? (int)$item->twenty_m_pacer : '---',
+					'fifteen_m_pacer' => isset($item->fifteen_m_pacer) ? (int)$item->fifteen_m_pacer : '---',
+					'oneMile_run_walk' => is_numeric($item->oneMile_run_walk)
+											? sprintf(
+												'%02d:%02d.%02d',
+												floor((int)$item->oneMile_run_walk / 60000),
+												floor(((int)$item->oneMile_run_walk % 60000) / 1000),
+												floor(((int)$item->oneMile_run_walk % 1000) / 10)
+											)
+											: '---',
+					'curlup' => isset($item->curlup) ? (int)$item->curlup : '---',
+	                'modified_curlup' => isset($item->modified_curlup) ? (int)$item->modified_curlup : '---',
+	                'pushup' => isset($item->pushup) ? (int)$item->pushup : '---',
+	                'modified_pullup' => isset($item->modified_pullup) ? (int)$item->modified_pullup : '---',
+	                'pullup' => isset($item->pullup) ? (int)$item->pullup : '---',
+	                'trunk_lift' => isset($item->trunk_lift) ? (int)$item->trunk_lift / 10 : '---',					
+	                'Isometric_pushup' => is_numeric($item->Isometric_pushup)
+											? sprintf(
+												'%02d:%02d.%02d',
+												floor((int)$item->Isometric_pushup / 60000),
+												floor(((int)$item->Isometric_pushup % 60000) / 1000),
+												floor(((int)$item->Isometric_pushup % 1000) / 10)
+											)
+											: '---',
+	                'seated_pushup' => is_numeric($item->seated_pushup)
+											? sprintf(
+												'%02d:%02d.%02d',
+												floor((int)$item->seated_pushup / 60000),
+												floor(((int)$item->seated_pushup % 60000) / 1000),
+												floor(((int)$item->seated_pushup % 1000) / 10)
+											)
+											: '---',
+	                'push_walk' => isset($item->push_walk) ? ((int)$item->push_walk === 1 ? 'Pass' : 'Fail') : '---',
+	                'reverse_curl' => isset($item->reverse_curl) ? ((int)$item->reverse_curl === 1 ? 'Pass' : 'Fail') : '---',
+	                'dumbbell_press' => isset($item->dumbbell_press) ? (int)$item->dumbbell_press : '---',
+	                'modified_apley_test' => isset($item->modified_apley_test) ? $item->modified_apley_test : '---',
+					'sit_and_reach' => isset($item->sit_and_reach) ? $item->sit_and_reach : '---',
+					'shoulder_stretch' => isset($item->shoulder_stretch) ? $item->shoulder_stretch : '---',
+	                'cwsn_bmi' => isset($item->cwsn_bmi) ? round((float)$item->cwsn_bmi, 2) : '---',
+	                'height' => $item->height ?? '---',
+	                'weight' => $item->weight ?? '---',	                
+	                'view_link' => $view_link,
+	            ];
+	        });
+
+            return response()->json([
+	            'draw' => intval($draw),
+	            'recordsTotal' => $recordsTotal,
+	            'recordsFiltered' => $recordsTotal,
+	            'data' => $flattenedList
+	        ]);
+        }
+
+
+       	$title = 'CWSN Test Status (Class 6 to 12)';
+        return view('reports.summary.cwsn-summary', compact('title','classList','ajaxUrl','terms','TermMasterId'));
+    }
+
+
+	public function ViewCWSNFitnessReport($id=null, $term_id=null)	 {
+		
+		try{
+
+			if($id){
+				$studentId = Crypt::decryptString($id);
+			}else{
+				$studentId = Auth::guard('sstudent')->user()->id;
+			}
+
+			$studentsData = $this->getCWSNStudentData($studentId);
+			$pwd_cat_id = $studentsData->pwd_cat_id;
+			
+			if (!empty($term_id)) {
+				$termIds = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $term_id);
+				} else {
+					$selectedTermId = $this->getTermId($studentsData->schools_id);
+					
+				$termIds = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $selectedTermId);
+			}
+		
+			$currentTermId  = $termIds[0] ?? null;
+			$previousTermId = $termIds[1] ?? null;
+			
+			
+			$dob          = Carbon::parse($studentsData->dob);
+			$studentAge   = $dob->age;
+			$studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
+			$ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
+			
+			// Fetch report + benchmarks
+			$reportData = $this->getReportData($studentId, $termIds);
+			$mappedReport  = $this->mapCWSNReportData($reportData, $studentAge, $studentGender, $ageGender);
+			$groupedReport = $mappedReport->groupBy('Category')
+			->map(function ($items) use ($currentTermId, $previousTermId) {
+				return $items
+					->filter(fn ($row) =>
+						in_array((int) $row['TermId'], [$currentTermId, $previousTermId])
+					)
+					->groupBy(fn ($row) =>
+						(int) $row['TermId'] === (int) $currentTermId
+							? 'Current_Term'
+							: 'Previous_Term'
+					);
+			});
+			
+			$getBmiBenchmark =  $this->getBmiBenchmark($ageGender);
+			$orderedReportData = $this->getCWSNReportData($studentId, $pwd_cat_id, $studentAge, $studentGender, $groupedReport);
+			$academicYear = DB::table('term_masters')->where('id', $currentTermId)->value('academic_year');
+			// echo"<pre>";print_r($mappedReport);exit();
+			return view('reports.fitness.html.cwsn-report', compact('studentsData','orderedReportData','getBmiBenchmark','academicYear'));
+		
+		} catch (\Exception $e) {
+	      
+	        Log::error("Error Viewing fitness report: " . $e->getMessage(), [
+	            'student_id' => $id ?? 'Auth User',
+	            'file' => $e->getFile(),
+	            'line' => $e->getLine(),
+	            'trace' => $e->getTraceAsString()
+	        ]);
+
+	        return redirect()->back()->with('error', 'An error occurred while Viewing the report. Please try again later.');
+	    }
+	}
+
+	public function downloadCWSNFitnessReport($id = null, $term_id= null){
+		
+		try {			
+			if($id){
+				$studentId = Crypt::decryptString($id);
+			}else{
+				$studentId = Auth::guard('sstudent')->user()->id;
+			}
+
+			$studentsData = $this->getCWSNStudentData($studentId);
+			$pwd_cat_id = $studentsData->pwd_cat_id;
+			
+			if (!empty($term_id)) {
+				$termIds = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $term_id);
+				} else {
+					$selectedTermId = $this->getTermId($studentsData->schools_id);
+					
+				$termIds = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $selectedTermId);
+			}
+		
+			$currentTermId  = $termIds[0] ?? null;
+			$previousTermId = $termIds[1] ?? null;
+			
+			
+			$dob          = Carbon::parse($studentsData->dob);
+			$studentAge   = $dob->age;
+			$studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
+			$ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
+			
+			// Fetch report + benchmarks
+			$reportData = $this->getReportData($studentId, $termIds);
+			$mappedReport  = $this->mapCWSNReportData($reportData, $studentAge, $studentGender, $ageGender);
+			$groupedReport = $mappedReport->groupBy('Category')
+			->map(function ($items) use ($currentTermId, $previousTermId) {
+				return $items
+					->filter(fn ($row) =>
+						in_array((int) $row['TermId'], [$currentTermId, $previousTermId])
+					)
+					->groupBy(fn ($row) =>
+						(int) $row['TermId'] === (int) $currentTermId
+							? 'Current_Term'
+							: 'Previous_Term'
+					);
+			});
+			
+			$getBmiBenchmark =  $this->getBmiBenchmark($ageGender);
+			$orderedReportData = $this->getCWSNReportData($studentId, $pwd_cat_id, $studentAge, $studentGender, $groupedReport);
+			$academicYear = DB::table('term_masters')->where('id', $currentTermId)->value('academic_year');
+			// echo"<pre>";print_r($orderedReportData);exit();
+			$pdf = Pdf::loadView('reports.fitness.pdf.cwsn-pdf-report', compact('studentsData','orderedReportData', 'getBmiBenchmark','academicYear'));
+
+			return $pdf->stream('fitness_report.pdf');
+
+		} catch (\Exception $e) {
+	      
+	        Log::error("Error generating fitness report: " . $e->getMessage(), [
+	            'student_id' => $id ?? 'Auth User',
+	            'file' => $e->getFile(),
+	            'line' => $e->getLine(),
+	            'trace' => $e->getTraceAsString()
+	        ]);
+
+	        return redirect()->back()->with('error', 'An error occurred while generating the report. Please try again later.');
+	    }
+    }
 
 
 }

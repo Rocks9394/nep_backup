@@ -2,14 +2,50 @@
 @section('title', 'CISCE | ' . $title)
 @section('content')
 
+<style>
+
+    /* Small devices (Large phones, 576px and up)  576px and 768px  */
+    @media (min-width: 576px) {
+     
+    }
+
+    /* Medium devices (Tablets, 768px and up)    768px and  992px */
+    @media (min-width: 768px) {
+      
+    }
+
+
+    /* Large devices (Desktops, 992px and up)  992px and above*/
+    @media (min-width: 992px) {
+      
+    }
+
+    /* 0px to 767px  */
+    @media (max-width: 767px) {   
+
+
+      .scanner-conatiner{
+            margin-top: 0px !important;
+      }
+    }
+
+    #scanner_btn{
+        min-width: 56px !important;
+    }
+
+</style>
 @stack('cwsn-style')
 
-<audio id="whistleSound" src="{{ asset('assets/audio/15-meter-pacer.mp3') }}"></audio>
-
-<div class="all-chaptr-cards">
-    <div class="container">
-        <div class="t-mrg2 mb-5 pb-5">            
-            <div class="row"> <x-back-button :title="$title" /> </div>
+<div class="container">
+    <div class="t-mrg2 mb-5 pb-5">            
+        <div class="all-chaptr-cards">
+            <div class="row">
+                <div class="col">
+                    <div class="heading-rw mt-0 mt-md-1 mb-0 p-0"> 
+                     <x-back-button :title="$title" /> 
+                    </div>
+                </div>
+            </div>
 
             @php  $type = "cwsnlist"; @endphp
             

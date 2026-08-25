@@ -27,7 +27,7 @@ trait ReportHelperTrait
             ->leftJoin('schools', 'students.school_id', '=', 'schools.id')
             ->leftJoin('class', 'students.class_id', '=', 'class.id')
             ->leftJoin('custom_classes', 'students.custom_class_id', '=', 'custom_classes.id')
-            ->join('usermetas', 'usermetas.school_id', '=', 'schools.id')
+            ->leftJoin('usermetas', 'usermetas.school_id', '=', 'schools.id')
             ->select(
                 'schools.school_name','schools.school_code','schools.id as schools_id','schools.logo', 'class.name as class',
                 'students.id as student_id','students.student_uid as admissionnumber',
@@ -39,7 +39,8 @@ trait ReportHelperTrait
                     THEN custom_classes.nomenclature ELSE class.name END AS display_classname"),
                 'custom_classes.section'
             )
-            ->where('students.id', $studentId)->where('students.status', 'active')
+            ->where('students.id', $studentId)
+            // ->where('students.status', 'active')
             ->first();
     }
 
@@ -50,11 +51,12 @@ trait ReportHelperTrait
             return $row->Age;
         });
 
+        
         return $reportData->map(function ($item) use ($bmibenchMark, $studentAge, $studentGender, $ageGender) {
-
+            
             $bmiBenchmarkRow = $bmibenchMark->get($ageGender)?->first();     
-            $getPerformance = $this->getPerformance($item, $studentAge, $studentGender, $bmiBenchmarkRow);
             $normalizedScore = $this->formatValue($item->Score, $item->ScoreUnit);
+            $getPerformance = $this->getPerformance($item, $studentAge, $studentGender, $bmiBenchmarkRow);
 
             return [
                 'Category'   => $item->TestCategoryName,
@@ -66,13 +68,11 @@ trait ReportHelperTrait
                 'recommendation' => $getPerformance['outcomes'] ?? '',
                 'height'    => $item->height, 
                 'weight'   => $item->weight,
-            ];
+            ];        
         });
     }
 
-
     private function getPerformance($item, $studentAge, $studentGender, $bmiBenchmarkRow) {
-
 
         $score = $item->Score;
         $skill_type_id = $item->TestTypeID;
@@ -135,8 +135,6 @@ trait ReportHelperTrait
             'outcomes' => $recommendation ?? ''
         ];
     }
-
-  
 
     /* Get Levels */
     public function getFitnessLevel1($skillReportId, $studentAge, $studentGender, $score, $score_criteria)  {
@@ -230,12 +228,12 @@ trait ReportHelperTrait
 
                 if ($minutes > 0) {
                     $parts = [];
-                    $parts[] = $minutes . 'min';
+                    $parts[] = $minutes . ' min';
                     if ($seconds > 0) {
-                        $parts[] = $seconds . 'sec';
+                        $parts[] = $seconds . ' sec';
                     }
                     if ($milliseconds > 0) {
-                        $parts[] = str_pad($milliseconds, 3, '0', STR_PAD_LEFT) . 'ms';
+                        $parts[] = str_pad($milliseconds, 3, '0', STR_PAD_LEFT) . ' ms';
                     }
                     return implode(' ', $parts);
                 }
@@ -251,12 +249,15 @@ trait ReportHelperTrait
             case 'number':
                 return intval($value) . ' times';
 
+            case 'kg/m²':
+                return $value . ' kg/m²';
+
             default:
                 return $value;
         }
     }
 
-     public function getTermId($schoolId) {
+    public function getTermId($schoolId) {
         if (session()->has('term_id')) {
             return session('term_id');
         }else{
@@ -300,6 +301,8 @@ trait ReportHelperTrait
                 'SeniorTestResults.TermId',
                 'SeniorTestResults.created_at',
                 'SeniorTestResults.Score',
+                'SeniorTestResults.LeftScore',
+                'SeniorTestResults.RightScore',
                 'skill_reports.skill_name',
                 'skill_reports.TestTypeMasterID',
                 'SeniorTestResults.weight',
@@ -481,8 +484,187 @@ trait ReportHelperTrait
         ];
     }
 
+    /*
+    * CWSN Report data: 15-08-2026
+    */
 
+    public function getCWSNStudentData($studentId) {
+        
+        return DB::table('students')
+        ->leftJoin('schools', 'students.school_id', '=', 'schools.id')
+        ->leftJoin('class', 'students.class_id', '=', 'class.id')
+        ->leftJoin('custom_classes', 'students.custom_class_id', '=', 'custom_classes.id')
+        ->leftJoin('usermetas', 'usermetas.school_id', '=', 'schools.id')
+        ->leftJoin('student_rpwd_mapping', 'student_rpwd_mapping.student_id', 'students.id')
+        ->leftJoin('pwd_types', 'pwd_types.id', 'student_rpwd_mapping.pwd_type_id')
+        ->select(
+            'schools.school_name','schools.school_code','schools.id as schools_id','schools.logo',
+            'students.id as student_id','students.student_uid as admissionnumber',
+            'students.student_name as student_name','students.gender', 'pwd_types.disability_type',
+            'students.class_id','students.section_id','students.custom_class_id', 'pwd_types.pwd_cat_id',
+            'students.dob','students.email_id','students.rollno','students.status','usermetas.signature',
+            DB::raw("CASE 
+                WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
+                THEN custom_classes.nomenclature ELSE class.name END AS display_classname"),
+            'custom_classes.section'
+        )
+        ->where('students.id', $studentId)
+        ->first();
 
+    }
 
+    protected function getCWSNReportData($studentId, $pwd_cat_id, $studentAge, $studentGender, $groupedReportData) {
+
+        $senior = [23, 40, 39, 3];
+
+        $cwsnData = DB::table('TestCategoryMaster')
+            ->join('TestTypeMaster', 'TestTypeMaster.TestCategoryID','=', 'TestCategoryMaster.TestCategoryID')
+            ->join('skill_reports', 'skill_reports.TestTypeMasterID','=', 'TestTypeMaster.TestTypeID')
+            ->whereIn('TestCategoryMaster.TestCategoryID', $senior)
+            ->orderByRaw('FIELD(TestCategoryMaster.TestCategoryID, ' . implode(',', $senior) . ')')
+            ->select('TestCategoryMaster.TestCategoryID','TestCategoryMaster.TestCategoryName','skill_reports.skill_name')
+            ->where('TestCategoryMaster.IsActive', 1)
+            ->get();
+
+        $orderedReportData = collect();
+        foreach ($cwsnData as $cat) {
+
+            $categoryName = $cat->TestCategoryName . " (" . $cat->skill_name . ")";
+            $data = $groupedReportData->get(
+                $cat->TestCategoryName,
+                collect()
+            );
+            $filteredData = collect([
+                'Current_Term' => $data->get('Current_Term', collect())
+                    ->filter(function ($row) use ($cat) {
+                        return trim($row['Test_Name'] ?? '') === trim($cat->skill_name);
+                    })
+                    ->values(),
+
+                'Previous_Term' => $data->get('Previous_Term', collect())
+                    ->filter(function ($row) use ($cat) {
+                        return trim($row['Test_Name'] ?? '') === trim($cat->skill_name);
+                    })
+                    ->values(),
+            ]);
+
+            $orderedReportData->put($categoryName, $filteredData);
+        }
+
+        return $orderedReportData;
+    }
+
+    public function mapCWSNReportData($reportData, $studentAge, $studentGender, $ageGender) {
+
+        $bmibenchMark = DB::table('LP_BMI_List')->where('Age','=', $ageGender)->get()->groupBy(function ($row) {
+            return $row->Age;
+        });
+
+        
+        return $reportData->map(function ($item) use ($bmibenchMark, $studentAge, $studentGender, $ageGender) {
+            
+            $bmiBenchmarkRow = $bmibenchMark->get($ageGender)?->first();     
+            $normalizedScore = $this->formatValue($item->Score, $item->ScoreUnit);
+            // if($item->TestTypeID == 33){
+            //     $getPerformance = $this->getPerformance($item, $studentAge, $studentGender, $bmiBenchmarkRow);
+            //     return [
+            //         'Category'   => $item->TestCategoryName,
+            //         'TermId'     => $item->TermId,
+            //         'created_at' => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
+            //         'Level'      => $getPerformance['level'] ?? '',
+            //         'Test_Name'  => $item->skill_name,
+            //         'score'      => $normalizedScore,
+            //         'recommendation' => $getPerformance['outcomes'] ?? '',
+            //         'height'    => $item->height, 
+            //         'weight'   => $item->weight,
+            //     ];
+            // }else 
+            if ($item->TestCategoryID == 39) {
+                $leftScore = $this->formatValue($item->LeftScore, $item->ScoreUnit);
+                $RightScore = $this->formatValue($item->RightScore, $item->ScoreUnit);
+
+                $normalizedScore = 'L-' . $leftScore . ' | R-' . $RightScore;
+                return [
+                    'Category'   => $item->TestCategoryName,
+                    'TermId'     => $item->TermId,
+                    'created_at' => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
+                    'minimal'      => '3',
+                    'preferred'      => '3',
+                    'Test_Name'  => $item->skill_name,
+                    'score'      => $normalizedScore,
+                    'recommendation' => '',
+                    'height'    => $item->height, 
+                    'weight'   => $item->weight,
+                ];
+            }else if (in_array($item->TestTypeID, [56, 58])) {
+                $normalizedScore = $item->Score == '1' ? 'Pass' : 'Fail';
+                
+                return [
+                    'Category'   => $item->TestCategoryName,
+                    'TermId'     => $item->TermId,
+                    'created_at' => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
+                    'minimal'      => 'Pass',
+                    'preferred'      => 'Pass',
+                    'Test_Name'  => $item->skill_name,
+                    'score'      => $normalizedScore,
+                    'recommendation' => '',
+                    'height'    => $item->height, 
+                    'weight'   => $item->weight,
+                ];
+            }else{
+                $getPerformance = $this->getHealthyZone($item, $studentAge, $studentGender);
+                
+                return [
+                    'Category'   => $item->TestCategoryName,
+                    'TermId'     => $item->TermId,
+                    'created_at' => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
+                    'minimal'      => $getPerformance['minimal'] ?? '',
+                    'preferred'      => $getPerformance['preferred'] ?? '',
+                    'Test_Name'  => $item->skill_name,
+                    'score'      => $normalizedScore,
+                    'recommendation' => $getPerformance['outcomes'] ?? '',
+                    'height'    => $item->height, 
+                    'weight'   => $item->weight,
+                ];
+            }
+                        
+        });
+    }
     
+    private function getHealthyZone($item, $studentAge, $studentGender){
+
+        $score = $item->Score;
+        $test_type_id = $item->TestTypeMasterID;
+
+        $benchmark = DB::table('cwsn_benchmarks')
+            ->where('test_type_id', $test_type_id)
+            ->where('age', $studentAge)
+            ->where('gender', $studentGender)
+            ->first();
+
+        if (!$benchmark) {
+            return [
+                'level' => null,
+                'outcomes' => 'Benchmark not available',
+            ];
+        }
+        $value1 = $benchmark->minimal;
+        $value2 = $benchmark->preferred;
+
+        $minimal = $this->formatValue($value1, $benchmark->unit);
+        $preferred = $this->formatValue($value2, $benchmark->unit);
+
+        if ($score < $benchmark->minimal) {
+            $recommendation = 'Very poor performance';
+        } else {
+            $recommendation = 'Good performance';
+        }
+
+        return [
+            'minimal' => $minimal,
+            'preferred' => $preferred,
+            'outcomes' => '',
+        ];
+    }
+
 }

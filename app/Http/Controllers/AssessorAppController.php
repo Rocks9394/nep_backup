@@ -73,7 +73,7 @@ class AssessorAppController extends Controller
 		$junior = array(10, 11, 12);
 		$junior1 = array(2, 6, 3);
 		
-		$senior = array(8, 9, 5, 4, 15, 3, 132);
+		$senior = array(8, 9, 5, 4, 15, 3, 132, 134);
 		$cbseTests = array(6, 7, 1, 2, 131);
 	
 		$juniorData = DB::table('TestCategoryMaster')->whereIn('TestCategoryID',$junior)->orderByRaw('FIELD(TestCategoryID, ' . implode(',', $junior) . ')')->get();
@@ -142,14 +142,18 @@ class AssessorAppController extends Controller
 		$terms = TermMaster::whereIn('id', $TermIds)->get();
 
 
-		$rpwdCategoriesData = RpwdCategory::select('id as PwdCategoryID','disability_category as CategoryName')
-		->where('status','active')
-		//->where('id','!=', 10)
-		->orderBy('CategoryName')
-		->get();
+		// $rpwdCategoriesData = RpwdCategory::select('id as PwdCategoryID','disability_category as CategoryName')
+		// ->where('status','active')
+		// //->where('id','!=', 10)
+		// ->orderBy('CategoryName')
+		// ->get();
+		
 
+		$cwsncatid = [3, 23, 39 ,40];
+		$cwsnCategory = DB::table('TestCategoryMaster')->whereIn('TestCategoryID',$cwsncatid)
+		->orderBy('DisplayOrder')->get();
 	
-		return view('assessor.alltests', compact('title', 'juniorData', 'cbseData', 'juniorData1', 'seniorData', 'terms', 'selectedTerm','rpwdCategoriesData'));
+		return view('assessor.alltests', compact('title', 'juniorData', 'cbseData', 'juniorData1', 'seniorData', 'terms', 'selectedTerm','cwsnCategory'));
 	
 	}
 	
@@ -180,8 +184,11 @@ class AssessorAppController extends Controller
 	{
 		
 		$CategoryName = DB::table('TestCategoryMaster')->where('TestCategoryID',$TestcategoryId)->value('TestCategoryName');
+		
+		
 			
-		$testType = DB::table('TestTypeMaster')->where('TestCategoryID',$TestcategoryId)->where('TestsApplicable',2)->where('TestTypeID', '!=', 1014)->get();
+		$testType = DB::table('TestTypeMaster')->where('TestCategoryID',$TestcategoryId)->where('TestsApplicable',2)->get();
+		#$testType = DB::table('TestTypeMaster')->where('TestCategoryID',$TestcategoryId)->where('TestsApplicable',2)->where('TestTypeID', '!=', 1014)->get();
 		#$testType = DB::table('TestTypeMaster')->where('TestCategoryID',$TestcategoryId)->get();
 
 		$title = $CategoryName ?? 'Test';
@@ -191,6 +198,9 @@ class AssessorAppController extends Controller
 		$videos = DB::table('fitness_test_videos')
 			->whereIn('testType_id', $testTypeIds)
 			->get();
+			#echo "<pre>";
+			#print_r($testTypeIds);
+         #die('---gfgf');			
 			
 		return view('assessor.locomotorSkills', compact('title','testType', 'TestcategoryId', 'SeniorBMI','videos'));		
 
@@ -202,6 +212,10 @@ class AssessorAppController extends Controller
 	
 		$skillReport = DB::table('skill_reports')->select('id','skill_name','TestTypeMasterID')->where('TestTypeMasterID',$TestTypeId)->first();
 		$skillTypes = DB::table('skill_types')->where('skill_report_id',$skillReport->id)->where('status', 1)->get();
+		
+		#echo "<pre>";
+		#print_r($skillReport);
+		#die('--change the details--');
 
 		$title             = $skillReport->skill_name;
 		$skillReportId     = $skillReport->id;
@@ -317,7 +331,7 @@ class AssessorAppController extends Controller
 				END")
 			);
 
-		$seniorclasses = $query->whereIn('class.id', array(4,5,6,7,8,9,10,11,12, 132))->get();
+		$seniorclasses = $query->whereIn('class.id', array(4,5,6,7,8,9,10,11,12))->get();
 		$additionalClasses = $query->whereIn('class.id', array(9,10,11,12))->get();
 		
 		
@@ -379,7 +393,7 @@ class AssessorAppController extends Controller
 		}
 		//hand wall toss
 		elseif($skillReport->skill_name == 'Alternative Hand Wall Toss Test')
-		{
+		{  
 			$classes = $additionalClasses;
 			$title = $skillReport->skill_name;
 			return view('assessor.hand-toss', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
@@ -413,6 +427,7 @@ class AssessorAppController extends Controller
 		}
 		elseif($skillReport->skill_name == 'Partial curl up 30 sec')
 		{
+		
 			$classes = $seniorclasses;
 			$title = $skillReport->skill_name;
 			return view('assessor.strength', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
@@ -1091,6 +1106,10 @@ class AssessorAppController extends Controller
 	
 	public function getStudentsRoll(Request $request) {
 
+
+		//echo "<pre>"; print_r($request->all()); exit();
+
+
 		$userId = Auth::id();
 
 		if (Session::has('SelectSchoolId')) {
@@ -1119,23 +1138,29 @@ class AssessorAppController extends Controller
 		$termMasterId =  $this->getTermId($SchoolId);
 	    [$customClassId, $classId, $sectionId] = explode('-', $classCustom);
 
+		$year = date('Y');
+		$month = date('m');
+		$academicYear = ($month >= 4)
+			? $year . '-' . ($year + 1)
+			: ($year - 1) . '-' . $year;
 
 		$getData =  DB::table('students')
 				->where('school_code', $school->school_code)
+				->where('academic_year', $academicYear)
 				->where('class_id', $classId)
 				->where('custom_class_id', $customClassId)
 				->where('section_id', $sectionId)
 				->where('status','active');
 
 		if($testType == 'cwsnlist'){
+			$getData->where('students.is_pwd', '1')
+			->join('student_rpwd_mapping', 'students.id', '=', 'student_rpwd_mapping.student_id')
+	        ->join('pwd_types', 'student_rpwd_mapping.pwd_type_id', '=', 'pwd_types.id');
 
-			$cwsn_type = (int) $request->input('cwsn_type'); 
-		    $getData->join('student_rpwd_mapping', 'students.id', '=', 'student_rpwd_mapping.student_id')
-	        ->join('pwd_types', 'student_rpwd_mapping.pwd_type_id', '=', 'pwd_types.id')
-	        ->join('pwd_category_test_mapping', 'pwd_types.pwd_cat_id', '=', 'pwd_category_test_mapping.pwd_category_id')
-	        ->where('pwd_types.pwd_cat_id', $cwsn_type);
-		
+	        // ->join('pwd_category_test_mapping', 'pwd_types.pwd_cat_id', '=', 'pwd_category_test_mapping.pwd_category_id');
+	        // ->where('pwd_types.pwd_cat_id', $cwsn_type);
 		}
+
 
 		$select = [
 	        'students.id',
@@ -1145,15 +1170,13 @@ class AssessorAppController extends Controller
 	    ];
 
 	    if ($testType === 'cwsnlist') {
-	        $select[] = 'student_rpwd_mapping.pwd_type_id';
+	        $select[] = 'students.is_pwd';
 	        $select[] = 'pwd_types.disability_type';
 	    }
 
 
-		if ($testStatus == "all") {
+		if ($testStatus == "all" && $testType != "cwsnlist") {
 			$students = $getData->select($select)->distinct()->orderBy('students.rollno', 'asc')->get();
-
-			//$students = $getData->select('id', 'rollno', 'student_name','user_id')->orderBy('rollno', 'asc')->get();
 
 		} else if ($testStatus == "remaining" && $testType == "allFmsTest") {
 			
@@ -1168,19 +1191,42 @@ class AssessorAppController extends Controller
 				->select($select)->distinct()
 				->orderBy('students.rollno', 'asc')->get();
 
-		} else {
+		} else if ($testStatus == "remaining" && $testType == "cwsnlist") {
+ 
+			$categoryId = (int) $request->input('cwsn_type');
+			$students = $getData->whereNotExists(function ($query) use ($termMasterId, $categoryId ) {
+		        $query->select(DB::raw(1))
+		            ->from('SeniorTestResults as mapping')
+		            ->join('skill_reports', 'skill_reports.id', '=', 'mapping.TestTypeID')
+		            ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'skill_reports.TestTypeMasterID')
+		            ->where('TestTypeMaster.TestCategoryID', '=', $categoryId)
+		            ->whereRaw('mapping.StudentID = students.id')
+		            ->where('mapping.TermId', '=', $termMasterId);
+		    })
+		    ->select($select)
+		    ->distinct()
+		    ->orderBy('students.rollno', 'asc')
+		    ->get();
 
-			$students = $getData->whereNotExists(function ($query) use ($skillReportId,$termMasterId) {
+
+		} else if ($testStatus == "all" && $testType == "cwsnlist") {
+
+			$students = $getData->select($select)->distinct()->orderBy('students.rollno', 'asc')->get();
+
+		} else {
+			
+			$students = $getData->whereNotExists(function ($query) use ($skillReportId, $termMasterId) {
 					$query->select(DB::raw(1))
 						->from('SeniorTestResults as mapping')
 						->whereRaw('mapping.StudentID = students.id')
 						->where('mapping.TestTypeID', '=', $skillReportId)
 						->where('mapping.TermId', '=', $termMasterId);
 				})
-				// ->select('students.id', 'students.rollno', 'students.student_name', 'students.user_id')
 				->select($select)->distinct()
 				->orderBy('students.rollno', 'asc')
 				->get();
+
+			
 		}
 
 			
@@ -1201,8 +1247,12 @@ class AssessorAppController extends Controller
 		$school = School::find($SchoolId);
 		
 		$student_reg_no = $request->student_reg_no;
+
+
 		
 		if($student_reg_no){
+
+			//echo "pass-1";
 
 			$scan_classes = $request->scan_classes;
 			$classIds = collect($scan_classes)->pluck('class_id')->toArray();
@@ -1257,8 +1307,8 @@ class AssessorAppController extends Controller
 						ELSE class.name 
 					END AS classname
 				")
-			)
-			->first()->orderBy('students.student_name');
+			)->orderBy('students.student_name')
+			->first();
 
 			$cls = $student->classname;
 			$sec = $student->section;
@@ -1266,11 +1316,8 @@ class AssessorAppController extends Controller
 		}else{
 			
 			$className = $request->class_name;
-			$student =  DB::table('students')
-			->join('student_rpwd_mapping', 'student_rpwd_mapping.student_id', 'students.id')
-			->leftJoin('anthropometric_table as ht', 'ht.id', '=', 'student_rpwd_mapping.anthropo_ht_id')
-    		->leftJoin('anthropometric_table as wt', 'wt.id', '=', 'student_rpwd_mapping.anthropo_wt_id')
 
+			$student =  DB::table('students')
 			->where('students.id', $student_id)
 			->select('students.id', 
 				'students.rollno',
@@ -1284,18 +1331,47 @@ class AssessorAppController extends Controller
 				'students.class_id',
 				'students.section_id',
 				'students.dob',
-				'student_rpwd_mapping.anthropo_ht_id',
-				'student_rpwd_mapping.anthropo_wt_id',
-
-				'ht.anthropometric_value as height_value',
-		        'ht.anthropometric_type as height_type',
-		        
-		        // Weight values
-		        'wt.anthropometric_value as weight_value',
-		        'wt.anthropometric_type as weight_type'
 			)
 			->where('students.status','active')
 			->first();
+
+			if($request->input('testType') == 'cwsnlist'){
+
+				$student =  DB::table('students')
+				->join('student_rpwd_mapping', 'student_rpwd_mapping.student_id', 'students.id')
+				->leftJoin('anthropometric_table as ht', 'ht.id', '=', 'student_rpwd_mapping.anthropo_ht_id')
+	    		->leftJoin('anthropometric_table as wt', 'wt.id', '=', 'student_rpwd_mapping.anthropo_wt_id')
+
+				->where('students.id', $student_id)
+				->select('students.id', 
+					'students.rollno',
+					'students.user_id' ,
+					'students.school_id',
+					'students.school_code',
+					'students.student_uid',
+					'students.student_name',
+					'students.gender',
+					'students.custom_class_id',
+					'students.class_id',
+					'students.section_id',
+					'students.dob',
+					'student_rpwd_mapping.anthropo_ht_id',
+					'student_rpwd_mapping.anthropo_wt_id',
+
+					'ht.anthropometric_value as height_value',
+			        'ht.anthropometric_type as height_type',
+			        
+			        // Weight values
+			        'wt.anthropometric_value as weight_value',
+			        'wt.anthropometric_type as weight_type'
+				)
+				->where('students.status','active')
+				->first();
+			}
+			
+			
+
+			
 		}
 		
 		
@@ -1340,6 +1416,8 @@ class AssessorAppController extends Controller
 	        		break;
 	        }
 
+
+	        // echo "<pre>"; print_r($student); //exit();
 			return response()->json([
 				'success' => true,
 				'data' => [
@@ -1360,6 +1438,7 @@ class AssessorAppController extends Controller
 					'weight_type'  =>  $student->weight_type ?? null,
 				]
 			]);
+
 		} else 	{
 			return response()->json(['success' => false,'message' => 'The student is not found in selected class.']);
 		}
@@ -1396,7 +1475,6 @@ class AssessorAppController extends Controller
 	        		break;
 
 	        	case 'fitnessTest':
-	        	case 'cwsnlist':
 	        		$testExists = DB::table('SeniorTestResults')
 	                ->where('StudentID', $studentId)
 	                ->where('SchoolID', $request->school_id)
@@ -1415,6 +1493,37 @@ class AssessorAppController extends Controller
 	                }
 
 	        		break;
+
+	          	case 'cwsnlist':
+
+
+	          		$skill_reports_id = (int) $request->input('skillReportId');
+	        		$categoryInfo = DB::table('skill_reports')
+			        ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'skill_reports.TestTypeMasterID')
+			        ->where('skill_reports.id', $skill_reports_id)
+			        ->select('TestTypeMaster.TestCategoryID')
+			        ->first();
+
+			        $testCategoryID = $categoryInfo ? $categoryInfo->TestCategoryID : null;
+
+			        $testExists = DB::table('SeniorTestResults as mapping')
+			        ->join('skill_reports', 'skill_reports.id', '=', 'mapping.TestTypeID')
+			        ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'skill_reports.TestTypeMasterID')
+			        ->where('TestTypeMaster.TestCategoryID', '=', $testCategoryID)
+			        ->where('mapping.StudentID', '=', $studentId)
+			        ->where('mapping.TermId', '=', $termMasterId)
+			        ->delete();
+
+
+	        		// $testExists = DB::table('SeniorTestResults')
+	                // ->where('StudentID', $studentId)
+	                // ->where('SchoolID', $request->school_id)
+	                // ->where('TermId', $termMasterId)
+	                // ->where('TestTypeID', $request->skillReportId)
+	                // ->delete();
+
+
+	                $this->UpdateCWSNTestStatus($studentId, $termMasterId, $request->skillReportId, null, $request->school_id, '', '');
 
 	        	default:
 	        		
@@ -2307,60 +2416,55 @@ class AssessorAppController extends Controller
 	
 	
 	
-	    public function SubmitWingSpanRecord(Request $request) 
-		{
-	   
-			$alldata = $request->all();
-			
-			$userId  = \Auth::id();
-			
-			if(Session::get('SelectSchoolId')) 	{	
-				$SchoolId = Session::get('SelectSchoolId');
-				
-			}else {			
-				$SchoolTrainers = DB::table('school_trainers')
-				->join('schools','schools.id','=','school_trainers.school_id')
-				->select('schools.school_name','schools.id','schools.logo')
-				->where('school_trainers.trainer_id',$userId)->where('school_trainers.status', 1)->get();
-				$SchoolId = $SchoolTrainers[0]->id;		  	
-			}		
-			
-			$TermMasterId =  $this->getTermId($SchoolId);
-
-			$student = Sstudent::where('id',$alldata['student_id'])->select('gender','dob')->first();
-			$dob = Carbon::parse($student->dob);
-			$studentAge = $dob->age;
-			$studentGender = $student->gender;
-			$ageGender = $studentAge . strtolower(substr($studentGender, 0, 1));
-
-			if($alldata['wingspan_height'] !='') {
-					
+	public function SubmitWingSpanRecord(Request $request) {
+   
+		$alldata = $request->all();
 		
-				$Result = new SeniorTestResult();
-				
-				$Result->SchoolID     = $alldata['SchoolId'];
-				$Result->StudentID    = $alldata['student_id'];
-				$Result->TermId       = $TermMasterId;
-				$Result->TestTypeID   = $alldata['skillReportId'];
-				$Result->Score   	  = $alldata['wingspan_height'];
-				$Result->created_at   = now();
-				$Result->CreatedBy    = $userId;
-				$Result->updated_at   = now();
-				$Result->ModifiedBy   = $userId;
-				$Result->wingspan       = $alldata['wingspan_height'];
-				$Result->save();
+		$userId  = \Auth::id();
+		
+		if(Session::get('SelectSchoolId')) 	{	
+			$SchoolId = Session::get('SelectSchoolId');
 			
-				$message = $this->TestMessage($alldata['student_id'],$alldata['skillReportId']);
-				return response()->json(['success' => true,'message' => $message]);
-			} else {
-				return response()->json(['success' => false,'message' => 'Something went wrong.']);
-			}
+		}else {			
+			$SchoolTrainers = DB::table('school_trainers')
+			->join('schools','schools.id','=','school_trainers.school_id')
+			->select('schools.school_name','schools.id','schools.logo')
+			->where('school_trainers.trainer_id',$userId)->where('school_trainers.status', 1)->get();
+			$SchoolId = $SchoolTrainers[0]->id;		  	
+		}		
+		
+		$TermMasterId =  $this->getTermId($SchoolId);
+
+		$student = Sstudent::where('id',$alldata['student_id'])->select('gender','dob')->first();
+		$dob = Carbon::parse($student->dob);
+		$studentAge = $dob->age;
+		$studentGender = $student->gender;
+		$ageGender = $studentAge . strtolower(substr($studentGender, 0, 1));
+
+		if($alldata['wingspan_height'] !='') {
+				
+	
+			$Result = new SeniorTestResult();
+			
+			$Result->SchoolID     = $alldata['SchoolId'];
+			$Result->StudentID    = $alldata['student_id'];
+			$Result->TermId       = $TermMasterId;
+			$Result->TestTypeID   = $alldata['skillReportId'];
+			$Result->Score   	  = $alldata['wingspan_height'];
+			$Result->created_at   = now();
+			$Result->CreatedBy    = $userId;
+			$Result->updated_at   = now();
+			$Result->ModifiedBy   = $userId;
+			$Result->wingspan       = $alldata['wingspan_height'];
+			$Result->save();
+		
+			$message = $this->TestMessage($alldata['student_id'],$alldata['skillReportId']);
+			return response()->json(['success' => true,'message' => $message]);
+		} else {
+			return response()->json(['success' => false,'message' => 'Something went wrong.']);
+		}
 	   
 	   
     }
 	
-	
-	
-
-
 }

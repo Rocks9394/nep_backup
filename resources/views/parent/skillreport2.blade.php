@@ -55,7 +55,7 @@
             <div class="row">
                <div class="col-12">
                   <div class=" student-info">
-                     <div class="container-fluid">
+                     <div class="student-info" id="personal_info"> 
                         <div class="row">
                            <div class="col-12 col-md-4 col-lg " style="text-align: left;">
                               <span class="lb" >Name:</span><span>{{ $reportDetail['studentProfile']['name'] }}</span>
@@ -102,7 +102,28 @@
                     $('#student_report_card').html('<div class="text-center">Loading...</div>');
                 },
                 success: function (response) {
-                    $('#student_report_card').html(response.html);
+                  $('#student_report_card').html(response.html);
+
+                  var html = `
+                     <div class="row">
+                        <div class="col-12 col-md-4 col-lg " style="text-align: left;">
+                            <span class="lb">Name:</span>${response.personalinfo.student_name}<span></span>
+                        </div>
+                        <div class="col-6 col-md-4 col-lg">
+                            <span class="lb">Class:</span>${response.personalinfo.className}<span></span>
+                        </div>
+                       <div class="col-6 col-md-4 col-lg">
+                            <span class="lb">Roll No:</span>${response.personalinfo.rollno}<span></span>
+                        </div>
+                        <div class="col-6 col-md-4 col-lg">
+                            <span class="lb">DOB:</span>${response.personalinfo.dob}<span></span>
+                        </div>
+                        <div class="col-6 col-md-4 col-lg">
+                            <span class="lb">Gender:</span>${response.personalinfo.gender}<span></span>
+                        </div>
+                    </div>`;
+                  $('#personal_info').empty().html(html)
+
                 },
                 error: function () {
                     $('#student_report_card').html('<div class="text-danger">Something went wrong.</div>');

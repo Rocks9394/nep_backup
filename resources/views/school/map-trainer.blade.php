@@ -62,7 +62,7 @@
 
                                             <!-- Export Button -->
                                             <button id="enableExportBtn" type="button" class="btn btn-secondary btn-sm d-flex align-items-center" style="gap:5px; display:none !important;">
-                                                <img src="https://nep.goforfit.in/public/assets/imgs/export.svg">
+                                                <img src="https://nep.goforfit.in/assets/imgs/export.svg">
                                                 <span class="d-none d-sm-block trainer-action-btn">Export</span>
                                             </button>
 
