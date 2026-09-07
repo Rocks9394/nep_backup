@@ -31,9 +31,15 @@ class Fitness365Controller extends Controller
     
     public function stateWiseFitnessData(){
         try {
-            $response = Http::withHeaders([
+            $response = Http::withOptions([
+                'verify' => false, 
+            ])->withHeaders([
                 'Authorization' => 'Bearer ' . env('CISCE_Bearer_TOKEN')
             ])->get('https://active.cisce.org/api/states-fitness-data');
+            
+            // $response = Http::withHeaders([
+            //     'Authorization' => 'Bearer ' . env('CISCE_Bearer_TOKEN')
+            // ])->get('https://active.cisce.org/api/states-fitness-data');
 
             return $response->json();
         } catch (\Exception $e) {

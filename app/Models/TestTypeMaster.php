@@ -9,4 +9,6 @@ class TestTypeMaster extends Model
 {
     use HasFactory;
     protected $table = 'TestTypeMaster';
+
+    protected $primaryKey = 'TestTypeID';
 }

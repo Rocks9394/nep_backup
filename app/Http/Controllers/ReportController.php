@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -35,7 +34,7 @@ use App\Jobs\GenerateBulkSkillReportsJob;
 use App\Models\TermMaster;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Storage;
-
+use App\Helpers\SwitchUser;
 use Illuminate\Support\Facades\Cache;
 use App\Services\ClassSectionService;
 
@@ -184,26 +183,34 @@ class ReportController extends Controller {
 	/**
 	 * View Individual Reports
 	 * */
-    public function ViewFitnessReport($id=null, $term_id=null) {
+    public function ViewFitnessReport(Request $request, $id=null, $term_id=null) {
+    	
+    	$term_id = $request->query('term') ?? $term_id;
 		
 		if($id){
 			$studentId = Crypt::decryptString($id);
 		}else{
-			$studentId = Auth::guard('sstudent')->user()->id;
+			$user = Auth::guard('sstudent')->user();
+			if(!$user){
+				return redirect()->route('login');
+			}
+			$studentId = $user->id;
 		}
 
 	    $studentsData = $this->getStudentData($studentId);
 
 	    if (!empty($term_id)) {
 	        $termIds = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $term_id);
+	        $userId = SwitchUser::switchuser($studentsData->student_id,  $term_id);
+	         $studentId = $userId; 
 	    } else {
 			$selectedTermId = $this->getTermId($studentsData->schools_id);
-
 			$termIds = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $selectedTermId);
 	    }
-
-		// echo"<pre>";print_r($termIds);
 	   
+		$studentsData = $this->getStudentData($studentId);
+
+
 	    $currentTermId  = $termIds[0] ?? null;
 		$previousTermId = $termIds[1] ?? null;
        
@@ -212,6 +219,8 @@ class ReportController extends Controller {
 	    $studentAge   = $dob->age;
 	    $studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
 	    $ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
+
+
 
 	    // Fetch report + benchmarks
 	    $reportData = $this->getReportData($studentId, $termIds);
@@ -229,7 +238,7 @@ class ReportController extends Controller {
 	            );
 	    });
 
-		$getBmiBenchmark = $getBmiBenchmark =  $this->getBmiBenchmark($ageGender);
+		$getBmiBenchmark =  $this->getBmiBenchmark($ageGender);
 
 	    if (in_array($studentsData->class_id, $this->higherClasses)) {
 
@@ -1638,10 +1647,42 @@ class ReportController extends Controller {
 				'weight'              => 'weight',
 			];
 
+			// if (in_array($status, ['complete', 'incomplete'])) {
+
+			// 	$dbTests = [];
+
+			// 	foreach ($tests as $test) {
+			// 		if (isset($testColumnMap[$test])) {
+			// 			$dbTests[] = $testColumnMap[$test];
+			// 		}
+			// 	}
+			// 	if (empty($dbTests)) {
+			// 		$dbTests = array_values($testColumnMap);
+			// 	}
+
+			// 	if ($status === 'complete') {
+			// 		$query->where(function ($q) use ($dbTests) {
+
+			// 			foreach ($dbTests as $column) {
+			// 				$q->whereNotNull("r.$column")
+			// 				->where("r.$column", '<>', '');
+			// 			}
+
+			// 		});
+
+			// 	} else {
+			// 		$query->where(function ($q) use ($dbTests) {
+			// 			foreach ($dbTests as $column) {
+			// 				$q->orWhereNull("r.$column")
+			// 				->orWhere("r.$column", '');
+			// 			}
+
+			// 		});
+			// 	}
+			// }
+
 			if (in_array($status, ['complete', 'incomplete'])) {
-
 				$dbTests = [];
-
 				foreach ($tests as $test) {
 					if (isset($testColumnMap[$test])) {
 						$dbTests[] = $testColumnMap[$test];
@@ -1651,23 +1692,86 @@ class ReportController extends Controller {
 					$dbTests = array_values($testColumnMap);
 				}
 
+				$dbTests = array_unique($dbTests);
+				$requiredBmiTests = [
+					'cwsn_bmi',
+					'height',
+					'weight'
+				];
+
+				$additionalTests = array_values(
+					array_diff($dbTests, $requiredBmiTests)
+				);
+
 				if ($status === 'complete') {
-					$query->where(function ($q) use ($dbTests) {
 
-						foreach ($dbTests as $column) {
-							$q->whereNotNull("r.$column")
-							->where("r.$column", '<>', '');
+					$query->where(function ($q) use ($additionalTests) {
+						$q->whereNotNull('r.cwsn_bmi')
+						->where('r.cwsn_bmi', '<>', '');
+
+						$q->whereNotNull('r.height')
+						->where('r.height', '<>', '');
+
+						$q->whereNotNull('r.weight')
+						->where('r.weight', '<>', '');
+
+						if (count($additionalTests) >= 3) {
+							$q->where(function ($subQuery) use ($additionalTests) {
+								$validExpression = collect($additionalTests)
+									->map(function ($column) {
+										return "CASE
+													WHEN r.`$column` IS NOT NULL
+														AND r.`$column` <> ''
+													THEN 1
+													ELSE 0
+												END";
+									})
+									->implode(' + ');
+
+								$subQuery->whereRaw(
+									"($validExpression) >= 3"
+								);
+							});
+						} else {
+							$q->whereRaw('1 = 0');
 						}
-
 					});
 
 				} else {
-					$query->where(function ($q) use ($dbTests) {
-						foreach ($dbTests as $column) {
-							$q->orWhereNull("r.$column")
-							->orWhere("r.$column", '');
-						}
+					$query->where(function ($q) use ($additionalTests) {
 
+						// BMI missing
+						$q->whereNull('r.cwsn_bmi')
+						->orWhere('r.cwsn_bmi', '');
+
+						// Height missing
+						$q->orWhereNull('r.height')
+						->orWhere('r.height', '');
+
+						// Weight missing
+						$q->orWhereNull('r.weight')
+						->orWhere('r.weight', '');
+
+						if (count($additionalTests) >= 3) {
+
+							$validExpression = collect($additionalTests)
+								->map(function ($column) {
+									return "CASE
+												WHEN r.`$column` IS NOT NULL
+													AND r.`$column` <> ''
+												THEN 1
+												ELSE 0
+											END";
+								})
+								->implode(' + ');
+
+							$q->orWhereRaw(
+								"($validExpression) < 3"
+							);
+
+						} else {
+							$q->orWhereRaw('1 = 1');
+						}
 					});
 				}
 			}

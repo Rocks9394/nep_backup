@@ -93,6 +93,84 @@ trait UpdateFitnessTestResults
 
     private function UpdateCWSNTestStatus($studentId, $termId, $testTypeId, $score, $schoolId, $height, $weight) {
 
+        $columns = [
+            29 => '20m_pacer',
+            30 => '15m_pacer',
+            32 => '1mile_run_walk',
+            35 => 'shoulder_stretch',
+            36 => 'sit_and_reach',
+            37 => 'modified_apley_test',
+            43 => 'curlup',
+            44 => 'modified_curlup',
+            45 => 'dumbbell_press',
+            46 => 'pullup',
+            47 => 'pushup',
+            48 => 'seated_pushup',
+            49 => 'trunk_lift',
+            55 => 'Isometric_pushup',
+            56 => 'reverse_curl',
+            57 => 'modified_pullup',
+            58 => '40m_push_walk',
+            33 => 'cwsn_bmi'        
+        ];
+
+        if (!isset($columns[$testTypeId])) {
+            return; 
+        }
+
+        $currentColumn = $columns[$testTypeId];
+
+        $categoryInfo = DB::table('skill_reports')
+            ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'skill_reports.TestTypeMasterID')
+            ->where('skill_reports.id', $testTypeId)
+            ->select('TestTypeMaster.TestCategoryID')
+            ->first();
+
+        $clearData = ['updated_at' => now()];
+
+        if ($categoryInfo) {
+            $categoryTestIds = DB::table('skill_reports')
+                ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'skill_reports.TestTypeMasterID')
+                ->where('TestTypeMaster.TestCategoryID', $categoryInfo->TestCategoryID)
+                ->pluck('skill_reports.id')
+                ->toArray();
+
+            foreach ($categoryTestIds as $id) {
+                if ($id != $testTypeId && isset($columns[$id])) {
+                    $clearData[$columns[$id]] = null;
+                }
+            }
+        }
+
+
+        $clearData['school_id'] = $schoolId;
+        $clearData[$currentColumn] = $score;
+
+        if ($testTypeId == 33) {
+            $clearData['height'] = (!is_null($height) && $height != '') ? $height . ' cm' : '---';
+            $clearData['weight'] = (!is_null($weight) && $weight != '') ? $weight . ' kg' : '---';
+        }
+
+        try {
+            DB::table('CwsnTestResultSummary')->updateOrInsert(
+                ['student_id' => $studentId, 'term_id' => $termId],
+                array_merge($clearData, ['created_at' => now()])
+            );
+        } catch (\Illuminate\Database\QueryException $e) {
+            if (isset($e->errorInfo[1]) && $e->errorInfo[1] == 1062) {
+                Log::warning('Duplicate CWSN Test Result ignored', [
+                    'student_id' => $studentId,
+                    'term_id'    => $termId,
+                    'test_type'  => $testTypeId,
+                ]);
+                return;
+            }
+            throw $e; 
+        }
+    }
+    
+    private function UpdateCWSNTestStatus_BK($studentId, $termId, $testTypeId, $score, $schoolId, $height, $weight) {
+
 
         $columns = [
             29 => '20m_pacer',

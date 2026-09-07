@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Crypt;
 use App\Traits\ReportHelperTrait;
 use App\Models\SeniorTestResult;
 use App\Traits\UpdateFitnessTestResults;
+use Illuminate\Support\Facades\Auth;
+use App\Models\TestTypeMaster;
+
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CwsnController extends Controller
 {
@@ -26,11 +31,40 @@ class CwsnController extends Controller
 
         $CategoryName = DB::table('TestCategoryMaster')->where('TestCategoryID',$TestcategoryId)->value('TestCategoryName');
         
-        $testType = DB::table('TestTypeMaster')->where('TestCategoryID',$TestcategoryId)
+        $testType1 = DB::table('TestTypeMaster')->where('TestCategoryID',$TestcategoryId)
         ->where('TestsApplicable',5)
         ->orderBy('DisplayOrder')
         ->where('isActive', 1)
         ->get();
+
+
+        $testType = DB::table('TestTypeMaster')
+        ->join('pwd_category_test_mapping','pwd_category_test_mapping.TestTypeMasterID','=','TestTypeMaster.TestTypeID')
+        ->join('pwd_categories','pwd_categories.id','=','pwd_category_test_mapping.pwd_category_id')
+        ->where('TestTypeMaster.TestCategoryID',$TestcategoryId)
+        ->where('TestTypeMaster.is_rpwd',1)
+
+        ->select('TestTypeMaster.TestTypeID',
+            'TestTypeMaster.TestCategoryID',
+            'TestTypeMaster.DisplayOrder',
+            'TestTypeMaster.TestsApplicable',
+            'TestTypeMaster.TestTypeName',
+            'TestTypeMaster.TestPerformed',
+            'TestTypeMaster.is_rpwd',
+            'pwd_category_test_mapping.pwd_category_id',
+            'pwd_category_test_mapping.TestCategoryId',
+            'pwd_categories.disability_category'
+        )
+        ->orderBy('TestTypeMaster.DisplayOrder')
+        ->where('TestTypeMaster.isActive', 1)
+        ->get();
+
+
+        $testType = $testType->groupBy('TestTypeID')->map(function ($items) {
+            $firstItem = $items->first();
+            $firstItem->disability_categories = $items->pluck('disability_category')->toArray();
+            return $firstItem;
+        })->values();
 
 
          // echo "<pre>"; print_r($CategoryName); exit();
@@ -740,6 +774,64 @@ class CwsnController extends Controller
         }
 
         return (int) $timeStr;
+    }
+
+    public function CwsnAdminManual($testTypeId) {
+        $test = TestTypeMaster::findOrFail($testTypeId);
+        
+        // Base file path
+        $filePath = storage_path('app/public/cwsnpdf/' . $test->TestTypeID);
+
+        // Check if file exists without extension, or with .pdf extension
+        if (!file_exists($filePath) && file_exists($filePath . '.pdf')) {
+            $filePath = $filePath . '.pdf';
+        }
+
+        if (!file_exists($filePath)) {
+            abort(404, 'PDF file not found at: ' . $filePath);
+        }
+
+        return response()->file($filePath, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="TrainingManual.pdf"',
+            'Cache-Control'       => 'private, max-age=3600, must-revalidate',
+        ]);
+    }
+
+
+    public function getAppVersion() {
+
+
+
+        try {
+            //$response = Http::get('https://active.cisce.org/api/app-version');
+
+            $response = Http::withOptions([
+                'verify' => false, 
+            ])->get('https://active.cisce.org/api/app-version');
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                return response()->json([
+                    'success' => true,
+                    'data' => $data
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch data, status code: ' . $response->status()
+            ], $response->status());
+
+        } catch (\Exception $e) {
+            Log::error('API Request Error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while fetching the app version.'
+            ], 500);
+        }
     }
 
 }

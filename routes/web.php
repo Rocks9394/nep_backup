@@ -54,21 +54,11 @@ use App\Http\Controllers\CwsnController;
 
 
 
-Route::get('/webview-auth-bridge', function (Request $request) {
-    $bridgeToken = $request->query('token');
 
-    $targetPath = $request->query('redirect');
-    
-    $student = Sstudent::where('remember_token', $bridgeToken)->first();
+Route::get('checkapi', [CwsnController::class, 'getAppVersion']);
 
 
-    if ($student) {
-        Auth::guard('sstudent')->login($student);
-        return redirect('/' . ltrim($targetPath, '/'));
-    }
 
-    return abort(401, "Invalid Bridge Session");
-});
 
 
 Route::get('/debug', function () {
@@ -95,7 +85,16 @@ Route::get('/new-page', function () {
 })->name('demo-page');
 
 
-
+Route::get('/webview-auth-bridge', function (Request $request) {
+    $bridgeToken = $request->query('token');
+    $targetPath = $request->query('redirect');
+    $student = Sstudent::where('remember_token', $bridgeToken)->first();
+    if ($student) {
+        Auth::guard('sstudent')->login($student);
+        return redirect('/' . ltrim($targetPath, '/'));
+    }
+    return abort(401, "Invalid Bridge Session");
+});
 
 
 Route::get('get_classes_schoolwise', [App\Http\Controllers\Academy::class, 'getClassesSchoolWise'])->name('get_classes_schoolwise');
@@ -167,6 +166,8 @@ Route::group(['middleware' => 'auth'], function () {
 		//Route::get('{pwd_category_id}/category/{test_category_id}', [CwsnController::class, 'CWSNSkillsTest'])->name('assessor.cwsn.test');
 		Route::get('{pwd_category_id}/test/{TestTypeId}', [CwsnController::class, 'CwsnTestTypes'])->name('cwsn.test.types');
 		Route::post('cwsn.types.submit',[CwsnController::class, 'SubmitCwsnTest'])->name('cwsn.types.submit');
+		
+		Route::get('pdf/{testTypeId}', [CwsnController::class, 'CwsnAdminManual'])->name('cwsn_admin_manual');
 	});
 	
 });

@@ -1484,7 +1484,7 @@
 										<input type="checkbox" 
 											name="pwdTypes[]" 
 											value="${type.disability_type}|${type.id}" 
-											data-cat="${catId}" style="width: 13px;height: 13px;">
+											data-cat="${type.id}" style="width: 13px;height: 13px;">
 										${type.disability_type}
 									</label>
 								</div>
@@ -1591,7 +1591,7 @@
 										<input type="checkbox" 
 											name="pwdTypesForAdd[]" 
 											value="${type.disability_type}|${type.id}" 
-											data-cat="${catId}" style="width: 13px;height: 13px;">
+											data-cat="${type.id}" style="width: 13px;height: 13px;">
 										${type.disability_type}
 									</label>
 								</div>
@@ -1734,12 +1734,12 @@
 
 			let editSelected = $('input[name="pwdTypes[]"]:checked')
 				.filter(function () {
-					return $(this).data('cat') == 7;
+					return $(this).data('cat') == 15;
 				}).length > 0;
 
 			let addSelected = $('input[name="pwdTypesForAdd[]"]:checked')
 				.filter(function () {
-					return $(this).data('cat') == 7;
+					return $(this).data('cat') == 15;
 				}).length > 0;
 
 			$('#pwdCat7Edit').toggle(editSelected);

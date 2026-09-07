@@ -153,6 +153,7 @@ class SchoolRecordController extends Controller
 			->pluck('total');
 
 		$healthRankData = (clone $baseQuery)
+
 			->select(DB::raw('COUNT(str.StudentID) as total'))
 			->whereIn('str.level', ['UW','N','OW','OB'])
 			->groupBy('str.level')
@@ -487,7 +488,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
 	// 02-Apr-2026 school profile update function 
 
-	public function viewProfile(){
+	public function viewProfile() {
 
         $title = 'Update Profile'; 
 		$board_list  = Board::orderBy('boardname', 'asc')->get(); 
@@ -540,6 +541,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			} else {
 				$academicYear = $year . '-' . ($year + 1);
 			}
+
 
 			$terms = DB::table('term_masters')
 				->select('id', 'term_name', 'academic_year','academic_year_start','academic_year_end', 'term_start_date', 'term_end_date')

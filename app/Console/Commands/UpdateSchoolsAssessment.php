@@ -8,143 +8,266 @@ use Illuminate\Support\Facades\DB;
 class UpdateSchoolsAssessment extends Command
 {
     protected $signature = 'schools:update-assessment';
+
     protected $description = 'Insert or update schools assessment summary by school_id';
 
     public function handle()
     {
-        $this->info('assessment scheduler start');
+        $this->info('[' . now()->toDateTimeString() . '] Schools Assessment scheduler start.');
 
-        // Class to skill mapping
-        $classSkillMapping = [
-            1 => range(1, 18),
-            2 => range(1, 18),
-            3 => range(1, 18),
-            4 => range(18, 23),
-            5 => range(18, 23),
-            6 => range(18, 23),
-            7 => range(18, 23),
-            8 => range(18, 23),
-            9 => range(18, 23),
-            10 => range(18, 23),
-            11 => range(18, 23),
-            12 => range(18, 23),
-            14 => [1, 3, 4, 7, 15],
-            14 => [1, 4, 5],
-            14 => [1, 2, 3, 4, 7, 12, 15],
-            14 => [1, 2, 3, 4, 5, 7, 9, 12, 14, 15],
-            // Add more class mappings if needed
-        ];
+        DB::statement("
+            CREATE TEMPORARY TABLE temp_student_metrics AS
+            SELECT 
+                s.id AS student_id,
+                s.school_id,
+                s.class_id,
+                s.is_pwd,
+                COALESCE(f.fms_count, 0) AS fms_count,
+                COALESCE(se.senior_count, 0) AS senior_count,
+                COALESCE(cw.cwsn_count, 0) AS cwsn_count
 
-        // Build the INSERT statement
-       DB::statement("
-            INSERT INTO schools_assessment (
-                school_id,
-                school_code,
-                school_name,
-                region,
-                registered_students,
-                completed,
-                ongoing,
-                yet_to_start
-            )
-            SELECT
-                sc.id AS school_id,
-                sc.school_code,
-                sc.school_name,
-                sc.region,
-                COUNT(*) AS registered_students,
-                SUM(CASE WHEN status_calc = 'completed' THEN 1 ELSE 0 END) AS completed,
-                SUM(CASE WHEN status_calc = 'ongoing' THEN 1 ELSE 0 END) AS ongoing,
-                SUM(CASE WHEN status_calc = 'yet_to_start' THEN 1 ELSE 0 END) AS yet_to_start
-            FROM (
+            FROM students s
+
+            LEFT JOIN (
                 SELECT 
-                    s.id AS student_id,
-                    s.school_id,
-                    s.class_id,
-                    CASE 
-                        -- Completed
-                        WHEN s.class_id >= 4 AND s.class_id <= 12 
-                            AND (SELECT COUNT(DISTINCT TestTypeID) 
-                                FROM SeniorTestResults se 
-                                WHERE se.StudentID = s.id 
-                                    AND se.TestTypeID IN (" . implode(',', range(18,23)) . ")) = " . count(range(18,23)) . "
-                        THEN 'completed'
+                    student_id,
+                    COUNT(DISTINCT skill_report_id) AS fms_count
+                FROM skillreport_skilltype_termtype_mapping
+                WHERE skill_report_id BETWEEN 1 AND 18
+                GROUP BY student_id
+            ) f 
+                ON f.student_id = s.id
 
-                        WHEN s.class_id < 4 OR s.class_id > 12
-                            AND (SELECT COUNT(DISTINCT skill_report_id) 
-                                FROM skillreport_skilltype_termtype_mapping f
-                                WHERE f.student_id = s.id 
-                                    AND f.skill_report_id IN (" . implode(',', range(1,18)) . ")) = " . count(range(1,18)) . "
-                        THEN 'completed'
+            LEFT JOIN (
+                SELECT 
+                    StudentID,
+                    COUNT(DISTINCT TestTypeID) AS senior_count
+                FROM SeniorTestResults
+                WHERE TestTypeID BETWEEN 18 AND 23
+                GROUP BY StudentID
+            ) se 
+                ON se.StudentID = s.id
+            LEFT JOIN (
+                SELECT 
+                    StudentID,
+                    COUNT(DISTINCT TestTypeID) AS cwsn_count
+                FROM SeniorTestResults
+                WHERE TestTypeID BETWEEN 29 AND 58
+                GROUP BY StudentID
+            ) cw 
+                ON cw.StudentID = s.id
 
-                        -- Ongoing
-                        WHEN s.class_id >= 4 AND s.class_id <= 12 
-                            AND (SELECT COUNT(DISTINCT TestTypeID) 
-                                FROM SeniorTestResults se 
-                                WHERE se.StudentID = s.id 
-                                    AND se.TestTypeID IN (" . implode(',', range(18,23)) . ")) > 0
-                        THEN 'ongoing'
+            WHERE s.status = 'active'
+              AND s.academic_year = '2026-2027'
+        ");
 
-                        WHEN s.class_id < 4 OR s.class_id > 12
-                            AND (SELECT COUNT(DISTINCT skill_report_id) 
-                                FROM skillreport_skilltype_termtype_mapping f
-                                WHERE f.student_id = s.id 
-                                    AND f.skill_report_id IN (" . implode(',', range(1,18)) . ")) > 0
-                        THEN 'ongoing'
+        DB::statement("
+            ALTER TABLE temp_student_metrics 
+            ADD INDEX (school_id)
+        ");
 
-                        ELSE 'yet_to_start'
-                    END AS status_calc
-                FROM students s
-                WHERE s.status = 'active'
-            ) AS t
-            INNER JOIN schools sc ON sc.id = t.school_id
-            GROUP BY sc.id, sc.school_code, sc.school_name, sc.region
-            ON DUPLICATE KEY UPDATE
-                school_code = VALUES(school_code),
-                school_name = VALUES(school_name),
-                region = VALUES(region),
-                registered_students = VALUES(registered_students),
-                completed = VALUES(completed),
-                ongoing = VALUES(ongoing),
-                yet_to_start = VALUES(yet_to_start)
-            ");
+        DB::table('schools')
+            ->select(
+                'id',
+                'school_code',
+                'school_name',
+                'region',
+                'zonename',
+                'state',
+                'district'
+            )->where('status', 1)
+            ->chunkById(100, function ($schools) {
 
-        $this->info('[' . now()->toDateTimeString() . '] Schools assessment inserted/updated successfully.');
-    }
+                $schoolIds = $schools->pluck('id')->toArray();
+                $idsString = implode(',', $schoolIds);
 
-    /**
-     * Generate the SQL condition to check skills based on class and type.
-     */
-    protected function getSkillCondition($classSkillMapping, $type)
-    {
-        $conditions = [];
+                try {
 
-        foreach ($classSkillMapping as $classId => $skillIds) {
-            $skillCheck = [];
-            foreach ($skillIds as $skillId) {
-                if ($classId >= 4 && $classId <= 12) {
-                    // Use SeniorTestResults table
-                    $skillCheck[] = "se.TestTypeID = {$skillId}";
-                } else {
-                    // Use skillreport_skilltype_termtype_mapping table
-                    $skillCheck[] = "f.skill_report_id = {$skillId}";
+                    DB::statement("
+                        INSERT INTO schools_assessment (
+                            school_id,
+                            school_code,
+                            school_name,
+                            region,
+                            zonename,
+                            state,
+                            district,
+                            registered_students,
+                            completed,
+                            ongoing,
+                            yet_to_start,
+                            academic_year,
+                            updated_at
+                        )
+
+                        SELECT
+                            sc.id,
+                            sc.school_code,
+                            sc.school_name,
+                            sc.region,
+                            sc.zonename,
+                            sc.state,
+                            sc.district,
+
+                            COUNT(tm.student_id) AS registered_students,
+
+                            SUM(
+                                CASE
+                                    WHEN tm.is_pwd = '1'
+                                         AND tm.class_id BETWEEN 6 AND 12
+                                         AND tm.cwsn_count >= 4
+                                    THEN 1
+                                    WHEN (
+                                        tm.is_pwd = 0
+                                        OR tm.is_pwd IS NULL
+                                        OR tm.class_id NOT BETWEEN 6 AND 12
+                                    )
+                                    AND (
+                                        (
+                                            tm.fms_count = 15
+                                            AND tm.senior_count = 3
+                                        )
+                                        OR tm.senior_count = 6
+                                    )
+                                    THEN 1
+
+                                    ELSE 0
+
+                                END
+                            ) AS completed,
+
+                            SUM(
+                                CASE
+                                    WHEN tm.is_pwd = '1'
+                                         AND tm.class_id BETWEEN 6 AND 12
+                                         AND tm.cwsn_count BETWEEN 1 AND 3
+                                    THEN 1
+                                    WHEN (
+                                        tm.is_pwd = 0
+                                        OR tm.is_pwd IS NULL
+                                        OR tm.class_id NOT BETWEEN 6 AND 12
+                                    )
+                                    AND (
+                                        tm.fms_count > 0
+                                        OR tm.senior_count > 0
+                                    )
+                                    AND NOT (
+                                        (
+                                            tm.fms_count = 15
+                                            AND tm.senior_count = 3
+                                        )
+                                        OR tm.senior_count = 6
+                                    )
+                                    THEN 1
+
+                                    ELSE 0
+
+                                END
+                            ) AS ongoing,
+
+                            SUM(
+                                CASE
+                                    WHEN tm.is_pwd = '1'
+                                         AND tm.class_id BETWEEN 6 AND 12
+                                         AND tm.cwsn_count = 0
+                                    THEN 1
+                                    WHEN (
+                                        tm.is_pwd = 0
+                                        OR tm.is_pwd IS NULL
+                                        OR tm.class_id NOT BETWEEN 6 AND 12
+                                    )
+                                    AND tm.fms_count = 0
+                                    AND tm.senior_count = 0
+                                    THEN 1
+
+                                    ELSE 0
+
+                                END
+                            ) AS yet_to_start,
+
+                            '2026-2027',
+
+                            NOW()
+
+                        FROM schools sc
+
+                        LEFT JOIN temp_student_metrics tm
+                            ON sc.id = tm.school_id
+
+                        WHERE sc.id IN ($idsString)
+
+                        GROUP BY
+                            sc.id,
+                            sc.school_code,
+                            sc.school_name,
+                            sc.region,
+                            sc.zonename,
+                            sc.state,
+                            sc.district
+
+                        ON DUPLICATE KEY UPDATE
+
+                            school_code = VALUES(school_code),
+                            school_name = VALUES(school_name),
+                            region = VALUES(region),
+                            zonename = VALUES(zonename),
+                            state = VALUES(state),
+                            district = VALUES(district),
+
+                            registered_students =
+                                VALUES(registered_students),
+
+                            completed =
+                                VALUES(completed),
+
+                            ongoing =
+                                VALUES(ongoing),
+
+                            yet_to_start =
+                                VALUES(yet_to_start),
+
+                            academic_year =
+                                VALUES(academic_year),
+
+                            updated_at =
+                                NOW()
+                    ");
+
+                } catch (\Illuminate\Database\QueryException $e) {
+
+                    /*
+                     * Check integrity constraint violation
+                     */
+                    if ($e->getCode() === '23000') {
+
+                        $this->error(
+                            "Error detected in current chunk. " .
+                            "Scanning for schools with missing zonename..."
+                        );
+
+                        $badSchools = $schools->whereNull('zonename');
+
+                        foreach ($badSchools as $school) {
+
+                            $this->warn(sprintf(
+                                "CRITICAL: School ID %d (%s) is missing a 'zonename'.",
+                                $school->id,
+                                $school->school_name
+                            ));
+                        }
+                    }
+
+                    throw $e;
                 }
-            }
+            });
 
-            $skillCheckStr = implode(' OR ', $skillCheck);
+        DB::statement("
+            DROP TEMPORARY TABLE temp_student_metrics
+        ");
 
-            if ($type === 'completed') {
-                // All skills must exist
-                $conditions[] = "(COUNT(DISTINCT CASE WHEN s.class_id = {$classId} AND ({$skillCheckStr}) THEN 1 END) = " . count($skillIds) . ")";
-            } elseif ($type === 'ongoing') {
-                // Some but not all
-                $conditions[] = "(COUNT(DISTINCT CASE WHEN s.class_id = {$classId} AND ({$skillCheckStr}) THEN 1 END) > 0 AND COUNT(DISTINCT CASE WHEN s.class_id = {$classId} AND ({$skillCheckStr}) THEN 1 END) < " . count($skillIds) . ")";
-            } elseif ($type === 'yet_to_start') {
-                // None of the skills exist
-                $conditions[] = "(COUNT(DISTINCT CASE WHEN s.class_id = {$classId} AND ({$skillCheckStr}) THEN 1 END) = 0)";
-            }
-        }
-
-        return implode(' OR ', $conditions);
+        $this->info(
+            '[' . now()->toDateTimeString() . '] ' .
+            'Schools assessment inserted/updated successfully.'
+        );
     }
 }

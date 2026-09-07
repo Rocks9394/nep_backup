@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             clearInterval(timerInterval);            
-            startBtn.innerHTML = '<i class="bi bi-stopwatch"></i><span>Pause Timer</span>';
+            startBtn.innerHTML = '<i class="bi bi-stopwatch"></i><span>Stop Timer</span>';
             startBtn.classList.remove("btn-success");
             startBtn.classList.add("btn-danger-stop");
 

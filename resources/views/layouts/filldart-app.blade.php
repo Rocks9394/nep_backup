@@ -180,7 +180,7 @@
                                 @elseif(auth()->guard('sstudent')->check() && Auth::guard('sstudent')->user()->profile_picture)
                                     <img src="{{ asset('assets/uploads/profilePictures/student/' .Auth::guard('sstudent')->user()->profile_picture) }}" class="d-inline-block align-top" height="32" width="32" alt="avtar" style="border-radius: 50%;">
                                 @else
-                                    <img src="{{ asset('resources/images/avtar.png') }}" class="d-inline-block align-top" height="32" alt="avtar">
+                                    <img src="{{ asset('assets/imgs/icard/boy.png') }}" class="d-inline-block align-top" height="32" alt="avtar">
                                 @endif  
                                     <span class="d-md-block d-none">
                                         @if(auth()->guard('web')->check())                                        

@@ -25,32 +25,35 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
 
-       /* $schedule->call(function () {
-            \Log::info('Scheduler is working');
-        })->everyMinute();*/
+        // $schedule->call(function () {
+        //     \Log::info('Scheduler is working');
+        // })->everyMinute();
             
         // $schedule->command('inspire')->hourly();
 
         $schedule->command('reports:cleanup')
-         ->dailyAt('01:00')
-        ->withoutOverlapping(3600) 
-        ->onOneServer()
-        ->runInBackground()
-        ->appendOutputTo(storage_path('logs/scheduler.log'));
+            ->dailyAt('01:00')
+            ->timezone('Asia/Kolkata')
+            ->withoutOverlapping(3600)
+            ->onOneServer()
+            ->runInBackground()
+            ->appendOutputTo(storage_path('logs/scheduler.log'));
 
         $schedule->command('delete:upload-history')
-         ->dailyAt('14:32')
-        ->withoutOverlapping(3600) 
-        ->onOneServer()
-        ->runInBackground()
-        ->appendOutputTo(storage_path('logs/scheduler.log'));
+            ->dailyAt('02:00')
+            ->timezone('Asia/Kolkata')
+            ->withoutOverlapping(3600)
+            ->onOneServer()
+            ->runInBackground()
+            ->appendOutputTo(storage_path('logs/scheduler.log'));
 
-        // $schedule->command('schools:update-assessment')
-        //  ->dailyAt('10:10')
-        // ->withoutOverlapping(3600) 
-        // ->onOneServer()
-        // ->runInBackground()
-        // ->appendOutputTo(storage_path('logs/scheduler.log'));
+        $schedule->command('schools:update-assessment')
+            ->dailyAt('10:16')
+            ->timezone('Asia/Kolkata')
+            ->withoutOverlapping(3600)
+            ->onOneServer()
+            ->runInBackground()
+            ->appendOutputTo(storage_path('logs/scheduler.log'));
 
         // $schedule->command('fitness:update-levels')
         //  ->dailyAt('16:59')

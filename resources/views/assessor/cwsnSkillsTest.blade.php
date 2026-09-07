@@ -2,6 +2,75 @@
 @section('title', 'CISCE | ' . $title)
 @section('content')
 
+<style>
+    .get_ready {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background-color: #fff;
+        justify-content: space-between;
+         cursor: pointer;
+    }
+    .all-tests .list-group li .play{
+        position: relative !important;
+    }
+    .pdfandvideo {
+        display: flex;
+        align-items: center;
+    }
+
+    .pdfandvideo > .videoplayer {
+        width: 50px;
+    }
+
+    .pdfandvideo > .pdfreader {
+        width: 90px !important;
+    }
+
+
+    .tooltip {
+        z-index: 1080 !important;
+        pointer-events: none; /* Prevents tooltip content from blocking touches */
+    }
+
+    /* Ensure the info icon receives touch events clearly */
+    .custom-tooltip-trigger {
+        padding: 4px; /* Increases touch target size for mobile */
+        touch-action: manipulation;
+    }
+
+
+    .tooltip-inner {
+        max-width: 300px !important;       /* Set maximum width of the box */
+        width: max-content;                /* Auto-adjust width to fit content up to max-width */
+        background-color: #2a2876 !important; /* Set custom background color */
+        color: #ffffff !important;         /* Set text/font color */
+        font-size: 13px !important;        /* Set font size */
+        font-family: 'Segoe UI', Tahoma, sans-serif !important; /* Custom font family */
+        text-align: left !important;       /* Align text left, right, or center */
+        padding: 10px 14px !important;     /* Adjust padding inside the box */
+        border-radius: 6px !important;     /* Rounded corners */
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15); /* Drop shadow */
+    }
+
+
+    @media (max-width: 768px) {
+        .all-tests .list-group li a {
+          padding: 12px !important;
+        }
+
+        .pdfandvideo > .videoplayer {
+            width: 40px;
+        }
+        
+        .pdfandvideo > .pdfreader {
+            width: 80px !important;
+        }
+
+
+    }
+
+</style>
 
 <div class="container">
     <div class="t-mrg2 mb-5 pb-5">
@@ -22,12 +91,64 @@
                             <div class="all-tests">
 
 
+                               @if(Crypt::decrypt($pwd_category_id) != '3')
                                 <h3><span class="badge badge-pill badge-secondary" style="font-size:14px;">Conduct any one of the following tests</span></h3>
-
+                                @endif
                                 
                                 <ul class="list-group tests mt-3">
                                     @foreach($testType as $key => $val)
                                         <li>
+
+                                            <div class="get_ready row-clickable" data-href="{{ route('cwsn.test.types', ['TestTypeId' => $val->TestTypeID,'pwd_category_id' => $pwd_category_id]) }}">
+
+                                                <div style="width: max-content;">
+                                                    <a href="javascript:void(0);" onclick="event.preventDefault();">
+                                                        
+                                                       
+                                                       <span>
+                                                            {{ trim($val->TestTypeName) }}
+                                                            @if(in_array($val->TestTypeID, [1044, 1041, 1021]))
+                                                                <strong style="color: #d9534f; font-size: 0.9em;"> (Only for Wheel Chair)</strong>
+                                                            @endif
+                                                        </span>
+
+                                                      
+
+                                                        <i class="bi bi-info-circle stop-propagation custom-tooltip-trigger" 
+                                                           style="font-size: 14px; cursor: pointer; display: inline-block;"
+                                                           data-toggle="tooltip" 
+                                                           data-trigger="click hover focus"
+                                                           data-boundary="window" 
+                                                           data-html="true" 
+                                                           title="<b>Test Applicable for :</b><br>{{ is_array($val->disability_categories) ? implode(', ', $val->disability_categories) : $val->disability_categories->implode(', ') }}">       
+                                                        </i>
+                                                    </a>
+                                                </div>
+
+
+                                               
+                                                <div class="pdfandvideo">
+                                                    <div class="pdfreader">
+                                                        <a href="{{ route('cwsn_admin_manual', ['testTypeId' => $val->TestTypeID]) }}" 
+                                                       target="_blank" 
+                                                       rel="noopener noreferrer"
+                                                       onclick="event.stopPropagation();"> 
+                                                        <i class="bi bi-file-earmark-pdf"></i>
+                                                    </a>
+                                                    </div>
+                                                    <hr>
+                                                    <div class="videoplayer">
+                                                         <a href="javascript:void(0);" class="play" data-toggle="modal" 
+                                                            data-target="#playModal" data-testtypeid="{{ $val->TestTypeID }}" data-testname="{{ $val->TestPerformed }}"> 
+                                                            <i class="bi bi-play-circle"></i> 
+                                                        </a>
+                                                    </div>                                                   
+                                                </div>
+                                                <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
+
+                                            </div>
+
+                                            {{--
                                             <div class="get_ready">
                                                 <a href="{{ route('cwsn.test.types', ['TestTypeId' => $val->TestTypeID,'pwd_category_id' => $pwd_category_id]) }}">
                                                     <span>{{ $val->TestTypeName }}</span>
@@ -37,6 +158,7 @@
                                             <a href="javascript:void(0);" class="play" data-toggle="modal" 
                                                 data-target="#playModal" data-testtypeid="{{ $val->TestTypeID }}" data-testname="{{ $val->TestPerformed }}"> <i class="bi bi-play-circle"></i> 
                                             </a>
+                                            --}}
                                         </li>
                                     @endforeach
                                 </ul>
@@ -69,6 +191,45 @@
 
 
 <script>
+
+
+$(document).ready(function() {
+    var $tooltips = $('[data-toggle="tooltip"]');
+    $tooltips.tooltip({
+        trigger: 'manual',
+        boundary: 'window',
+        placement: function() {
+            return window.innerWidth <= 768 ? 'top' : 'right';
+        }
+    });
+
+    $tooltips.on('click touchstart', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        var $this = $(this);
+        var isOpen = $this.data('tooltip-open') === true;
+        $tooltips.tooltip('hide').data('tooltip-open', false);
+        if (!isOpen) {
+            $this.tooltip('show').data('tooltip-open', true);
+        }
+    });
+
+    $(document).on('click touchstart', function(e) {
+        if (!$(e.target).closest('[data-toggle="tooltip"]').length) {
+            $tooltips.tooltip('hide').data('tooltip-open', false);
+        }
+    });
+
+    $('.row-clickable').on('click', function() {
+        window.location.href = $(this).data('href');
+    });
+
+    $('.stop-propagation').on('click touchstart', function(e) {
+        e.stopPropagation();
+    });
+});
+
 document.addEventListener("DOMContentLoaded", function() {
     
     $('#playModal').on('show.bs.modal', function(event) {

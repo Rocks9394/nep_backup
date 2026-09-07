@@ -19,7 +19,7 @@ class AuthController extends Controller {
     public function login(Request $request) {
 
 
-        Log::warning('APi User profile updated.', ['user_id' => 1, 'action' => 'update']);
+        //Log::warning('APi User profile updated.', ['user_id' => 1, 'action' => 'update']);
 
         $request->validate([
             'login_id' => 'required|string',
@@ -59,11 +59,18 @@ class AuthController extends Controller {
         }
 
 
-       // $student = Sstudent::where('user_id', $loginId)->first();
+      
 
-        $student = Sstudent::where('user_id', $loginId)->where('status','<>','transfer')->where('is_active','<>', 0)->first();
+        //$student = Sstudent::where('user_id', $loginId)->where('status','<>','transfer')->where('is_active','<>', 0)->first();
 
-        Log::warning('APi User profile updated.', ['user_id' => 1, 'action' => 'update']);
+
+        $student = Sstudent::where('user_id', $loginId)
+        ->where('status', '<>', 'transfer')
+        ->where('is_active', '<>', 0)
+        ->orderByDesc('academic_year') 
+        ->orderByDesc('id') 
+        ->first();
+
 
         if ($student && Hash::check($password, $student->password)) {
 

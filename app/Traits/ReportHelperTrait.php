@@ -554,42 +554,24 @@ trait ReportHelperTrait
         return $orderedReportData;
     }
 
-    public function mapCWSNReportData($reportData, $studentAge, $studentGender, $ageGender) {
+    public function mapCWSNReportData_bk($reportData, $studentAge, $studentGender, $ageGender) {
 
-        $bmibenchMark = DB::table('LP_BMI_List')->where('Age','=', $ageGender)->get()->groupBy(function ($row) {
-            return $row->Age;
-        });
-
-        
-        return $reportData->map(function ($item) use ($bmibenchMark, $studentAge, $studentGender, $ageGender) {
-            
-            $bmiBenchmarkRow = $bmibenchMark->get($ageGender)?->first();     
-            $normalizedScore = $this->formatValue($item->Score, $item->ScoreUnit);
-            // if($item->TestTypeID == 33){
-            //     $getPerformance = $this->getPerformance($item, $studentAge, $studentGender, $bmiBenchmarkRow);
-            //     return [
-            //         'Category'   => $item->TestCategoryName,
-            //         'TermId'     => $item->TermId,
-            //         'created_at' => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
-            //         'Level'      => $getPerformance['level'] ?? '',
-            //         'Test_Name'  => $item->skill_name,
-            //         'score'      => $normalizedScore,
-            //         'recommendation' => $getPerformance['outcomes'] ?? '',
-            //         'height'    => $item->height, 
-            //         'weight'   => $item->weight,
-            //     ];
-            // }else 
+        return $reportData->map(function ($item) use ($studentAge, $studentGender, $ageGender) {
+           
+            $normalizedScore = $this->formatValue($item->Score, $item->ScoreUnit); 
             if ($item->TestCategoryID == 39) {
                 $leftScore = $this->formatValue($item->LeftScore, $item->ScoreUnit);
                 $RightScore = $this->formatValue($item->RightScore, $item->ScoreUnit);
-
                 $normalizedScore = 'L-' . $leftScore . ' | R-' . $RightScore;
+
+                $getPerformance = $this->getHealthyZone($item, $studentAge, $studentGender);
+
                 return [
                     'Category'   => $item->TestCategoryName,
                     'TermId'     => $item->TermId,
                     'created_at' => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
-                    'minimal'      => '3',
-                    'preferred'      => '3',
+                    'minimal'      => 'L- '. $getPerformance['minimal'] ?? '',
+                    'preferred'      => 'R- '. $getPerformance['preferred'] ?? '',
                     'Test_Name'  => $item->skill_name,
                     'score'      => $normalizedScore,
                     'recommendation' => '',
@@ -630,6 +612,56 @@ trait ReportHelperTrait
                         
         });
     }
+
+    public function mapCWSNReportData($reportData, $studentAge, $studentGender, $ageGender){
+        return $reportData->map(function ($item) use ($studentAge, $studentGender, $ageGender) {
+
+            $normalizedScore = $this->formatValue($item->Score, $item->ScoreUnit);
+            $response = [
+                'Category'       => $item->TestCategoryName,
+                'TermId'         => $item->TermId,
+                'created_at'     => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
+                'minimal'        => '',
+                'preferred'      => '',
+                'Test_Name'      => $item->skill_name,
+                'score'          => $normalizedScore,
+                'recommendation' => '',
+                'height'         => $item->height,
+                'weight'         => $item->weight,
+            ];
+            if ($item->TestCategoryID == 39) {
+
+                $leftScore  = $this->formatValue($item->LeftScore, $item->ScoreUnit);
+                $rightScore = $this->formatValue($item->RightScore, $item->ScoreUnit);
+
+                $getPerformance = $this->getHealthyZone($item, $studentAge, $studentGender);
+
+                $response['score'] = 'L-' . $leftScore . ' | R-' . $rightScore;
+                $response['minimal'] = 'L- ' . ($getPerformance['minimal'] ?? '');
+                $response['preferred'] = 'R- ' . ($getPerformance['preferred'] ?? '');
+
+                return $response;
+            }
+            // Pass/Fail Tests
+            if (in_array($item->TestTypeID, [56, 58])) {
+
+                $response['score'] = $item->Score == '1' ? 'Pass' : 'Fail';
+                $response['minimal'] = 'Pass';
+                $response['preferred'] = 'Pass';
+
+                return $response;
+            }
+            // Other Tests
+            $getPerformance = $this->getHealthyZone($item, $studentAge, $studentGender);
+
+            $response['minimal'] = $getPerformance['minimal'] ?? '';
+            $response['preferred'] = $getPerformance['preferred'] ?? '';
+            $response['recommendation'] = $getPerformance['outcomes'] ?? '';
+
+            return $response;
+        });
+    }
+
     
     private function getHealthyZone($item, $studentAge, $studentGender){
 

@@ -116,7 +116,7 @@
 
 							<div class="form-group col-md-3" style="text-align:center">
 								@if($result->profile_picture)
-									<img src="{{ asset('public/assets/uploads/profilePictures/users/' . $result->profile_picture) }}" id="profilePicturePreview" class="preview-img img-thumbnail" />
+									<img src="{{ asset('assets/uploads/profilePictures/users/' . $result->profile_picture) }}" id="profilePicturePreview" class="preview-img img-thumbnail" />
 								@else .
 									<img id="profilePicturePreview" class="preview-img img-thumbnail d-none" />
 								@endif

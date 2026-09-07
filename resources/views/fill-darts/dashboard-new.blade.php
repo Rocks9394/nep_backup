@@ -709,10 +709,6 @@
 
 
                 	<!-- Trainers Dashboard  -->
-
-                	<div>
-                        <a href="{{ route('learn.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/Learn-Sports.svg') }}"></div><span>Learn Sports</span></a>
-                    </div>
 	                    
                     @if((Auth::user()->role_id == '3' && $hasSchools) && (Auth::user()->role_id == '3' && $getActiveTerm))
                                   	
@@ -735,12 +731,12 @@
 	                    <div>
 	                        <a href="{{ route('map.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/MAP-Students.svg') }}"></div><span>Map Students</span></a>
 	                    </div>	
-                        @if(Auth::user()->id == 995)
+                        {{-- @if(Auth::user()->id == 995 ) --}}
                         <div>
                             <a href="{{ route ('trainer.cwsn.status')}}" class="box"><div>
                             <img class="img-fluid" alt="" src="{{asset('uploads/icons/lc_test-status.svg') }}"></div><span>CWSN Summary <br> (Class-6 & Above)</span></a>
                         </div>
-                        @endif                 		                  
+                        {{-- @endif --}}                 		                  
 	 	                    
 	                    <div>
 							<a href="{{ route('trainer.lowerclass.status') }}" class="box"><div>
@@ -754,10 +750,8 @@
 						</div>
 					@endif
 
-
 					<!-- School Dashboard -->
                     @if(Auth::user()->role_id == '4')
-
                         
 	                    <div>
 	                        <a href="{{ route('managestudent') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/manage-stds.svg') }}"></div><span>Manage Students</span></a>
@@ -773,12 +767,13 @@
                             <a href="{{ route('viewschooldart') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/viewDart.svg') }}" ></div><span>View DART</span></a>
                         </div>
                         
-                        @if(Auth::user()->id == 974)
+                        {{-- @if(Auth::user()->id == 974) --}}
+
                         <div>
                             <a href="{{ route ('trainer.cwsn.status')}}" class="box"><div>
                             <img class="img-fluid" alt="" src="{{asset('uploads/icons/lc_test-status.svg') }}"></div><span>CWSN Summary <br> (Class-6 & Above)</span></a>
                         </div>
-                        @endif
+                        {{-- @endif --}}
 						
                         <div>
 							<a href="{{ route ('trainer.lowerclass.status')}}" class="box"><div>
@@ -873,12 +868,8 @@
 					        </div>
 					    @endforelse
 					@endif
-
-
 					
-					@if(!$user || $user->role_id != 2)
-
-						
+					@if(!$user || $user->role_id != 2)						
 
 					    <div>
 					        <a href="{{ route('getactive') }}" class="box">
@@ -901,8 +892,6 @@
 					        </a>
 					    </div>
 					@endif
-
-
                     <!-- On Development Phase -->
 					@if(Auth::user()->id == 974 || Auth::user()->id == 995)
 						<!-- href="{{ route('activity.gallary') }}?p=2" -->
@@ -916,6 +905,11 @@
 							<img class="img-fluid" alt="" src="{{asset('uploads/icons/skills-report.svg') }}"></div><span>Skill Report</span></a>
 						</div>
 					@endif
+
+                    <div>
+                        <a href="{{ route('learn.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/Learn-Sports.svg') }}"></div><span>Learn Sports</span></a>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -1578,10 +1572,6 @@
             FitnessMap.forEach(item => {
                 let stateName = item.name;
 
-                if (stateName.includes("Delhi")) {
-                    stateName = "Delhi";
-                }
-
                 const code = stateCodeMap[stateName];
 
                 if (code) {
@@ -1711,80 +1701,335 @@
         const currentTermId = @json($selectedTerm);                
         const currentTermSeries = skillSeries.filter(s => s.name.startsWith(`Term ${currentTermId} -`));
 
+        // if (document.getElementById('skillChart')) {
+        //     try {
+        //         Highcharts.chart('skillChart', {
+        //             chart: { 
+        //                 type: 'bar',
+        //                 backgroundColor: '#ffffff',
+        //                 plotBackgroundColor: '#ffffff',
+        //              },
+        //             title: { text: 'Skill Analysis',
+        //                 style: {
+        //                     color: '#000000'
+        //                 }
+        //              },
+        //             xAxis: {
+        //                 categories: skillCategories,
+        //                 labels: {
+        //                     style: {
+        //                         fontSize: '13px',
+        //                         fontWeight: '500',
+        //                         color: '#000000'
+        //                     }
+        //                 },
+        //                 lineWidth: 0,
+        //                 gridLineWidth: 0
+        //             },
+        //             yAxis: {
+        //                 min: 0,
+        //                 labels: { formatter() { return Math.round(this.value); } },
+        //                 gridLineWidth: 0,
+        //                 title: { text: null }
+        //             },
+        //             legend: { enabled: false },
+        //             plotOptions: {
+        //                 series: {
+        //                     stacking: 'percent',                            
+        //                     pointPadding: 0,
+        //                     groupPadding: 0,
+        //                     borderWidth: 1,
+        //                     dataLabels: {
+        //                         enabled: true,
+        //                         formatter: function () {
+        //                             const level = this.series.name.split(' - ')[1] || this.series.name;
+        //                             return `${level} (${Math.round(this.percentage)}%)`;
+        //                         },
+        //                         style: { textOutline: 'none', fontSize: '12px' }
+        //                     },
+        //                     states: { inactive: { opacity: 1 } },
+        //                     point: {
+        //                         events: {
+        //                             mouseOver: function () {
+        //                                 const chart = this.series.chart;
+        //                                 chart.series.forEach((s) => {
+        //                                     s.group.attr({ opacity: s.index === this.series.index ? 1 : 0.2 });
+        //                                 });
+        //                             }
+        //                         }
+        //                     },
+        //                     events: {
+        //                         mouseOut: function () {
+        //                             this.chart.series.forEach(s => s.group.attr({ opacity: 1 }));
+        //                         }
+        //                     }
+        //                 }
+        //             },
+        //             tooltip: {
+        //                 formatter: function() {
+        //                     return `Students: ${this.y} (${Math.round(this.percentage)}%)`;
+        //                 }
+        //             },
+        //             series: currentTermSeries
+        //         });
+        //     } catch (error) {
+        //         console.error('Skill Chart Error:', error);
+        //         document.getElementById('skillChart').innerHTML = '<div class="map-error">Error loading skill chart</div>';
+        //     }
+        // }
+
         if (document.getElementById('skillChart')) {
+
             try {
-                Highcharts.chart('skillChart', {
-                    chart: { 
-                        type: 'bar',
-                        backgroundColor: '#ffffff',
-                        plotBackgroundColor: '#ffffff',
-                     },
-                    title: { text: 'Skill Analysis',
-                        style: {
-                            color: '#000000'
-                        }
-                     },
-                    xAxis: {
-                        categories: skillCategories,
-                        labels: {
-                            style: {
-                                fontSize: '13px',
-                                fontWeight: '500',
-                                color: '#000000'
-                            }
-                        },
-                        lineWidth: 0,
-                        gridLineWidth: 0
-                    },
-                    yAxis: {
-                        min: 0,
-                        labels: { formatter() { return Math.round(this.value); } },
-                        gridLineWidth: 0,
-                        title: { text: null }
-                    },
-                    legend: { enabled: false },
-                    plotOptions: {
-                        series: {
-                            stacking: 'percent',                            
-                            pointPadding: 0,
-                            groupPadding: 0,
-                            borderWidth: 1,
-                            dataLabels: {
-                                enabled: true,
-                                formatter: function () {
-                                    const level = this.series.name.split(' - ')[1] || this.series.name;
-                                    return `${level} (${Math.round(this.percentage)}%)`;
-                                },
-                                style: { textOutline: 'none', fontSize: '12px' }
+
+                const chartContainer = document.getElementById('skillChart');
+                const isMobile = window.innerWidth <= 767;
+                if (isMobile) {
+                    chartContainer.innerHTML = '';
+                    chartContainer.style.height = 'auto';
+                    chartContainer.style.minHeight = '0';
+                    const mobileTitle = document.createElement('div');
+                    mobileTitle.innerHTML = 'Skill Analysis';
+                    mobileTitle.style.width = '100%';
+                    mobileTitle.style.textAlign = 'center';
+                    mobileTitle.style.fontSize = '18px';
+                    mobileTitle.style.fontWeight = '500';
+                    mobileTitle.style.color = '#000000';
+                    mobileTitle.style.marginBottom = '15px';
+                    chartContainer.appendChild(mobileTitle);
+
+                    skillCategories.forEach(function (skillName, skillIndex) {
+                        const skillWrapper = document.createElement('div');
+                        skillWrapper.className = 'mobile-skill-wrapper';
+                        skillWrapper.style.width = '100%';
+                        skillWrapper.style.marginBottom = '10px';
+                        const skillTitle = document.createElement('div');
+                        skillTitle.className = 'mobile-skill-name';
+                        skillTitle.innerHTML = skillName;
+                        skillTitle.style.width = '100%';
+                        skillTitle.style.fontSize = '13px';
+                        skillTitle.style.fontWeight = '500';
+                        skillTitle.style.color = '#000000';
+                        skillTitle.style.marginBottom = '2px';
+                        skillTitle.style.textAlign = 'center';
+                        const barContainer = document.createElement('div');
+                        barContainer.className = 'mobile-skill-bar';
+                        barContainer.style.width = '100%';
+                        barContainer.style.height = '55px';
+                        skillWrapper.appendChild(skillTitle);
+                        skillWrapper.appendChild(barContainer);
+
+                        chartContainer.appendChild(skillWrapper);
+                        const skillSeries = currentTermSeries.map(function (series) {
+                            return {
+                                name: series.name,
+                                data: [series.data[skillIndex]]
+                            };
+                        });
+
+                        Highcharts.chart(barContainer, {
+                            chart: {
+                                type: 'bar',
+                                backgroundColor: '#ffffff',
+                                height: 55,
+                                margin: [0, 0, 0, 0],
+                                spacing: [0, 0, 0, 0]
                             },
-                            states: { inactive: { opacity: 1 } },
-                            point: {
-                                events: {
-                                    mouseOver: function () {
-                                        const chart = this.series.chart;
-                                        chart.series.forEach((s) => {
-                                            s.group.attr({ opacity: s.index === this.series.index ? 1 : 0.2 });
-                                        });
+                            title: {
+                                text: null
+                            },
+                            credits: {
+                                enabled: false
+                            },
+                            exporting: {
+                                enabled: false
+                            },
+                            accessibility: {
+                                enabled: false
+                            },
+                            xAxis: {
+                                categories: [''],
+                                visible: false
+                            },
+                            yAxis: {
+                                min: 0,
+                                max: 100,
+                                visible: false,
+                                title: {
+                                    text: null
+                                },
+                                gridLineWidth: 0
+                            },
+                            legend: {
+                                enabled: false
+                            },
+                            tooltip: {
+                                formatter: function () {
+                                    return `
+                                        <b>${skillName}</b><br>
+                                        ${this.series.name}:
+                                        ${this.y} (${Math.round(this.percentage)}%)
+                                    `;
+                                }
+                            },
+                            plotOptions: {
+                                series: {
+                                    stacking: 'percent',
+                                    pointPadding: 0,
+                                    groupPadding: 0,
+                                    borderWidth: 1,
+                                    pointWidth: 32,
+                                    dataLabels: {
+                                        enabled: true,
+                                        formatter: function () {
+                                            const level = this.series.name.split(' - ')[1] || this.series.name;
+                                            return `${level} (${Math.round(this.percentage)}%)`;
+                                        },
+                                        style: {
+                                            textOutline: 'none',
+                                            fontSize: '9px',
+                                            fontWeight: '500'
+                                        }
+                                    },
+                                    states: {
+                                        inactive: {
+                                            opacity: 1
+                                        },
+                                        hover: {
+                                            enabled: false
+                                        }
+                                    },
+                                    point: {
+                                        events: {
+                                            mouseOver: function () {
+                                                const chart = this.series.chart;
+                                                chart.series.forEach(function (s) {
+                                                    s.group.attr({
+                                                        opacity:
+                                                            s.index ===
+                                                            this.series.index
+                                                                ? 1
+                                                                : 0.2
+                                                    }, this);
+                                                }, this);
+                                            }
+                                        }
+                                    },
+                                    events: {
+                                        mouseOut: function () {
+                                            this.chart.series.forEach(function (s) {
+                                                s.group.attr({
+                                                    opacity: 1
+                                                });
+                                            });
+                                        }
                                     }
                                 }
                             },
-                            events: {
-                                mouseOut: function () {
-                                    this.chart.series.forEach(s => s.group.attr({ opacity: 1 }));
+                            series: skillSeries
+                        });
+                    });
+                } else {
+                    Highcharts.chart('skillChart', {
+                        chart: {
+                            type: 'bar',
+                            backgroundColor: '#ffffff',
+                            plotBackgroundColor: '#ffffff'
+                        },
+                        title: {
+                            text: 'Skill Analysis',
+                            style: {
+                                color: '#000000'
+                            }
+                        },
+                        xAxis: {
+                            categories: skillCategories,
+                            labels: {
+                                style: {
+                                    fontSize: '13px',
+                                    fontWeight: '500',
+                                    color: '#000000'
+                                }
+                            },
+                            lineWidth: 0,
+                            gridLineWidth: 0
+                        },
+                        yAxis: {
+                            min: 0,
+                            labels: {
+                                formatter: function () {
+                                    return Math.round(this.value);
+                                }
+                            },
+                            gridLineWidth: 0,
+                            title: {
+                                text: null
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        plotOptions: {
+                            series: {
+                                stacking: 'percent',
+                                pointPadding: 0,
+                                groupPadding: 0,
+                                borderWidth: 1,
+                                dataLabels: {
+                                    enabled: true,
+                                    formatter: function () {
+                                        const level = this.series.name.split(' - ')[1] || this.series.name;
+                                        return `${level} (${Math.round(this.percentage)}%)`;
+                                    },
+                                    style: {
+                                        textOutline: 'none',
+                                        fontSize: '12px'
+                                    }
+                                },
+                                states: {
+                                    inactive: {
+                                        opacity: 1
+                                    }
+                                },
+                                point: {
+                                    events: {
+                                        mouseOver: function () {
+                                            const chart = this.series.chart;
+                                            chart.series.forEach(function (s) {
+                                                s.group.attr({
+                                                    opacity:
+                                                        s.index ===
+                                                        this.series.index
+                                                            ? 1
+                                                            : 0.2
+                                                }, this);
+                                            }, this);
+                                        }
+                                    }
+                                },
+                                events: {
+                                    mouseOut: function () {
+                                        this.chart.series.forEach(function (s) {
+                                            s.group.attr({
+                                                opacity: 1
+                                            });
+                                        });
+                                    }
                                 }
                             }
-                        }
-                    },
-                    tooltip: {
-                        formatter: function() {
-                            return `Students: ${this.y} (${Math.round(this.percentage)}%)`;
-                        }
-                    },
-                    series: currentTermSeries
-                });
+                        },
+                        tooltip: {
+                            formatter: function () {
+                                return `Students: ${this.y} (${Math.round(this.percentage)}%)`;
+                            }
+                        },
+                        series: currentTermSeries
+                    });
+                }
             } catch (error) {
                 console.error('Skill Chart Error:', error);
-                document.getElementById('skillChart').innerHTML = '<div class="map-error">Error loading skill chart</div>';
+                document.getElementById('skillChart').innerHTML =
+                    '<div class="map-error">Error loading skill chart</div>';
             }
         }
 

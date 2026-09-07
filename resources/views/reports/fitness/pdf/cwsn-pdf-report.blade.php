@@ -17,17 +17,6 @@
         page[size="A4"] { width: 21cm;  height: 29.7cm; margin: 0; padding:0; }
         .act-tbl { width:100%; }
         .act-tbl td { border-bottom:1px solid #EFB9B8; }
-        .page-3 td {  margin: 0; padding: 2px 4px;
-           white-space:normal; 
-            white-space: normal; /* collapses leading spaces/newlines */
-        }
-        .cell {
-            line-height:12px;
-        }
-        .cell tr {
-            border-bottom:1px solid #e5e5e5;
-        }
-
         
     </style>
 </head>
@@ -502,29 +491,30 @@
         </tr>
         <!-- page 3 content -->
         <tr>
-            <td>
-                <table cellpadding="0" cellspacing="0"
-                    style="width:94%; border:0; border-collapse:collapse; margin:auto; color:#333; font-size:12px;">
+            <td style="padding:0; margin:0;">
+
+                <table class="p3-content" cellpadding="0" cellspacing="0" style="width:94%; border:0; border-collapse:collapse; margin:0 auto; padding:0; color:#333; font-size:12px;">
 
                     <!-- CWSN INTRODUCTION -->
                     <tr>
-                        <td style="border:1px solid #ED6D1E; padding:7px 10px 9px 10px; background:#FEFBEF;">
-                            <h3 style="color:#ED6D1E; margin:0 0 3px 0; font-size:18px;">
+                        <td style="border:1px solid #ED6D1E; padding:7px 10px 9px 10px; background:#FEFBEF; text-align:left;">
+                            <h3 style="color:#ED6D1E; margin:0 0 3px 0; font-size:18px; text-align:left;">
                                 CWSN – ADAPTED PHYSICAL FITNESS
                             </h3>
-                            <p style="line-height:15px; margin:3px 0;">
+
+                            <p style="line-height:15px; margin:3px 0; text-align:left;">
                                 Physical fitness assessment for Children With Special Needs (CWSN) is
                                 individualized according to the child's functional ability, disability,
                                 mobility and level of support required.
                             </p>
 
-                            <p style="line-height:15px; margin:3px 0;">
+                            <p style="line-height:15px; margin:3px 0; text-align:left;">
                                 The assessment may use adapted or alternative test items where required.
                                 Results should be interpreted using the appropriate adapted/general
                                 fitness standard for the selected test and disability category.
                             </p>
 
-                            <p style="line-height:15px; margin:3px 0;">
+                            <p style="line-height:15px; margin:3px 0; text-align:left;">
                                 Activities should be performed safely and progressively according to the
                                 child's ability and the school's adapted physical education programme.
                             </p>
@@ -532,70 +522,76 @@
                     </tr>
 
                     <tr>
-                        <td style="height:8px;"></td>
+                        <td style="height:8px; padding:0;"></td>
                     </tr>
 
                     <!-- ASSESSMENT COMPONENTS -->
                     <tr>
-                        <td>
+                        <td style="padding:0;">
+
                             <table cellpadding="0" cellspacing="0"
-                                style="width:100%; border:0; border-collapse:collapse;">
+                                style="width:100%; border:0; border-collapse:collapse; margin:0; padding:0;">
 
                                 <tr>
-                                    <td colspan="2">
-                                        <h3 style="color:#000; font-size:16px; margin:0 0 8px 0;">
+                                    <td colspan="2" style="padding:0; text-align:left;">
+                                        <h3 style="color:#000; font-size:16px; margin:0 0 8px 0; text-align:left;">
                                             CWSN Physical Fitness Assessment Components
                                         </h3>
                                     </td>
                                 </tr>
 
                                 <tr>
-                                    <td style="width:50%; padding:0 25px 8px 0; vertical-align:top;">
-                                        <h4 style="color:#000; margin:0 0 3px 0; font-size:13px;">
+                                    <td style="width:50%; padding:0 25px 8px 0; vertical-align:top; text-align:left;">
+                                        <h4 style="color:#000; margin:0 0 3px 0; font-size:13px; text-align:left;">
                                             1. Aerobic Capacity
                                         </h4>
-                                        <p style="margin:0; line-height:14px;">
+
+                                        <p style="margin:0; line-height:14px; text-align:left;">
                                             20-m PACER, 15-m PACER and One Mile Run/Walk are used to assess
                                             aerobic capacity and cardiorespiratory endurance, with the
                                             appropriate test selected according to the child's functional ability.
                                         </p>
                                     </td>
 
-                                    <td style="width:50%; padding:0 25px 0 0; vertical-align:top;">
-                                        <h4 style="color:#000; margin:0 0 3px 0; font-size:13px;">
+                                    <td style="width:50%; padding:0 25px 0 0; vertical-align:top; text-align:left;">
+                                        <h4 style="color:#000; margin:0 0 3px 0; font-size:13px; text-align:left;">
                                             2. Strength &amp; Endurance
                                         </h4>
-                                        <p style="margin:0; line-height:14px;">
+
+                                        <p style="margin:0; line-height:14px; text-align:left;">
                                             Curl-up, Modified Curl-up, Dumbbell Press, Pull-up, Push-up,
                                             Seated Push-up, Trunk Lift, Isometric Push-up, Reverse Curl,
                                             Modified Pull-Up and 40-Meter Push/Walk Test are used to assess
                                             muscular strength and endurance according to the child's
                                             functional ability.
                                         </p>
-                                    </td>                                               
+                                    </td>
                                 </tr>
 
                                 <tr>
-                                    <td style="height:5px;"></td>
-                                    <td style="height:5px;"></td>
+                                    <td style="height:5px; padding:0;"></td>
+                                    <td style="height:5px; padding:0;"></td>
                                 </tr>
 
                                 <tr>
-                                    <td style="width:50%; padding:0; vertical-align:top;">
-                                        <h4 style="color:#000; margin:0 0 3px 0; font-size:13px;">
+                                    <td style="width:50%; padding:0; vertical-align:top; text-align:left;">
+                                        <h4 style="color:#000; margin:0 0 3px 0; font-size:13px; text-align:left;">
                                             3. Flexibility
                                         </h4>
-                                        <p style="margin:0; line-height:14px;">
+
+                                        <p style="margin:0; line-height:14px; text-align:left;">
                                             Shoulder Stretch, Back Saver Sit and Reach and Modified Apley Test
                                             are used to assess flexibility and range of motion, with the
                                             appropriate test selected according to the child's functional ability.
                                         </p>
                                     </td>
-                                    <td style="width:50%; padding:0 0 8px 0; vertical-align:top;">
-                                        <h4 style="color:#000; margin:0 0 3px 0; font-size:13px;">
+
+                                    <td style="width:50%; padding:0 0 8px 0; vertical-align:top; text-align:left;">
+                                        <h4 style="color:#000; margin:0 0 3px 0; font-size:13px; text-align:left;">
                                             2. Body Composition
                                         </h4>
-                                        <p style="margin:0; line-height:14px;">
+
+                                        <p style="margin:0; line-height:14px; text-align:left;">
                                             BMI, skinfolds or percentage body fat may be used when
                                             appropriate for the child's disability and assessment protocol.
                                         </p>
@@ -603,54 +599,53 @@
                                 </tr>
 
                             </table>
+
                         </td>
                     </tr>
-                    <tr>
-                        <td style="height:12px;"></td>
-                    </tr>
-
                     <!-- FITNESS ZONE INTERPRETATION -->
                     <tr>
-                        <td style="border:1px solid #ED6D1E; padding:7px 10px; background:#FEFBEF;">
-                            <h4 style="color:#ED6D1E; margin:0 0 4px 0; font-size:15px;">
+                        <td style="border:1px solid #ED6D1E; padding:7px 10px; background:#FEFBEF; text-align:left;">
+
+                            <h4 style="color:#ED6D1E; margin:0 0 4px 0; font-size:15px; text-align:left;">
                                 Interpretation of CWSN Fitness Results
                             </h4>
 
-                            <p style="line-height:14px; margin:3px 0;">
+                            <p style="line-height:14px; margin:3px 0; text-align:left;">
                                 Fitness results should be interpreted against the standard applicable to
                                 the selected test and the child's disability/functional profile.
                             </p>
 
-                            <p style="line-height:14px; margin:3px 0;">
+                            <p style="line-height:14px; margin:3px 0; text-align:left;">
                                 Where an Adapted Fitness Zone (AFZ) is available, it may be used to identify
                                 an attainable level of health-related fitness. A Healthy Fitness Zone (HFZ)
                                 may be used where the applicable general standard is appropriate.
                             </p>
 
-                            <p style="line-height:14px; margin:3px 0;">
+                            <p style="line-height:14px; margin:3px 0; text-align:left;">
                                 For children requiring extensive support, assessment may focus on functional
                                 physical activity and individualized goals rather than applying a single
                                 universal benchmark.
                             </p>
+
                         </td>
                     </tr>
 
-                    <tr>
-                        <td style="height:10px;"></td>
-                    </tr>
 
                     <!-- IMPORTANT NOTE -->
                     <tr>
-                        <td style="font-size:11px; line-height:14px; color:#555;">
+                        <td style="font-size:11px; line-height:14px; color:#555; padding:0; text-align:left;">
+
                             <strong>Note:</strong>
                             CWSN fitness assessment is not intended to compare every child against one
                             common physical-fitness benchmark. Test selection, adaptations and interpretation
                             should be based on the child's disability, functional ability and the assessment
                             protocol used by the school/qualified physical education professional.
+
                         </td>
                     </tr>
 
                 </table>
+
             </td>
         </tr>
         <!-- page 3 footer -->
@@ -706,10 +701,11 @@
                 </tr>
                 <tr>
                     <td>
-                        <table cellpadding="0" cellspacing="0" style="width: 100%; border:0; font-size:13px;">
+                        <table cellpadding="0" cellspacing="0" style="width: 100%; border:0;">
+                            
                             <tr>
-                                <td style="background-color: #E60A00; height: 40px; padding: 0 30px; color:#fff;">Physical Health and Fitness Assessment</td>
-                                <td style="background-color: #00A923; height: 40px; width: 30%; padding: 0 30px; text-align:right; color:#fff;">powered by <strong>fitness365.me</strong></td>
+                                <td style="background-color: #E60A00; height: 32px; width: 30%; padding: 0 30px; color:#fff;">Physical Health and Fitness Assessment</td>
+                                <td style="background-color: #fecd0a; height: 32px; width: 30%; padding: 0 30px; text-align:right;">Powered by <span style="font-weight:500;">fitness365.me</span></td>
                             </tr>
                         </table>
                     </td>

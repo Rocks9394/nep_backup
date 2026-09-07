@@ -1245,14 +1245,9 @@ class AssessorAppController extends Controller
 
 		$SchoolId = $request->school_id;
 		$school = School::find($SchoolId);
-		
 		$student_reg_no = $request->student_reg_no;
-
-
 		
 		if($student_reg_no){
-
-			//echo "pass-1";
 
 			$scan_classes = $request->scan_classes;
 			$classIds = collect($scan_classes)->pluck('class_id')->toArray();
@@ -1273,7 +1268,8 @@ class AssessorAppController extends Controller
 
 			if (!$existsInClass) {
 				return response()->json(['error' => false,'message' => 'Student not eligible for test.']);
-			}	
+			}
+
 			if (is_string($scan_classes)) {
 				$scan_classes = json_decode($scan_classes, true);
 			}
@@ -1382,9 +1378,14 @@ class AssessorAppController extends Controller
 			$schoolId = $student->school_id;	        
 			$termMasterId =  $this->getTermId($schoolId);
 
+			$existingTestName = [];
+			$testExists = false;
 
 	        switch ($testType) {
+
+
 	        	case 'allFmsTest':
+	        		
 	        		$testExists = DB::table('skillreport_skilltype_termtype_mapping')   
 	                ->where('student_id', $student->id)
 	                ->where('school_id', $schoolId)
@@ -1394,6 +1395,7 @@ class AssessorAppController extends Controller
 	        		break;
 
 	        	case 'fitnessTest':
+
 	        		$testExists = DB::table('SeniorTestResults')    
 	                ->where('StudentID', $student->id)
 	                ->where('SchoolID', $schoolId)
@@ -1403,12 +1405,49 @@ class AssessorAppController extends Controller
 	        		break;
 	        		
 	        	case 'cwsnlist':
+	        		/*
 	        		$testExists = DB::table('SeniorTestResults')    
 	                ->where('StudentID', $student->id)
 	                ->where('SchoolID', $schoolId)
 	                ->where('TermId', $termMasterId)
 	                ->where('TestTypeID', $skillReportId)
 	                ->exists();
+					*/
+
+	                $targetCategory = DB::table('skill_reports')
+			        ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'skill_reports.TestTypeMasterID')
+			        ->where('skill_reports.id', $skillReportId)
+			        ->select('TestTypeMaster.TestCategoryID')
+			        ->first();
+
+	               
+    					
+
+    				//echo "<pre>"; print_r($targetCategory); exit();
+
+
+	                if ($targetCategory) {
+
+				        $existingRecord = DB::table('SeniorTestResults')
+				            ->join('skill_reports', 'skill_reports.id', '=', 'SeniorTestResults.TestTypeID')
+				            ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'skill_reports.TestTypeMasterID')
+				            ->where('SeniorTestResults.StudentID', $student->id)
+				            ->where('SeniorTestResults.SchoolID', $schoolId)
+				            ->where('SeniorTestResults.TermId', $termMasterId)
+				            ->where('TestTypeMaster.TestCategoryID', $targetCategory->TestCategoryID)
+				            ->select('skill_reports.skill_name as test_name')
+				            ->first();
+
+				        if ($existingRecord) {
+				            $testExists = true;
+				            $existingTestName = [
+				            	'test_category' => DB::table('TestCategoryMaster')->where('TestCategoryID',$targetCategory->TestCategoryID)->value('TestCategoryName'),
+				            	'test_name' => $existingRecord->test_name,
+				        	];
+
+				        }
+				    }
+
 	        		break;
 
 	        	default:
@@ -1429,6 +1468,8 @@ class AssessorAppController extends Controller
 					'Gender' => $student->gender ?? 'N/A',
 					'student_roll_no' =>$student->rollno ?? 'N/A',
 					'test_already_given' => $testExists ? true : false,
+					'existingTestName' => $existingTestName,
+
 					'anthropo_ht_id' => $student->anthropo_ht_id ?? null,
 					'anthropo_wt_id' => $student->anthropo_wt_id ?? null,
 					'height_value'  =>  $student->height_value ?? null,
@@ -1498,12 +1539,14 @@ class AssessorAppController extends Controller
 
 
 	          		$skill_reports_id = (int) $request->input('skillReportId');
-	        		$categoryInfo = DB::table('skill_reports')
+
+	           		$categoryInfo = DB::table('skill_reports')
 			        ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'skill_reports.TestTypeMasterID')
 			        ->where('skill_reports.id', $skill_reports_id)
 			        ->select('TestTypeMaster.TestCategoryID')
 			        ->first();
 
+			        /*
 			        $testCategoryID = $categoryInfo ? $categoryInfo->TestCategoryID : null;
 
 			        $testExists = DB::table('SeniorTestResults as mapping')
@@ -1513,14 +1556,20 @@ class AssessorAppController extends Controller
 			        ->where('mapping.StudentID', '=', $studentId)
 			        ->where('mapping.TermId', '=', $termMasterId)
 			        ->delete();
+					*/
 
-
-	        		// $testExists = DB::table('SeniorTestResults')
-	                // ->where('StudentID', $studentId)
-	                // ->where('SchoolID', $request->school_id)
-	                // ->where('TermId', $termMasterId)
-	                // ->where('TestTypeID', $request->skillReportId)
-	                // ->delete();
+	        		if ($categoryInfo) {
+				  
+				        DB::table('SeniorTestResults')
+				            ->where('StudentID', $studentId)
+				            ->where('TermId', $termMasterId)
+				            ->whereIn('TestTypeID', function($query) use ($categoryInfo) {
+				                $query->select('skill_reports.id')
+				                      ->from('skill_reports')
+				                      ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'skill_reports.TestTypeMasterID')
+				                      ->where('TestTypeMaster.TestCategoryID', $categoryInfo->TestCategoryID);
+				            })->delete();
+				    }
 
 
 	                $this->UpdateCWSNTestStatus($studentId, $termMasterId, $request->skillReportId, null, $request->school_id, '', '');

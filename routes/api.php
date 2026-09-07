@@ -16,7 +16,7 @@ use App\Http\Controllers\NativeApi\GeneralController;
 
 Route::get('/app-version', function () {
     return response()->json([
-        'latestVersion' => '1.7.6',
+        'latestVersion' => '1.8.0',
         'minVersion'    => '1.0.0',   
         'apkUrl'        => 'https://nep.goforfit.in/public/downloads/apk/app-release.apk',
         'releaseNotes'  => 'New updates are ready! Tap download to stay fit with our latest features.', 
@@ -30,7 +30,7 @@ Route::get('/app-version', function () {
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:student-api')->group(function () {
-    Route::get('/student/profile', [StudentProfileController::class, 'show']);
+    Route::get('/student/profile', [StudentProfileController::class, 'studentProfile']);
     Route::get('/student/dashboard', [StudentProfileController::class,'dashboard'])->name('students.dashboard');
     Route::get('/reports-download', [ReportController::class, 'downloadFitnessReport']);
     Route::get('daily-tracker', [StudentProfileController::class,'dailyreport']);

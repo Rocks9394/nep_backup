@@ -18,7 +18,7 @@ use App\Traits\ReportHelperTrait;
 use DateTime;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
-
+use App\Helpers\SwitchUser;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 
 
@@ -27,7 +27,7 @@ class StudentProfileController extends Controller
     use ReportHelperTrait;
 
 
-    public function show(Request $request) {
+    public function studentProfile(Request $request) {
          
         $student = Auth::guard('student-api')->user();
         $student->load(['school', 'class']);
@@ -348,92 +348,30 @@ class StudentProfileController extends Controller
     }
 
 
-    public function dailyReportApi(Request $request){
-
-        $UserData = Auth::guard('student-api')->user();
-        $school_id = $UserData->school_id;
-        $SessionAndTerm = TermMaster::where('school_id', $school_id)->where('is_active',1)->select('id','term_name','academic_year')->get();
-
-        $studentClassData = DB::table('custom_classes')
-        ->join('class', 'class.id', '=', 'custom_classes.class_id')
-        ->where('custom_classes.id', $UserData->custom_class_id)
-        ->select(DB::raw("CASE 
-                            WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-                            THEN custom_classes.nomenclature 
-                            ELSE class.name 
-                        END AS class_display_name"),
-                 'custom_classes.section')
-        ->first();
-
-        $dailyReportCard['studentProfile'] = [
-            'name' => $UserData->student_name, 
-            'class' => $studentClassData->class_display_name ?? null,
-            'section' => $studentClassData->section ?? null,
-            'rollno' => $UserData->rollno, 
-            'dob' => $UserData->dob,
-            'gender' => $UserData->gender
-        ];
-
-
-        $formatReportData = function($reportData) use (&$dailyReportCard) {
-
-            foreach($reportData as $key => $data){
-                $dailyReportCard['reportCardDetails'][$data->name][] = [
-                    'date'  => $data->date,
-                    'period' => $data->period,
-                    'activity'  => $data->activity,
-                    'activity_id' => $data->activity_id,
-                    'skillsport'  => $data->skillsport,
-                    'techniques'  => $data->techniques,
-                    'image' => $data->image,
-                    'level' => $data->level, 
-                    'level_name'  => $data->level_name,             
-                ];
-            }
-        };
-
-
-
-        if($request->ajax()){
-            $termId = $request->post('session_term_id');
-            $reportCardDetail = DB::select('CALL getStudentsReportTermWize(?, ?)', [$UserData->id, $termId]);           
-            $formatReportData($reportCardDetail);
-            $html = view('parent.partials.daily_tracker_details', compact('dailyReportCard'))->render();
-            return response()->json(['html' => $html]);
-        }
-
-        $termId = TermMaster::where('school_id', $school_id)->where('is_active', 1)->whereDate('term_start_date', '<=', today())
-                ->whereDate('term_end_date', '>=', today())->value('id');
-        $reportCardDetail = DB::select('CALL getStudentsReportTermWize(?, ?)', [$UserData->id, $termId]);
-        $formatReportData($reportCardDetail);
-
-        
-        $title = 'Daily Tracker'; 
-        return view('parent.dailytracker2', compact('title','dailyReportCard','SessionAndTerm'));
-    }
-
 
     public function dailyReport(Request $request) { 
 
         $termId = $request->query('term_id');
         $UserData = Auth::guard('student-api')->user();
-        $school_id = $UserData->school_id;
+        if (!$UserData) {
+            return redirect()->route('login');
+        }
 
+        $school_id = $UserData->school_id;
         $SessionAndTerm = TermMaster::where('school_id', $school_id)
             ->where('is_active', 1)
             ->select('id', 'term_name', 'academic_year')
             ->get();
 
-        $studentClassData = DB::table('custom_classes')
-            ->join('class', 'class.id', '=', 'custom_classes.class_id')
-            ->where('custom_classes.id', $UserData->custom_class_id)
-            ->select('custom_classes.class_id','custom_classes.id', DB::raw("CASE 
-                                WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-                                THEN custom_classes.nomenclature 
-                                ELSE class.name 
-                            END AS class_display_name"),
-                     'custom_classes.section')
-            ->first();
+        $userId = $UserData->id;
+        $selectedItem = [
+            'id','academic_year', 'dob','gender','rollno','school_id','student_name','class_id','section_id','custom_class_id',
+        ];
+        
+        $UserData = DB::table('students')->select($selectedItem)->where('id', $userId)->first();
+        if (!$UserData) {
+            abort(404, 'Student record not found.');
+        }
 
         $termId = $termId ?? TermMaster::where('school_id', $school_id)
                     ->where('is_active', 1)
@@ -441,47 +379,53 @@ class StudentProfileController extends Controller
                     ->whereDate('term_end_date', '>=', today())
                     ->value('id');
 
-        $reportCardDetail = DB::select('CALL getStudentsReportTermWize(?, ?)', [$UserData->id, $termId]);
+        if ($termId) {
 
-       
-        $sections = [];
-        foreach ($reportCardDetail as $data) {
-            $categoryName = $data->name;
-            
-            if (!isset($sections[$categoryName])) {
-                $sections[$categoryName] = [
-                    'title' => $categoryName,
-                    'data' => []
-                ];
-            }
-            $imageUrl = '';
-            if($data->image){
-                if (str_starts_with($data->image, 'https')) {
-                   $imageUrl = $data->image;
-                }else{
-                    $imageUrl = 'https://nep.goforfit.in/uploads/'.$data->image;
+
+            $userId = SwitchUser::switchuser($userId,  $termId);
+            $UserData = DB::table('students')->select($selectedItem)->where('id', $userId)->first();
+
+            $reportCardDetail = DB::select('CALL getStudentsReportTermWize(?, ?)', [$UserData->id, $termId]);
+
+            $sections = [];
+            foreach ($reportCardDetail as $data) {
+                $categoryName = $data->name;
+                
+                if (!isset($sections[$categoryName])) {
+                    $sections[$categoryName] = [
+                        'title' => $categoryName,
+                        'data' => []
+                    ];
                 }
-            }else{
-                $imageUrl = 'https://nep.goforfit.in/change-activities/default_activity_img.svg';
-            }
-            
-            $sections[$categoryName]['data'][] = [
-                'id' => (string)$data->activity_id,
-                'date' => $data->date ? (new DateTime($data->date))->format('d-m-Y') : null,
-                'class_id' =>$studentClassData->class_id,
-                'period' => $data->period,
-                'title' => $data->activity,
-                'skillType' => $data->skillsport,
-                'technique' => $data->techniques,
-                'imageUrl' => $imageUrl,
-                'levelValue' => (int)$data->level,
-                'levelStatus' => $data->level_name,
-                'rating' => (int)$data->level 
-            ];
+                $imageUrl = '';
+                if($data->image){
+                    if (str_starts_with($data->image, 'https')) {
+                       $imageUrl = $data->image;
+                    }else{
+                        $imageUrl = 'https://nep.goforfit.in/uploads/'.$data->image;
+                    }
+                }else{
+                    $imageUrl = 'https://nep.goforfit.in/change-activities/default_activity_img.svg';
+                }
+                
+                $sections[$categoryName]['data'][] = [
+                    'id' => (string)$data->activity_id,
+                    'date' => $data->date ? (new DateTime($data->date))->format('d-m-Y') : null,
+                    'class_id' =>$UserData->class_id,
+                    'period' => $data->period,
+                    'title' => $data->activity,
+                    'skillType' => $data->skillsport,
+                    'technique' => $data->techniques,
+                    'imageUrl' => $imageUrl,
+                    'levelValue' => (int)$data->level,
+                    'levelStatus' => $data->level_name,
+                    'rating' => (int)$data->level 
+                ];
+            } 
         }
 
-
-        $class = Helper::changeToRoman($studentClassData->id);
+        $class = Helper::changeToRoman($UserData->custom_class_id);
+        
 
         return response()->json([
             'studentProfile' => [
@@ -497,10 +441,29 @@ class StudentProfileController extends Controller
 
     public function SkillReports(Request $request) {
 
-        $UserData = Auth::guard('student-api')->user();       
+        $UserData = Auth::guard('student-api')->user();
+        if(!$UserData){
+            return redirect()->route('login');
+        }    
+
         $schoolId = $UserData->school_id;
 
-        $SessionAndTerm = TermMaster::where('school_id', $schoolId)->where('is_active',1)->select('id', 'term_name', 'academic_year')->get();
+        $SessionAndTerm = TermMaster::where('school_id', $schoolId)
+        ->where('is_active',1)
+        ->select('id', 'term_name', 'academic_year')
+        ->get();
+
+
+        $userId = $UserData->id;
+        $selectedItem = [
+            'id','academic_year', 'dob','gender','rollno','school_id','student_name','class_id','section_id','custom_class_id',
+        ];
+        
+        $UserData = DB::table('students')->select($selectedItem)->where('id', $userId)->first();
+        if (!$UserData) {
+            abort(404, 'Student record not found.');
+        }
+
 
         $termId = $request->query('term_id') ?? TermMaster::where('school_id', $schoolId) 
         ->where('is_active', 1)
@@ -508,46 +471,42 @@ class StudentProfileController extends Controller
         ->whereDate('term_end_date', '>=', today())
         ->value('id');
 
-        $studentClassData = DB::table('custom_classes')
-        ->join('class', 'class.id', '=', 'custom_classes.class_id')
-        ->where('custom_classes.id', $UserData->custom_class_id)
-        ->select('custom_classes.class_id','custom_classes.id', DB::raw("CASE 
-                            WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-                            THEN custom_classes.nomenclature 
-                            ELSE class.name 
-                        END AS class_display_name"),
-                 'custom_classes.section')
-        ->first();
 
+        if($termId){
+            $userId = SwitchUser::switchuser($userId,  $termId);
+            $UserData = DB::table('students')->select($selectedItem)->where('id', $userId)->first();
 
-        $reportCardDetail = DB::select('CALL getStudentsReportTermWize(?, ?)', [$UserData->id, $termId]);
-        $sections = [];
-        foreach ($reportCardDetail as $data) {
-            $category = $data->skillsport;
-            if (!isset($sections[$category])) {
-                $sections[$category] = [
-                    'title' => $category,
-                    'data' => []
+            $reportCardDetail = DB::select('CALL getStudentsReportTermWize(?, ?)', [$UserData->id, $termId]);
+            $sections = [];
+
+            foreach ($reportCardDetail as $data) {
+                $category = $data->skillsport;
+                if (!isset($sections[$category])) {
+                    $sections[$category] = [
+                        'title' => $category,
+                        'data' => []
+                    ];
+                }
+                
+                $sections[$category]['data'][] = [
+                    'technique' => $data->techniques,
+                    'activity' => $data->activity,
+                    'level' => (int)$data->level,
+                    'level_name' => $data->level_name
                 ];
             }
-            
-            // Add item to the section
-            $sections[$category]['data'][] = [
-                'technique' => $data->techniques,
-                'activity' => $data->activity,
-                'level' => (int)$data->level,
-                'level_name' => $data->level_name
-            ];
         }
 
-        $class = Helper::changeToRoman($studentClassData->id);
+
+
+        $class = Helper::changeToRoman($UserData->custom_class_id);
 
         return response()->json([
             'status' => true,
             'studentProfile' => [
                 'name' => $UserData->student_name, 
                 'class' => $class ?? null,
-                'section' => $studentClassData->section ?? null,
+                'section' => $UserData->section ?? null,
                 'rollno' => $UserData->rollno, 
             ],
             'availableTerms' => $SessionAndTerm,
