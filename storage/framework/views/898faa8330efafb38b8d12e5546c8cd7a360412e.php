@@ -70,7 +70,7 @@
                                     <th scope="col" >Age</th>
                                     <th scope="col" >One-mile run/walk</th>
                                     <th scope="col" >20-m Pacer</th>
-                                    <th scope="col" >15-m Pacer</th>
+                                    <th scope="col" >Modified 15-m Pacer</th>
                                     <th scope="col" >Reverse Curl</th>
                                     <th scope="col" >40-m push/walk</th>
                                     <th scope="col" >Push-ups</th>
@@ -101,10 +101,10 @@
                                             Left | Right
                                         </span>
                                     </th>
-                                    <th scope="col" >BMI</th>
-                                    <th scope="col" >Height</th>
-                                    <th scope="col" >Weight</th>
-                                    <th scope="col" >Report</th>
+                                    <th scope="col">BMI</th>
+                                    <th scope="col">Height</th>
+                                    <th scope="col">Weight</th>
+                                    <th scope="col">Report</th>
 
                                 </tr>
                             </thead>

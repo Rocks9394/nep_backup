@@ -1,4 +1,5 @@
 
+
 <?php $__env->startSection('title', 'Goforfit | ' . $title); ?>
 <?php $__env->startSection('content'); ?>
 
@@ -14,6 +15,26 @@
         border-radius:5px;
         color: var(--org-color);
     }
+
+    .list-group {
+      border-radius: 0px !important;
+    
+    }
+
+    .test-cat .arrow-i i {
+        transition: all 0.2s ease-in-out;
+        display: inline-block;
+    }
+
+    .test-cat[aria-expanded="true"] .arrow-i i {
+        transform: rotate(45deg);
+    }
+
+    .test-cat .arrow-i i {
+        transition: transform 0.25s ease;
+        display: inline-block;
+    }
+
 </style>
 <?php if(session('warning') || isset($warning)): ?>
     <script>
@@ -97,19 +118,7 @@
                            
                         </div>
                     </div>
-                    <div class="col-auto">
-                        <div class="select-terms">
-                            <select name="term" id="term" class="term-select">
-                                <?php $__currentLoopData = $terms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($term->id); ?>"
-                                        <?php echo e($selectedTerm == $term->id ? 'selected' : ''); ?>>
-                                        <?php echo e($term->academic_year); ?> | <?php echo e($term->term_name); ?>
-
-                                    </option>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                            </select>
-                        </div>
-                    </div>
+                    
 
                     <div class="col-auto">
                         <div class="btn-group toggle-btns" role="group" aria-label="Test Status Toggle">
@@ -118,91 +127,148 @@
                         </div>
                     </div>
                 </div>
-                <div class="row text-center justify-content-md-center mt-3 mt-lg-4">
-                    <div class="col-12 col-md-12 col-lg-12">
-                        <div class="all-tests mb-5">
-                            <h4 class="test-cat">Development Skills for Age 5-8 (Class 1-3)</h4>
-                            <ul class="list-group mt-0">
-                            
-                            <?php $__currentLoopData = $juniorData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $val): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <li>
-                                    <a href="<?php echo e(route('assessor-app-test', ['TestcategoryId' => $val->TestCategoryID])); ?>"><span><?php echo e($val->TestCategoryName); ?></span><span class="arrow-i"><i class="bi bi-arrow-right"></i></span></a>
-                                </li>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>     
-                             
-                           
-                            </ul>
-                            <br>
-                            <h4 class="test-cat">Physical Fitness Assessment for Age 5-8 (Class 1-3)</h4>
-                            <ul class="list-group mt-0">
-                            
-                            <?php $__currentLoopData = $juniorData1; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key1 => $val1): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <li>
-                                    <a href="<?php echo e(route('assessor.app.physical.test', ['TestcategoryId' => $val1->TestCategoryID])); ?>"><span><?php echo e($val1->TestCategoryName); ?></span><span class="arrow-i"><i class="bi bi-arrow-right"></i></span></a>
-                                </li>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?> 
-                        
-                            </ul>
-                             <br>
-                             <h4 class="test-cat">Physical Fitness Assessment for Age 9-18 (Class 4-12)</h4>
-                            <ul class="list-group mt-0">
-                            
-                            <?php $__currentLoopData = $seniorData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $keys => $vals): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <li>
-                                    <?php if($vals->TestCategoryID == 3): ?> 
-                                     <a href="<?php echo e(route('assessor.app.physical.senior.test', ['TestcategoryId' => $vals->TestCategoryID, 'SeniorBMI'=>True])); ?>"><span><?php echo e($vals->TestCategoryName); ?> </span><span class="arrow-i"><i class="bi bi-arrow-right"></i></span></a>
-                                    <?php else: ?>
-                                    <a href="<?php echo e(route('assessor.app.physical.test', ['TestcategoryId' => $vals->TestCategoryID])); ?>"><span><?php echo e($vals->TestCategoryName); ?> </span><span class="arrow-i"><i class="bi bi-arrow-right"></i></span></a>  
-                                    <?php endif; ?>                                   
-
-                                </li>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?> 
-                        
-                            </ul>
-                            <?php if(Auth::user()->id == 995): ?>
-                            <br>
-                             <h4 class="test-cat">Adittional Fitness Assessment for Age 13-18 (Class 9-12)</h4>
-                            <ul class="list-group mt-0">
-                            
-                            <?php $__currentLoopData = $cbseData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $keys => $vals): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <li>
-                                    <?php if(in_array($vals->TestCategoryID, [2,6])): ?> 
-                                     <a href="<?php echo e(route('assessor.app.physical.senior.test', ['TestcategoryId' => $vals->TestCategoryID, 'SeniorBMI'=>True])); ?>"><span><?php echo e($vals->TestCategoryName); ?> </span><span class="arrow-i"><i class="bi bi-arrow-right"></i></span></a>
-                                    <?php else: ?>
-                                    <a href="<?php echo e(route('assessor.app.physical.test', ['TestcategoryId' => $vals->TestCategoryID])); ?>"><span><?php echo e($vals->TestCategoryName); ?> </span><span class="arrow-i"><i class="bi bi-arrow-right"></i></span></a>  
-                                    <?php endif; ?>                                   
-
-                                </li>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?> 
-                        
-                            </ul>
-                            <?php endif; ?>
-
-
-                            <br><h4 class="test-cat">Physical Fitness Assessment for CWSN</h4>
-                                <ul class="list-group mt-0">                        
-                                    <?php $__currentLoopData = $rpwdCategoriesData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <?php $encrypted = encrypt($category->PwdCategoryID); ?>
-
-                                        <li>
-                                            <a 
-                                            href="<?php echo e(route('assessor.cwsn.category', ['pwd_category_id' => $category->PwdCategoryID])); ?>">
-                                                <span><?php echo e($category->CategoryName); ?></span>
-                                                <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
-                                            </a>
-                                        </li>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>                    
-                                </ul>
-
-                        </div>
-                    </div>
+<div class="row text-center justify-content-md-center mt-5 mt-lg-4">
+    <div class="col-12 col-md-12 col-lg-12">
+        <div class="all-tests mb-5" id="accordionContainer">                          
+            
+            <!-- Item 1 (Expanded by default) -->
+            <h4 class="test-cat d-flex justify-content-between" 
+                data-toggle="collapse" 
+                data-target="#juniorDataList" 
+                role="button" 
+                aria-expanded="true" 
+                aria-controls="juniorDataList" 
+                style="cursor: pointer;">
+                <div>Development Skills for Age 5-8 (Class 1-3)</div>          
+                <div>
+                    <!-- Plus icon (transforms into dash/minus via CSS when expanded) -->
+                    <span class="arrow-i"><i class="bi bi-plus-lg"></i></span>
                 </div>
+            </h4>
+
+            <div class="collapse show" id="juniorDataList" data-parent="#accordionContainer">
+                <ul class="list-group mt-0">
+                    <?php $__currentLoopData = $juniorData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $val): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li>
+                            <a href="<?php echo e(route('assessor-app-test', ['TestcategoryId' => $val->TestCategoryID])); ?>">
+                                <span><?php echo e($val->TestCategoryName); ?></span>
+                                <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
+                            </a>
+                        </li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </ul>
+            </div>
+
+            <br>
+
+            <!-- Item 2 -->
+            <h4 class="test-cat d-flex justify-content-between" 
+                data-toggle="collapse" 
+                data-target="#juniorDataList1" 
+                role="button" 
+                aria-expanded="false" 
+                aria-controls="juniorDataList1" 
+                style="cursor: pointer;">
+                <div>Physical Fitness Assessment for Age 5-8 (Class 1-3)</div>
+                <div>
+                    <span class="arrow-i"><i class="bi bi-plus-lg"></i></span>
+                </div>
+            </h4>
+
+            <div class="collapse" id="juniorDataList1" data-parent="#accordionContainer">
+                <ul class="list-group mt-0">
+                    <?php $__currentLoopData = $juniorData1; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key1 => $val1): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li>
+                            <a href="<?php echo e(route('assessor.app.physical.test', ['TestcategoryId' => $val1->TestCategoryID])); ?>">
+                                <span><?php echo e($val1->TestCategoryName); ?></span>
+                                <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
+                            </a>
+                        </li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>    
+                </ul>
+            </div>
+
+            <br>
+
+            <!-- Item 3 -->
+            <h4 class="test-cat d-flex justify-content-between" 
+                data-toggle="collapse" 
+                data-target="#seniorDataList" 
+                role="button" 
+                aria-expanded="false" 
+                aria-controls="seniorDataList" 
+                style="cursor: pointer;">
+                <div>Physical Fitness Assessment for Age 9-18 (Class 4-12)</div>
+                <div>
+                    <span class="arrow-i"><i class="bi bi-plus-lg"></i></span>
+                </div>
+            </h4>
+
+            <div class="collapse" id="seniorDataList" data-parent="#accordionContainer">
+                <ul class="list-group mt-0">
+                    <?php $__currentLoopData = $seniorData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $keys => $vals): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li>
+                            <?php if($vals->TestCategoryID == 3): ?>
+                                <a href="<?php echo e(route('assessor.app.physical.senior.test', ['TestcategoryId' => $vals->TestCategoryID, 'SeniorBMI'=>True])); ?>">
+                                    <span><?php echo e($vals->TestCategoryName); ?> </span>
+                                    <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
+                                </a>
+                            <?php else: ?>
+                                <a href="<?php echo e(route('assessor.app.physical.test', ['TestcategoryId' => $vals->TestCategoryID])); ?>">
+                                    <span><?php echo e($vals->TestCategoryName); ?> </span>
+                                    <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
+                                </a>  
+                            <?php endif; ?>
+                        </li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </ul>
+            </div>
+
+            <br>
+
+            <!-- Item 4 -->
+            <h4 class="test-cat d-flex justify-content-between" 
+                data-toggle="collapse" 
+                data-target="#cwsnDataList" 
+                role="button" 
+                aria-expanded="false" 
+                aria-controls="cwsnDataList" 
+                style="cursor: pointer;">
+                <div>Physical Fitness Assessment for CWSN</div>
+                <div>
+                    <span class="arrow-i"><i class="bi bi-plus-lg"></i></span>
+                </div>
+            </h4>
+
+            <div class="collapse" id="cwsnDataList" data-parent="#accordionContainer">
+                <ul class="list-group mt-0">                        
+                    <?php $__currentLoopData = $cwsnCategory; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php $encrypted = encrypt($category->TestCategoryID); ?>
+                        <li>
+                            <a href="<?php echo e(route('assessor.cwsn.category', ['TestcategoryId' => $encrypted])); ?>">
+                                <span><?php echo e($category->TestCategoryName); ?></span>
+                                <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
+                            </a>
+                        </li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>                    
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+                
            
         </div>
     </div>
 
 </div>
 <script>
+    window.addEventListener('pageshow', function (event) {
+        localStorage.removeItem('selected_class');
+    });
     document.addEventListener('DOMContentLoaded', function () {
         localStorage.removeItem('selected_class');
         const termSelect = document.getElementById('term');

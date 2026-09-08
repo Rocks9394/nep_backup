@@ -190,37 +190,27 @@ class ReportController extends Controller {
 		if($id){
 			$studentId = Crypt::decryptString($id);
 		}else{
-			$user = Auth::guard('sstudent')->user();
-			if(!$user){
-				return redirect()->route('login');
-			}
-			$studentId = $user->id;
+			$studentId = Auth::guard('sstudent')->user()->id;
 		}
 
 	    $studentsData = $this->getStudentData($studentId);
-
+		
 	    if (!empty($term_id)) {
 	        $termIds = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $term_id);
 	        $userId = SwitchUser::switchuser($studentsData->student_id,  $term_id);
-	         $studentId = $userId; 
+	        $studentId = $userId; 
 	    } else {
 			$selectedTermId = $this->getTermId($studentsData->schools_id);
 			$termIds = $this->getCurrentAndPreviousTermIds($studentsData->schools_id, (int) $selectedTermId);
 	    }
-	   
-		$studentsData = $this->getStudentData($studentId);
-
-
+		
 	    $currentTermId  = $termIds[0] ?? null;
-		$previousTermId = $termIds[1] ?? null;
-       
+		$previousTermId = $termIds[1] ?? null;     
 
  	    $dob          = Carbon::parse($studentsData->dob);
 	    $studentAge   = $dob->age;
 	    $studentGender = strtolower($studentsData->gender) === 'male' ? 'Boys' : 'Girls';
 	    $ageGender    = $studentAge . strtolower(substr($studentsData->gender, 0, 1));
-
-
 
 	    // Fetch report + benchmarks
 	    $reportData = $this->getReportData($studentId, $termIds);
@@ -239,17 +229,18 @@ class ReportController extends Controller {
 	    });
 
 		$getBmiBenchmark =  $this->getBmiBenchmark($ageGender);
+		$academicYear = DB::table('term_masters')->where('id', $currentTermId)->value('academic_year');
 
 	    if (in_array($studentsData->class_id, $this->higherClasses)) {
 
 			[$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport);
 			// echo"<pre>";print_r($orderedReportData);exit();
-			return view('reports.fitness.html.senior-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'));
+			return view('reports.fitness.html.senior-report', compact('studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark', 'academicYear'));
 	    } else {
 
 	    	[$orderedReportData, $FmsReportData, $getFitnessBenchmark] =
             $this->getJuniorReportData($studentsData->class_id, $studentId, $studentAge, $studentGender, $groupedReport, $termIds);
-			return view('reports.fitness.html.junior-report', compact('studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'));
+			return view('reports.fitness.html.junior-report', compact('studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark', 'academicYear'));
 	    }
 	}
 

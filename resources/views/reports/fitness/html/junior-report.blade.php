@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Goforfit | Reports</title>
+    <title>Fitness-Reports</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -63,7 +63,7 @@
                                 <tr>
                                     <td style="background-color:#FBCA01;">
                                         <div style="position:relative;">
-                                            <span style="position:absolute; top:-38px; background:rgb(0 0 0/50%); padding:10px; width:100%; z-indix:2; box-sizing: border-box; text-align:center; color:#fff; font-size:16px; text-transform: uppercase;">For Junior</span>
+                                            <span style="position:absolute; top:-38px; background:rgb(0 0 0/50%); padding:10px; width:100%; z-indix:2; box-sizing: border-box; text-align:center; color:#fff; font-size:16px; text-transform: uppercase;">Session: {{ $academicYear }}</span>
                                             <img src="{{ asset('/assets/reports/aa-bg.png')}}" alt="" style="width:198px; position: relative; top: -3px;">
                                         </div>
                                     </td>

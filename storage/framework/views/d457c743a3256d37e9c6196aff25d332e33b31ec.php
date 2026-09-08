@@ -356,8 +356,9 @@
                                                                         <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Weight (kg)</td>
                                                                         <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Height (cm)</td>
                                                                         <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">BMI</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Minimal</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Preferred</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">NI</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">AFZ</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">HFZ</td>
                                                                     </tr>
 
                                                                     <tr>
@@ -365,8 +366,9 @@
                                                                         <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> <?php echo e($value['Current_Term'][0]['weight'] ?? '---'); ?></td>
                                                                         <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">  <?php echo e($value['Current_Term'][0]['height'] ?? '---'); ?></td>
                                                                         <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"><?php echo e($value['Current_Term'][0]['score'] ?? '---'); ?></td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"><?php echo e($value['Current_Term'][0]['minimal'] ?? '---'); ?></td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"><?php echo e($value['Current_Term'][0]['preferred'] ?? '---'); ?></td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"><?php echo e($value['Current_Term'][0]['ni'] ?? '---'); ?></td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"><?php echo e($value['Current_Term'][0]['afz'] ?? '---'); ?></td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"><?php echo e($value['Current_Term'][0]['hfz'] ?? '---'); ?></td>
                                                                     </tr>
 
                                                                 </table>
@@ -400,16 +402,18 @@
                                                                 <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; border-bottom: 1px solid orange; font-size: 14px; border-collapse: collapse; color:#333;">
                                                                     <tr style="background-color: #fecd0a;">
                                                                         <td style="width: 20%; background-color:#0A87CD; border: 1px solid orange; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Current Term</td>
-                                                                        <td style="width: 20%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
-                                                                        <td style="width: 20%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Score</td>
-                                                                        <td style="width: 20%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Minimal</td>
-                                                                        <td style="width: 20%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Preferred</td>
+                                                                        <td style="width: 16%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
+                                                                        <td style="width: 16%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Score</td>
+                                                                        <td style="width: 16%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">NI</td>
+                                                                        <td style="width: 16%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">AFZ</td>
+                                                                        <td style="width: 16%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">HFZ</td>
                                                                     </tr>
                                                                     <tr>                
                                                                         <td style="padding: 4px 4px 4px 6px; font-weight: 500; color:#000; text-align: center;"><?php echo e($value['Current_Term'][0]['created_at'] ?? '---'); ?></td>
                                                                         <td style="text-align: center;"><?php echo e($value['Current_Term'][0]['score'] ?? '---'); ?></td>
-                                                                        <td style="text-align: center;"><?php echo e($value['Current_Term'][0]['minimal'] ?? '---'); ?></td>
-                                                                        <td style="text-align: center;"><?php echo e($value['Current_Term'][0]['preferred'] ?? '---'); ?></td>
+                                                                        <td style="text-align: center;"><?php echo e($value['Current_Term'][0]['ni'] ?? '---'); ?></td>
+                                                                        <td style="text-align: center;"><?php echo e($value['Current_Term'][0]['afz'] ?? '---'); ?></td>
+                                                                        <td style="text-align: center;"><?php echo e($value['Current_Term'][0]['hfz'] ?? '---'); ?></td>
                                                                         <!-- <td style="text-align: center;">---</td> -->
                                                                     </tr>
 

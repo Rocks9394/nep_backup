@@ -79,7 +79,12 @@ class ActivityController extends Controller
 
 		$SchoolData['SelectedSports'] = DB::table('student_map_sports')
 		->join('sports','sports.id','=', 'student_map_sports.sports_id')
-		->select('sports.name','sports.id as sports_id')
+		->select(
+	        'sports.name',
+	        'sports.id as sports_id',
+	        'sports.icon_library',
+	        'sports.icon_name'
+	    )
 		->where('student_map_sports.student_id', $id)->get()->toArray();
  
 

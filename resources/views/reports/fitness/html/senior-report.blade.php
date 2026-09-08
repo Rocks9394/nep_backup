@@ -74,7 +74,7 @@
                                 <tr>
                                    <td style="background-color:#FBCA01;">
                                         <div style="position:relative;">
-                                            <span style="position:absolute; top:-38px; background:rgb(0 0 0/50%); padding:10px; width:100%; z-indix:2; box-sizing: border-box; text-align:center; color:#fff; font-size:16px; text-transform: uppercase;">For Senoir</span>
+                                            <span style="position:absolute; top:-38px; background:rgb(0 0 0/50%); padding:10px; width:100%; z-indix:2; box-sizing: border-box; text-align:center; color:#fff; font-size:16px; text-transform: uppercase;">Session: {{ $academicYear }}</span>
                                             <img src="{{ asset('/assets/reports/aa-bg.png')}}" alt="" style="width:198px; position: relative; top: -3px;">
                                         </div>
                                     </td>

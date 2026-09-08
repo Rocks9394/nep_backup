@@ -16,9 +16,9 @@ use App\Http\Controllers\NativeApi\GeneralController;
 
 Route::get('/app-version', function () {
     return response()->json([
-        'latestVersion' => '1.8.0',
+        'latestVersion' => '1.8.1',
         'minVersion'    => '1.0.0',   
-        'apkUrl'        => 'https://nep.goforfit.in/public/downloads/apk/app-release.apk',
+        'apkUrl'        => 'https://nep.goforfit.in/downloads/apk/app-release.apk',
         'releaseNotes'  => 'New updates are ready! Tap download to stay fit with our latest features.', 
         // 'releaseNotes'  => "• Bug fixes\n• Performance improvements\n• New dashboard",
         'forceUpdate'   => false

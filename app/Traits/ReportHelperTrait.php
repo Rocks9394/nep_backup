@@ -621,41 +621,49 @@ trait ReportHelperTrait
                 'Category'       => $item->TestCategoryName,
                 'TermId'         => $item->TermId,
                 'created_at'     => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
-                'minimal'        => '',
-                'preferred'      => '',
+                'ni'             => '',
+                'afz'            => '',
+                'hfz'            => '',
                 'Test_Name'      => $item->skill_name,
                 'score'          => $normalizedScore,
                 'recommendation' => '',
                 'height'         => $item->height,
                 'weight'         => $item->weight,
             ];
-            if ($item->TestCategoryID == 39) {
+            if (in_array($item->TestTypeID, [36, 37])) {
 
-                $leftScore  = $this->formatValue($item->LeftScore, $item->ScoreUnit);
-                $rightScore = $this->formatValue($item->RightScore, $item->ScoreUnit);
+                $leftScore  = $item->LeftScore;
+                $rightScore = $item->RightScore;
+                $score = max((float) $leftScore, (float) $rightScore);
 
+                $formatScore  = $this->formatValue($score, $item->ScoreUnit);
                 $getPerformance = $this->getHealthyZone($item, $studentAge, $studentGender);
 
-                $response['score'] = 'L-' . $leftScore . ' | R-' . $rightScore;
-                $response['minimal'] = 'L- ' . ($getPerformance['minimal'] ?? '');
-                $response['preferred'] = 'R- ' . ($getPerformance['preferred'] ?? '');
+                $response['score'] =  $formatScore;
+                $response['ni']  = $getPerformance['ni'];
+                $response['afz'] = $getPerformance['afz'];
+                $response['hfz'] = $getPerformance['hfz'];
 
                 return $response;
             }
             // Pass/Fail Tests
-            if (in_array($item->TestTypeID, [56, 58])) {
+            if (in_array($item->TestTypeID, [56, 58, 35])) {
+
+                $getPerformance = $this->getHealthyZone($item, $studentAge, $studentGender);
 
                 $response['score'] = $item->Score == '1' ? 'Pass' : 'Fail';
-                $response['minimal'] = 'Pass';
-                $response['preferred'] = 'Pass';
+                $response['ni'] = $getPerformance['ni'] == '1' ? 'Pass' : 'Fail';
+                $response['afz'] = $getPerformance['afz'] == '1' ? 'Pass' : 'Fail';
+                $response['hfz'] = $getPerformance['hfz'] == '1' ? 'Pass' : 'Fail';
 
                 return $response;
             }
             // Other Tests
             $getPerformance = $this->getHealthyZone($item, $studentAge, $studentGender);
 
-            $response['minimal'] = $getPerformance['minimal'] ?? '';
-            $response['preferred'] = $getPerformance['preferred'] ?? '';
+            $response['ni'] = $getPerformance['ni'] ?? '';
+            $response['afz'] = $getPerformance['afz'] ?? '';
+            $response['hfz'] = $getPerformance['hfz'] ?? '';
             $response['recommendation'] = $getPerformance['outcomes'] ?? '';
 
             return $response;
@@ -668,7 +676,7 @@ trait ReportHelperTrait
         $score = $item->Score;
         $test_type_id = $item->TestTypeMasterID;
 
-        $benchmark = DB::table('cwsn_benchmarks')
+        $benchmark = DB::table('cwsn_fitness_benchmarks')
             ->where('test_type_id', $test_type_id)
             ->where('age', $studentAge)
             ->where('gender', $studentGender)
@@ -680,21 +688,30 @@ trait ReportHelperTrait
                 'outcomes' => 'Benchmark not available',
             ];
         }
-        $value1 = $benchmark->minimal;
-        $value2 = $benchmark->preferred;
+        $ni = $benchmark->ni;
+        $afz = $benchmark->afz;
+        $hfz = $benchmark->hfz;
 
-        $minimal = $this->formatValue($value1, $benchmark->unit);
-        $preferred = $this->formatValue($value2, $benchmark->unit);
+        if ($benchmark->score_criteria == 'More_is_better') {
+            $ni = '≤'. $ni;
+            $hfz = '≥'. $hfz;
+        } else if($benchmark->score_criteria == 'Less_is_better'){
+            $ni = '≥'. $ni;
+            $hfz = '≤'. $hfz;
+        }else{
+            $hfz = $benchmark->hfz;
+        }
 
-        if ($score < $benchmark->minimal) {
+        if ($score < $benchmark->ni) {
             $recommendation = 'Very poor performance';
         } else {
             $recommendation = 'Good performance';
         }
 
         return [
-            'minimal' => $minimal,
-            'preferred' => $preferred,
+            'ni' => $ni,
+            'afz' => $afz,
+            'hfz' => $hfz,
             'outcomes' => '',
         ];
     }

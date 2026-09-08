@@ -58,7 +58,7 @@
 
 <body oncopy="return false" oncut="return false" class="<?php echo e(last(request()->segments())); ?>  common-inner-cls" >
 
-<nav class="navbar navbar-light top_nav_bar px-0">
+<nav class="navbar navbar-light top_nav_bar px-0 general">
     <div class="container d-flex justify-content-between w-100">
         <div class="ml-5 ml-sm-0">
             <?php
