@@ -4,7 +4,7 @@
         @endphp
 
 
-<div>
+<div class="mt-4">
     <!-- I begin to speak only when I am certain what I will say is not better left unsaid. - Cato the Younger -->
     <div class="form-row my-2">
         <input type="hidden" id="all_classes" value='@json($classes)'>
@@ -543,7 +543,7 @@ function openFastAPIScreen() {
         
 
         window.clearExistingRecords = function(response, skillReportId, school_id, class_id, testType) {
-
+            let title = @json($title);
             let cwsn_type = $('#cwsn_type').val();
             const selectElement = document.getElementById('student_id');
             const selectedStudent = selectElement.options[selectElement.selectedIndex];
@@ -551,8 +551,12 @@ function openFastAPIScreen() {
 
             let html = `<strong>${response.data.name}</strong> has already completed this test. Would you like to retake it?`; 
 
-            if (response.data.test_already_given && response.data.existingTestName) {
-               if (response.data.existingTestName.test_name !== 'BMI') {                  
+            const existingTest = response.data.existingTestName;
+            const hasExistingTest = Array.isArray(existingTest) ? existingTest.length > 0 : existingTest;
+
+            if (response.data.test_already_given && hasExistingTest) {
+
+                if (response.data.existingTestName.test_name !== title ) {                  
                     html = `<strong>${response.data.name}</strong> has already completed a test in the <strong>${response.data.existingTestName.test_category}</strong> category (previous: <strong>${response.data.existingTestName.test_name}</strong>). Starting a new test will permanently delete all previous records under this category. Would you like to proceed?`;
                 }
             }
@@ -749,9 +753,6 @@ function openFastAPIScreen() {
             success: function(response) {
 
                 Swal.close();
-
-
-                console.log(response.data)
 
                 if (response.success) {
 

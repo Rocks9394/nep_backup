@@ -1529,6 +1529,7 @@ class AssessorAppController extends Controller
 						$this->UpdateSeniorTestStatus($studentId, $termMasterId, $request->skillReportId, null, $request->school_id, '', '');
 	                }else{
 	                    //UpdateFitnessTestResults::dispatch($studentId,$termMasterId, $request->skillReportId,'---', $schoolId, null, null);
+
 	                    $this->UpdateLowerTestStatus($studentId, $termMasterId, $request->skillReportId, null, $request->school_id, null, null);
 						$this->UpdateSeniorTestStatus($studentId, $termMasterId, $request->skillReportId, null, $request->school_id, '', '');
 	                }
@@ -1559,7 +1560,20 @@ class AssessorAppController extends Controller
 					*/
 
 	        		if ($categoryInfo) {
-				  
+				  	
+				  		if( (int) $request->skillReportId === 33){
+
+				        	DB::table('SeniorTestResults')->where('StudentID', $studentId)
+				        	->where('TermId', $termMasterId)->where('TestTypeID', 32)
+	                        ->update([
+	                            'Score' => 1001,
+	                            'updated_at' => now()
+	                        ]);
+
+	                        $this->UpdateCWSNTestStatus($studentId, $termMasterId, 32, null, $request->school_id, '', '');
+				        }
+
+
 				        DB::table('SeniorTestResults')
 				            ->where('StudentID', $studentId)
 				            ->where('TermId', $termMasterId)
@@ -1569,7 +1583,9 @@ class AssessorAppController extends Controller
 				                      ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'skill_reports.TestTypeMasterID')
 				                      ->where('TestTypeMaster.TestCategoryID', $categoryInfo->TestCategoryID);
 				            })->delete();
+
 				    }
+
 
 
 	                $this->UpdateCWSNTestStatus($studentId, $termMasterId, $request->skillReportId, null, $request->school_id, '', '');

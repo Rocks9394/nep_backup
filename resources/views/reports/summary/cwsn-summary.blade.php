@@ -57,7 +57,15 @@
                                     <th scope="col" >Roll No.</th>
                                     <th scope="col" >Students Name</th>
                                     <th scope="col" >Age</th>
-                                    <th scope="col" >One-mile run/walk</th>
+                                    
+                                    <th scope="col" >One-mile run/walk
+
+                                        <span style="font-size: 11px; white-space: nowrap;">
+                                            (VO₂ max)
+                                        </span>
+                                    </th>
+
+
                                     <th scope="col" >20-m Pacer</th>
                                     <th scope="col" >Modified 15-m Pacer</th>
                                     <th scope="col" >Reverse Curl</th>

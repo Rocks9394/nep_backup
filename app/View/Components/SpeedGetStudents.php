@@ -10,16 +10,18 @@ class SpeedGetStudents extends Component
     public $classes;
     public $type;
     public $cwsnType;
+    public $title;
     /**
      * Create a new component instance.
      *
      * @return void
      */
-    public function __construct($classes = [], $type, $cwsnType = null)
+    public function __construct($classes = [], $type, $cwsnType = null, $title=null)
     {
         $this->classes  = $classes;
         $this->type = $type;
         $this->cwsnType = $cwsnType;
+        $this->title = $title;
     }
 
     /**

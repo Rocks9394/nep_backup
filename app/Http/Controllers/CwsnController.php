@@ -12,7 +12,7 @@ use App\Models\SeniorTestResult;
 use App\Traits\UpdateFitnessTestResults;
 use Illuminate\Support\Facades\Auth;
 use App\Models\TestTypeMaster;
-
+use App\Models\Sstudent;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -73,7 +73,16 @@ class CwsnController extends Controller
         $title = $CategoryName ?? 'Test';
         $testTypeIds = $testType->pluck('TestTypeID');
 
-        $videos = DB::table('fitness_test_videos')->whereIn('testType_id', $testTypeIds)->get();           
+        $videos = DB::table('fitness_test_videos')->whereIn('testType_id', $testTypeIds)->get();
+        
+        $videos->transform(function ($test) {
+            $test->video_url = asset(
+                'storage/cwsnvideo/' . $test->testType_id . '.mp4'
+            );
+            return $test;
+        });
+
+
         return view('assessor.cwsnSkillsTest', compact('title','testType', 'SeniorBMI','videos','pwd_category_id'));       
     }
 
@@ -303,18 +312,32 @@ class CwsnController extends Controller
 
                     foreach($students as $key => $val) {
                         $studentId = $val['id'];
-                        $studentIdsArray[] = $val['id']; 
-                        $studentTime = $val['time'];
-                        $studentTimeInSec = $studentTime / 1000;
-                        
-                        $levels = 'N.A.';
+                        $studentTime =$val['time']; 
+
+                        $studentIdsArray[] = $studentId; 
                         $alldata['student_id'] = $studentId;
-                        $this->storeFormData($alldata, $TermMasterId, $userId, $studentTime, $levels);
+
+                        $oneMileResult = $this->calculateOneMileResult($studentId, $SchoolId, $TermMasterId, $studentTime);
+
+                        if (!$oneMileResult['success']) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => $oneMileResult['message']
+                            ]);
+                        }
+
+                       //echo "<pre>"; print_r($oneMileResult); exit();
+
+                        $TestScore = $oneMileResult['vo2_max']; 
+                        $levels = 'N.A.';
+
+                        $this->storeFormData($alldata, $TermMasterId, $userId, $TestScore, $levels, $studentTime);
                     }
 
                     $message =  $this->TestMessage($studentIdsArray, $skillReportId);
                     return response()->json(['success' => true,'message' => $message]); 
                 }
+
                 return response()->json(['success' => false, 'message' => 'No student performance dataset selected.']);
                 break;
             case 43:        //Curl Up
@@ -443,17 +466,49 @@ class CwsnController extends Controller
                 } 
 
                 return response()->json(['success' => false, 'message' => 'Right Aplay /Left Aplay assessment result missing.']);
-            case 33:
-                
+            case 33:        // Cswn BMI Calculation
+                 
                 $BmiData  = $this->CwsnBmiCalcualtion($alldata);
+                if(empty($BmiData))  return 'BMI is missing';
 
-                $TestScore = $BmiData['bmiScore'];
                 $alldata['weight'] = $BmiData['weight'];
                 $alldata['height'] = $BmiData['height'];
 
+                $studentId = $alldata['student_id'];
+                $schoolId = $alldata['SchoolId'];
+
+                $run_walk_id = 32;
+                $oneMileScore = DB::table('SeniorTestResults')->where('StudentID', $studentId)
+                ->where('SchoolID', $schoolId)->where('TermId', $TermMasterId)
+                ->where('TestTypeID', $run_walk_id)->orderBy('ResultId', 'desc')
+                ->first();
+
+                if( $oneMileScore && (int) $oneMileScore->Score === 1001){
+
+                    $timeInMillisec = $oneMileScore->InitialScore; 
+                    $bmi = $BmiData['bmiScore'];
+                    $oneMileResult = $this->calculateOneMileResult($studentId, $schoolId, $TermMasterId, $timeInMillisec, $bmi);
+
+                    if (!empty($oneMileResult['success'])) {
+                        $vo2Max = $oneMileResult['vo2_max'];
+                        DB::table('SeniorTestResults')->where('ResultId', $oneMileScore->ResultId)
+                        ->update([
+                            'Score' => $vo2Max,
+                            'updated_at' => now()
+                        ]);
+
+                        $this->UpdateCWSNTestStatus($studentId, $TermMasterId, $run_walk_id , $vo2Max ,$schoolId , $alldata['height'], $alldata['weight']);
+                    }
+                }
+
+
+                $TestScore = $BmiData['bmiScore'];
+              
+
                 $levels = 'N.A.';
                 return $this->storeFormData($alldata, $TermMasterId, $userId, $TestScore, $levels);
-                              
+    
+
                 break;
             default:
                 return response()->json(['success' => false, 'message' => 'Invalid Test Type assignment mapping error.']);
@@ -514,7 +569,7 @@ class CwsnController extends Controller
         return $bmiData;
     }
 
-    protected function storeFormData($alldata, $TermMasterId, $userId, $TestScore, $levels){
+    protected function storeFormData($alldata, $TermMasterId, $userId, $TestScore, $levels, $oneMileTime = null){
 
         $height = $alldata['height'] ?? null;
         $weight = $alldata['weight'] ?? null;
@@ -525,6 +580,9 @@ class CwsnController extends Controller
         $Result->TermId       = $TermMasterId;
         $Result->TestTypeID   = $alldata['skillReportId'];
         $Result->Score        = $TestScore;
+        if ($alldata['skillReportId'] == 32) {   
+            $Result->InitialScore = $oneMileTime;
+        }
         $Result->height       = $height;
         $Result->weight       = $weight;
         $Result->LeftScore    = $alldata['LeftScore'] ?? null;
@@ -601,81 +659,6 @@ class CwsnController extends Controller
         }
 
         return "The {$testNames[$testTypeId]} score for {$namesStr} has been saved in the database.";
-    }
-
-
-    private function submitPacerScore(Request $request) {
-
-        $request->validate([
-            'student_id'     => 'required',
-            'laps_completed' => 'required|integer|min:0',
-            'skillReportId'  => 'required',
-        ]);
-
-        $totalLaps = (int) $request->input('laps_completed');
-
-        // 2. Standard PACER Matrix: [Level => Number of Shuttles in that level]
-        $pacerMatrix = [
-            1 => 7,  2 => 8,  3 => 8,  4 => 9,  5 => 9,  6 => 10, 7 => 10, 8 => 11,
-            9 => 11, 10 => 11, 11 => 12, 12 => 12, 13 => 13, 14 => 13, 15 => 14, 
-            16 => 14, 17 => 15, 18 => 15, 19 => 16, 20 => 16, 21 => 16
-        ];
-
-        // Default fallback state if laps are 0
-        $calculatedLevel = 1;
-        $calculatedShuttle = 0;
-        $accumulatedLaps = 0;
-
-        // 3. Step-by-step loop calculation
-        if ($totalLaps > 0) {
-            $matched = false;
-            
-            foreach ($pacerMatrix as $level => $shuttlesInLevel) {
-                // Check if the student's score falls within this specific level tier
-                if ($totalLaps <= ($accumulatedLaps + $shuttlesInLevel)) {
-                    $calculatedLevel = $level;
-                    $calculatedShuttle = $totalLaps - $accumulatedLaps;
-                    $matched = true;
-                    break;
-                }
-                // Build the running threshold count
-                $accumulatedLaps += $shuttlesInLevel;
-            }
-
-            // Cap safety check: if they exceed standard level 21 constraints
-            if (!$matched) {
-                $calculatedLevel = 21;
-                $calculatedShuttle = $totalLaps - $accumulatedLaps + $pacerMatrix[21];
-            }
-        }
-
-        // 4. Update or Store data into your Database
-        // Assuming you are saving to a fitness/skills report model:
-        /*
-        $report = StudentSkillReport::updateOrCreate(
-            [
-                'student_id' => $request->student_id,
-                'id' => $request->skillReportId
-            ],
-            [
-                'total_laps' => $totalLaps,
-                'achieved_level' => $calculatedLevel,
-                'achieved_shuttle' => $calculatedShuttle,
-                'school_id' => $request->SchoolId
-            ]
-        );
-        */
-
-        // 5. Return JSON structure matching your frontend's SubmitForm handler
-        return response()->json([
-            'status' => 'success',
-            'message' => 'PACER data processed successfully!',
-            'data' => [
-                'total_laps' => $totalLaps,
-                'final_level' => $calculatedLevel,
-                'final_shuttle' => $calculatedShuttle
-            ]
-        ]);
     }
 
     private function UpdateCWSNTestStatus($studentId, $termId, $testTypeId, $score, $schoolId, $height, $weight) {
@@ -799,39 +782,86 @@ class CwsnController extends Controller
     }
 
 
-    public function getAppVersion() {
+    private function calculateOneMileResult($studentId, $schoolId, $termId, $timeInMilliseconds, $bmi = null) {
 
+        $student = Sstudent::where('id', $studentId)->select('gender', 'dob')->first();
+        if (!$student) {
+            return [
+                'success' => false,
+                'message' => 'Student not found.',
+            ];
+        }
 
+        $age = null;
 
-        try {
-            //$response = Http::get('https://active.cisce.org/api/app-version');
+        if (!empty($student->dob)) {
+            $age = \Carbon\Carbon::parse($student->dob)->age;
+        }
 
-            $response = Http::withOptions([
-                'verify' => false, 
-            ])->get('https://active.cisce.org/api/app-version');
+        $bmiResult = DB::table('SeniorTestResults')->where('StudentID', $studentId)->where('SchoolID', $schoolId)
+                    ->where('TermId', $termId)->where('TestTypeID', 33)
+                    ->orderBy('ResultId', 'desc')
+                    ->first();
 
-            if ($response->successful()) {
-                $data = $response->json();
+        if ($bmiResult && $bmiResult->Score !== null && $bmiResult->Score !== '') {
+            $bmi = (float) $bmiResult->Score;
+        }
 
-                return response()->json([
-                    'success' => true,
-                    'data' => $data
-                ]);
+        $timeInSeconds = $timeInMilliseconds / 1000;
+        $timeInMinutes = $timeInSeconds / 60;
+
+        // Default result
+        $vo2Max = null;
+        $calculationStatus = 'not_calculated';
+        $reason = null;
+
+        /*
+         * VO2 max calculation is valid only when:
+         */
+
+        if ($timeInSeconds > (13 * 60)) {
+            $vo2Max = 1000;   //set default value for Completion time exceeded 13 minutes.
+        } elseif ($bmi === null) {
+            $vo2Max = 1001;    //set default value for BMI is not available.
+        } elseif ($age === null) {
+            $vo2Max = 1002;  // Student age cannot be determined.
+        } else {
+
+            if (strtolower($student->gender) === 'male') {
+                $sex = 1;
+            } elseif (strtolower($student->gender) === 'female') {
+                $sex = 0;
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'Student gender value is invalid.',
+                ];
             }
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch data, status code: ' . $response->status()
-            ], $response->status());
+            // One-mile run/walk VO2 max formula
+            $vo2Max = (0.21 * $age * $sex)
+                - (0.84 * $bmi)
+                - (8.41 * $timeInMinutes)
+                + (0.34 * pow($timeInMinutes, 2))
+                + 108.94;
 
-        } catch (\Exception $e) {
-            Log::error('API Request Error: ' . $e->getMessage());
-
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while fetching the app version.'
-            ], 500);
+            $vo2Max = round($vo2Max, 2);
+            $calculationStatus = 'calculated';
         }
+
+        return [
+            'success' => true,
+            // 'time_in_milliseconds' => $timeInMilliseconds,
+            // 'time_in_seconds' => $timeInSeconds,
+            // 'time_in_minutes' => $timeInMinutes,
+
+            // 'age' => $age,
+            // 'gender' => $student->gender,
+            // 'bmi' => $bmi,
+            'vo2_max' => $vo2Max,
+        ];
     }
+
+
 
 }

@@ -69,8 +69,7 @@
                                     <td style="background-color:#E60A00;">
                                         <div style="position:relative;">
                                             <span
-                                                style="position:absolute; top:-44px; background:rgb(0 0 0/50%); padding:10px; width:178px; z-indix:2; box-sizing: border-box; text-align:center; color:#fff; font-size:16px; text-transform: uppercase;">For
-                                                Junior</span>
+                                                style="position:absolute; top:-44px; background:rgb(0 0 0/50%); padding:10px; width:178px; z-indix:2; box-sizing: border-box; text-align:center; color:#fff; font-size:16px; text-transform: uppercase;">Session: {{ $academicYear }}</span>
                                             <img src="{{ public_path('assets/reports/aa-bg.png') }}" alt=""
                                                 style="width:198px;">
                                         </div>

@@ -189,8 +189,7 @@
             @php
             $type = "fitnessTest";
             @endphp
-
-            <x-speed-get-students :classes="$classes" :type="$type" :title="$title" />
+            <x-speed-get-students :classes="$classes" :type="$type" :title="$title"/>
         </div>
     </div>
 </div>

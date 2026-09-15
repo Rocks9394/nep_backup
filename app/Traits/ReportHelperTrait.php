@@ -172,6 +172,7 @@ trait ReportHelperTrait
         ];
     }
 
+
     /* Fitness Benchmark */
     public function getBenchmark($age, $gender, $categories_id) {   
 
@@ -251,6 +252,9 @@ trait ReportHelperTrait
 
             case 'kg/m²':
                 return $value . ' kg/m²';
+
+            case 'mL/kg/min':
+                return $value . ' mL/kg/min';
 
             default:
                 return $value;
@@ -513,7 +517,7 @@ trait ReportHelperTrait
 
     }
 
-    protected function getCWSNReportData($studentId, $pwd_cat_id, $studentAge, $studentGender, $groupedReportData) {
+    protected function getCWSNReportData_bk($studentId, $pwd_cat_id, $studentAge, $studentGender, $groupedReportData) {
 
         $senior = [23, 40, 39, 3];
 
@@ -554,166 +558,414 @@ trait ReportHelperTrait
         return $orderedReportData;
     }
 
-    public function mapCWSNReportData_bk($reportData, $studentAge, $studentGender, $ageGender) {
+    protected function getCWSNReportData($studentId, $pwd_cat_id, $studentAge, $studentGender, $groupedReportData) {
+        $cwsnCat = [23, 40, 39, 3];
 
-        return $reportData->map(function ($item) use ($studentAge, $studentGender, $ageGender) {
-           
-            $normalizedScore = $this->formatValue($item->Score, $item->ScoreUnit); 
-            if ($item->TestCategoryID == 39) {
-                $leftScore = $this->formatValue($item->LeftScore, $item->ScoreUnit);
-                $RightScore = $this->formatValue($item->RightScore, $item->ScoreUnit);
-                $normalizedScore = 'L-' . $leftScore . ' | R-' . $RightScore;
+        $defaultTests = [
+            23 => '20-m PACER',
+            40 => 'Curl-up',
+            39 => 'Modified Thomas Test',
+            3  => 'BMI',
+        ];
 
-                $getPerformance = $this->getHealthyZone($item, $studentAge, $studentGender);
+        $cwsnData = DB::table('TestCategoryMaster')
+            ->join('TestTypeMaster', 'TestTypeMaster.TestCategoryID', '=', 'TestCategoryMaster.TestCategoryID')
+            ->join('skill_reports', 'skill_reports.TestTypeMasterID','=', 'TestTypeMaster.TestTypeID')
+            ->whereIn('TestCategoryMaster.TestCategoryID', $cwsnCat)
+            ->where('TestCategoryMaster.IsActive', 1)
+            ->select('TestCategoryMaster.TestCategoryID','TestCategoryMaster.TestCategoryName','skill_reports.skill_name')
+            ->orderByRaw('FIELD(TestCategoryMaster.TestCategoryID, ' . implode(',', $cwsnCat) . ')')
+            ->get();
 
-                return [
-                    'Category'   => $item->TestCategoryName,
-                    'TermId'     => $item->TermId,
-                    'created_at' => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
-                    'minimal'      => 'L- '. $getPerformance['minimal'] ?? '',
-                    'preferred'      => 'R- '. $getPerformance['preferred'] ?? '',
-                    'Test_Name'  => $item->skill_name,
-                    'score'      => $normalizedScore,
+        $orderedReportData = collect();
+
+        foreach ($cwsnCat as $categoryId) {
+            $categoryTests = $cwsnData->where('TestCategoryID',$categoryId);
+            if ($categoryTests->isEmpty()) {
+                continue;
+            }
+
+            $categoryName = $categoryTests->first()->TestCategoryName;
+
+            $studentTest = null;
+
+            foreach ($categoryTests as $test) {
+                $currentResult = $groupedReportData
+                    ->get($categoryName, collect())
+                    ->get('Current_Term', collect())
+                    ->first(function ($row) use ($test) {
+                        return trim($row['Test_Name'] ?? '') ===
+                            trim($test->skill_name);
+                    });
+
+                if ($currentResult) {
+                    $studentTest = $test;
+                    break;
+                }
+            }
+
+            if (!$studentTest) {
+                foreach ($categoryTests as $test) {
+                    $previousResult = $groupedReportData
+                        ->get($categoryName, collect())
+                        ->get('Previous_Term', collect())
+                        ->first(function ($row) use ($test) {
+                            return trim($row['Test_Name'] ?? '') ===
+                                trim($test->skill_name);
+                        });
+
+                    if ($previousResult) {
+                        $studentTest = $test;
+                        break;
+                    }
+                }
+            }
+
+            if (!$studentTest) {
+                $defaultTestName = $defaultTests[$categoryId] ?? null;
+
+                $studentTest = $categoryTests->first(function ($test) use ($defaultTestName) {
+                    return trim($test->skill_name) ===
+                        trim($defaultTestName);
+                });
+
+                if (!$studentTest) {
+                    $studentTest = $categoryTests->first();
+                }
+            }
+
+            $data = $groupedReportData->get(
+                $categoryName,
+                collect()
+            );
+
+            $currentTerm = $data
+                ->get('Current_Term', collect())
+                ->first(function ($row) use ($studentTest) {
+                    return trim($row['Test_Name'] ?? '') ===
+                        trim($studentTest->skill_name);
+                });
+
+            $previousTerm = $data
+                ->get('Previous_Term', collect())
+                ->first(function ($row) use ($studentTest) {
+                    return trim($row['Test_Name'] ?? '') ===
+                        trim($studentTest->skill_name);
+                });
+
+            if (!$currentTerm) {
+                $currentTerm = [
+                    'Category'       => $categoryName,
+                    'TermId'         => null,
+                    'created_at'     => null,
+                    'ni'             => '',
+                    'afz'            => '',
+                    'hfz'            => '',
+                    'Test_Name'      => $studentTest->skill_name,
+                    'score'          => '',
                     'recommendation' => '',
-                    'height'    => $item->height, 
-                    'weight'   => $item->weight,
-                ];
-            }else if (in_array($item->TestTypeID, [56, 58])) {
-                $normalizedScore = $item->Score == '1' ? 'Pass' : 'Fail';
-                
-                return [
-                    'Category'   => $item->TestCategoryName,
-                    'TermId'     => $item->TermId,
-                    'created_at' => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
-                    'minimal'      => 'Pass',
-                    'preferred'      => 'Pass',
-                    'Test_Name'  => $item->skill_name,
-                    'score'      => $normalizedScore,
-                    'recommendation' => '',
-                    'height'    => $item->height, 
-                    'weight'   => $item->weight,
-                ];
-            }else{
-                $getPerformance = $this->getHealthyZone($item, $studentAge, $studentGender);
-                
-                return [
-                    'Category'   => $item->TestCategoryName,
-                    'TermId'     => $item->TermId,
-                    'created_at' => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
-                    'minimal'      => $getPerformance['minimal'] ?? '',
-                    'preferred'      => $getPerformance['preferred'] ?? '',
-                    'Test_Name'  => $item->skill_name,
-                    'score'      => $normalizedScore,
-                    'recommendation' => $getPerformance['outcomes'] ?? '',
-                    'height'    => $item->height, 
-                    'weight'   => $item->weight,
+                    'height'         => '',
+                    'weight'         => '',
                 ];
             }
-                        
-        });
+
+            if (!$previousTerm) {
+                $previousTerm = [
+                    'Category'       => $categoryName,
+                    'TermId'         => null,
+                    'created_at'     => null,
+                    'ni'             => '',
+                    'afz'            => '',
+                    'hfz'            => '',
+                    'Test_Name'      => $studentTest->skill_name,
+                    'score'          => '',
+                    'recommendation' => '',
+                    'height'         => '',
+                    'weight'         => '',
+                ];
+            }
+
+            $displayKey = $categoryName . ' (' . $studentTest->skill_name . ')';
+
+            $orderedReportData->put(
+                $displayKey,
+                collect([
+                    'Current_Term'  => collect([$currentTerm]),
+                    'Previous_Term' => collect([$previousTerm]),
+                ])
+            );
+        }
+
+        return $orderedReportData;
     }
 
+
     public function mapCWSNReportData($reportData, $studentAge, $studentGender, $ageGender){
+
         return $reportData->map(function ($item) use ($studentAge, $studentGender, $ageGender) {
 
             $normalizedScore = $this->formatValue($item->Score, $item->ScoreUnit);
+
+           // echo "string"; print_r(expression); exit();
+
             $response = [
                 'Category'       => $item->TestCategoryName,
                 'TermId'         => $item->TermId,
                 'created_at'     => \Carbon\Carbon::parse($item->created_at)->format('d M Y'),
+                'very_lean'      => '',
                 'ni'             => '',
                 'afz'            => '',
                 'hfz'            => '',
+                'health_risk'    => '',
+                'bmiLevel'    => '',
                 'Test_Name'      => $item->skill_name,
                 'score'          => $normalizedScore,
                 'recommendation' => '',
                 'height'         => $item->height,
                 'weight'         => $item->weight,
             ];
-            if (in_array($item->TestTypeID, [36, 37])) {
 
-                $leftScore  = $item->LeftScore;
-                $rightScore = $item->RightScore;
-                $score = max((float) $leftScore, (float) $rightScore);
 
-                $formatScore  = $this->formatValue($score, $item->ScoreUnit);
+            if($item->TestTypeID == 32){
+
+                switch ((int)$item->Score) {
+                    case 1000:
+                    case 1001:
+                    case 1002:
+                        $formatScore = 'Not calculated';
+                        break;
+                    
+                    default:
+                        $formatScore  = $this->formatValue($item->Score, $item->ScoreUnit);
+                        break;
+                }
+                
+
                 $getPerformance = $this->getHealthyZone($item, $studentAge, $studentGender);
-
                 $response['score'] =  $formatScore;
                 $response['ni']  = $getPerformance['ni'];
                 $response['afz'] = $getPerformance['afz'];
                 $response['hfz'] = $getPerformance['hfz'];
+                $response['recommendation'] = $getPerformance['outcomes'] ?? '';
+
+                return $response;
+                
+            }
+            
+
+            if ($item->TestTypeID == 33) {
+
+                $formatScore  = $this->formatValue($item->Score, $item->ScoreUnit);
+                $getPerformance = $this->getHealthyZone($item, $studentAge, $studentGender);
+
+                $response['score'] =  $formatScore;
+                $response['very_lean'] = $getPerformance['very_lean'];
+                $response['ni']  = $getPerformance['ni'];
+                $response['hfz'] = $getPerformance['hfz'];
+                $response['health_risk'] = $getPerformance['health_risk'];
+                $response['bmiLevel'] = $getPerformance['bmiLevel'];
+                $response['recommendation'] = $getPerformance['outcomes'] ?? '';
+
+                return $response;
+            }
+
+           if ($item->TestCategoryID == 39) {
+                $leftScore = $this->formatValue($item->LeftScore, $item->ScoreUnit);
+                $RightScore = $this->formatValue($item->RightScore, $item->ScoreUnit);
+                $normalizedScore = 'Left-' . $leftScore . ' | Right-' . $RightScore;
+                $getPerformance = $this->getHealthyZone($item, $studentAge, $studentGender);
+
+                $response['score'] =  $normalizedScore;
+                $response['ni']  = $getPerformance['ni'];
+                $response['afz'] = $getPerformance['afz'];
+                $response['hfz'] = $getPerformance['hfz'];
+                $response['recommendation'] = $getPerformance['outcomes'] ?? '';
 
                 return $response;
             }
             // Pass/Fail Tests
-            if (in_array($item->TestTypeID, [56, 58, 35])) {
+            if (in_array($item->TestTypeID, [56, 58])) {
 
                 $getPerformance = $this->getHealthyZone($item, $studentAge, $studentGender);
 
                 $response['score'] = $item->Score == '1' ? 'Pass' : 'Fail';
                 $response['ni'] = $getPerformance['ni'] == '1' ? 'Pass' : 'Fail';
-                $response['afz'] = $getPerformance['afz'] == '1' ? 'Pass' : 'Fail';
+                $response['afz'] = $getPerformance['afz'];
                 $response['hfz'] = $getPerformance['hfz'] == '1' ? 'Pass' : 'Fail';
+                $response['recommendation'] = $getPerformance['outcomes'] ?? '';
 
                 return $response;
             }
             // Other Tests
             $getPerformance = $this->getHealthyZone($item, $studentAge, $studentGender);
 
-            $response['ni'] = $getPerformance['ni'] ?? '';
-            $response['afz'] = $getPerformance['afz'] ?? '';
-            $response['hfz'] = $getPerformance['hfz'] ?? '';
+            $response['ni'] = $getPerformance['ni'];
+            $response['afz'] = $getPerformance['afz'];
+            $response['hfz'] = $getPerformance['hfz'];
             $response['recommendation'] = $getPerformance['outcomes'] ?? '';
 
             return $response;
         });
     }
 
-    
     private function getHealthyZone($item, $studentAge, $studentGender){
 
-        $score = $item->Score;
-        $test_type_id = $item->TestTypeMasterID;
+        $testTypeId = $item->TestTypeMasterID;
 
         $benchmark = DB::table('cwsn_fitness_benchmarks')
-            ->where('test_type_id', $test_type_id)
+            ->select([
+                'very_lean',
+                'ni',
+                'afz',
+                'hfz',
+                'health_risk',
+                'score_criteria',
+            ])
+            ->where('test_type_id', $testTypeId)
             ->where('age', $studentAge)
             ->where('gender', $studentGender)
             ->first();
 
         if (!$benchmark) {
             return [
-                'level' => null,
-                'outcomes' => 'Benchmark not available',
+                'level'        => null,
+                'outcomes'     => 'Benchmark not available',
+                'very_lean'    => null,
+                'ni'           => null,
+                'afz'          => null,
+                'hfz'          => null,
+                'health_risk'  => null,
+                'bmiLevel'  => null,
             ];
         }
-        $ni = $benchmark->ni;
-        $afz = $benchmark->afz;
-        $hfz = $benchmark->hfz;
+        
+        $bmiLevel = null;
+        if ($item->TestTypeID == 33) {
+            $score = (float) $item->Score;
+            $veryLean   = $benchmark->very_lean !== null
+                ? (float) $benchmark->very_lean
+                : null;
 
-        if ($benchmark->score_criteria == 'More_is_better') {
-            $ni = '≤'. $ni;
-            $hfz = '≥'. $hfz;
-        } else if($benchmark->score_criteria == 'Less_is_better'){
-            $ni = '≥'. $ni;
-            $hfz = '≤'. $hfz;
-        }else{
-            $hfz = $benchmark->hfz;
+            $healthRisk = $benchmark->health_risk !== null
+                ? (float) $benchmark->health_risk
+                : null;
+
+            if ($veryLean !== null && $score <= $veryLean) {
+                $bmiLevel = 'Very Lean';
+            }elseif ($healthRisk !== null && $score >= $healthRisk) {
+                $bmiLevel = 'Health Risk';
+            }elseif ($this->isScoreInRange($score, $benchmark->ni)) {
+                $bmiLevel = 'Needs Improvement';
+            }elseif ($this->isScoreInRange($score, $benchmark->hfz)) {
+                $bmiLevel = 'Healthy Fitness Zone';
+            }
         }
 
-        if ($score < $benchmark->ni) {
-            $recommendation = 'Very poor performance';
+        $score = $item->Score ?? $item->RightScore ?? null;
+
+        $scoreDivisors = [
+            1031 => 1000,
+            1025 => 10,
+            1033 => 10,
+        ];
+
+        if ($score !== null && isset($scoreDivisors[$testTypeId])) {
+            $score /= $scoreDivisors[$testTypeId];
+        }
+
+        if ($benchmark->ni !== null && $score <= $benchmark->ni) {
+            $recommendParam = 'ni';
+        } elseif ($benchmark->hfz !== null && $score >= $benchmark->hfz) {
+            $recommendParam = 'hfz';
         } else {
-            $recommendation = 'Good performance';
+            $recommendParam = 'afz';
+        }
+
+        $recommendation = DB::table('cwsn_recommendations')
+            ->where('skill_reports_id', $item->TestTypeID)
+            ->where('outcomes', $recommendParam)
+            ->value('recommendations');
+
+        if($item->TestTypeID == 32 && in_array($score, ['1000', '1001', '1002'])){
+            switch ($score) {
+
+                case '1000':
+                    $recommendation = 'VO₂ max (aerobic capacity) not calculated because time exceeded 13 minutes.';
+                    break;
+
+                case '1001':
+                $recommendation = 'VO₂ max (aerobic capacity) not calculated because BMI is unavailable.';
+                    break;
+
+                case '1002':
+                    $recommendation = "VO₂ max (aerobic capacity) not calculated because age is outside the valid range.";
+                    break;
+            }
+        }
+
+        $ni  = $benchmark->ni;
+        $hfz = $benchmark->hfz;
+
+        switch ($benchmark->score_criteria) {
+
+            case 'More_is_better':
+                $ni  = $ni !== null ? '≤' . $ni : null;
+                $hfz = $hfz !== null ? '≥' . $hfz : null;
+                break;
+
+            case 'Less_is_better':
+                $ni  = $ni !== null ? '≥' . $ni : null;
+                $hfz = $hfz !== null ? '≤' . $hfz : null;
+                break;
         }
 
         return [
-            'ni' => $ni,
-            'afz' => $afz,
-            'hfz' => $hfz,
-            'outcomes' => '',
+            'very_lean'   => $benchmark->very_lean !== null ? '≤' . $benchmark->very_lean : null,
+            'ni'          => $ni,
+            'afz'         => $benchmark->afz,
+            'hfz'         => $hfz,
+            'health_risk' => $benchmark->health_risk !== null ? '≥' . $benchmark->health_risk : null,
+            'outcomes'    => $recommendation,
+            'bmiLevel'    => $bmiLevel,
         ];
     }
+    private function isScoreInRange($score, $range){
+        
+        if ($range === null || $range === '') {
+            return false;
+        }
 
+        $range = str_replace(' ', '', $range);
+
+        if (strpos($range, '-') !== false) {
+
+            [$min, $max] = explode('-', $range, 2);
+
+            return $score >= (float) $min
+                && $score <= (float) $max;
+        }
+
+        return $score == (float) $range;
+    }
+
+    public function getCWSNBmiBenchmark($studentAge, $studentGender) {
+        $bmiBenchmarkRow = DB::table('cwsn_fitness_benchmarks')
+        ->where('test_type_id', 1040)
+        ->where('age', $studentAge)
+        ->where('gender', $studentGender)
+        ->first();
+
+
+        if (!$bmiBenchmarkRow) {
+            return null; 
+        }
+        
+        return [
+            'very_lean' => ' ≤ ' . $bmiBenchmarkRow->very_lean,
+            'hfz' => $bmiBenchmarkRow->hfz,
+            'ni' => $bmiBenchmarkRow->ni,
+            'health_risk' => ' ≥ ' . $bmiBenchmarkRow->health_risk,
+        ];
+    }
+    
 }

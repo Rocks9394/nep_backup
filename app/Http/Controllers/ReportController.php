@@ -290,12 +290,13 @@ class ReportController extends Controller {
 	    });
 
         $getBmiBenchmark = $this->getBmiBenchmark($ageGender);
+		$academicYear = DB::table('term_masters')->where('id', $currentTermId)->value('academic_year');
 
         if (in_array($studentsData->class_id, [4,5,6,7,8,9,10,11,12])) {
             [$orderedReportData, $getFitnessBenchmark] = $this->getSeniorReportData($studentId, $studentAge, $studentGender, $groupedReport );
 
             $pdf = Pdf::loadView('reports.fitness.pdf.senior-report', compact(
-                'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark'
+                'studentsData','orderedReportData','getFitnessBenchmark','getBmiBenchmark','academicYear'
             ));
         } else {
 
@@ -304,7 +305,7 @@ class ReportController extends Controller {
             );
 
             $pdf = Pdf::loadView('reports.fitness.pdf.junior-report', compact(
-                'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark'
+                'studentsData','orderedReportData','FmsReportData','getFitnessBenchmark','getBmiBenchmark','academicYear'
             ));
         }
 
@@ -1831,6 +1832,12 @@ class ReportController extends Controller {
 
 				$studentAge = $isValid ? $age : $age;
 
+				$one_mile_score = is_numeric($item->oneMile_run_walk) ? $item->oneMile_run_walk	: '---';
+				if(in_array((int) $one_mile_score, [1000, 1001, 1002])){
+					$one_mile_score = 'Not Calculated';
+				}
+
+
 	            return [
 	                'id' => $item->id,
 	                'student_name' => $item->student_name,					
@@ -1841,14 +1848,11 @@ class ReportController extends Controller {
 	           		'rollno' => $item->rollno ?? 'N.A.',
 					'twenty_m_pacer' => isset($item->twenty_m_pacer) ? (int)$item->twenty_m_pacer : '---',
 					'fifteen_m_pacer' => isset($item->fifteen_m_pacer) ? (int)$item->fifteen_m_pacer : '---',
-					'oneMile_run_walk' => is_numeric($item->oneMile_run_walk)
-											? sprintf(
-												'%02d:%02d.%02d',
-												floor((int)$item->oneMile_run_walk / 60000),
-												floor(((int)$item->oneMile_run_walk % 60000) / 1000),
-												floor(((int)$item->oneMile_run_walk % 1000) / 10)
-											)
-											: '---',
+
+
+					'oneMile_run_walk' => $one_mile_score,
+
+
 					'curlup' => isset($item->curlup) ? (int)$item->curlup : '---',
 	                'modified_curlup' => isset($item->modified_curlup) ? (int)$item->modified_curlup : '---',
 	                'pushup' => isset($item->pushup) ? (int)$item->pushup : '---',
@@ -1944,10 +1948,11 @@ class ReportController extends Controller {
 					);
 			});
 			
-			$getBmiBenchmark =  $this->getBmiBenchmark($ageGender);
+			$getBmiBenchmark =  $this->getCWSNBmiBenchmark($studentAge, $studentGender);
+			// echo"<pre>";print_r($getBmiBenchmark);exit();
+
 			$orderedReportData = $this->getCWSNReportData($studentId, $pwd_cat_id, $studentAge, $studentGender, $groupedReport);
 			$academicYear = DB::table('term_masters')->where('id', $currentTermId)->value('academic_year');
-			// echo"<pre>";print_r($mappedReport);exit();
 			return view('reports.fitness.html.cwsn-report', compact('studentsData','orderedReportData','getBmiBenchmark','academicYear'));
 		
 		} catch (\Exception $e) {
@@ -2008,7 +2013,7 @@ class ReportController extends Controller {
 					);
 			});
 			
-			$getBmiBenchmark =  $this->getBmiBenchmark($ageGender);
+			$getBmiBenchmark =  $this->getCWSNBmiBenchmark($studentAge, $studentGender);
 			$orderedReportData = $this->getCWSNReportData($studentId, $pwd_cat_id, $studentAge, $studentGender, $groupedReport);
 			$academicYear = DB::table('term_masters')->where('id', $currentTermId)->value('academic_year');
 			// echo"<pre>";print_r($orderedReportData);exit();

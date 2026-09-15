@@ -4,6 +4,8 @@
         <div class="modal-content">
 
             <input type="hidden" id="cwsn_type" value="{{ $cwsnType ?? 'None Specified' }}">
+            
+            <input type="hidden" id="title" value="{{ $title }}">
 
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"
                 style="left:20px; z-index:5; background:#fff;">
@@ -297,14 +299,19 @@
         });
 
         window.clearExistingRecords = function(response, skillReportId, school_id, class_id, testType) {
+            let title = @json($title);
+
             const selectElement = document.getElementById('student_id');
             const selectedStudent = selectElement.options[selectElement.selectedIndex];
             const studentId = selectedStudent ? selectedStudent.getAttribute('data-id') : null;
 
             let html = `<strong>${response.data.name}</strong> has already completed this test. Would you like to retake it?`; 
 
-            if (response.data.test_already_given && response.data.existingTestName) {
-               if (response.data.existingTestName.test_name !== 'BMI') {                  
+            const existingTest = response.data.existingTestName;
+            const hasExistingTest = Array.isArray(existingTest) ? existingTest.length > 0 : existingTest;
+
+            if (response.data.test_already_given && hasExistingTest) {
+               if (response.data.existingTestName.test_name !== title) {             
                     html = `<strong>${response.data.name}</strong> has already completed a test in the <strong>${response.data.existingTestName.test_category}</strong> category (previous: <strong>${response.data.existingTestName.test_name}</strong>). Starting a new test will permanently delete all previous records under this category. Would you like to proceed?`;
                 }
             }

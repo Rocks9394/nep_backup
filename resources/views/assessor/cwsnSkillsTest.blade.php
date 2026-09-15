@@ -1,19 +1,23 @@
+
 @extends('layouts.filldart-app')
 @section('title', 'CISCE | ' . $title)
 @section('content')
 
 <style>
+
     .get_ready {
         position: relative;
         display: flex;
         align-items: center;
         background-color: #fff;
         justify-content: space-between;
-         cursor: pointer;
+        cursor: pointer;
     }
-    .all-tests .list-group li .play{
+
+    .all-tests .list-group li .play {
         position: relative !important;
     }
+
     .pdfandvideo {
         display: flex;
         align-items: center;
@@ -27,290 +31,982 @@
         width: 90px !important;
     }
 
-
     .tooltip {
         z-index: 1080 !important;
-        pointer-events: none; /* Prevents tooltip content from blocking touches */
+        pointer-events: none;
     }
 
-    /* Ensure the info icon receives touch events clearly */
     .custom-tooltip-trigger {
-        padding: 4px; /* Increases touch target size for mobile */
+        padding: 4px;
         touch-action: manipulation;
     }
 
-
     .tooltip-inner {
-        max-width: 300px !important;       /* Set maximum width of the box */
-        width: max-content;                /* Auto-adjust width to fit content up to max-width */
-        background-color: #2a2876 !important; /* Set custom background color */
-        color: #ffffff !important;         /* Set text/font color */
-        font-size: 13px !important;        /* Set font size */
-        font-family: 'Segoe UI', Tahoma, sans-serif !important; /* Custom font family */
-        text-align: left !important;       /* Align text left, right, or center */
-        padding: 10px 14px !important;     /* Adjust padding inside the box */
-        border-radius: 6px !important;     /* Rounded corners */
-        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15); /* Drop shadow */
+        max-width: 300px !important;
+        width: max-content;
+        background-color: #2a2876 !important;
+        color: #ffffff !important;
+        font-size: 13px !important;
+        font-family: 'Segoe UI', Tahoma, sans-serif !important;
+        text-align: left !important;
+        padding: 10px 14px !important;
+        border-radius: 6px !important;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .cwsn-video-btn {
+        border: 0;
+        background: transparent;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        color: inherit;
+        font-size: inherit;
+        line-height: 1;
+    }
+
+    .cwsn-video-btn:focus {
+        outline: none;
+    }
+
+    .cwsn-video-btn:focus-visible {
+        outline: 2px solid #2a2876;
+        outline-offset: 3px;
+    }
+
+    .cwsn-video-btn i {
+        cursor: pointer;
     }
 
 
+    .cwsn-video-player {
+        width: 100%;
+        max-height: 70vh;
+        display: block;
+        background: #000;
+    }
+
+    .cwsn-youtube-wrapper {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: #000;
+        overflow: hidden;
+    }
+
+    .cwsn-youtube-wrapper iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        display: block;
+    }
+
+    .cwsn-video-error {
+        margin: 0;
+    }
+
     @media (max-width: 768px) {
+
         .all-tests .list-group li a {
-          padding: 12px !important;
+            padding: 12px !important;
         }
 
         .pdfandvideo > .videoplayer {
             width: 40px;
         }
-        
+
         .pdfandvideo > .pdfreader {
             width: 80px !important;
         }
 
+        .modal-video .modal-dialog {
+            margin: 10px;
+        }
 
     }
 
 </style>
 
+
 <div class="container">
     <div class="t-mrg2 mb-5 pb-5">
         <div class="all-chaptr-cards">
-           
             <div class="row">
                 <div class="col">
-                    <div class="heading-rw mt-0 mt-md-1 mb-0 p-0"> 
-                        <x-back-button :title="$title" /> 
-                    </div>  
+                    <div class="heading-rw mt-0 mt-md-1 mb-0 p-0">
+                        <x-back-button :title="$title" />
+                    </div>
                 </div>
             </div>
-        
+
+
             <div class="row text-center justify-content-md-center">
                 <div class="col-12">
                     <div class="row text-center justify-content-md-center mt-2 mt-lg-4">
-                        <div class="col-12 col-md-12 col-lg-12">
+                        <div class="col-12">
                             <div class="all-tests">
-
-
-                               @if(Crypt::decrypt($pwd_category_id) != '3')
-                                <h3><span class="badge badge-pill badge-secondary" style="font-size:14px;">Conduct any one of the following tests</span></h3>
+                                @if(Crypt::decrypt($pwd_category_id) != '3')
+                                    <h3>
+                                        <span  class="badge badge-pill badge-secondary"   style="font-size:14px;">
+                                            Conduct any one of the following tests
+                                        </span>
+                                    </h3>
                                 @endif
-                                
+
+
                                 <ul class="list-group tests mt-3">
                                     @foreach($testType as $key => $val)
                                         <li>
-
-                                            <div class="get_ready row-clickable" data-href="{{ route('cwsn.test.types', ['TestTypeId' => $val->TestTypeID,'pwd_category_id' => $pwd_category_id]) }}">
+                                            <div class="get_ready row-clickable"   data-href="{{ route( 'cwsn.test.types',  [
+                                                        'TestTypeId' => $val->TestTypeID, 'pwd_category_id' => $pwd_category_id] ) }}"  >
 
                                                 <div style="width: max-content;">
-                                                    <a href="javascript:void(0);" onclick="event.preventDefault();">
-                                                        
-                                                       
-                                                       <span>
+                                                    <a  href="javascript:void(0);"  onclick="event.preventDefault();" >
+
+                                                        <span>
                                                             {{ trim($val->TestTypeName) }}
                                                             @if(in_array($val->TestTypeID, [1044, 1041, 1021]))
-                                                                <strong style="color: #d9534f; font-size: 0.9em;"> (Only for Wheel Chair)</strong>
+                                                                <strong style=" color: #d9534f;  font-size: 0.9em; " >
+                                                                    (Only for Wheel Chair)
+                                                                </strong>
                                                             @endif
                                                         </span>
 
-                                                      
 
-                                                        <i class="bi bi-info-circle stop-propagation custom-tooltip-trigger" 
-                                                           style="font-size: 14px; cursor: pointer; display: inline-block;"
-                                                           data-toggle="tooltip" 
-                                                           data-trigger="click hover focus"
-                                                           data-boundary="window" 
-                                                           data-html="true" 
-                                                           title="<b>Test Applicable for :</b><br>{{ is_array($val->disability_categories) ? implode(', ', $val->disability_categories) : $val->disability_categories->implode(', ') }}">       
-                                                        </i>
+                                                        <i
+                                                            class="bi bi-info-circle stop-propagation custom-tooltip-trigger"
+                                                            style="
+                                                                font-size: 14px;
+                                                                cursor: pointer;
+                                                                display: inline-block;
+                                                            "
+                                                            data-toggle="tooltip"
+                                                            data-trigger="click hover focus"
+                                                            data-boundary="window"
+                                                            data-html="true"
+                                                            title="<b>Test Applicable for :</b><br>{{ is_array($val->disability_categories) ? implode(', ', $val->disability_categories) : $val->disability_categories->implode(', ') }}"
+                                                        ></i>
+
                                                     </a>
+
                                                 </div>
 
 
-                                               
                                                 <div class="pdfandvideo">
+
+                                                    {{-- PDF --}}
+
                                                     <div class="pdfreader">
-                                                        <a href="{{ route('cwsn_admin_manual', ['testTypeId' => $val->TestTypeID]) }}" 
-                                                       target="_blank" 
-                                                       rel="noopener noreferrer"
-                                                       onclick="event.stopPropagation();"> 
-                                                        <i class="bi bi-file-earmark-pdf"></i>
-                                                    </a>
-                                                    </div>
-                                                    <hr>
-                                                    <div class="videoplayer">
-                                                         <a href="javascript:void(0);" class="play" data-toggle="modal" 
-                                                            data-target="#playModal" data-testtypeid="{{ $val->TestTypeID }}" data-testname="{{ $val->TestPerformed }}"> 
-                                                            <i class="bi bi-play-circle"></i> 
+
+                                                        <a
+                                                            href="{{ route(
+                                                                'cwsn_admin_manual',
+                                                                [
+                                                                    'testTypeId' => $val->TestTypeID
+                                                                ]
+                                                            ) }}"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            onclick="event.stopPropagation();"
+                                                        >
+
+                                                            <i class="bi bi-file-earmark-pdf"></i>
+
                                                         </a>
-                                                    </div>                                                   
+
+                                                    </div>
+
+
+                                                    <hr>
+
+
+                                                    {{-- Video --}}
+
+                                                    <div class="videoplayer">
+
+                                                        <button
+                                                            type="button"
+                                                            class="play cwsn-video-btn"
+                                                            data-toggle="modal"
+                                                            data-target="#playModal"
+                                                            data-testtypeid="{{ $val->TestTypeID }}"
+                                                            data-testname="{{ trim($val->TestTypeName) }}"
+                                                            aria-label="Play {{ trim($val->TestTypeName) }} video"
+                                                        >
+
+                                                            <i
+                                                                class="bi bi-play-circle"
+                                                                aria-hidden="true"
+                                                            ></i>
+
+                                                        </button>
+
+                                                    </div>
+
                                                 </div>
-                                                <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
+
+
+                                                <span class="arrow-i">
+
+                                                    <i class="bi bi-arrow-right"></i>
+
+                                                </span>
 
                                             </div>
 
-                                            {{--
-                                            <div class="get_ready">
-                                                <a href="{{ route('cwsn.test.types', ['TestTypeId' => $val->TestTypeID,'pwd_category_id' => $pwd_category_id]) }}">
-                                                    <span>{{ $val->TestTypeName }}</span>
-                                                    <span class="arrow-i"><i class="bi bi-arrow-right"></i></span>
-                                                </a>
-                                            </div>
-                                            <a href="javascript:void(0);" class="play" data-toggle="modal" 
-                                                data-target="#playModal" data-testtypeid="{{ $val->TestTypeID }}" data-testname="{{ $val->TestPerformed }}"> <i class="bi bi-play-circle"></i> 
-                                            </a>
-                                            --}}
                                         </li>
+
                                     @endforeach
+
                                 </ul>
+
                             </div>
-                        </div> 
+
+                        </div>
+
                     </div>
+
                 </div>
-            </div>           
+
+            </div>
+
         </div>
+
     </div>
 
 </div>
 
-<!-- Modal -->
-<div class="modal fade modal-video" id="playModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Running</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted">Loading video...</p>
-      </div>
+
+{{-- =========================================================
+     VIDEO MODAL
+========================================================= --}}
+
+<div
+    class="modal fade modal-video"
+    id="playModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="playModalLabel"
+    aria-hidden="true"
+>
+
+    <div
+        class="modal-dialog modal-dialog-centered modal-lg"
+        role="document"
+    >
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5
+                    class="modal-title"
+                    id="playModalLabel"
+                >
+                    Video
+                </h5>
+
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
+
+                    <span aria-hidden="true">&times;</span>
+
+                </button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <p class="text-muted mb-0">
+                    Select a video to play.
+                </p>
+
+            </div>
+
+        </div>
+
     </div>
-  </div>
+
 </div>
 
+
+@push('page-script')
 
 <script>
 
+$(function () {
 
-$(document).ready(function() {
-    var $tooltips = $('[data-toggle="tooltip"]');
-    $tooltips.tooltip({
-        trigger: 'manual',
-        boundary: 'window',
-        placement: function() {
-            return window.innerWidth <= 768 ? 'top' : 'right';
+    const storageBaseUrl = @json(asset('storage'));
+    const seniorBMI = @json($SeniorBMI);
+    const videos = @json($videos);
+
+    function getVideoUrl(videoUrl) {
+        if (!videoUrl) {
+            return null;
         }
-    });
 
-    $tooltips.on('click touchstart', function(e) {
-        e.stopPropagation();
-        e.preventDefault();
+        videoUrl = String(videoUrl).trim();
+        if (!videoUrl) { return null; }
 
-        var $this = $(this);
-        var isOpen = $this.data('tooltip-open') === true;
-        $tooltips.tooltip('hide').data('tooltip-open', false);
-        if (!isOpen) {
-            $this.tooltip('show').data('tooltip-open', true);
+        if (videoUrl.startsWith('_1')) {
+            videoUrl = videoUrl.substring(2).trim();
         }
-    });
 
-    $(document).on('click touchstart', function(e) {
-        if (!$(e.target).closest('[data-toggle="tooltip"]').length) {
-            $tooltips.tooltip('hide').data('tooltip-open', false);
+        if (!videoUrl) {
+            return null;
         }
-    });
 
-    $('.row-clickable').on('click', function() {
-        window.location.href = $(this).data('href');
-    });
+        if (  videoUrl.startsWith('http://') ||  videoUrl.startsWith('https://') ||  videoUrl.startsWith('//') ) {
+            return videoUrl;
+        }
 
-    $('.stop-propagation').on('click touchstart', function(e) {
-        e.stopPropagation();
-    });
-});
+        if (videoUrl.startsWith('/storage/')) {
+            return videoUrl;
+        }
 
-document.addEventListener("DOMContentLoaded", function() {
-    
-    $('#playModal').on('show.bs.modal', function(event) {
-        let button = $(event.relatedTarget); 
-        let testTypeId = button.data('testtypeid');
-        let testName   = button.data('testname');
-        let flag = `{{$SeniorBMI}}`;
-        let modal = $(this);
+        return storageBaseUrl + '/' + videoUrl.replace(/^\/+/, '');
+    }
 
-        modal.find('.modal-title').text(testName);
 
-        let allVideos = @json($videos);
-        let filtered = allVideos.filter(v => v.testType_id == testTypeId);
-        let html = '';
+    function isYouTubeUrl(videoUrl) {
 
-        if (flag == 1) {
-            // Case 1: show only video with "_1"
-            let specialVideo = filtered.find(v => v.video_url.startsWith("_1"));
-            if (specialVideo) {
-                let url = specialVideo.video_url.substring(2); // remove "_1"
+        if (!videoUrl) {
+            return false;
+        }
 
-                if (url.includes('youtu.be/')) {
-                    url = url.replace('youtu.be/', 'www.youtube.com/embed/').split('?')[0];
-                } else if (url.includes('watch?v=')) {
-                    url = url.replace('watch?v=', 'embed/').split('&')[0];
-                }
+        try {
+            const url = new URL(videoUrl);
+            const hostname = url.hostname.toLowerCase();
+            return (  hostname === 'youtube.com' ||  hostname === 'www.youtube.com' ||  hostname === 'm.youtube.com' ||  hostname === 'youtu.be' ||
+                hostname === 'www.youtube-nocookie.com'
+            );
 
-                let title = specialVideo.type_video.charAt(0).toUpperCase() + specialVideo.type_video.slice(1) + " Video";
+        } catch (error) {
+            return false;
+        }
+    }
 
-                html += `
-                    <div class="mb-4">
-                        <h4 class="test-cat" style="font-size:14px; background-color:#2a2876;">${title}</h4>
-                        <iframe class="demo-video"
-                            src="${url}"
-                            frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                `;
+
+    function getYouTubeVideoId(videoUrl) {
+
+        if (!videoUrl) {
+            return null;
+        }
+
+        try {
+
+            const url = new URL(videoUrl);
+            const hostname = url.hostname.toLowerCase();
+
+
+            if ( hostname === 'youtu.be' ||  hostname === 'www.youtu.be' ) {
+                return url.pathname .replace(/^\/+/, '').split('/')[0] || null;
             }
-        } else {
-            // Case 2: show videos that do NOT start with "_1"
-            let otherVideos = filtered.filter(v => !v.video_url.startsWith("_1"));
 
-            otherVideos.forEach(video => {
-                let url = video.video_url;
-                if (url.includes('youtu.be/')) {
-                    url = url.replace('youtu.be/', 'www.youtube.com/embed/').split('?')[0];
-                } else if (url.includes('watch?v=')) {
-                    url = url.replace('watch?v=', 'embed/').split('&')[0];
+
+            if ( hostname === 'youtube.com' ||  hostname === 'www.youtube.com' ||  hostname === 'm.youtube.com' ) {
+                if (url.pathname === '/watch') {
+                    return url.searchParams.get('v');
                 }
 
-                let title = video.type_video.charAt(0).toUpperCase() + video.type_video.slice(1) + " Video";
+                if (url.pathname.startsWith('/embed/')) {
+                    return url.pathname.replace('/embed/', '').split('/')[0] || null;
+                }
 
-                html += `
-                    <div class="mb-4">
-                        <h4 class="test-cat" style="font-size:14px; background-color:#2a2876;">${title}</h4>
-                        <iframe class="demo-video"
-                            src="${url}"
-                            frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                `;
-            });
+                if (url.pathname.startsWith('/shorts/')) {
+                    return url.pathname.replace('/shorts/', '').split('/')[0] || null;
+                }
+
+                if (url.pathname.startsWith('/live/')) {
+                    return url.pathname.replace('/live/', '').split('/')[0] || null;
+                }
+            }
+
+            return null;
+
+        } catch (error) {
+            console.error('Invalid YouTube URL:', videoUrl, error);
+            return null;
         }
 
-        if (html === '') {
-            html = '<p>No videos available for this test.</p>';
+    }
+
+
+    function createVideoElement(videoUrl) {
+
+        const video = document.createElement('video');
+        video.className = 'cwsn-video-player';
+        video.controls = true;
+        video.playsInline = true;
+        video.preload = 'metadata';
+        video.autoplay = false;
+
+        video.setAttribute( 'controlsList', 'nodownload' );
+        video.setAttribute( 'disablePictureInPicture',  ''  );
+
+        const source = document.createElement('source');
+        source.src = videoUrl;
+        video.appendChild(source);
+
+        video.addEventListener('click',  function (event) {
+             event.stopPropagation();
+            }
+        );
+
+
+        video.addEventListener(  'error',  function () {
+            console.error('Unable to load video:', videoUrl);
+            const parent = video.parentNode;
+            if (!parent) {
+                return;
+            }
+
+            const errorMessage =  document.createElement('p');
+            errorMessage.className = 'text-danger cwsn-video-error mt-2';
+            errorMessage.textContent ='Unable to load this video. Please try again later.';
+            parent.appendChild(errorMessage);
+            }
+        );
+        return video;
+    }
+
+
+
+    function createYouTubePlayer(videoUrl) {
+
+        const videoId = getYouTubeVideoId(videoUrl);
+        if (!videoId) {
+            const errorMessage = document.createElement('p');
+            errorMessage.className = 'text-danger cwsn-video-error';
+            errorMessage.textContent =  'Invalid YouTube video URL.';
+            return errorMessage;
         }
 
-        modal.find('.modal-body').html(html);
-    });
-});
-$('#playModal').on('hidden.bs.modal', function () {
-    $(this).find('.modal-body').html('<p class="text-muted">Loading video...</p>');
-});
+        const wrapper =document.createElement('div');
+        wrapper.className = 'cwsn-youtube-wrapper';
 
+        const iframe = document.createElement('iframe');
+        iframe.src = 'https://www.youtube-nocookie.com/embed/' +  encodeURIComponent(videoId) + '?rel=0';
+        iframe.title = 'Instructional test video';
+        iframe.loading = 'lazy';
+
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        iframe.setAttribute('allowfullscreen','');
+        iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin'  );
+        wrapper.appendChild(iframe);
+        return wrapper;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Create correct player automatically
+    |--------------------------------------------------------------------------
+    */
+
+    function createVideoPlayer(videoUrl) {
+
+        if (!videoUrl) {
+
+            const errorMessage =
+                document.createElement('p');
+
+            errorMessage.className =
+                'text-danger cwsn-video-error';
+
+            errorMessage.textContent =
+                'Video file is not available.';
+
+            return errorMessage;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | YouTube
+        |--------------------------------------------------------------------------
+        */
+
+        if (isYouTubeUrl(videoUrl)) {
+
+            return createYouTubePlayer(videoUrl);
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Everything else is treated as a browser-playable video file.
+        |
+        | This includes:
+        |
+        | Azure Blob
+        | Laravel storage
+        | Any HTTPS MP4/WebM/etc.
+        |--------------------------------------------------------------------------
+        */
+
+        return createVideoElement(videoUrl);
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Create video section
+    |--------------------------------------------------------------------------
+    */
+
+    function createVideoSection(video, videoIndex) {
+
+        const wrapper =
+            document.createElement('div');
+
+        wrapper.className =
+            'mb-4';
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Video title
+        |--------------------------------------------------------------------------
+        */
+
+        const title =
+            document.createElement('h4');
+
+        title.className =
+            'test-cat';
+
+        title.style.fontSize =
+            '14px';
+
+        title.style.backgroundColor =
+            '#2a2876';
+
+
+        let videoType =
+            video.type_video || 'Test';
+
+
+        videoType =
+            String(videoType)
+                .charAt(0)
+                .toUpperCase() +
+            String(videoType).slice(1);
+
+
+        title.textContent =
+            videoType + ' Video';
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Resolve URL
+        |--------------------------------------------------------------------------
+        */
+
+        const videoUrl =
+            getVideoUrl(video.video_url);
+
+
+        if (!videoUrl) {
+
+            const errorMessage =
+                document.createElement('p');
+
+            errorMessage.className =
+                'text-danger';
+
+            errorMessage.textContent =
+                'Video file is not available.';
+
+
+            wrapper.appendChild(title);
+
+            wrapper.appendChild(errorMessage);
+
+            return wrapper;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create appropriate player
+        |--------------------------------------------------------------------------
+        */
+
+        const player =
+            createVideoPlayer(videoUrl);
+
+
+        player.dataset.videoIndex =
+            videoIndex;
+
+
+        wrapper.appendChild(title);
+
+        wrapper.appendChild(player);
+
+
+        return wrapper;
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Open video modal
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).on(
+        'click',
+        '.cwsn-video-btn',
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            event.stopImmediatePropagation();
+
+
+            const button =
+                $(this);
+
+
+            const testTypeId =
+                String(
+                    button.data('testtypeid')
+                );
+
+
+            const testName =
+                button.data('testname') ||
+                'Test Video';
+
+
+            const modal =
+                $('#playModal');
+
+
+            modal
+                .find('.modal-title')
+                .text(testName);
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Loading state
+            |--------------------------------------------------------------------------
+            */
+
+            modal
+                .find('.modal-body')
+                .html(
+                    '<p class="text-muted mb-0">' +
+                    'Loading video...' +
+                    '</p>'
+                );
+
+
+            modal.modal('show');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Find videos belonging to this test
+            |--------------------------------------------------------------------------
+            */
+
+            const filteredVideos =
+                videos.filter(
+                    function (video) {
+
+                        return String(
+                            video.testType_id
+                        ) === testTypeId;
+
+                    }
+                );
+
+
+            let selectedVideos = [];
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Existing BMI logic
+            |--------------------------------------------------------------------------
+            |
+            | Keep your existing _1 behaviour.
+            |
+            */
+
+            if (String(seniorBMI) === '1') {
+
+                selectedVideos =
+                    filteredVideos
+                        .filter(
+                            function (video) {
+
+                                return String(
+                                    video.video_url || ''
+                                ).startsWith('_1');
+
+                            }
+                        )
+                        .slice(0, 1);
+
+            } else {
+
+                selectedVideos =
+                    filteredVideos
+                        .filter(
+                            function (video) {
+
+                                return !String(
+                                    video.video_url || ''
+                                ).startsWith('_1');
+
+                            }
+                        );
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | No videos
+            |--------------------------------------------------------------------------
+            */
+
+            if (selectedVideos.length === 0) {
+
+                modal
+                    .find('.modal-body')
+                    .html(
+                        '<p class="text-muted mb-0">' +
+                        'No videos available for this test.' +
+                        '</p>'
+                    );
+
+                return;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Create container
+            |--------------------------------------------------------------------------
+            */
+
+            const container =
+                document.createElement('div');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Create all selected videos
+            |--------------------------------------------------------------------------
+            */
+
+            selectedVideos.forEach(
+                function (video, index) {
+
+                    const section =
+                        createVideoSection(
+                            video,
+                            index
+                        );
+
+
+                    container.appendChild(section);
+
+                }
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Insert into modal
+            |--------------------------------------------------------------------------
+            */
+
+            modal
+                .find('.modal-body')
+                .empty();
+
+
+            modal
+                .find('.modal-body')[0]
+                .appendChild(container);
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Make sure HTML5 videos start from beginning.
+            |--------------------------------------------------------------------------
+            */
+
+            modal
+                .find('video')
+                .each(
+                    function () {
+
+                        this.pause();
+
+                        try {
+
+                            this.currentTime = 0;
+
+                        } catch (error) {
+
+                            console.warn(
+                                'Unable to reset video:',
+                                error
+                            );
+
+                        }
+
+                    }
+                );
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Prevent row navigation when video button is clicked
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).on(
+        'click',
+        '.row-clickable',
+        function (event) {
+
+            if (
+                $(event.target)
+                    .closest('.cwsn-video-btn')
+                    .length
+            ) {
+
+                return;
+
+            }
+
+
+            const href =
+                $(this).data('href');
+
+
+            if (href) {
+
+                window.location.href =
+                    href;
+
+            }
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PDF should not trigger row navigation
+    |--------------------------------------------------------------------------
+    */
+
+    $(document).on(
+        'click',
+        '.pdfreader',
+        function (event) {
+
+            event.stopPropagation();
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Stop local/Azure videos when modal closes
+    |--------------------------------------------------------------------------
+    */
+
+    $('#playModal').on(
+        'hide.bs.modal',
+        function () {
+
+            const modal =  $(this);
+
+
+
+            modal
+                .find('video')
+                .each(
+                    function () {
+
+                        try {
+
+                            this.pause();
+
+                            this.currentTime = 0;
+
+                            this.removeAttribute('src');
+
+                            this.load();
+
+                        } catch (error) {
+
+                            console.error(
+                                'Error stopping video:',
+                                error
+                            );
+
+                        }
+
+                    }
+                );
+            modal
+                .find('iframe')
+                .remove();
+
+        }
+    );
+
+
+
+    $('#playModal').on(
+        'hidden.bs.modal',
+        function () {
+
+            $(this)
+                .find('.modal-body')
+                .html(
+                    '<p class="text-muted mb-0">' +
+                    'Select a video to play.' +
+                    '</p>'
+                );
+
+        }
+    );
+
+});
 
 </script>
+
+@endpush
 
 @endsection

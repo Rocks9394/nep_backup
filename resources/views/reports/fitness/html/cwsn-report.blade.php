@@ -305,6 +305,7 @@
                                         </div>
                                     </td>
                                 </tr>
+                                
                                 @foreach($orderedReportData as $key => $value)
 
                                 @php
@@ -356,9 +357,11 @@
                                                                         <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Weight (kg)</td>
                                                                         <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Height (cm)</td>
                                                                         <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">BMI</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">NI</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">AFZ</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Level</td>
+                                                                        <!-- <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Very Lean</td>
                                                                         <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">HFZ</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">NI</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Health Risk</td> -->
                                                                     </tr>
 
                                                                     <tr>
@@ -366,9 +369,10 @@
                                                                         <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> {{ $value['Current_Term'][0]['weight'] ?? '---'}}</td>
                                                                         <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">  {{ $value['Current_Term'][0]['height'] ?? '---'}}</td>
                                                                         <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Current_Term'][0]['score'] ?? '---'}}</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Current_Term'][0]['ni'] ?? '---'}}</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Current_Term'][0]['afz'] ?? '---'}}</td>
+                                                                        <!-- <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Current_Term'][0]['very_lean'] ?? '---'}}</td>
                                                                         <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Current_Term'][0]['hfz'] ?? '---'}}</td>
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Current_Term'][0]['ni'] ?? '---'}}</td> -->
+                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">{{ $value['Current_Term'][0]['bmiLevel'] ?? '---'}}</td>
                                                                     </tr>
 
                                                                 </table>
@@ -379,12 +383,23 @@
 
                                                 </td>
                                             </tr>
+                                            <tr>
+                                                <td>
+                                                    <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border-top: 1px solid transparent; border-left: 1px solid orange; border-right: 1px solid orange; border-bottom: 1px solid orange; font-size: 14px; border-collapse: collapse; color:#333;">
+                                                        <tr>
+                                                            <td style="width: 20%; border-top: 1px solid #fecd0a; background-color: #fecd0a; padding: 4px; padding: 5px 10px; color: #000; text-align: center; width: 120px; font-weight: bold;">Recommendation</td>
+                                                            <td style="width: 80%; padding: 4px;">{{ $value['Current_Term'][0]['recommendation'] ?? '---' }}</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
 
                                         </table>
                                     </td>
                                 </tr>
 
-                                @elseif(!empty($currentTerm['score']))
+                                {{-- @elseif(!empty($currentTerm['score'])) --}}
+                                @else
 
                                 <tr> <td style="height: 15px;"></td></tr>
                                 <tr>
@@ -442,41 +457,60 @@
                                 @endforeach
 
                                 <tr>
-                                    <td style="height: 15px;"></td>
+                                    <td style="height: 10px;"></td>
                                 </tr>
-                                <tr>
-                                    <td style="padding: 5px 10px; font-size: 20px; background:#0A87CD; color:#fff; font-size: 16px; font-weight: 600;">Fitness Zone Classification</td>
-                                </tr>
-
+                               
                                 <tr>
                                     <td>
-                                        <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0; border-collapse: collapse;">
-                                            <tr>
-                                                <td style="vertical-align: top;">
-                                                    <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid #0A87CD; font-size: 13px; border-collapse: collapse; color:#333;">
-                                                        <tr>
-                                                            <td style="padding: 3px 4px; font-weight: 500; color:#000;">NI</td>
-                                                            <td style="padding: 3px 4px; font-weight: 400;">Needs Inprovment</td>
-                                                            <td style="padding: 3px 4px; text-align: left;">Developing foundational fitness skills and working toward consistent performance.</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="padding: 3px 4px; font-weight: 500; color:#000;">AFZ</td>
-                                                            <td style="padding: 3px 4px; font-weight: 400;">Adoptive Fitness Zone</td>
-                                                            <td style="padding: 3px 4px; text-align: left;">Demonstrating steady progress with improving fitness, skill, and consistency.</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="padding: 3px 4px; font-weight: 500; color:#000;">HFZ</td>
-                                                            <td style="padding: 3px 4px; font-weight: 400;">Healthy Fitness Zone</td>
-                                                            <td style="padding: 3px 4px; text-align: left;">Demonstrating a healthy level of fitness with strong, consistent performance.</td>
-                                                        </tr>
-                                                    </table>
-                                                </td>
-
+                                        <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid #0A87CD; font-size: 14px; border-collapse: collapse; color:#fff; text-align:left;">
+                                            <tr style="background-color: #0A87CD;">
+                                                <td style="padding: 5px 10px; font-weight: bold; color:#fff; font-size: 16px;" colspan="8">BMI Benchmarks for {{ $age }} years {{ $gender }}</td>
                                             </tr>
-
+                                            <tr style="font-weight: bold; background-color: #fecd0a; font-size: 12px; color: #000;  text-align:center;">
+                                                <td style="padding: 5px 10px;">Very Lean</td>
+                                                <td style="padding: 5px 10px;">Healthy Fitness Zone</td>
+                                                <td style="padding: 5px 10px;">Needs improvement</td>
+                                                <td style="padding: 5px 10px;">Health Risk</td>
+                                            </tr>                                            
+                                            
+                                            @if(is_array($getBmiBenchmark) && count($getBmiBenchmark) > 0)
+                                            <tr style="text-align:center;">
+                                                <td style="padding: 5px 10px; color: #000;">{{ $getBmiBenchmark['very_lean'] ?? 'N/A' }}</td>
+                                                <td style="padding: 5px 10px; color: #000;">{{ $getBmiBenchmark['hfz'] ?? 'N/A' }}</td>
+                                                <td style="padding: 5px 10px; color: #000;">{{ $getBmiBenchmark['ni'] ?? 'N/A' }}</td>
+                                                <td style="padding: 5px 10px; color: #000;">{{ $getBmiBenchmark['health_risk'] ?? 'N/A' }}</td>
+                                            </tr>
+                                            @endif
                                         </table>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td style="height: 5px;"></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <p>
+                                            <strong>Fitness Zone Abbreviations</strong>:- &nbsp;
+                                            <strong>NI:</strong> Needs Improvement &nbsp; | &nbsp;
+                                            <strong>AFZ:</strong> Adapted Fitness Zone &nbsp; | &nbsp;
+                                            <strong>HFZ:</strong> Healthy Fitness Zone
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="height: 10px;"></td>
+                                </tr>
+                                 <!-- <tr>
+                                    <td style="font-size: 13px; letter-spacing: 0.01rem;"><b>Interpretation: </b>Meets Healthy Fitness Zones (HFZs) for aerobic behavior, flexibility, and body composition; below HFZ for dominant grip and modified curl-up; meets adapted fitness zones (AFZs) for dominant grip and modified curl-up; below AFZ standard for flexed-arm hang.
+                                        <br><b>Needs: </b>Priorities—Development of upper-body strength/endurance and abdominal strength/endurance. 
+                                    </td>
+                                </tr> -->
+                                <tr>
+                                    <td style="font-size: 13px; letter-spacing: 0.01rem;"><b>Interpretation: </b>Meets Healthy Fitness Zones (HFZs) for aerobic capacity, flexibility, and body composition; meets Adapted Fitness Zones (AFZs) for selected components where applicable; and falls within the Needs Improvement (NI) zone for components below the applicable fitness-zone standard.
+                                    <br><b>Needs: </b>Priorities—Development of upper-body strength/endurance and abdominal strength/endurance. 
+                                    </td>
+                                </tr>
+                                
                             </table>
                         </td>
                     </tr>
@@ -576,85 +610,210 @@
                                 <!-- CWSN INTRODUCTION -->
                                 <tr>
                                     <td style="border: 1px solid #00A923; padding: 10px 15px 8px 15px; background:#F2FFF5;">
-                                        <h3 style="color: #00A923; margin-bottom: 6px; font-size: 18px;">WHO Guidelines on Physical Activity and Sedentary Behaviour 2020</h3>
 
-                                        <h4 style="color: #000; margin-bottom: 5px; font-size: 16px;">Physical Activity Guidelines for CWSN (Age 10–17 Years)</h4>
+                                        <h3 style="color: #00A923; margin-bottom: 6px; font-size: 18px;">
+                                            WHO Guidelines on Physical Activity and Sedentary Behaviour 2020
+                                        </h3>
 
-                                        <p style="line-height: 1.25rem;">Aim for an average of at least <strong>60 minutes per day</strong> of moderate-to-vigorous intensity physical activity across the week, with most activity being aerobic.</p>
+                                        <h4 style="color: #000; margin-bottom: 5px; font-size: 16px;">
+                                            Physical Activity Guidelines for CWSN
+                                        </h4>
 
-                                        <p style="line-height: 1.25rem;">Include vigorous-intensity aerobic activities, along with activities that strengthen muscles and bones, on at least <strong>3 days per week</strong>, as appropriate to the student's abilities and health status.</p>
+                                        <p style="line-height: 1.25rem;">
+                                            <strong>Some physical activity is better than none.</strong>
+                                            Even when children are not meeting the recommended activity levels,
+                                            doing some physical activity can provide health benefits.
+                                        </p>
 
-                                        <p style="line-height: 1.25rem;">Physical activity should be appropriately adapted to the student's functional abilities, health condition and fitness level. <strong>Some physical activity is better than none.</strong></p>
+                                        <p style="line-height: 1.25rem;">
+                                            Children should <strong>start with small amounts of physical activity</strong>
+                                            and gradually increase the frequency, intensity and duration according
+                                            to their abilities.
+                                        </p>
+
+                                        <p style="line-height: 1.25rem;">
+                                            Physical activity should be appropriate to the child's
+                                            <strong>current activity level, health status and physical function</strong>.
+                                            When appropriately adapted, the health benefits generally outweigh the risks.
+                                        </p>
+
+                                        <p style="line-height: 1.25rem;">
+                                            Some children may benefit from guidance from a
+                                            <strong>health-care professional or physical activity and disability specialist</strong>
+                                            to determine the type and amount of activity that is appropriate for them.
+                                        </p>
+
+                                    </td>
+                                </tr>
+                                <!-- RECOMMENDED PHYSICAL ACTIVITIES FOR CWSN -->
+                                <tr id="recommended-physical-activities">
+                                    <td style="height:12px;"></td>
+                                </tr>
+
+                                <tr id="recommended-activities-heading">
+                                    <td>
+                                        <h3 id="recommended-activities-title"
+                                            style="color:#000; font-size:16px; margin:0 0 8px 0;">
+                                            Recommended Activities for Improving Fitness in CWSN
+                                        </h3>
+                                    </td>
+                                </tr>
+
+                                <tr id="recommended-activities-content">
+                                    <td>
+                                        <table id="recommended-activities-table"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            style="width:100%; border:0; border-collapse:collapse; color:#333;">
+
+                                            <!-- Row 1 -->
+                                            <tr id="recommended-activities-row-1">
+
+                                                <td id="aerobic-activities"
+                                                    style="width:50%; padding:0 25px 8px 0; vertical-align:top;">
+
+                                                    <h4 id="aerobic-activities-title"
+                                                        style="color:#000; margin:0 0 3px 0; font-size:13px;">
+                                                        1. Aerobic-related Activities
+                                                    </h4>
+
+                                                    <p id="aerobic-activities-description"
+                                                    style="margin:0; line-height:14px;">
+                                                        Walking, Assisted Walking, Marching, Step-up Activities,
+                                                        Wheelchair Propulsion, Cycling and Modified Walking/Jogging
+                                                        activities according to the child's functional ability.
+                                                    </p>
+
+                                                </td>
+
+                                                <td id="strength-endurance-activities"
+                                                    style="width:50%; padding:0 0 8px 0; vertical-align:top;">
+
+                                                    <h4 id="strength-endurance-activities-title"
+                                                        style="color:#000; margin:0 0 3px 0; font-size:13px;">
+                                                        2. Strength &amp; Endurance Activities
+                                                    </h4>
+
+                                                    <p id="strength-endurance-activities-description"
+                                                    style="margin:0; line-height:14px;">
+                                                        Modified Curl-ups, Seated Push-ups, Wall Push-ups,
+                                                        Resistance Band Exercises, Dumbbell Exercises,
+                                                        Trunk Strengthening and Functional Strength Activities.
+                                                    </p>
+
+                                                </td>
+
+                                            </tr>
+
+                                            <!-- Row 2 -->
+                                            <tr id="recommended-activities-row-2">
+
+                                                <td id="flexibility-activities"
+                                                    style="width:50%; padding:0 25px 8px 0; vertical-align:top;">
+
+                                                    <h4 id="flexibility-activities-title"
+                                                        style="color:#000; margin:0 0 3px 0; font-size:13px;">
+                                                        3. Flexibility-related Activities
+                                                    </h4>
+
+                                                    <p id="flexibility-activities-description"
+                                                    style="margin:0; line-height:14px;">
+                                                        Shoulder Stretch, Arm Stretch, Seated Forward Bend,
+                                                        Back Stretch, Hamstring Stretch and Modified Range-of-Motion
+                                                        Exercises according to individual ability.
+                                                    </p>
+
+                                                </td>
+
+                                                <td id="balance-coordination-activities"
+                                                    style="width:50%; padding:0 0 8px 0; vertical-align:top;">
+
+                                                    <h4 id="balance-coordination-activities-title"
+                                                        style="color:#000; margin:0 0 3px 0; font-size:13px;">
+                                                        4. Balance &amp; Coordination Activities
+                                                    </h4>
+
+                                                    <p id="balance-coordination-activities-description"
+                                                    style="margin:0; line-height:14px;">
+                                                        Supported Standing, Single Leg Stance, Weight Shifting,
+                                                        Walking on Lines, Step-over Activities, Reaching Activities
+                                                        and Hand-Eye Coordination Exercises.
+                                                    </p>
+
+                                                </td>
+
+                                            </tr>
+
+                                        </table>
+                                    </td>
+                                </tr>
+
+                                <tr id="additional-adapted-activities-spacing">
+                                    <td style="height:8px;"></td>
+                                </tr>
+
+                                <!-- ADDITIONAL ADAPTED ACTIVITIES -->
+                                <tr id="additional-adapted-activities">
+                                    <td>
+                                        <h3 id="additional-adapted-activities-title"
+                                            style="color:#000; font-size:16px; margin:0 0 8px 0;">
+                                            Recommended Additional Activities for CWSN
+                                        </h3>
                                     </td>
                                 </tr>
 
                                 <tr>
-                                    <td style="height:8px;"></td>
-                                </tr>
-
-                                <!-- ASSESSMENT COMPONENTS -->
-                                <tr>
                                     <td>
                                         <table cellpadding="0" cellspacing="0"
-                                            style="width:100%; border:0; border-collapse:collapse;">
+                                            style="width:100%; border:0; border-collapse:collapse; color:#333;">
 
                                             <tr>
-                                                <td colspan="2">
-                                                    <h3 style="color:#000; font-size:16px; margin:0 0 8px 0;">
-                                                        CWSN Physical Fitness Assessment Components
-                                                    </h3>
+                                                <td style="width:50%; padding:0 25px 8px 0; vertical-align:top;">
+                                                    <h4 style="color:#000; margin:0 0 3px 0; font-size:13px;">
+                                                        1. Functional Activities
+                                                    </h4>
+
+                                                    <p style="margin:0; line-height:14px;">
+                                                        Sit-to-Stand, Supported Walking, Stair Practice,
+                                                        Reaching, Carrying Light Objects, Wheelchair Mobility
+                                                        and Functional Movement Activities.
+                                                    </p>
+                                                </td>
+
+                                                <td style="width:50%; padding:0 0 8px 0; vertical-align:top;">
+                                                    <h4 style="color:#000; margin:0 0 3px 0; font-size:13px;">
+                                                        2. Recreational Activities
+                                                    </h4>
+
+                                                    <p style="margin:0; line-height:14px;">
+                                                        Modified Games, Ball Activities, Target Throwing,
+                                                        Catching, Indoor/Outdoor Recreational Activities
+                                                        and Inclusive Group Activities.
+                                                    </p>
                                                 </td>
                                             </tr>
 
                                             <tr>
                                                 <td style="width:50%; padding:0 25px 8px 0; vertical-align:top;">
                                                     <h4 style="color:#000; margin:0 0 3px 0; font-size:13px;">
-                                                        1. Aerobic Capacity
+                                                        3. Mobility &amp; Postural Activities
                                                     </h4>
+
                                                     <p style="margin:0; line-height:14px;">
-                                                        20-m PACER, 15-m PACER and One Mile Run/Walk are used to assess
-                                                        aerobic capacity and cardiorespiratory endurance, with the
-                                                        appropriate test selected according to the child's functional ability.
+                                                        Postural Control, Core Activation, Weight Shifting,
+                                                        Supported Balance, Mobility Drills and Body Alignment
+                                                        Activities.
                                                     </p>
                                                 </td>
 
-                                                <td style="width:50%; padding:0 25px 0 0; vertical-align:top;">
-                                                    <h4 style="color:#000; margin:0 0 3px 0; font-size:13px;">
-                                                        2. Strength &amp; Endurance
-                                                    </h4>
-                                                    <p style="margin:0; line-height:14px;">
-                                                        Curl-up, Modified Curl-up, Dumbbell Press, Pull-up, Push-up,
-                                                        Seated Push-up, Trunk Lift, Isometric Push-up, Reverse Curl,
-                                                        Modified Pull-Up and 40-Meter Push/Walk Test are used to assess
-                                                        muscular strength and endurance according to the child's
-                                                        functional ability.
-                                                    </p>
-                                                </td>                                               
-                                            </tr>
-
-                                            <tr>
-                                                <td style="height:5px;"></td>
-                                                <td style="height:5px;"></td>
-                                            </tr>
-
-                                            <tr>
-                                                <td style="width:50%; padding:0; vertical-align:top;">
-                                                    <h4 style="color:#000; margin:0 0 3px 0; font-size:13px;">
-                                                        3. Flexibility
-                                                    </h4>
-                                                    <p style="margin:0; line-height:14px;">
-                                                        Shoulder Stretch, Back Saver Sit and Reach and Modified Apley Test
-                                                        are used to assess flexibility and range of motion, with the
-                                                        appropriate test selected according to the child's functional ability.
-                                                    </p>
-                                                </td>
                                                 <td style="width:50%; padding:0 0 8px 0; vertical-align:top;">
                                                     <h4 style="color:#000; margin:0 0 3px 0; font-size:13px;">
-                                                        2. Body Composition
+                                                        4. Relaxation &amp; Breathing Activities
                                                     </h4>
+
                                                     <p style="margin:0; line-height:14px;">
-                                                        BMI, skinfolds or percentage body fat may be used when
-                                                        appropriate for the child's disability and assessment protocol.
+                                                        Deep Breathing, Relaxation Exercises, Gentle Stretching,
+                                                        Controlled Breathing and Mindful Movement Activities.
                                                     </p>
                                                 </td>
                                             </tr>
@@ -662,52 +821,9 @@
                                         </table>
                                     </td>
                                 </tr>
+
                                 <tr>
                                     <td style="height:12px;"></td>
-                                </tr>
-
-                                <!-- FITNESS ZONE INTERPRETATION -->
-                                <tr>
-                                    <td style="border:1px solid #0A87CD; padding:7px 10px; background:#FEFBEF;">
-                                        <h4 style="color: #0A87CD; margin:0 0 4px 0; font-size:15px;">
-                                            Interpretation of CWSN Fitness Results
-                                        </h4>
-
-                                        <p style="line-height:14px; margin:3px 0;">
-                                            Fitness results should be interpreted against the standard applicable to
-                                            the selected test and the child's disability/functional profile.
-                                        </p>
-
-                                        <p style="line-height:14px; margin:3px 0;">
-                                            Where an Adapted Fitness Zone (AFZ) is available, it may be used to identify
-                                            an attainable level of health-related fitness. A Healthy Fitness Zone (HFZ)
-                                            may be used where the applicable general standard is appropriate.
-                                        </p>
-
-                                        <p style="line-height:14px; margin:3px 0;">
-                                            For children requiring extensive support, assessment may focus on functional
-                                            physical activity and individualized goals rather than applying a single
-                                            universal benchmark.
-                                        </p>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td style="height:10px;"></td>
-                                </tr>
-
-                                <!-- IMPORTANT NOTE -->
-                                <tr>
-                                    <td style="font-size:11px; line-height:14px; color:#555;">
-                                        <strong>Note:</strong>
-                                        CWSN fitness assessment is not intended to compare every child against one
-                                        common physical-fitness benchmark. Test selection, adaptations and interpretation
-                                        should be based on the child's disability, functional ability and the assessment
-                                        protocol used by the school/qualified physical education professional.
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="height:25px;"></td>
                                 </tr>
 
                             </table>

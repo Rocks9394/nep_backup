@@ -41,6 +41,11 @@ use Illuminate\Http\Request;
 
 use App\Http\Controllers\CwsnController;
 
+
+use App\Services\EmailVerification\EmailVerificationService;
+use App\Services\EmailVerification\DisposableChecker;
+use App\Services\EmailVerification\RiskAnalyzer;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -751,6 +756,14 @@ Route::get('/battery-of-test', [App\Http\Controllers\GeneralController::class, '
 Route::get('generatepdf', [App\Http\Controllers\GeneratePDF::class, 'generateActivityPDFshow'])->name('generateactivitypdfview');
 Route::post('generatepdf', [App\Http\Controllers\GeneratePDF::class, 'generateActivityPDF'])->name('generateactivitypdf');
 
+
+
+
+Route::get('/test-email-verification', function (EmailVerificationService $service) {
+    return response()->json(
+        $service->verify('baljeetsingh66525@gmal.com')
+    );
+});
 
 
 

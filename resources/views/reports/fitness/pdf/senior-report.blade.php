@@ -55,7 +55,7 @@
                                 <tr>
                                     <td style="background-color:#E60A00;">
                                         <div style="position:relative;">
-                                            <span style="position:absolute; top:-46px; background:rgb(0 0 0/50%); padding:10px; width:178px; z-indix:2; box-sizing: border-box; text-align:center; color:#fff; font-size:16px; text-transform: uppercase;">For Senior</span>
+                                            <span style="position:absolute; top:-46px; background:rgb(0 0 0/50%); padding:10px; width:178px; z-indix:2; box-sizing: border-box; text-align:center; color:#fff; font-size:16px; text-transform: uppercase;">Session: {{ $academicYear }}</span>
                                             <img src="{{ public_path('assets/reports/aa-bg.png')}}" alt="" style="width:198px;">
                                         </div>
                                     </td>
@@ -491,7 +491,7 @@
                         <td style="width:74px;">
                             <div style="float: left; position: relative; width: 60px;">
                                 <span style="position: absolute; left: 50%; top:50%; transform: translate(-50%, 0); color: #fff; z-index: 1; display: inline-block; padding: 2px 0 0 20px; font-size: 13px; font-weight: 600;"></span>
-                                <img src="{{ asset('public/assets/reports/footer-bg.png')}}" alt="" style="width: inherit;">
+                                <img src="{{ public_path('assets/reports/footer-bg.png')}}" alt="" style="width: inherit;">
                             </div>
                         </td>
 
@@ -504,7 +504,7 @@
                                     <td style="text-align:right; padding: 0px 30px 0px 0px;">
                                         <div style="float:right; text-align:center; position:relative;">
                                             <p style="color:#666; font-size:10px; position:absolute; top:-17px; width:100%; text-align:center;">powered  by</p>
-                                            <img src="{{ asset('public/assets/reports/fitness365-logo-web.png')}}" alt="fitness365 logo" style="height:28px;">
+                                            <img src="{{ public_path('assets/reports/fitness365-logo-web.png')}}" alt="fitness365 logo" style="height:28px;">
                                         </div> 
                                     </td>
                                 </tr>
