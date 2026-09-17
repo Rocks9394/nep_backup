@@ -78,12 +78,12 @@
             <span class="form-control d-none" id="wheelchair-fields">         
                 <span class="form-control">
                     <label class="form-label">Total Weight with Chair (kg)</label>
-                    <input type="text" name="total_combined_weight" step="0.1" class="form-control form-control-lg decimal-input" placeholder="--">
+                    <input type="text" name="total_combined_weight" step="0.1" class="form-control form-control-lg decimal-input wheelchair-calc" placeholder="--">
                 </span>
                 
                 <span class="form-control">
                     <label class="form-label">Wheelchair weight (kg)</label>
-                    <input type="text" name="wheelchair_tare_weight" step="0.1" class="form-control form-control-lg decimal-input" placeholder="--">
+                    <input type="text" name="wheelchair_tare_weight" step="0.1" class="form-control form-control-lg decimal-input wheelchair-calc" placeholder="--">
                 </span>
             </span>
 
@@ -92,8 +92,15 @@
         </div>
 
 
-        <div id="total_broprot_height" style="display:none; text-align: center;">
-            <b>Total Height:</b> <span id="final_result_id"></span>
+        <div class="d-flex bd-highlight justify-content-center ">
+            <div id="total_broprot_height" style="display:none; text-align: center;" class="p-2 flex-grow-1 bd-highlight">
+                <b>Total Height:</b> <span id="final_result_id"></span>
+            </div>
+
+            <div id="total_broprot_weight" style="display:none; text-align: center;" class="p-2 bd-highlight">
+                <b>Total Weight:</b> <span id="total_wheelchair_net_weight"></span>               
+            </div>
+            <span id="weight_error_message" style="color: red; display: none;" class="p-2 bd-highlight"></span>
         </div>
 
       
@@ -154,16 +161,31 @@
 
         // Dynamic Calculation: Wheelchair Net Weight
         $(document).on('input', '.wheelchair-calc', function() {
+            
+            let totalWithChair = parseFloat($('input[name="total_combined_weight"]').val()) || 0;
+            let chairWeight    = parseFloat($('input[name="wheelchair_tare_weight"]').val()) || 0;
 
-            let totalWithChair = parseFloat($('#total_combined_weight').val()) || 0;
-            let chairWeight    = parseFloat($('#wheelchair_tare_weight').val()) || 0;
             let netWeight = totalWithChair - chairWeight;
+            if (totalWithChair > 0 && chairWeight > 0) {
+                if (netWeight < 0) {
+                    $('#weight_error_message').text('Error: Total combined weight cannot be less than the wheelchair weight.').show();
+                    $('#total_wheelchair_net_weight').text('');
+                    $('#total_broprot_weight').hide();
+                    return; 
+                }
+            }
 
+            // Hide error message if validation passes
+            $('#weight_error_message').hide();
 
-            if (totalWithChair > 0 && chairWeight > 0 && netWeight > 0) {
-                $('#total_wheelchair_net_weight').val(netWeight.toFixed(2));
+            let final_weight = netWeight > 0 ? netWeight.toFixed(2) : '' ;
+
+            $('#total_wheelchair_net_weight').text(final_weight);
+
+            if (final_weight > 0) {
+                $('#total_broprot_weight').show();
             } else {
-                $('#total_wheelchair_net_weight').val('');
+                $('#total_broprot_weight').hide();
             }
         });
 

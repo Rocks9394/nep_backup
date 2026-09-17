@@ -198,13 +198,6 @@ $(document).ready(function() {
             }
         ],
 
-        createdRow: function(row, data, dataIndex) {
-            if (data.invalid_age == 1) {
-                $(row).addClass('invalid-age');
-                $(row).find('a.btn-link').attr('data-invalid', 1);
-            }
-        },
-
         buttons: [{
             extend: 'collection',
             text: 'Export',
@@ -411,16 +404,8 @@ $(document).ready(function() {
     
     $('#FitnessTestStatus').on('click', '.btn-link', function(e) {
         e.preventDefault();
-        var isInvalid = $(this).attr('data-invalid');
         var pwdTypeId = $(this).attr('data-pwd-type-id');
-        if (isInvalid == 1) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Invalid Age',
-                text: 'The student\'s age does not meet the class-age requirements.',
-            });
-            return;
-        }
+        
         if (!pwdTypeId || pwdTypeId === 'null' || pwdTypeId === 'undefined') {
             Swal.fire({
                 icon: 'warning',

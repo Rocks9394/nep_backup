@@ -93,16 +93,18 @@
                                                 <td style="height:30px;"></td>
                                             </tr>
                                             <tr>
-                                                <td>
+                                                <td style="text-align:center;">
+                                                    <?php if(!empty($studentsData->logo)): ?> 
                                                     <img src="<?php echo e(asset('assets/uploads/logos/' . $studentsData->logo )); ?>" alt="" style="width: auto; object-fit: contain; padding: 0px 0px 5px 46px; height: 100px;">
-                                                    <!-- <img src="<?php echo e(asset('assets/reports/gems-school-logo.png')); ?>" alt="" style="padding: 0px 0px 5px 46px; height: 100px;"> -->
-                                                </td>
+                                                    <?php else: ?>
+                                                        <img src="<?php echo e(asset('assets/uploads/logos/default_school-logo.png' )); ?>" alt="" style="padding: 0px 0px 5px 46px; height: 100px;">      
+                                                    <?php endif; ?></td>
                                             </tr>
                                             <tr>
                                                 <td style="height:20px;"></td>
                                             </tr>
                                             <tr>
-                                                <td style="padding: 10px 30px 10px 50px; font-size: 20px; background:#E60A00; color:#fff; font-size: 24px; font-weight: 500; position:relative;">Personal Profile<span style=" position:absolute; top:46px; right:-20px;"><img src="<?php echo e(asset('/assets/reports/green-bg.jpg')); ?>" alt="" style="width:20px;"></span></td>
+                                                <td style="padding: 10px 30px 10px 50px; font-size: 20px; background:#E60A00; color:#fff; font-size: 24px; font-weight: 500; position:relative;">Student Profile<span style=" position:absolute; top:46px; right:-20px;"><img src="<?php echo e(asset('/assets/reports/green-bg.jpg')); ?>" alt="" style="width:20px;"></span></td>
                                             </tr>
                                             <tr>
                                                 <td style="height:20px;"></td>
@@ -218,8 +220,8 @@
                                                             <td colspan="2" style="padding: 6px 0;">
                                                                 <table cellpadding="0" cellspacing="0" style="width: 100%; border: 0px;">
                                                                     <tr>
-                                                                        <td style="padding: 0px 0px 2px 0px;"><span style="display: inline-block; margin-right: 5px;">Disability&nbsp;&nbsp;Type</span></td>
-                                                                        <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;"> <?php echo e($studentsData->disability_type); ?></td>
+                                                                        <td style="padding: 0px 0px 2px 0px;"><span style="display: inline-block; margin-right: 5px;">Disability&nbsp;&nbsp;Category</span></td>
+                                                                        <td style="border-bottom: 1px solid #ccc; width: 100%; text-align: center; font-weight: 600; padding: 2px 0px;"> <?php echo e($studentsData->disability_category); ?></td>
                                                                     </tr>
                                                                 </table>
                                                             </td>
@@ -317,7 +319,7 @@
                                 ?>
                                
                                 <?php if($key === 'Body Composition (BMI)'): ?>
-                                <tr> <td style="height: 15px;"></td></tr>
+                                <tr> <td style="height: 10px;"></td></tr>
                                 <tr>
                                     <td style="padding: 6px 10px 6px 0px; font-size: 20px; color:#000; font-size: 18px; font-weight: 600;"><?php echo e($displayKey); ?></td> 
                                 </tr>
@@ -352,16 +354,12 @@
                                                             <td style="width: 100%;" colspan="2">
                                                                 <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
                                                                     <tr style="background-color: #fecd0a;">
-                                                                        <td style="width: 20%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Current Term</td>
+                                                                        <td style="width: 15%; background-color:#0A87CD; padding: 0px 4px 2px 6px; border: 1px solid orange; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Current Term</td>
                                                                         <td style="padding: 4px 0px 4px 0px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
                                                                         <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Weight (kg)</td>
                                                                         <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Height (cm)</td>
                                                                         <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">BMI</td>
                                                                         <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Level</td>
-                                                                        <!-- <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Very Lean</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">HFZ</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">NI</td>
-                                                                        <td style="padding: 0px 4px 2px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">Health Risk</td> -->
                                                                     </tr>
 
                                                                     <tr>
@@ -369,9 +367,6 @@
                                                                         <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"> <?php echo e($value['Current_Term'][0]['weight'] ?? '---'); ?></td>
                                                                         <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;">  <?php echo e($value['Current_Term'][0]['height'] ?? '---'); ?></td>
                                                                         <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"><?php echo e($value['Current_Term'][0]['score'] ?? '---'); ?></td>
-                                                                        <!-- <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"><?php echo e($value['Current_Term'][0]['very_lean'] ?? '---'); ?></td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"><?php echo e($value['Current_Term'][0]['hfz'] ?? '---'); ?></td>
-                                                                        <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"><?php echo e($value['Current_Term'][0]['ni'] ?? '---'); ?></td> -->
                                                                         <td style="padding: 0px 4px 2px 6px; text-align: center; border: 1px solid orange;"><?php echo e($value['Current_Term'][0]['bmiLevel'] ?? '---'); ?></td>
                                                                     </tr>
 
@@ -385,10 +380,10 @@
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border-top: 1px solid transparent; border-left: 1px solid orange; border-right: 1px solid orange; border-bottom: 1px solid orange; font-size: 14px; border-collapse: collapse; color:#333;">
+                                                    <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border-top: 1px solid transparent; border-left: 1px solid orange; border-right: 1px solid orange; border-bottom: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
                                                         <tr>
-                                                            <td style="width: 20%; border-top: 1px solid #fecd0a; background-color: #fecd0a; padding: 4px; padding: 5px 10px; color: #000; text-align: center; width: 120px; font-weight: bold;">Recommendation</td>
-                                                            <td style="width: 80%; padding: 4px;"><?php echo e($value['Current_Term'][0]['recommendation'] ?? '---'); ?></td>
+                                                            <td style="width: 15%; border-top: 1px solid #fecd0a; background-color: #fecd0a; color: #000; text-align: center; font-weight: bold; padding: 5px;">Recommendation</td>
+                                                            <td style="width: 85%; padding: 4px;"><?php echo e($value['Current_Term'][0]['recommendation'] ?? '---'); ?></td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -401,7 +396,7 @@
                                 
                                 <?php else: ?>
 
-                                <tr> <td style="height: 15px;"></td></tr>
+                                <tr> <td style="height: 10px;"></td></tr>
                                 <tr>
                                     <td style="padding: 6px 10px 6px 0px; font-size: 20px; color:#000; font-size: 18px; font-weight: 600;"><?php echo e($displayKey); ?></td> 
                                 </tr>
@@ -414,14 +409,14 @@
                                                     <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
                                                         <tr>
                                                             <td style="width: 100%">
-                                                                <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; border-bottom: 1px solid orange; font-size: 14px; border-collapse: collapse; color:#333;">
+                                                                <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; border-bottom: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
                                                                     <tr style="background-color: #fecd0a;">
-                                                                        <td style="width: 20%; background-color:#0A87CD; border: 1px solid orange; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Current Term</td>
-                                                                        <td style="width: 16%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
-                                                                        <td style="width: 16%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Score</td>
-                                                                        <td style="width: 16%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">NI</td>
-                                                                        <td style="width: 16%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">AFZ</td>
-                                                                        <td style="width: 16%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">HFZ</td>
+                                                                        <td style="width: 15%; background-color: #0A87CD; border: 1px solid orange; color:#fff; text-align: center; font-weight: bold;" rowspan="2">Current Term</td>
+                                                                        <td style="width: 15%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Date</td>
+                                                                        <td style="width: 25%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; text-align: center; font-weight: bold;">Score</td>
+                                                                        <td style="width: 15%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">NI</td>
+                                                                        <td style="width: 15%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">AFZ</td>
+                                                                        <td style="width: 15%; padding: 4px 4px 4px 6px; border: 1px solid orange; color:#000; font-weight: bold; text-align: center;">HFZ</td>
                                                                     </tr>
                                                                     <tr>                
                                                                         <td style="padding: 4px 4px 4px 6px; font-weight: 500; color:#000; text-align: center;"><?php echo e($value['Current_Term'][0]['created_at'] ?? '---'); ?></td>
@@ -441,10 +436,10 @@
 
                                             <tr>
                                                 <td>
-                                                    <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border-top: 1px solid transparent; border-left: 1px solid orange; border-right: 1px solid orange; border-bottom: 1px solid orange; font-size: 14px; border-collapse: collapse; color:#333;">
+                                                    <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border-top: 1px solid transparent; border-left: 1px solid orange; border-right: 1px solid orange; border-bottom: 1px solid orange; font-size: 13px; border-collapse: collapse; color:#333;">
                                                         <tr>
-                                                            <td style="width: 20%; border-top: 1px solid #fecd0a; background-color: #fecd0a; padding: 4px; padding: 5px 10px; color: #000; text-align: center; width: 120px; font-weight: bold;">Recommendation</td>
-                                                            <td style="width: 80%; padding: 4px;"><?php echo e($value['Current_Term'][0]['recommendation'] ?? '---'); ?></td>
+                                                            <td style="width: 15%; border-top: 1px solid #fecd0a; background-color: #fecd0a; color: #000; text-align: center; font-weight: bold; padding: 5px;">Recommendation</td>
+                                                            <td style="width: 85%; padding: 4px;"><?php echo e($value['Current_Term'][0]['recommendation'] ?? '---'); ?></td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -457,7 +452,7 @@
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                                 <tr>
-                                    <td style="height: 10px;"></td>
+                                    <td style="height: 15px;"></td>
                                 </tr>
                                
                                 <tr>
@@ -466,7 +461,7 @@
                                             <tr style="background-color: #0A87CD;">
                                                 <td style="padding: 5px 10px; font-weight: bold; color:#fff; font-size: 16px;" colspan="8">BMI Benchmarks for <?php echo e($age); ?> years <?php echo e($gender); ?></td>
                                             </tr>
-                                            <tr style="font-weight: bold; background-color: #fecd0a; font-size: 12px; color: #000;  text-align:center;">
+                                            <tr style="font-weight: bold; background-color: #fecd0a; font-size: 13px; color: #000;  text-align:center;">
                                                 <td style="padding: 5px 10px;">Very Lean</td>
                                                 <td style="padding: 5px 10px;">Healthy Fitness Zone</td>
                                                 <td style="padding: 5px 10px;">Needs improvement</td>
@@ -489,7 +484,7 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <p>
+                                        <p style="color: #525252; font-size:12px;">
                                             <strong>Fitness Zone Abbreviations</strong>:- &nbsp;
                                             <strong>NI:</strong> Needs Improvement &nbsp; | &nbsp;
                                             <strong>AFZ:</strong> Adapted Fitness Zone &nbsp; | &nbsp;
@@ -498,19 +493,13 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="height: 10px;"></td>
+                                    <td style="height: 8px;"></td>
                                 </tr>
-                                 <!-- <tr>
-                                    <td style="font-size: 13px; letter-spacing: 0.01rem;"><b>Interpretation: </b>Meets Healthy Fitness Zones (HFZs) for aerobic behavior, flexibility, and body composition; below HFZ for dominant grip and modified curl-up; meets adapted fitness zones (AFZs) for dominant grip and modified curl-up; below AFZ standard for flexed-arm hang.
-                                        <br><b>Needs: </b>Priorities—Development of upper-body strength/endurance and abdominal strength/endurance. 
-                                    </td>
-                                </tr> -->
                                 <tr>
-                                    <td style="font-size: 13px; letter-spacing: 0.01rem;"><b>Interpretation: </b>Meets Healthy Fitness Zones (HFZs) for aerobic capacity, flexibility, and body composition; meets Adapted Fitness Zones (AFZs) for selected components where applicable; and falls within the Needs Improvement (NI) zone for components below the applicable fitness-zone standard.
+                                    <td style="font-size: 13px; letter-spacing: 0.01rem;"><b>Interpretation: </b>You should meet Healthy Fitness Zones (HFZs) for aerobic capacity, flexibility, and body composition; meets Adapted Fitness Zones (AFZs) for selected components where applicable; and falls within the Needs Improvement (NI) zone for components below the applicable fitness-zone standard.
                                     <br><b>Needs: </b>Priorities—Development of upper-body strength/endurance and abdominal strength/endurance. 
                                     </td>
-                                </tr>
-                                
+                                </tr>                                
                             </table>
                         </td>
                     </tr>
@@ -604,8 +593,7 @@
                 <table border="0" cellpadding="0" cellspacing="0">
                     <tr>
                         <td>
-                            <table cellpadding="0" cellspacing="0"
-                                style="width:94%; border:0; border-collapse:collapse; margin:auto; color:#333; font-size:12px;">
+                            <table cellpadding="0" cellspacing="0" style="width:94%; border:0; border-collapse:collapse; margin:auto; color:#333; font-size:13px;">
 
                                 <!-- CWSN INTRODUCTION -->
                                 <tr>
@@ -619,25 +607,25 @@
                                             Physical Activity Guidelines for CWSN
                                         </h4>
 
-                                        <p style="line-height: 1.25rem;">
+                                        <p style="line-height: 1.25rem; font-size:13px;">
                                             <strong>Some physical activity is better than none.</strong>
                                             Even when children are not meeting the recommended activity levels,
                                             doing some physical activity can provide health benefits.
                                         </p>
 
-                                        <p style="line-height: 1.25rem;">
+                                        <p style="line-height: 1.25rem; font-size:13px;">
                                             Children should <strong>start with small amounts of physical activity</strong>
                                             and gradually increase the frequency, intensity and duration according
                                             to their abilities.
                                         </p>
 
-                                        <p style="line-height: 1.25rem;">
+                                        <p style="line-height: 1.25rem; font-size:13px;">
                                             Physical activity should be appropriate to the child's
                                             <strong>current activity level, health status and physical function</strong>.
                                             When appropriately adapted, the health benefits generally outweigh the risks.
                                         </p>
 
-                                        <p style="line-height: 1.25rem;">
+                                        <p style="line-height: 1.25rem; font-size:13px;">
                                             Some children may benefit from guidance from a
                                             <strong>health-care professional or physical activity and disability specialist</strong>
                                             to determine the type and amount of activity that is appropriate for them.
@@ -652,8 +640,7 @@
 
                                 <tr id="recommended-activities-heading">
                                     <td>
-                                        <h3 id="recommended-activities-title"
-                                            style="color:#000; font-size:16px; margin:0 0 8px 0;">
+                                        <h3 id="recommended-activities-title" style="color:#000; font-size:16px; margin:0 0 8px 0;">
                                             Recommended Activities for Improving Fitness in CWSN
                                         </h3>
                                     </td>
@@ -661,85 +648,49 @@
 
                                 <tr id="recommended-activities-content">
                                     <td>
-                                        <table id="recommended-activities-table"
-                                            cellpadding="0"
-                                            cellspacing="0"
-                                            style="width:100%; border:0; border-collapse:collapse; color:#333;">
+                                        <table id="recommended-activities-table" cellpadding="0" cellspacing="0" style="width:100%; border:0; border-collapse:collapse; color:#333;">
 
                                             <!-- Row 1 -->
                                             <tr id="recommended-activities-row-1">
 
-                                                <td id="aerobic-activities"
-                                                    style="width:50%; padding:0 25px 8px 0; vertical-align:top;">
-
-                                                    <h4 id="aerobic-activities-title"
-                                                        style="color:#000; margin:0 0 3px 0; font-size:13px;">
-                                                        1. Aerobic-related Activities
+                                                <td id="aerobic-activities" style="width:50%; padding:0 25px 8px 0; vertical-align:top;">
+                                                    <h4 id="aerobic-activities-title" style="color:#000; margin:0 0 3px 0; font-size:13px;">
+                                                        1. Aerobic-Capacity
+                                                    </h4>
+                                                    <p id="aerobic-activities-description" style="margin:0; line-height:14px; font-size:13px;">
+                                                        One-Mile Run/Walk, 20-m PACER and 15-m PACER according to the child's functional ability.
+                                                    </p>
+                                                </td>    
+                                                <td id="flexibility-activities" style="width:50%; padding:0 25px 8px 0; vertical-align:top;">
+                                                    <h4 id="flexibility-activities-title" style="color:#000; margin:0 0 3px 0; font-size:13px;">
+                                                        2. Flexibility-related Activities
                                                     </h4>
 
-                                                    <p id="aerobic-activities-description"
-                                                    style="margin:0; line-height:14px;">
-                                                        Walking, Assisted Walking, Marching, Step-up Activities,
-                                                        Wheelchair Propulsion, Cycling and Modified Walking/Jogging
-                                                        activities according to the child's functional ability.
+                                                    <p id="flexibility-activities-description" style="margin:0; line-height:14px; font-size:13px;">
+                                                            Back-Saver Sit-and-Reach, Shoulder Stretch and Modified Apley Test according to the child's individual ability.
                                                     </p>
-
-                                                </td>
-
-                                                <td id="strength-endurance-activities"
-                                                    style="width:50%; padding:0 0 8px 0; vertical-align:top;">
-
-                                                    <h4 id="strength-endurance-activities-title"
-                                                        style="color:#000; margin:0 0 3px 0; font-size:13px;">
-                                                        2. Strength &amp; Endurance Activities
-                                                    </h4>
-
-                                                    <p id="strength-endurance-activities-description"
-                                                    style="margin:0; line-height:14px;">
-                                                        Modified Curl-ups, Seated Push-ups, Wall Push-ups,
-                                                        Resistance Band Exercises, Dumbbell Exercises,
-                                                        Trunk Strengthening and Functional Strength Activities.
-                                                    </p>
-
-                                                </td>
-
+                                                </td>                                
                                             </tr>
 
                                             <!-- Row 2 -->
                                             <tr id="recommended-activities-row-2">
-
-                                                <td id="flexibility-activities"
-                                                    style="width:50%; padding:0 25px 8px 0; vertical-align:top;">
-
-                                                    <h4 id="flexibility-activities-title"
-                                                        style="color:#000; margin:0 0 3px 0; font-size:13px;">
-                                                        3. Flexibility-related Activities
+                                                <td id="strength-endurance-activities" style="width:50%; padding:0 0 8px 0; vertical-align:top;">
+                                                    <h4 id="strength-endurance-activities-title" style="color:#000; margin:0 0 3px 0; font-size:13px;">
+                                                        3. Strength &amp; Endurance
                                                     </h4>
-
-                                                    <p id="flexibility-activities-description"
-                                                    style="margin:0; line-height:14px;">
-                                                        Shoulder Stretch, Arm Stretch, Seated Forward Bend,
-                                                        Back Stretch, Hamstring Stretch and Modified Range-of-Motion
-                                                        Exercises according to individual ability.
+                                                    <p id="strength-endurance-activities-description" style="margin:0; line-height:14px; font-size:13px;">
+                                                        Modified Curl-ups, Seated Push-ups, Push-ups, Pull-ups, Trunk Lift, Reverse Curl and 40-Meter Push/Walk activities according to the child's functional ability.
                                                     </p>
-
                                                 </td>
-
-                                                <td id="balance-coordination-activities"
-                                                    style="width:50%; padding:0 0 8px 0; vertical-align:top;">
+                                                <td id="balance-coordination-activities" style="width:50%; padding:0 0 8px 0; vertical-align:top;">
 
                                                     <h4 id="balance-coordination-activities-title"
                                                         style="color:#000; margin:0 0 3px 0; font-size:13px;">
-                                                        4. Balance &amp; Coordination Activities
+                                                        4. Body Composition
                                                     </h4>
-
-                                                    <p id="balance-coordination-activities-description"
-                                                    style="margin:0; line-height:14px;">
-                                                        Supported Standing, Single Leg Stance, Weight Shifting,
-                                                        Walking on Lines, Step-over Activities, Reaching Activities
-                                                        and Hand-Eye Coordination Exercises.
+                                                    <p id="balance-coordination-activities-description" style="margin:0; line-height:14px; font-size:13px;"> 
+                                                        Encourage regular adapted physical activity, active play and healthy eating habits to support healthy body weight according to the child's functional ability and individual needs.
                                                     </p>
-
                                                 </td>
 
                                             </tr>
@@ -747,91 +698,32 @@
                                         </table>
                                     </td>
                                 </tr>
-
-                                <tr id="additional-adapted-activities-spacing">
-                                    <td style="height:8px;"></td>
-                                </tr>
-
-                                <!-- ADDITIONAL ADAPTED ACTIVITIES -->
-                                <tr id="additional-adapted-activities">
+                                <tr>
+                                    <td style="height:10px;"></td>
+                                </tr>  
+                                <tr>
                                     <td>
-                                        <h3 id="additional-adapted-activities-title"
-                                            style="color:#000; font-size:16px; margin:0 0 8px 0;">
-                                            Recommended Additional Activities for CWSN
+                                        <h3 style="color:#000; font-size:16px; margin:0 0 8px 0;">
+                                            Adaptation Notes for <?php echo e($studentsData->disability_category); ?><sup>*<sup>
                                         </h3>
-                                    </td>
+                                        <p style="font-size:13px;"><?php echo e($studentsData->adoptation_note); ?></p>
+                                        </td>
                                 </tr>
-
                                 <tr>
                                     <td>
-                                        <table cellpadding="0" cellspacing="0"
-                                            style="width:100%; border:0; border-collapse:collapse; color:#333;">
-
-                                            <tr>
-                                                <td style="width:50%; padding:0 25px 8px 0; vertical-align:top;">
-                                                    <h4 style="color:#000; margin:0 0 3px 0; font-size:13px;">
-                                                        1. Functional Activities
-                                                    </h4>
-
-                                                    <p style="margin:0; line-height:14px;">
-                                                        Sit-to-Stand, Supported Walking, Stair Practice,
-                                                        Reaching, Carrying Light Objects, Wheelchair Mobility
-                                                        and Functional Movement Activities.
-                                                    </p>
-                                                </td>
-
-                                                <td style="width:50%; padding:0 0 8px 0; vertical-align:top;">
-                                                    <h4 style="color:#000; margin:0 0 3px 0; font-size:13px;">
-                                                        2. Recreational Activities
-                                                    </h4>
-
-                                                    <p style="margin:0; line-height:14px;">
-                                                        Modified Games, Ball Activities, Target Throwing,
-                                                        Catching, Indoor/Outdoor Recreational Activities
-                                                        and Inclusive Group Activities.
-                                                    </p>
-                                                </td>
-                                            </tr>
-
-                                            <tr>
-                                                <td style="width:50%; padding:0 25px 8px 0; vertical-align:top;">
-                                                    <h4 style="color:#000; margin:0 0 3px 0; font-size:13px;">
-                                                        3. Mobility &amp; Postural Activities
-                                                    </h4>
-
-                                                    <p style="margin:0; line-height:14px;">
-                                                        Postural Control, Core Activation, Weight Shifting,
-                                                        Supported Balance, Mobility Drills and Body Alignment
-                                                        Activities.
-                                                    </p>
-                                                </td>
-
-                                                <td style="width:50%; padding:0 0 8px 0; vertical-align:top;">
-                                                    <h4 style="color:#000; margin:0 0 3px 0; font-size:13px;">
-                                                        4. Relaxation &amp; Breathing Activities
-                                                    </h4>
-
-                                                    <p style="margin:0; line-height:14px;">
-                                                        Deep Breathing, Relaxation Exercises, Gentle Stretching,
-                                                        Controlled Breathing and Mindful Movement Activities.
-                                                    </p>
-                                                </td>
-                                            </tr>
-
-                                        </table>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td style="height:12px;"></td>
-                                </tr>
+                                        <span>* These notes are general guides. Always follow the student’s Individualized Education Plan (IEP), medical advice, and personal preferences for the safest and most effective activity.</span>
+                                    </td>   
+                                </tr>  
 
                             </table>
                         </td>
-                    </tr>
+                    </tr>                        
                 </table>
             </td>
-        </tr>      
+        </tr>    
+        <tr>
+            <td style="height:100px;"></td>
+        </tr>
 
         <!-- Footer Area (Page 3) -->
         <tr>
@@ -840,7 +732,7 @@
                     <tr>
                         <td>
                             <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid orange; font-size: 14px; border-collapse: collapse; color:#333;">
-                                <tr>
+                            <tr>
                                     <td style="font-weight: 600; padding: 10px 15px; font-size: 14px; color: #000; height:110px; vertical-align:top;">PE Teacher's Observations and Comments (if any)</td>
                                     <td style="font-weight: 600; padding: 10px 15px; font-size: 14px; color: #000; text-align:center; height:100px; vertical-align:bottom;">
                                         
@@ -855,6 +747,7 @@
                     <tr>
                         <td>
                             <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; font-size: 14px; border-collapse: collapse; color:#000;">
+                                
                                 <tr>
                                     <td style="border: 1px solid transparent; width:50%;">
                                         <div style="padding: 15px; height: 30px; margin: 10px 0; background-color: #fff; border-right: 3px solid #fff;"></div>

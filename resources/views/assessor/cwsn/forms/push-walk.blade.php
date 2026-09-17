@@ -11,6 +11,8 @@
         background-color: #ff0000;
         color: #fff !important;
     }
+
+
 </style>
 @endpush
 
@@ -46,7 +48,7 @@
 
         <div class="input-group mb-3 text-center">
             <span class="form-control single-input">
-                <label for="pulse_rate" class="form-label">Post-Test 10-Sec Pulse Count</label>
+                <label for="pulse_rate" class="form-label pulse_count_info">Post-Test 10-Sec Pulse Count</label>
                 <div class="w-100">
                     <input type="text" id="pulse_rate" name="pulse_rate" class="form-control form-control-lg text-center fw-bold mx-auto" placeholder="00" min="1" max="99" maxlength="2" pattern="[0-9]{1,2}" oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2);" disabled>
                 </div>
@@ -239,9 +241,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     hiddenResult.value = "0"; 
                     hiddenHr.value = "0";
 
+                    $('.pulse_count_info').hide();
+
+                    pulseInput.value = "Failed !";
+                    pulseInput.style.color = "red"; 
+                    pulseInput.style.setProperty('padding', '.375rem .75rem', 'important');               
+                    pulseInput.classList.add('outcome_failed');
+
                     // Enable Save button & Pulse Input when timer auto-stops
                     toggleSubmitButton(true);
-                    togglePulseInput(true);
+                    togglePulseInput(false);
                 } else {
                     timerDisplay.innerText = formatCountUpTime(elapsedMs);
                 }

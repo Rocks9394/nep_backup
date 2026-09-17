@@ -499,14 +499,15 @@ trait ReportHelperTrait
         ->leftJoin('class', 'students.class_id', '=', 'class.id')
         ->leftJoin('custom_classes', 'students.custom_class_id', '=', 'custom_classes.id')
         ->leftJoin('usermetas', 'usermetas.school_id', '=', 'schools.id')
-        ->leftJoin('student_rpwd_mapping', 'student_rpwd_mapping.student_id', 'students.id')
-        ->leftJoin('pwd_types', 'pwd_types.id', 'student_rpwd_mapping.pwd_type_id')
+        ->leftJoin('student_rpwd_mapping', 'student_rpwd_mapping.student_id', '=', 'students.id')
+        ->leftJoin('pwd_types', 'pwd_types.id', '=', 'student_rpwd_mapping.pwd_type_id')
+        ->leftJoin('pwd_categories', 'pwd_categories.id', '=', 'pwd_types.pwd_cat_id')
         ->select(
             'schools.school_name','schools.school_code','schools.id as schools_id','schools.logo',
             'students.id as student_id','students.student_uid as admissionnumber',
             'students.student_name as student_name','students.gender', 'pwd_types.disability_type',
-            'students.class_id','students.section_id','students.custom_class_id', 'pwd_types.pwd_cat_id',
-            'students.dob','students.email_id','students.rollno','students.status','usermetas.signature',
+            'students.class_id','students.section_id','students.custom_class_id', 'pwd_types.pwd_cat_id', 'pwd_categories.disability_category',
+            'pwd_categories.adoptation_note', 'students.dob','students.email_id','students.rollno','students.status','usermetas.signature',
             DB::raw("CASE 
                 WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
                 THEN custom_classes.nomenclature ELSE class.name END AS display_classname"),
@@ -717,7 +718,7 @@ trait ReportHelperTrait
                 'afz'            => '',
                 'hfz'            => '',
                 'health_risk'    => '',
-                'bmiLevel'    => '',
+                'bmiLevel'       => '',
                 'Test_Name'      => $item->skill_name,
                 'score'          => $normalizedScore,
                 'recommendation' => '',
@@ -835,7 +836,7 @@ trait ReportHelperTrait
                 'afz'          => null,
                 'hfz'          => null,
                 'health_risk'  => null,
-                'bmiLevel'  => null,
+                'bmiLevel'     => null,
             ];
         }
         
@@ -890,15 +891,15 @@ trait ReportHelperTrait
             switch ($score) {
 
                 case '1000':
-                    $recommendation = 'VO₂ max (aerobic capacity) not calculated because time exceeded 13 minutes.';
+                    $recommendation = 'VO₂ max (aerobic capacity) not calculated as time exceeded 13 minutes.';
                     break;
 
                 case '1001':
-                $recommendation = 'VO₂ max (aerobic capacity) not calculated because BMI is unavailable.';
+                $recommendation = 'VO₂ max (aerobic capacity) not calculated as BMI is unavailable.';
                     break;
 
                 case '1002':
-                    $recommendation = "VO₂ max (aerobic capacity) not calculated because age is outside the valid range.";
+                    $recommendation = "VO₂ max (aerobic capacity) not calculated as age is outside the valid range.";
                     break;
             }
         }

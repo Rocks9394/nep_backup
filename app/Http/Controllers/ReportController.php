@@ -1949,8 +1949,6 @@ class ReportController extends Controller {
 			});
 			
 			$getBmiBenchmark =  $this->getCWSNBmiBenchmark($studentAge, $studentGender);
-			// echo"<pre>";print_r($getBmiBenchmark);exit();
-
 			$orderedReportData = $this->getCWSNReportData($studentId, $pwd_cat_id, $studentAge, $studentGender, $groupedReport);
 			$academicYear = DB::table('term_masters')->where('id', $currentTermId)->value('academic_year');
 			return view('reports.fitness.html.cwsn-report', compact('studentsData','orderedReportData','getBmiBenchmark','academicYear'));

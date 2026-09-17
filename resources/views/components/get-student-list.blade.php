@@ -600,8 +600,7 @@ function openFastAPIScreen() {
                             Swal.close();
 
                             if (deleteResponse.success) {
-                                Swal.fire("Deleted!", deleteResponse.message , "success")
-                                .then(() => {
+                                Swal.fire("Deleted!", deleteResponse.message , "success").then(() => {
 
                                     $('#student_name').text(response.data.name);
                                     $('#student_class').text(response.data.class_name);
@@ -611,8 +610,13 @@ function openFastAPIScreen() {
                                     $('#AGE_GENDER_ID').attr('placeholder', response.data.Age+ '/' + response.data.Gender);
                                     });
 
-                                } else {
-                                    Swal.fire("Error", deleteResponse.message, "error");
+                                if(cwsn_type == 3){ 
+                                    $('#student_id').trigger('change');
+                                    handleAdaptationChange();
+                                }
+
+                            } else {
+                                Swal.fire("Error", deleteResponse.message, "error");
                             }
                         }
                     });

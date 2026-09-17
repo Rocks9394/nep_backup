@@ -69,8 +69,8 @@ function playBeep() {
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
 
-        oscillator.type = 'sine'; 
-        oscillator.frequency.value = 880; 
+        oscillator.type = 'square'; 
+        oscillator.frequency.value = 1100; 
         gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
         oscillator.connect(gainNode);
