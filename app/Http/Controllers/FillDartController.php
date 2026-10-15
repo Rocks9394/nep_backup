@@ -183,13 +183,20 @@ class FillDartController extends Controller
 			->select('LEVEL', DB::raw('COUNT(StudentID) AS Total_Student'),'SeniorTestResults.TermId')
 			->whereIn('SeniorTestResults.TermId', $termIds)
 			->where('SeniorTestResults.SchoolID', $schoolId)
-			->whereIn('LEVEL', ['UW', 'N', 'OW', 'OB'])
+			->whereIn('TestTypeID', [18, 33])
 			->groupBy('LEVEL', 'TermId')
-			->orderByRaw("FIELD(LEVEL, 'UW', 'N', 'OW', 'OB')")
+			// ->orderByRaw("FIELD(LEVEL, 'UW', 'N', 'OW', 'OB')")
 			->get();
 
-		$levels = ['UW', 'N', 'OW', 'OB'];
+				// echo"<pre>";print_r($bmiData);exit();
+		$levelMapping = [
+			'Very Lean'             => 'UW',
+			'Healthy Fitness Zone'  => 'N',
+			'Needs Improvement'     => 'OW',
+			'Health Risk'           => 'OB',
+		];
 
+		$levels = ['UW', 'N', 'OW', 'OB'];
 		$mapped = $bmiData->keyBy(function ($item) {
 			return $item->LEVEL . '_' . $item->TermId;
 		});
@@ -199,15 +206,24 @@ class FillDartController extends Controller
 		];
 
 		foreach ($termIds as $termId) {
-			$healthData["term_$termId"] = [];
+			$counts = array_fill_keys($levels, 0);
+			foreach ($bmiData->where('TermId', $termId) as $item) {
 
-			foreach ($levels as $level) {
-				$key = $level . '_' . $termId;
-				$healthData["term_$termId"][] = isset($mapped[$key]) 
-					? $mapped[$key]->Total_Student 
-					: 0;
+				$level = $item->LEVEL;
+				$count = (int) $item->Total_Student;
+
+				if (isset($levelMapping[$level])) {
+					$level = $levelMapping[$level];
+				}
+
+				if (isset($counts[$level])) {
+					$counts[$level] += $count;
+				}
 			}
+
+			$healthData["term_$termId"] = array_values($counts);
 		}
+		
 			
 		// echo"<pre>";print_r($termIds);exit();
 

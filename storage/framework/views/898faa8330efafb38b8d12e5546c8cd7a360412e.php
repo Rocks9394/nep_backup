@@ -4,7 +4,7 @@
 
 <style>
 .dropdown.show [aria-expanded="true"] {
-  background:#fff;
+    background:#fff;
 }
 .dropdown .form-control {
     height: 32px !important;
@@ -31,6 +31,40 @@
     align-content: center;
     align-items: center;
     justify-content: flex-start;
+}
+
+/* Style for the top-level parent category headers (Row 1) */
+#FitnessTestStatus thead tr:first-child th {
+    background-color: #131340; /* A darker, richer shade to anchor the top group */
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    vertical-align: middle;
+    border-right: 2px solid #3b486b; /* Clear column grouping divider */
+    border-bottom: 2px solid #ffffff;
+    padding: 8px 4px;
+}
+
+/* Style for the subheader row (Row 2) */
+#FitnessTestStatus thead tr:nth-child(2) th {
+    background-color: #2b3652; /* Lighter than the parent row for banded hierarchy */
+    color: #e2e8f0;
+    font-weight: 600;
+    text-align: center;
+    vertical-align: top;
+    border-right: 1px solid #3b486b;
+}
+
+/* Style for the standalone multi-row headers */
+#FitnessTestStatus thead tr:first-child th[rowspan="2"] {
+    background-color: #2b3652;
+    border-right: 1px solid #3b486b;
+}
+
+/* Ensure table cells align nicely */
+#FitnessTestStatus th, #FitnessTestStatus td {
+    vertical-align: middle;
 }
 
 </style>
@@ -60,77 +94,87 @@
                 <div class="tab-content cus-radius pb-5 mt-4">
                     <!-- Infrastructure List Tab -->
                 
-                        <table id="FitnessTestStatus" class="table table-bordered tbl-style display mb-4" style="width:100%">
-                            <thead>             
-                                <tr>
+                    <table id="FitnessTestStatus" class="table table-bordered tbl-style display mb-4" style="width:100%">
+                        <thead>
+                            <tr>
+                                <!-- Non-grouped columns spanning 3 rows vertically -->
+                                <th scope="col" rowspan="3">Class</th>
+                                <th scope="col" rowspan="3">Roll No.</th>
+                                <th scope="col" rowspan="3">Students Name</th>
+                                <th scope="col" rowspan="3">Age</th>
                                 
-                                    <th scope="col" >Class</th>
-                                    <th scope="col" >Roll No.</th>
-                                    <th scope="col" >Students Name</th>
-                                    <th scope="col" >Age</th>
-                                    
-                                    <th scope="col" >One-mile run/walk
+                                <!-- Group 1: Aerobic Capacity (4 columns total) -->
+                                <th scope="col" colspan="4" class="text-center">Aerobic Capacity</th>
+                                
+                                <!-- Group 2: Strength and Endurance -->
+                                <th scope="col" colspan="11" class="text-center">Strength and Endurance</th>
+                                
+                                <!-- Group 3: Flexibility -->
+                                <th scope="col" colspan="3" class="text-center">Flexibility</th>
+                                
+                                <!-- Group 4: Body Mass Composition -->
+                                <th scope="col" colspan="3" class="text-center">Body Mass Composition</th>
+                                
+                                <!-- Standalone trailing columns spanning 3 rows vertically -->
+                                <th scope="col" rowspan="3">Report</th>
+                                <th scope="col" rowspan="3">Action</th>
+                            </tr>
+                            <tr>
+                                <!-- One-mile run/walk parent sub-header spanning VO2 max & Time Taken -->
+                                <th scope="col" colspan="2" class="text-center">One-mile run/walk</th>
+                                <th scope="col" rowspan="2" class="align-middle">20-m Pacer (laps)</th>
+                                <th scope="col" rowspan="2" class="align-middle">Modified 15-m Pacer (laps)</th>
 
-                                        <span style="font-size: 11px; white-space: nowrap;">
-                                            (VO₂ max)
-                                        </span>
-                                    </th>
+                                <!-- Sub-headers for Strength and Endurance (Spanning 2 rows down) -->
+                                <th scope="col" rowspan="2" class="align-middle">Reverse Curl (P|F)</th>
+                                <th scope="col" rowspan="2" class="align-middle">40-m push/walk (P|F)</th>
+                                <th scope="col" rowspan="2" class="align-middle">Push-ups</th>
+                                <th scope="col" rowspan="2" class="align-middle">Seated Push-ups (sec.ms)</th>
+                                <th scope="col" rowspan="2" class="align-middle">Pull-ups</th>
+                                <th scope="col" rowspan="2" class="align-middle">Modified Pull-ups</th>
+                                <th scope="col" rowspan="2" class="align-middle">Dumbbell Press</th>
+                                <th scope="col" rowspan="2" class="align-middle">Isometric Push-ups (sec.ms)</th>
+                                <th scope="col" rowspan="2" class="align-middle">Curl-ups</th>
+                                <th scope="col" rowspan="2" class="align-middle">Modified Curl-ups</th>
+                                <th scope="col" rowspan="2" class="align-middle">Trunk Lift (cm)</th>
 
+                                <!-- Sub-headers for Flexibility (Spanning 2 rows down) -->
+                                <th scope="col" rowspan="2" class="align-middle">
+                                    Shoulder stretch<br>
+                                    <span style="font-size: 11px; white-space: nowrap;">Left | Right</span>
+                                    <span style="font-size: 11px; white-space: nowrap;">T | F</span>
+                                </th>
+                                <th scope="col" rowspan="2" class="align-middle">
+                                    Back-Saver Sit-and-Reach<br>
+                                    <span style="font-size: 11px; white-space: nowrap;">Left | Right</span>
+                                    <span style="font-size: 11px; white-space: nowrap;">(cm.mm)</span>
+                                </th>
+                                <th scope="col" rowspan="2" class="align-middle">
+                                    Modified Apley Test<br>
+                                    <span style="font-size: 11px; white-space: nowrap;">Left | Right</span>
+                                </th>
 
-                                    <th scope="col" >20-m Pacer</th>
-                                    <th scope="col" >Modified 15-m Pacer</th>
-                                    <th scope="col" >Reverse Curl</th>
-                                    <th scope="col" >40-m push/walk</th>
-                                    <th scope="col" >Push-ups</th>
-                                    <th scope="col" >Seated Push-ups</th>
-                                    <th scope="col" >Pull-ups</th>
-                                    <th scope="col" >Modified Pull-ups</th>
-                                    <th scope="col" >Dumbbell Press</th>
-                                    <th scope="col" >Isometric Push-ups</th>
-                                    <th scope="col" >Curl-ups</th>
-                                    <th scope="col" >Modified Curl-ups</th>
-                                    <th scope="col" >Trunk Lift</th>
-                                    
-                                    <th scope="col">
-                                        Shoulder stretch<br>
-                                        <span style="font-size: 11px; white-space: nowrap;">
-                                            Left | Right
-                                        </span>
-                                    </th>
-                                    <th scope="col">
-                                        Back-Saver Sit-and-Reach<br>
-                                        <span style="font-size: 11px; white-space: nowrap;">
-                                            Left | Right
-                                        </span>
-                                    </th>
-                                    <th scope="col">
-                                        Modified Apley Test<br>
-                                        <span style="font-size: 11px; white-space: nowrap;">
-                                            Left | Right
-                                        </span>
-                                    </th>
-                                    <th scope="col">BMI</th>
-                                    <th scope="col">Height</th>
-                                    <th scope="col">Weight</th>
-                                    <th scope="col">Report</th>
-
-                                </tr>
-                            </thead>
-                            <tbody> </tbody>
-                        </table>
-                
+                                <!-- Sub-headers for Body Mass Composition (Spanning 2 rows down) -->
+                                <th scope="col" rowspan="2" class="align-middle">BMI (kg/m²)</th>
+                                <th scope="col" rowspan="2" class="align-middle">Height (cm)</th>
+                                <th scope="col" rowspan="2" class="align-middle">Weight (kg)</th>
+                            </tr>
+                            <tr>
+                                <!-- Specific sub-fields under One-mile run/walk -->
+                                <th scope="col">VO₂ max (mL/kg/min)</th>
+                                <th scope="col">Time Taken (mm:ss)</th>
+                            </tr>
+                        </thead>
+                        <tbody> </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-
-
-
-
-<script >
-   /* Simple debounce utility */
+<script>
+/* Simple debounce utility */
 function debounce(fn, delay) {
     let timeout;
     return function(...args) {
@@ -154,7 +198,7 @@ $(document).ready(function() {
             data: function(d) {
                 d.class = $('#filter_class').val();
                 d.term = $('#filter_term').val();         
-                d.status = $('#filter_status').val();   
+                d.status = $('#filter_status').val();    
                 d.test = $('.filter_test:checked').map(function () {
                     return $(this).val();
                 }).get();
@@ -181,6 +225,23 @@ $(document).ready(function() {
             { data: 'student_name', name: 'student_name' },            
             { data: 'age', name: 'age' },
             { data: 'oneMile_run_walk', name: 'oneMile_run_walk' },
+            { 
+                data: 'oneMile_time_taken', 
+                name: 'oneMile_time_taken', 
+                defaultContent: '---',
+                render: function(data, type, row) {
+                    if (!data || isNaN(data) || data <= 0) {
+                        return '---';
+                    }
+            
+                    let totalSeconds = parseFloat(data) / 1000;
+                    let minutes = Math.floor(totalSeconds / 60);
+                    let seconds = Math.round(totalSeconds % 60);
+                   // return `${minutes} min ${seconds} sec`;
+                    
+                    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                }
+            },
             { data: 'twenty_m_pacer', name: 'twenty_m_pacer' },
             { data: 'fifteen_m_pacer', name: 'fifteen_m_pacer' },
             { data: 'reverse_curl', name: 'reverse_curl' },
@@ -222,13 +283,12 @@ $(document).ready(function() {
                 },
             ],
         }],
-       
 
         initComplete: function () {
             $('.dt-search input[type="search"]').attr('placeholder', 'Student | Roll No.');
 
             var classList = <?php echo json_encode($classList, 15, 512) ?>;
-            const $dropdown = $('<select class="form-control" id="filter_class"></select>');
+            const $dropdown =$('<select class="form-control" id="filter_class"></select>');
             classList.forEach(option => {
                 const section = option.section ? ` - ${option.section}` : '';
                 const displayText = option.name + section ;
@@ -241,7 +301,7 @@ $(document).ready(function() {
             /* === Terms Filter === */
             var terms = <?php echo json_encode($terms, 15, 512) ?>;
             var selectedTermId = <?php echo json_encode($TermMasterId, 15, 512) ?>;
-            const $termDropdown = $('<select class="form-control" id="filter_term"></select>');
+            const $termDropdown =$('<select class="form-control" id="filter_term"></select>');
             terms.forEach(option => {
                 const displayText =option.academic_year + ' | ' +  option.term_name;
                 const value = option.academic_year + '|' + option.id;
@@ -262,7 +322,7 @@ $(document).ready(function() {
                 { name: 'Complete', status: 'complete'},
                 { name: 'Incomplete', status: 'incomplete'},
             ];
-            const $dropdown1 = $('<select class="form-control" id="filter_status"></select>');
+            const $dropdown1 =$('<select class="form-control" id="filter_status"></select>');
             status.forEach(option => $dropdown1.append(new Option(option.name, option.status)));
             $('<div class="pull-right"></div>').append($dropdown1).appendTo("#FitnessTestStatus_wrapper .top").next('.dt-length').addClass("pull-right");
             $dropdown1.on('change', function() {
@@ -290,10 +350,9 @@ $(document).ready(function() {
                 { name: 'Sit and Reach Test', test: 'sit_and_reach' },
                 { name: 'Shoulder Stretch', test: 'shoulder_stretch' },
                 { name: 'Body Mass Index', test: 'cwsn_bmi' }
-
             ];
         
-            let $dropdown2 = $(`
+            let $dropdown2 =$(`
                 <div class="dropdown" style="display:inline-block;">
                     <button class="form-control dropdown-toggle" type="button" data-toggle="dropdown" id="test_count_label">
                         All Tests <span class="caret"></span>
@@ -302,8 +361,8 @@ $(document).ready(function() {
                 </div>
             `);
 
-            let $list = $dropdown2.find(".dropdown-menu");
-            let $selectAll = $(`
+            let $list =$dropdown2.find(".dropdown-menu");
+            let $selectAll =$(`
                 <li>
                     <label style="font-weight:bold; cursor:pointer;">
                         <input type="checkbox" id="select_all_tests"> Select All
@@ -314,7 +373,7 @@ $(document).ready(function() {
             $list.append($selectAll);
 
             testType.forEach(option => {
-                let $chk = $(`
+                let $chk =$(`
                     <li>
                         <label style="white-space:nowrap; cursor:pointer;">
                             <input type="checkbox" class="filter_test" value="${option.test}" checked> ${option.name}
@@ -372,7 +431,7 @@ $(document).ready(function() {
                     let colIndex = table.column(test + ':name').index();
                     if (colIndex !== undefined) table.column(colIndex).visible(false);
                 });
-                let selectedTests = $('.filter_test:checked').map(function(){ return $(this).val(); }).get();
+                let selectedTests = $('.filter_test:checked').map(function(){ return$(this).val(); }).get();
                 if (selectedTests.length === 0) {
                     testColumns.forEach(test => {
                         let colIndex = table.column(test + ':name').index();
@@ -383,7 +442,7 @@ $(document).ready(function() {
                         let colIndex = table.column(test + ':name').index();
                         if (colIndex !== undefined) table.column(colIndex).visible(true);
                     });
-                    if (selectedTests.includes('bmi')) {
+                    if (selectedTests.includes('cwsn_bmi')) {
                         ['height','weight'].forEach(test => {
                             let colIndex = table.column(test + ':name').index();
                             if (colIndex !== undefined) table.column(colIndex).visible(true);
@@ -412,7 +471,6 @@ $(document).ready(function() {
         }
     });
 
-    
     $('#FitnessTestStatus').on('click', '.btn-link', function(e) {
         e.preventDefault();
         var pwdTypeId = $(this).attr('data-pwd-type-id');

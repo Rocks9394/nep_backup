@@ -73,4 +73,48 @@ class FitnessService
         return $result->level_code;
 
     }
+
+    public function getCWSNBMILevel($studentId, $score)
+	{
+
+        $student = Sstudent::where('id', $studentId)
+            ->select('gender', 'dob', 'id')
+            ->first();
+
+        if (!$student) {
+            Log::warning("Student not found", ['student_id' => $studentId]);
+            return null;
+        }
+        $dob = Carbon::parse($student->dob);
+        $age = $dob->age;
+        $gender = strtolower($student->gender) === 'male' ? 'Boys' : 'Girls';
+
+        $result = DB::selectOne("CALL GetCWSNBmiLevel(?, ?, ?)", [$score, $age, $gender]);
+        return $result->level_code;
+
+    }
+
+    public function getCWSNFitnessTestLevel($studentId, $testTypeMasterId,  $score)
+	{
+        $student = Sstudent::where('id', $studentId)
+            ->select('gender', 'dob', 'id')
+            ->first();
+
+        if (!$student) {
+            Log::warning("Student not found", ['student_id' => $studentId]);
+            return null;
+        }
+        $dob = Carbon::parse($student->dob);
+        $age = $dob->age;
+        $gender = strtolower($student->gender) === 'male' ? 'Boys' : 'Girls';
+
+        if($testTypeMasterId == 1024 || $testTypeMasterId == 1031){
+            $score = $score / 1000;
+        }
+
+        $result = DB::selectOne("CALL GetCWSNFitnessLevel(?, ?, ?, ?)", [$testTypeMasterId, $score, $age, $gender]);
+
+        return $result->level_code;
+
+    }
 }

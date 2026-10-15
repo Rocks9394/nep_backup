@@ -26,9 +26,8 @@ class UpdateFitnessLevels extends Command
 
         DB::table('SeniorTestResults as r')
             ->join('skill_reports as sr', 'sr.id', '=', 'r.TestTypeID')
-            //->whereNull('level')
 			->where('level','N.A.')
-           // ->where('SchoolID', 2831)
+        //    ->where('SchoolID', 15)
             ->orderBy('r.ResultId')
             ->select(
                 'r.*',
@@ -59,12 +58,23 @@ class UpdateFitnessLevels extends Command
                             $studentId,
                             $score
                         );
-                    } else {
+                    }else if($testTypeId == '33') {
+                        $level = $this->fitnessService->getCWSNBMILevel(
+                            $studentId,
+                            $score
+                        );
+                    } else if ($testTypeId >= 15 && $testTypeId <= 23){
                         $level = $this->fitnessService->getFitnessTestLevel(
                             $studentId,
                             $testTypeMasterId,
                             $score,
                             $criteria
+                        );
+                    }else{
+                        $level = $this->fitnessService->getCWSNFitnessTestLevel(
+                            $studentId,
+                            $testTypeMasterId,
+                            $score
                         );
                     }
 
