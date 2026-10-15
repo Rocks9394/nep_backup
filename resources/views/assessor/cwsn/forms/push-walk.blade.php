@@ -26,6 +26,7 @@
     <input type="hidden" name="TestTypeMasterID" value="{{ $TestTypeMasterID }}">
     <input type="hidden" id="SchoolId" name="SchoolId" value="{{ $SchoolId }}">
     <input type="hidden" id="selected_student_id" name="student_id">
+    <input type="hidden" name="timeTaken" id="timeTaken">
 
     <!-- Hidden state management for backend submission -->
     <input type="hidden" name="assessment_result" id="assessment_result" value="">
@@ -91,6 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Hidden state inputs
     const hiddenResult = document.getElementById('assessment_result');
+    const hiddenTimeTaken = document.getElementById('timeTaken');
     const hiddenHr = document.getElementById('heart_rate_status');
     const hiddenMobilityMode = document.getElementById('mobility_mode');
     const pulseInput = document.getElementById('pulse_rate');
@@ -178,6 +180,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function resetTimerUI() {
         clearInterval(timerInterval);
         elapsedMs = 0;
+        hiddenTimeTaken.value = "";
         timerDisplay.innerText = "00:00";
         timerDisplay.className = "mt-2 mb-3 text-center fw-bold";
         
@@ -228,6 +231,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 // If timer reaches 60.00s -> Hard Failure Stop
                 if (elapsedMs >= AUTO_STOP_MS) {
                     clearInterval(timerInterval);
+                    elapsedMs = AUTO_STOP_MS;
+                    hiddenTimeTaken.value = elapsedMs;
+
                     timerDisplay.innerText = "60:00";
                     timerDisplay.className = "mt-2 mb-3 text-center fw-bold text-danger";
                     
@@ -259,6 +265,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // State 2: User stops the timer manually
         else if (currentState === 'running') {
             clearInterval(timerInterval);
+            hiddenTimeTaken.value = Math.round(elapsedMs);
             
             // Enable Pulse Input field when timer is stopped
             togglePulseInput(true);

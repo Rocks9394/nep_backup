@@ -1,21 +1,21 @@
 
 
-<script src="{{ asset('admin/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
+<script src="{{ asset('admin-assets/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
 <script>
   $.widget.bridge('uibutton', $.ui.button);  
 </script>
-<script src="{{ asset('admin/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('admin/plugins/daterangepicker/daterangepicker.js') }}"></script>
-<!--<script src="{{ asset('admin/plugins/summernote/summernote-bs4.min.js') }}"></script> -->
-<script src="{{ asset('admin/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
-<script src="{{ asset('admin/plugins/inputmask/jquery.inputmask.min.js') }}"></script>
-<script src="{{ asset('admin/plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js') }}"></script>
-<script src="{{ asset('admin/plugins/bootstrap-switch/js/bootstrap-switch.min.js') }}"></script>
-<script src="{{ asset('admin/plugins/bs-stepper/js/bs-stepper.min.js') }}"></script>
-<script src="{{ asset('admin/plugins/dropzone/min/dropzone.min.js') }}"></script>
+<script src="{{ asset('admin-assets/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('admin-assets/plugins/daterangepicker/daterangepicker.js') }}"></script>
+<!--<script src="{{ asset('admin-assets/plugins/summernote/summernote-bs4.min.js') }}"></script> -->
+<script src="{{ asset('admin-assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
+<script src="{{ asset('admin-assets/plugins/inputmask/jquery.inputmask.min.js') }}"></script>
+<script src="{{ asset('admin-assets/plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js') }}"></script>
+<script src="{{ asset('admin-assets/plugins/bootstrap-switch/js/bootstrap-switch.min.js') }}"></script>
+<script src="{{ asset('admin-assets/plugins/bs-stepper/js/bs-stepper.min.js') }}"></script>
+<script src="{{ asset('admin-assets/plugins/dropzone/min/dropzone.min.js') }}"></script>
 
 <!--<script src="https://cdn.ckeditor.com/ckeditor5/23.0.0/classic/ckeditor.js"></script> -->
-<script src="{{ asset('admin/plugins/select2/js/select2.full.min.js') }}"></script>
+<script src="{{ asset('admin-assets/plugins/select2/js/select2.full.min.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
 
 <script>
@@ -220,4 +220,4 @@
 </script>
 	
 
-<script src="{{ asset('admin/dist/js/adminlte.js') }}"></script>
+<script src="{{ asset('admin-assets/dist/js/adminlte.js') }}"></script>

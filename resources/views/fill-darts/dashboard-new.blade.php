@@ -707,11 +707,46 @@
             
                 @php  $getActiveTerm = Helper::getActiveTerm();  @endphp
 
-
-                	<!-- Trainers Dashboard  -->
+                    
 	                    
                     @if((Auth::user()->role_id == '3' && $hasSchools) && (Auth::user()->role_id == '3' && $getActiveTerm))
-                                  	
+                        
+                        <!-- A. PLANNING & LEARNING -->
+                        <div>
+                            <a href="{{ route('learn.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/Learn-Sports.svg') }}"></div><span>Learn Sports</span></a>
+                        </div>
+
+                        <div>
+                            <a href="{{ route('activity.according.to.class') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/activities.svg') }}"></div><span>Activity Planner</span></a>
+                        </div>
+
+                        <div>
+                            <a href="{{ route('test.videos') }}" class="box">
+                                <div><img class="img-fluid" alt="" src="{{ asset('uploads/icons/test-demo.svg') }}"></div>
+                                <span>Battery of Tests</span>
+                            </a>
+                        </div>
+
+                        <div>
+                            <a href="{{ route('admin.manual') }}" target="_blank" class="box">
+                                <div><img class="img-fluid" alt="" src="{{ asset('uploads/icons/trainer-manual2.svg') }}"></div>
+                                <span>Training Manual</span>
+                            </a>
+                        </div>
+
+                        <div>
+                            <a href="{{ route('getactive') }}" class="box">
+                                <div><img class="img-fluid" alt="" src="{{ asset('uploads/icons/Get-Active.svg') }}"></div>
+                                <span>Get Active</span>
+                            </a>
+                        </div>
+
+                        <!-- B. EXECUTION -->
+
+                        <div>
+                            <a href="{{ route('map.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/MAP-Students.svg') }}"></div><span>Map Students</span></a>
+                        </div>                      
+             
 	                    <div>
 	                        <a href="{{ route('all-test') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/taketest.svg') }}"></div><span>Take Test</span></a>
 	                    </div>   
@@ -720,39 +755,42 @@
 	                        <a href="{{ route('fill.dart') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/Dart.svg') }}"></div><span>Fill DART</span></a>
 	                    </div>
 
+                        <div id="activity_gallary">
+                            <a  href="{{ route('activity.gallary') }}"  class="box" ><div>
+                            <img class="img-fluid" alt="" src="{{asset('uploads/icons/age-report.svg') }}"></div><span>Activity Gallery</span></a>
+                        </div>
+
+                        <!-- C. REPORTS & MONITORING -->
+
 	                    <div>
 	                        <a href="{{ route('viewschooldart') }}" data-id="" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/viewDart.svg') }}"></div><span>View DART</span></a>
 	                    </div>
 	              
 	                    <div>
-	                        <a href="{{ route('activity.according.to.class') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/activities.svg') }}"></div><span>Activity Planner</span></a>
-	                    </div>
-	                    	                  
-	                    <div>
-	                        <a href="{{ route('map.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/MAP-Students.svg') }}"></div><span>Map Students</span></a>
-	                    </div>	
-                        {{-- @if(Auth::user()->id == 995 ) --}}
+                            <a href="{{ route('trainer.lowerclass.status') }}" class="box"><div>
+                            <img class="img-fluid" alt="" src="{{asset('uploads/icons/lc_test-status.svg') }}"></div><span>Test Summary <br> (Upto Class-3)</span></a>
+                        </div>
+	                    
+                        <div>
+                            <a href="{{ route('trainer.higherclass.status') }}" class="box"><div>
+                            <img class="img-fluid" alt="" src="{{asset('uploads/icons/hc_test-status.svg') }}"></div><span>
+                            Test Summary <br> (Class-4 & Above)</span></a>
+                        </div>                
+	                                           
                         <div>
                             <a href="{{ route ('trainer.cwsn.status')}}" class="box"><div>
                             <img class="img-fluid" alt="" src="{{asset('uploads/icons/lc_test-status.svg') }}"></div><span>CWSN Summary <br> (Class-6 & Above)</span></a>
-                        </div>
-                        {{-- @endif --}}                 		                  
-	 	                    
-	                    <div>
-							<a href="{{ route('trainer.lowerclass.status') }}" class="box"><div>
-							<img class="img-fluid" alt="" src="{{asset('uploads/icons/lc_test-status.svg') }}"></div><span>Test Summary <br> (Upto Class-3)</span></a>
-						</div>
-
-						<div>
-							<a href="{{ route('trainer.higherclass.status') }}" class="box"><div>
-							<img class="img-fluid" alt="" src="{{asset('uploads/icons/hc_test-status.svg') }}"></div><span>
-							Test Summary <br> (Class-4 & Above)</span></a>
-						</div>
+                        </div>						
 					@endif
 
 					<!-- School Dashboard -->
                     @if(Auth::user()->role_id == '4')
-                        
+
+                        <!-- A. SETTING UP -->                        
+                        <div>
+                            <a href="{{ route('schoolDashboard') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/Dashboard.svg') }}"></div><span>Dashboard</span></a>
+                        </div>
+
 	                    <div>
 	                        <a href="{{ route('managestudent') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/manage-stds.svg') }}"></div><span>Manage Students</span></a>
 	                    </div>
@@ -760,60 +798,100 @@
 	                    <div>
 	                        <a href="{{ route('mapping.trainer') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/MAP-Students.svg') }}"></div><span>Manage Trainers</span></a>
 	                    </div>
+
+                        <div>
+                            <a href="{{ route('mapping.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/mapSports.svg') }}"></div><span>Map Sports</span></a>
+                        </div>      
+
+                        <div>
+                            <a href="{{ route('students-sports-mapping') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/activities.svg') }}"></div><span>Students Sport Mapping</span></a>
+                        </div>
+
+                        <div>
+                            <a href="{{ route('create.users') }}" class="box"><div>
+                            <img class="img-fluid" alt="" src="{{asset('uploads/icons/manage-stds.svg') }}"></div><span> Create Viewer </span></a>
+                        </div>
+
+                        <!-- B. PLANNING & LEARNING -->
+
+                        <div>
+                            <a href="{{ route('learn.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/Learn-Sports.svg') }}"></div><span>Learn Sports</span></a>
+                        </div>
+
                         <div>
                             <a href="{{ route('activity.according.to.class') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/activities.svg') }}"></div><span>Activity Planner</span></a>
-	                    </div>      
+	                    </div>
+
+                        <div>
+                            <a href="{{ route('test.videos') }}" class="box">
+                                <div><img class="img-fluid" alt="" src="{{ asset('uploads/icons/test-demo.svg') }}"></div>
+                                <span>Battery of Tests</span>
+                            </a>
+                        </div>
+
+                        <div>
+                            <a href="{{ route('admin.manual') }}" target="_blank" class="box">
+                                <div><img class="img-fluid" alt="" src="{{ asset('uploads/icons/trainer-manual2.svg') }}"></div>
+                                <span>Training Manual</span>
+                            </a>
+                        </div>
+
+                        <div>
+                            <a href="{{ route('getactive') }}" class="box">
+                                <div><img class="img-fluid" alt="" src="{{ asset('uploads/icons/Get-Active.svg') }}"></div>
+                                <span>Get Active</span>
+                            </a>
+                        </div>
+                       
+                        <!-- C. EXECUTION & DATA ENTRY -->
+
+                        <div>
+                            <a href="{{ route('upload.test.data') }}" class="box"><div>
+                            <img class="img-fluid" alt="" src="{{asset('uploads/icons/taketest.svg') }}"></div><span>Upload Test Data</span></a>
+                        </div> 
+
+                        <div id="activity_gallary">
+                            <a  href="{{ route('activity.gallary') }}"  class="box" ><div>
+                            <img class="img-fluid" alt="" src="{{asset('uploads/icons/age-report.svg') }}"></div><span>Activity Gallery</span></a>
+                        </div>
+
+                        <!-- D. MONITORING & REPORTS -->
+
                         <div>
                             <a href="{{ route('viewschooldart') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/viewDart.svg') }}" ></div><span>View DART</span></a>
                         </div>
                         
-                        {{-- @if(Auth::user()->id == 974) --}}
+                        <div>
+                            <a href="{{ route('fitness.report') }}" class="box"><div>
+                            <img class="img-fluid" alt="" src="{{asset('uploads/icons/fa.svg') }}"></div><span>Assessment Reports</span></a>
+                        </div>
+
+                        <!-- On Development Phase -->
+                        @if(Auth::user()->id == 974 || Auth::user()->id == 995)
+                           <div>
+                                <a  href="{{ route('skill.reports')}}"  class="box" ><div>
+                                <img class="img-fluid" alt="" src="{{asset('uploads/icons/skills-report.svg') }}"></div><span>Skill Report</span></a>
+                            </div>
+                        @endif
+
+                        <div>
+                            <a href="{{ route ('trainer.lowerclass.status')}}" class="box"><div>
+                            <img class="img-fluid" alt="" src="{{asset('uploads/icons/lc_test-status.svg') }}"></div><span>Test Summary <br> (Upto Class-3)</span></a>
+                        </div>
+
+                        <div>
+                            <a href="{{ route ('trainer.higherclass.status')}}" class="box"><div>
+                            <img class="img-fluid" alt="" src="{{asset('uploads/icons/hc_test-status.svg') }}"></div><span>
+                            Test Summary <br> (Class-4 & Above)</span></a>
+                        </div> 
 
                         <div>
                             <a href="{{ route ('trainer.cwsn.status')}}" class="box"><div>
                             <img class="img-fluid" alt="" src="{{asset('uploads/icons/lc_test-status.svg') }}"></div><span>CWSN Summary <br> (Class-6 & Above)</span></a>
                         </div>
-                        {{-- @endif --}}
-						
-                        <div>
-							<a href="{{ route ('trainer.lowerclass.status')}}" class="box"><div>
-							<img class="img-fluid" alt="" src="{{asset('uploads/icons/lc_test-status.svg') }}"></div><span>Test Summary <br> (Upto Class-3)</span></a>
-						</div>
-						<div>
-							<a href="{{ route ('trainer.higherclass.status')}}" class="box"><div>
-							<img class="img-fluid" alt="" src="{{asset('uploads/icons/hc_test-status.svg') }}"></div><span>
-							Test Summary <br> (Class-4 & Above)</span></a>
-						</div>                        
-	                    <div>
-							<a href="{{ route('fitness.report') }}" class="box"><div>
-							<img class="img-fluid" alt="" src="{{asset('uploads/icons/fa.svg') }}"></div><span>Assessment Reports</span></a>
-						</div>
-	                    <div>
-	                        <a href="{{ route('mapping.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/mapSports.svg') }}"></div><span>Map Sports</span></a>
-	                    </div>						
-					
-						<div>
-	                        <a href="{{ route('students-sports-mapping') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/activities.svg') }}"></div><span>Students Sport Mapping</span></a>
-	                    </div>
-	                   
-	                    
-	                    <div>
-	                        <a href="{{ route('schoolDashboard') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/Dashboard.svg') }}"></div><span>Dashboard</span></a>
-	                    </div>
-	                    	
-            			<div>
-							<a href="{{ route('create.users') }}" class="box"><div>
-							<img class="img-fluid" alt="" src="{{asset('uploads/icons/manage-stds.svg') }}"></div><span> Create Viewer </span></a>
-						</div>
 
-						<div>
-							<a href="{{ route('upload.test.data') }}" class="box"><div>
-							<img class="img-fluid" alt="" src="{{asset('uploads/icons/taketest.svg') }}"></div><span>Upload Test Data</span></a>
-						</div> 
-						
-
-
-
+                     
+					    <!-- Future Development Phase -->
 						{{-- <div>
 							<a href="{{ route('fms.report') }}" class="box"><div>
 							<img class="img-fluid" alt="" src="{{asset('uploads/icons/fms-report.svg') }}"></div><span>FMS Development </span></a>
@@ -847,7 +925,8 @@
 							<a href="{{ route('showholiday') }}" class="box"><div>
 							<img class="img-fluid" alt="" src="{{asset('uploads/icons/viewDart.svg') }}"></div><span> Manage Calendar</span></a>
 						</div>
-						--}}						
+						--}}
+
                     @endif
 
                     {{-- super admin dashboard --}}
@@ -867,8 +946,12 @@
 					            <p>Please contact your school administrator to activate your account.</p>
 					        </div>
 					    @endforelse
+
+
 					@endif
 					
+
+                    {{--
 					@if(!$user || $user->role_id != 2)						
 
 					    <div>
@@ -892,25 +975,10 @@
 					        </a>
 					    </div>
 					@endif
-                    <!-- On Development Phase -->
-					@if(Auth::user()->id == 974 || Auth::user()->id == 995)
-						<!-- href="{{ route('activity.gallary') }}?p=2" -->
-						<div id="activity_gallary">
-							<a  href="{{ route('activity.gallary') }}"  class="box" ><div>
-							<img class="img-fluid" alt="" src="{{asset('uploads/icons/age-report.svg') }}"></div><span>Activity Gallery</span></a>
-						</div>
-
-						<div>
-							<a  href="{{ route('skill.reports')}}"  class="box" ><div>
-							<img class="img-fluid" alt="" src="{{asset('uploads/icons/skills-report.svg') }}"></div><span>Skill Report</span></a>
-						</div>
-					@endif
-
-                    <div>
-                        <a href="{{ route('learn.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/Learn-Sports.svg') }}"></div><span>Learn Sports</span></a>
-                    </div>
-
+                    --}}
+                    
                 </div>
+
             </div>
         </div>
 
@@ -987,7 +1055,7 @@
             <div class="row g-3 mb-4">                
                 <div class="col-12 col-md-6">
                     <div class="card shadow p-2" style="height:400px;">
-                        <div class="card-header ttl">Health Indicatior</div>
+                        <div class="card-header ttl">Health Indicator</div>
                         <div class="card-body p-2">
                             <canvas id="healthSummaryChart"></canvas>
                         </div>

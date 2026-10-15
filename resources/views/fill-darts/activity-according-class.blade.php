@@ -351,8 +351,8 @@
 
                         if (status_filter === "completed" && !isDone) return;
                         if (status_filter === "pending" && isDone) return;
-                        let imagepath = val.image?.includes("wp-content") ? val.image : val.image ?
-                            'uploads/' + val.image : 'change-activities/default_activity_img.svg';
+                         let imagepath = val.image?.includes("wp-content") ? val.image : val.image ?
+                            '{{ asset('uploads') }}/' + val.image :  "{{ asset('change-activities/default_activity_img.svg') }}";
 
 
                         var tickMark = isDone ? 'active-completed' : 'activity-pending';
@@ -360,7 +360,7 @@
 	                    <div class="card ${tickMark}">
 	                        <div class="activity-img" onclick="modelContent(${val.activity_id}, '${val.skillname}', '${val.sportsname}', '${val.techniquename}', '${clsSecName}', '${tickMark}')">
 	                            <div class="img_overlay"></div>
-	                            <img class="card-img-top" src="${val.final_image}" alt="${val.title.toUpperCase()}" >
+	                            <img class="card-img-top" src="${imagepath}" alt="${val.title.toUpperCase()}" >
 	                        </div>
 	                        <div class="card-body">
 	                            <h5 class="card-title">${val.title}</h5>

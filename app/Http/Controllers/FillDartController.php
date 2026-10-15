@@ -65,16 +65,15 @@ class FillDartController extends Controller
 			->get();
 		
 		$hasSchools = $SchoolTrainers->isNotEmpty();
+		
+		/*
 		$selectSchoolId = $request->input('select_school_id') ?? $SchoolTrainers->pluck('id')->first();
-
 		if ($hasSchools && $selectSchoolId) {
 			Session::put('SelectSchoolId', $selectSchoolId);
 		}
-		$SchoolName = DB::table('schools')
-			->select('school_name', 'logo')
-			->where('id', $schoolId)
-			->first();
+		*/
 
+		$SchoolName = 'Select School';
 		$dashboardModules = collect();
 
 		// Role-based dashboard logic
@@ -107,10 +106,32 @@ class FillDartController extends Controller
 				));
 				break;
 
+			case 3:
+				
+				if($hasSchools && $SchoolTrainers->count() == 1) {           //Automatically select if belong to single school.
+					Session::put('SelectSchoolId', $SchoolTrainers->pluck('id')->first());
+				}
+
+				$select_school_id = $request->input('select_school_id');
+				if($hasSchools &&  !empty($select_school_id)) { 			// User selected a school from modal
+				 	Session::put('SelectSchoolId', $select_school_id);	
+				}
+
+				$schoolId = Session::get('SelectSchoolId');
+				if(!$schoolId) {
+				   return view('fill-darts.dashboard', compact('title','SchoolTrainers','SchoolName', 'hasSchools'));
+				}
+
+				break;
+
 		    default:
 		        break;
 		}
-			
+		
+		if($schoolId){
+			$SchoolName = DB::table('schools')->select('school_name', 'logo')->where('id', $schoolId)->first();
+		}
+		
 		// Access check for role 4
 		if ($roleId != 4 && $roleId != 3) {
 			return view('fill-darts.dashboard', compact('title','SchoolTrainers','SchoolName', 'hasSchools','user'));

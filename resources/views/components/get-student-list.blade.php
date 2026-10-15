@@ -166,6 +166,7 @@ function openAIScreen() {
     let pageName = "";
 
     switch (exerciseTitle) {
+		
         // ────────────────────────────────────────────────────────
         // 1. NEW FASTAPI INTEGRATION
         // ────────────────────────────────────────────────────────
@@ -219,6 +220,7 @@ function openAIScreen() {
  * Leaves openAIScreen() completely untouched for legacy HTML tests.
  */
 function openFastAPIScreen() {
+
     const studentSelect = document.querySelector('select[name="student_id"]');
     const classSelect   = document.querySelector('select[name="class_id"]');
     

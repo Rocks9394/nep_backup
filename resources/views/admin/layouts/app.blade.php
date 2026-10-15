@@ -7,24 +7,24 @@
     <title>@yield('title')</title>
     
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-	<link rel="stylesheet" href="{{ asset('admin/plugins/fontawesome-free/css/all.min.css') }}">
+	<link rel="stylesheet" href="{{ asset('admin-assets/plugins/fontawesome-free/css/all.min.css') }}">
 	<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-	<link rel="stylesheet" href="{{ asset('admin/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
+	<link rel="stylesheet" href="{{ asset('admin-assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
  <!-- 
-  <link rel="stylesheet" href="{{ asset('admin/plugins/icheck-bootstrap/icheck-bootstrap.min.css') }}">
-  <link rel="stylesheet" href="{{ asset('admin/plugins/jqvmap/jqvmap.min.css') }}">
-  <link rel="stylesheet" href="{{ asset('admin/plugins/summernote/summernote-bs4.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('admin-assets/plugins/icheck-bootstrap/icheck-bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('admin-assets/plugins/jqvmap/jqvmap.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('admin-assets/plugins/summernote/summernote-bs4.min.css') }}">
   -->
-	<link rel="stylesheet" href="{{ asset('admin/dist/css/adminlte.min.css') }}">
-	<link rel="stylesheet" href="{{ asset('admin/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
-	<link rel="stylesheet" href="{{ asset('admin/plugins/daterangepicker/daterangepicker.css') }}">  
+	<link rel="stylesheet" href="{{ asset('admin-assets/dist/css/adminlte.min.css') }}">
+	<link rel="stylesheet" href="{{ asset('admin-assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
+	<link rel="stylesheet" href="{{ asset('admin-assets/plugins/daterangepicker/daterangepicker.css') }}">  
   
-	<link rel="stylesheet" href="{{ asset('admin/plugins/custom/dashboard.css') }}">
+	<link rel="stylesheet" href="{{ asset('admin-assets/plugins/custom/dashboard.css') }}">
 	<link rel="stylesheet" href="{{ asset('resources/css/admin-style.css') }}"> 
-	<link rel="stylesheet" href="{{ asset('admin/plugins/select2/css/select2.min.css') }}">
-	<link rel="stylesheet" href="{{ asset('admin/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">  
+	<link rel="stylesheet" href="{{ asset('admin-assets/plugins/select2/css/select2.min.css') }}">
+	<link rel="stylesheet" href="{{ asset('admin-assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">  
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-	<script src="{{ asset('admin/plugins/jquery/jquery.min.js') }}"></script>
+	<script src="{{ asset('admin-assets/plugins/jquery/jquery.min.js') }}"></script>
 	<link rel="pr econnect" href="https://fonts.gstatic.com">
 	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&amp;display=swap" rel="stylesheet">
 	<script src="https://cdn.ckeditor.com/ckeditor5/23.0.0/classic/ckeditor.js"></script>
@@ -39,10 +39,10 @@
  
   <!--Nagendra Kumar-->  
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-  <link rel="stylesheet" href="{{ asset('admin/plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css') }}">
-  <link rel="stylesheet" href="{{ asset('admin/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css') }}">
-  <link rel="stylesheet" href="{{ asset('admin/plugins/bs-stepper/css/bs-stepper.min.css') }}">
-  <link rel="stylesheet" href="{{ asset('admin/plugins/dropzone/min/dropzone.min.css') }}">  
+  <link rel="stylesheet" href="{{ asset('admin-assets/plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('admin-assets/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('admin-assets/plugins/bs-stepper/css/bs-stepper.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('admin-assets/plugins/dropzone/min/dropzone.min.css') }}">  
 
   <!-- sweet alert  -->
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

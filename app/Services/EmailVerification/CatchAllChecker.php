@@ -12,9 +12,9 @@ class CatchAllChecker {
 
     public function check(string $email, string $mxHost): array {
 
+
         $domain = substr(strrchr($email, '@'), 1);
 
-        // Check cached domain result
         $cachedDomain = EmailVerificationDomain::where('domain', $domain)
             ->where('verified_at', '>=', now()->subDays(7))
             ->first();
@@ -43,41 +43,18 @@ class CatchAllChecker {
         }
 
 
-        // Save / update domain result
-        EmailVerificationDomain::updateOrCreate(
-            [
-                'domain' => $domain,
-            ],
-            [
-                'catch_all' => $isCatchAll,
-                'verified_at' => now(),
-            ]
-        );
-
-        /*
-        if ($smtpResult['status'] === 'accepted') {
-            return [
-                'is_catch_all' => true,
-                'test_email' => $randomEmail,
-                'smtp' => $smtpResult,
-            ];
+        // Save domain result only when the check is conclusive
+        if ($isCatchAll !== null) {
+            EmailVerificationDomain::updateOrCreate(
+                [
+                    'domain' => $domain,
+                ],
+                [
+                    'catch_all' => $isCatchAll,
+                    'verified_at' => now(),
+                ]
+            );
         }
-
-        if ($smtpResult['status'] === 'rejected') {
-            return [
-                'is_catch_all' => false,
-                'test_email' => $randomEmail,
-                'smtp' => $smtpResult,
-            ];
-        }
-
-        return [
-            'is_catch_all' => null,
-            'test_email' => $randomEmail,
-            'smtp' => $smtpResult,
-        ];
-
-        */
 
         return [
             'is_catch_all' => $isCatchAll,

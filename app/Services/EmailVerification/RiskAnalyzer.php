@@ -56,6 +56,7 @@ class RiskAnalyzer {
          * Final decision
          */
 
+        // High risk / Undeliverable
         if (
             $result['syntax_valid'] === false
             || $result['domain_valid'] === false
@@ -73,6 +74,7 @@ class RiskAnalyzer {
             ];
         }
 
+        // SMTP verification was inconclusive
         if (
             isset($result['smtp']['status'])
             && $result['smtp']['status'] === 'unknown'
@@ -84,6 +86,7 @@ class RiskAnalyzer {
             ];
         }
 
+        // Domain is catch-all
         if (
             isset($result['catch_all']['is_catch_all'])
             && $result['catch_all']['is_catch_all'] === true
@@ -94,6 +97,25 @@ class RiskAnalyzer {
                 'reasons' => $reasons,
             ];
         }
+
+        // SMTP accepted but catch-all verification was inconclusive
+        if (
+            isset($result['smtp']['status'])
+            && $result['smtp']['status'] === 'accepted'
+            && (
+                !isset($result['catch_all']['is_catch_all'])
+                || $result['catch_all']['is_catch_all'] === null
+            )
+        ) {
+            $reasons[] = 'Catch-all verification was inconclusive';
+
+            return [
+                'risk_level' => 'medium',
+                'final_status' => 'unknown',
+                'reasons' => $reasons,
+            ];
+        }
+
 
         return [
             'risk_level' => 'low',

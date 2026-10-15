@@ -15,6 +15,7 @@ use App\Models\TestTypeMaster;
 use App\Models\Sstudent;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\TestResultAdditionalData;
 
 class CwsnController extends Controller
 {
@@ -74,15 +75,6 @@ class CwsnController extends Controller
         $testTypeIds = $testType->pluck('TestTypeID');
 
         $videos = DB::table('fitness_test_videos')->whereIn('testType_id', $testTypeIds)->get();
-        
-        $videos->transform(function ($test) {
-            $test->video_url = asset(
-                'storage/cwsnvideo/' . $test->testType_id . '.mp4'
-            );
-            return $test;
-        });
-
-
         return view('assessor.cwsnSkillsTest', compact('title','testType', 'SeniorBMI','videos','pwd_category_id'));       
     }
 
@@ -171,18 +163,10 @@ class CwsnController extends Controller
                 ELSE class.name 
             END AS classname")
         )
-        ->whereIn('class.id', array(6,7,8,9,10,11,12))
+        ->whereIn('class.id', array(5,6,7,8,9,10,11,12))
         ->Where('school_id', $SchoolId)
         ->orderBy('custom_classes.orders', 'ASC')
         ->get();
-
-        // $classCount = DB::table('students')
-        //     ->where('school_id', $SchoolId)
-        //     ->where('academic_year', '2026-2027')
-        //     ->distinct();
-
-        // print_r( $classCount);
-        // exit();
 
         
         $skillTypes = DB::table('skill_types')->where('skill_report_id',$skillReport->id)->where('status', 1)->get();
@@ -292,9 +276,6 @@ class CwsnController extends Controller
                 if($alldata['laps_completed'] !='' && $alldata['student_id'] !='')  {
 
                     $totalLaps = (int) $request->input('laps_completed');
-
-                    
-
                     $TestScore = $totalLaps;
                     $levels = 'N.A.';
                     return $this->storeFormData($alldata, $TermMasterId, $userId, $TestScore, $levels);
@@ -330,6 +311,10 @@ class CwsnController extends Controller
 
                         $TestScore = $oneMileResult['vo2_max']; 
                         $levels = 'N.A.';
+
+                        $studentTime = [
+                            'TimeTaken' => $studentTime,
+                        ];
 
                         $this->storeFormData($alldata, $TermMasterId, $userId, $TestScore, $levels, $studentTime);
                     }
@@ -449,9 +434,24 @@ class CwsnController extends Controller
 
             case 58:
 
+
                 if (isset($alldata['assessment_result']) && $alldata['assessment_result'] !== '' && 
                     isset($alldata['heart_rate_status']) && $alldata['heart_rate_status'] !== '' && 
                     !empty($alldata['student_id'])) {
+
+                    $additionalData = [
+                        'TimeTaken' => round(((float) $request->input('timeTaken')) / 1000, 2),
+                        'MobilityType' => match ($request->input('mobility_mode')) {
+                            'legs' => 1,
+                            'arms' => 2,
+                            default => null,
+                        },
+                        'PulseCount' => $request->input('pulse_rate')
+                            ? (int) $request->input('pulse_rate')
+                            : null,
+                    ];
+
+                    //echo "<pre>"; print_r($additionalData); exit();
 
                     $levels = 'N.A.';
                     $assessment_result =  $alldata['assessment_result'];
@@ -462,7 +462,7 @@ class CwsnController extends Controller
                         $TestScore = true;
                     }
                     
-                    return $this->storeFormData($alldata, $TermMasterId, $userId, $TestScore, $levels);                    
+                    return $this->storeFormData($alldata, $TermMasterId, $userId, $TestScore, $levels, $additionalData);                    
                 } 
 
                 return response()->json(['success' => false, 'message' => 'Right Aplay /Left Aplay assessment result missing.']);
@@ -501,10 +501,7 @@ class CwsnController extends Controller
                     }
                 }
 
-
                 $TestScore = $BmiData['bmiScore'];
-              
-
                 $levels = 'N.A.';
                 return $this->storeFormData($alldata, $TermMasterId, $userId, $TestScore, $levels);
     
@@ -514,6 +511,94 @@ class CwsnController extends Controller
                 return response()->json(['success' => false, 'message' => 'Invalid Test Type assignment mapping error.']);
                 break;
         }
+    }
+
+
+    private function validateCwsnTestRequest(Request $request, int $skillReportId) {
+
+        $rules = [
+            'skillReportId' => 'required|integer',
+        ];
+
+        if ($skillReportId !== 32) {
+            $rules['student_id'] = 'required|integer|min:1';
+        }
+
+        switch ($skillReportId) {
+            case 29:
+            case 30:
+                $rules['laps_completed'] = 'required|integer|min:0';
+                break;
+
+            case 32:
+                $rules['students'] = 'required|array|min:1|max:500';
+                $rules['students.*'] = 'required|array';
+                $rules['students.*.id'] = 'required|integer|min:1';
+                $rules['students.*.time'] = 'required|numeric|gt:0';
+                break;
+
+            case 43:
+            case 44:
+                $rules['count_total_number'] = 'required|integer|min:0';
+                break;
+
+            case 45:
+            case 46:
+            case 47:
+            case 57:
+                $rules['total_push_up'] = 'required|integer|min:0';
+                break;
+
+            case 49:
+                $rules['trunk_lift'] = 'required|numeric|min:0';
+                break;
+
+            case 48:
+            case 55:
+                $rules['modified_pushup'] = 'required|string|max:20';
+                break;
+
+            case 56:
+                $rules['reverse_curlup'] = 'required|integer|min:0';
+                break;
+
+            case 37:
+                $rules['right_apley_level'] = 'required|integer';
+                $rules['left_apley_level'] = 'required|integer';
+                break;
+
+            case 35:
+                $rules['right_shoulder_status'] = 'required|integer|in:0,1';
+                $rules['left_shoulder_status'] = 'required|integer|in:0,1';
+                break;
+
+            case 36:
+                $rules['score_right'] = 'required|numeric';
+                $rules['score_left'] = 'required|numeric';
+                break;
+
+            case 58:
+                $rules['assessment_result'] = 'required|integer|in:0,1';
+                $rules['heart_rate_status'] = 'required|integer|in:0,1';
+                break;
+
+            case 33:
+                $rules['height'] = [ 'nullable',   'numeric', 'gt:0' ];
+                $rules['segment_floor_to_knee'] = [ 'nullable','numeric','gt:0'  ];
+                $rules['segment_knee_to_hip'] = ['nullable',  'numeric', 'gt:0' ];
+                $rules['segment_hip_to_head'] = [ 'nullable','numeric', 'gt:0'];
+                $rules['amputation_raw_weight'] = ['nullable', 'numeric', 'gt:0'];
+                $rules['anthropo_wt_id'] = [ 'nullable', 'integer'];
+                $rules['total_combined_weight'] = ['nullable', 'numeric', 'gt:0'];
+                $rules['wheelchair_tare_weight'] = [  'nullable',  'numeric','gte:0' ];
+                $rules['weight'] = ['nullable', 'numeric',  'gt:0' ];
+                break;
+
+            default:
+                abort(422, 'Invalid test type.');
+        }
+
+        return $request->validate($rules);
     }
 
     protected function CwsnBmiCalcualtion($alldata){
@@ -569,7 +654,7 @@ class CwsnController extends Controller
         return $bmiData;
     }
 
-    protected function storeFormData($alldata, $TermMasterId, $userId, $TestScore, $levels, $oneMileTime = null){
+    protected function storeFormData($alldata, $TermMasterId, $userId, $TestScore, $levels, $additionalData = null){
 
         $height = $alldata['height'] ?? null;
         $weight = $alldata['weight'] ?? null;
@@ -581,7 +666,7 @@ class CwsnController extends Controller
         $Result->TestTypeID   = $alldata['skillReportId'];
         $Result->Score        = $TestScore;
         if ($alldata['skillReportId'] == 32) {   
-            $Result->InitialScore = $oneMileTime;
+            $Result->InitialScore = $additionalData['TimeTaken'];
         }
         $Result->height       = $height;
         $Result->weight       = $weight;
@@ -595,6 +680,19 @@ class CwsnController extends Controller
         $Result->level        = $levels;
 
         $Result->save();
+            
+
+        if (!empty($additionalData) && $alldata['skillReportId'] == 58 || $alldata['skillReportId'] == 32 ) {
+            TestResultAdditionalData::create([
+                'ResultId'       => $Result->ResultId,
+                'StudentId'      => $Result->StudentID,
+                'TestTypeId'     => $Result->TestTypeID,
+                'TimeTaken'      => $additionalData['TimeTaken'] ?? null,
+                'MobilityType'   => $additionalData['MobilityType'] ?? null,
+                'PulseCount'     => $additionalData['PulseCount'] ?? null,
+                'AdditionalData' => $additionalData['AdditionalData'] ?? null,
+            ]);
+        }
         
         
         if (in_array($alldata['skillReportId'], [35, 36, 37])){

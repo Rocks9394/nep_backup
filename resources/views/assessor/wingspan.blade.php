@@ -67,8 +67,9 @@
                             </div>
 
 
-<button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center" 
-			onclick="openFastAPIScreen()" style="color: white; font-weight: bold;"> Switch to AI </button>
+                            <button type="button" id="start-exercise-btn" class="btn btn-warning py-2 w-100 d-flex justify-content-center"  onclick="openFastAPIScreen()" style="color: white; font-weight: bold;">  Switch to AI 
+                            </button>
+
                         </div>
                     </div>
 
@@ -77,7 +78,7 @@
 
                 {{-- footer for submit and reset button --}}
                 @php
-                    $id = "seniorBmi";
+                    $id = "wingspan";
                 @endphp
                 <x-reset-submit-btn :id="$id"/>
                 {{-- footer close --}}
@@ -94,7 +95,8 @@
 <script>
 $(document).ready(function() {
     $('#save_wingspan_record_id').submit(function(e) {
-        e.preventDefault(); // prevent default form submission
+        e.preventDefault(); 
+
         const studentId = document.getElementById('selected_student_id').value;
         if (!studentId) {
             handleResponseMessages( 'warning',  'Add Student', 'Please select the student');
@@ -102,7 +104,7 @@ $(document).ready(function() {
         }
         submitLoader();
         $.ajax({
-            url: '{{ route("wingspan.record.submit") }}', // or your route URL
+            url: '{{ route("wingspan.record.submit") }}', 
             method: 'POST',
             data: $(this).serialize(),
             success: function(response) {
@@ -135,12 +137,15 @@ $(document).ready(function() {
             }
         });
     });
+
+
 });
 
 
 // height inputs restrictions
-
+/*
 document.getElementById("heightInput").addEventListener("input", function (e) {
+
     let value = e.target.value;
 
     value = value.replace(/[^0-9.]/g, '');
@@ -198,14 +203,10 @@ document.getElementById("weightInput").addEventListener("input", function (e) {
     }
     e.target.value = value;
 });
+*/
 
 
 
-
-</script>
-
-
-<script>
 window.addEventListener("message", (event) => {
     // 1. Security check: only accept from your company domain
     if (!event.origin.includes("goforfit.in")) return;

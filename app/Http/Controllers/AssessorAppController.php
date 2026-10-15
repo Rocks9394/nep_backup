@@ -83,10 +83,42 @@ class AssessorAppController extends Controller
 		$seniorData = DB::table('TestCategoryMaster')->whereIn('TestCategoryID',$senior)->orderByRaw('FIELD(TestCategoryID, ' . implode(',', $senior) . ')')->get();
 
 		$cbseData = DB::table('TestCategoryMaster')->whereIn('TestCategoryID',$cbseTests)->orderByRaw('FIELD(TestCategoryID, ' . implode(',', $cbseTests) . ')')->get();
+
+
+
+		$cwsncatid = [3, 23, 39 ,40];
+		$cwsnCategory = DB::table('TestCategoryMaster')->whereIn('TestCategoryID',$cwsncatid)
+		->orderBy('DisplayOrder')->get();
 		
 		$title = 'TAKE FITNESS ASSESSMENT';
 
 		$userAgent = $request->header('User-Agent');
+
+
+
+
+
+		if(Session::get('SelectSchoolId')){	
+			$SchoolId = Session::get('SelectSchoolId');			
+		}else{			
+			$SchoolTrainers = DB::table('school_trainers')
+			->join('schools','schools.id','=','school_trainers.school_id')
+			->select('schools.school_name','schools.id','schools.logo')
+			->where('school_trainers.trainer_id',$userId)->where('school_trainers.status', 1)->get();
+			$SchoolId = $SchoolTrainers[0]->id;		  	
+		}
+
+		$selectedTerm = $this->getTermId($SchoolId);
+		$TermMasterId = TermMaster::where('school_id', $SchoolId)
+            ->where('is_active', 1)
+            ->whereDate('term_start_date', '<=', today())
+            ->whereDate('term_end_date', '>=', today())
+            ->value('id');
+
+		$TermIds = $this->getCurrentAndPreviousTermIds($SchoolId, (int) $TermMasterId);
+		
+		$terms = TermMaster::whereIn('id', $TermIds)->get();
+
 
 
 		$isPureChrome =
@@ -117,42 +149,10 @@ class AssessorAppController extends Controller
 
 
 		if (!$isPureChrome && $isUnsupportedBrowser){
-			return view('assessor.alltests', compact('title', 'juniorData', 'cbseData', 'juniorData1', 'seniorData'))->with('warning', 'Some features may not work properly!');
+			return view('assessor.alltests', compact('title', 'juniorData', 'cbseData', 'juniorData1', 'seniorData', 'terms', 'selectedTerm','cwsnCategory'))->with('warning', 'Some features may not work properly!');
 		}
 
-		if(Session::get('SelectSchoolId')){	
-			$SchoolId = Session::get('SelectSchoolId');			
-		}else{			
-			$SchoolTrainers = DB::table('school_trainers')
-			->join('schools','schools.id','=','school_trainers.school_id')
-			->select('schools.school_name','schools.id','schools.logo')
-			->where('school_trainers.trainer_id',$userId)->where('school_trainers.status', 1)->get();
-			$SchoolId = $SchoolTrainers[0]->id;		  	
-		}
-
-		$selectedTerm = $this->getTermId($SchoolId);
-		$TermMasterId = TermMaster::where('school_id', $SchoolId)
-            ->where('is_active', 1)
-            ->whereDate('term_start_date', '<=', today())
-            ->whereDate('term_end_date', '>=', today())
-            ->value('id');
-
-		$TermIds = $this->getCurrentAndPreviousTermIds($SchoolId, (int) $TermMasterId);
 		
-		$terms = TermMaster::whereIn('id', $TermIds)->get();
-
-
-		// $rpwdCategoriesData = RpwdCategory::select('id as PwdCategoryID','disability_category as CategoryName')
-		// ->where('status','active')
-		// //->where('id','!=', 10)
-		// ->orderBy('CategoryName')
-		// ->get();
-		
-
-		$cwsncatid = [3, 23, 39 ,40];
-		$cwsnCategory = DB::table('TestCategoryMaster')->whereIn('TestCategoryID',$cwsncatid)
-		->orderBy('DisplayOrder')->get();
-	
 		return view('assessor.alltests', compact('title', 'juniorData', 'cbseData', 'juniorData1', 'seniorData', 'terms', 'selectedTerm','cwsnCategory'));
 	
 	}
@@ -209,6 +209,7 @@ class AssessorAppController extends Controller
 
     public function FMSTypes($TestTypeId, $SeniorBMI = false) 
 	{
+		//die('---check the details---');
 	
 		$skillReport = DB::table('skill_reports')->select('id','skill_name','TestTypeMasterID')->where('TestTypeMasterID',$TestTypeId)->first();
 		$skillTypes = DB::table('skill_types')->where('skill_report_id',$skillReport->id)->where('status', 1)->get();
@@ -446,9 +447,19 @@ class AssessorAppController extends Controller
 		}
 		elseif($skillReport->skill_name == 'WingSpan')
 		{
+
 			$classes = $seniorclasses;
 			$title = $skillReport->skill_name;
 			return view('assessor.wingspan', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
+		}
+		elseif($skillReport->skill_name == 'Modified Push Ups')
+		{
+			
+			//die('--change the detail- by bhawani');
+
+			$classes = $seniorclasses;
+			$title = $skillReport->skill_name;
+			return view('assessor.modified-push-ups', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 		}
 		else
 		{
@@ -1107,9 +1118,6 @@ class AssessorAppController extends Controller
 	public function getStudentsRoll(Request $request) {
 
 
-		//echo "<pre>"; print_r($request->all()); exit();
-
-
 		$userId = Auth::id();
 
 		if (Session::has('SelectSchoolId')) {
@@ -1405,7 +1413,9 @@ class AssessorAppController extends Controller
 	        		break;
 	        		
 	        	case 'cwsnlist':
-	        		/*
+	        		
+	        		
+	                /*
 	        		$testExists = DB::table('SeniorTestResults')    
 	                ->where('StudentID', $student->id)
 	                ->where('SchoolID', $schoolId)
@@ -1420,10 +1430,7 @@ class AssessorAppController extends Controller
 			        ->select('TestTypeMaster.TestCategoryID')
 			        ->first();
 
-	               
-    					
-
-    				//echo "<pre>"; print_r($targetCategory); exit();
+	 
 
 
 	                if ($targetCategory) {
@@ -1447,6 +1454,7 @@ class AssessorAppController extends Controller
 
 				        }
 				    }
+				    
 
 	        		break;
 
@@ -1491,6 +1499,7 @@ class AssessorAppController extends Controller
      * Clear Existing Records If Retake Of Test Is Required.
      * */
 	public function clearExistingRecords(Request $request) {
+
 
 
 	    $studentId = $request->student_id;
@@ -2482,6 +2491,62 @@ class AssessorAppController extends Controller
 	
 	
 	public function SubmitWingSpanRecord(Request $request) {
+   
+		$alldata = $request->all();
+		
+		$userId  = \Auth::id();
+		
+		if(Session::get('SelectSchoolId')) 	{	
+			$SchoolId = Session::get('SelectSchoolId');
+			
+		}else {			
+			$SchoolTrainers = DB::table('school_trainers')
+			->join('schools','schools.id','=','school_trainers.school_id')
+			->select('schools.school_name','schools.id','schools.logo')
+			->where('school_trainers.trainer_id',$userId)->where('school_trainers.status', 1)->get();
+			$SchoolId = $SchoolTrainers[0]->id;		  	
+		}		
+		
+		$TermMasterId =  $this->getTermId($SchoolId);
+
+		$student = Sstudent::where('id',$alldata['student_id'])->select('gender','dob')->first();
+		$dob = Carbon::parse($student->dob);
+		$studentAge = $dob->age;
+		$studentGender = $student->gender;
+		$ageGender = $studentAge . strtolower(substr($studentGender, 0, 1));
+
+		if($alldata['wingspan_height'] !='') {
+				
+	
+			$Result = new SeniorTestResult();
+			
+			$Result->SchoolID     = $alldata['SchoolId'];
+			$Result->StudentID    = $alldata['student_id'];
+			$Result->TermId       = $TermMasterId;
+			$Result->TestTypeID   = $alldata['skillReportId'];
+			$Result->Score   	  = $alldata['wingspan_height'];
+			$Result->created_at   = now();
+			$Result->CreatedBy    = $userId;
+			$Result->updated_at   = now();
+			$Result->ModifiedBy   = $userId;
+			$Result->wingspan       = $alldata['wingspan_height'];
+			$Result->save();
+		
+			$message = $this->TestMessage($alldata['student_id'],$alldata['skillReportId']);
+			return response()->json(['success' => true,'message' => $message]);
+		} else {
+			return response()->json(['success' => false,'message' => 'Something went wrong.']);
+		}
+	   
+	   
+    }
+	
+	
+	public function SubmitModifiedPushUpRecord(Request $request) {
+		
+		echo "<pre>";
+		print_r($request->all());
+		die('--change the detail---');
    
 		$alldata = $request->all();
 		

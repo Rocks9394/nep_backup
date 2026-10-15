@@ -154,6 +154,8 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('assessor-app-sit-and-reach-record-submit',[App\Http\Controllers\AssessorAppController::class, 'SubmitSitAndReachRecord'])->name('sit.and.reach.record.submit');
 	Route::post('assessor-app-speed-record-submit',[App\Http\Controllers\AssessorAppController::class, 'SubmitSpeedRecord'])->name('speed.record.submit');
 	Route::post('assessor-app-wingspan-record-submit',[App\Http\Controllers\AssessorAppController::class, 'SubmitWingSpanRecord'])->name('wingspan.record.submit');
+	
+	Route::post('assessor-app-modified-push-up-record-submit',[App\Http\Controllers\AssessorAppController::class, 'SubmitModifiedPushUpRecord'])->name('modified.push.up.record.submit');
 
 	// to view reports on trainer 
 	Route::get('higherclass/summary', [ReportController::class, 'HigherClassTestSummary'])->name('trainer.higherclass.status');
@@ -761,11 +763,29 @@ Route::post('generatepdf', [App\Http\Controllers\GeneratePDF::class, 'generateAc
 
 Route::get('/test-email-verification', function (EmailVerificationService $service) {
     return response()->json(
-        $service->verify('baljeetsingh66525@gmal.com')
+        $service->verify('npsasraway@gmail.com')
     );
 });
 
+Route::get('/test-risk-analyzer', function (RiskAnalyzer $riskAnalyzer) {
+
+    return $riskAnalyzer->analyze([
+        'syntax_valid' => true,
+        'domain_valid' => true,
+        'mx_valid' => true,
+        'disposable' => false,
+
+        'smtp' => [
+		    'status' => 'unknown',
+		    'code' => 452,
+		    'message' => '452 Recipient inbox is out of storage space',
+		],
+		
+        'catch_all' => [
+		   'catch_all' => null,
+		],
+    ]);
+});
 
 
 URL::forceScheme('https');
-

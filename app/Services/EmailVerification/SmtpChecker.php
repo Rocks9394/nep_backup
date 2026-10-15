@@ -51,9 +51,10 @@ class SmtpChecker {
 
 
         // 3. Tell SMTP server who the sender is
+        $fromEmail = config('mail.from.address');
         fwrite(
             $socket,
-            "MAIL FROM:<verify@nep.goforfit.in>\r\n"
+            "MAIL FROM:<{$fromEmail}>\r\n"
         );
 
         $response = $this->readResponse($socket);

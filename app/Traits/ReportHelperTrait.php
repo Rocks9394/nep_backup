@@ -518,47 +518,6 @@ trait ReportHelperTrait
 
     }
 
-    protected function getCWSNReportData_bk($studentId, $pwd_cat_id, $studentAge, $studentGender, $groupedReportData) {
-
-        $senior = [23, 40, 39, 3];
-
-        $cwsnData = DB::table('TestCategoryMaster')
-            ->join('TestTypeMaster', 'TestTypeMaster.TestCategoryID','=', 'TestCategoryMaster.TestCategoryID')
-            ->join('skill_reports', 'skill_reports.TestTypeMasterID','=', 'TestTypeMaster.TestTypeID')
-            ->whereIn('TestCategoryMaster.TestCategoryID', $senior)
-            ->orderByRaw('FIELD(TestCategoryMaster.TestCategoryID, ' . implode(',', $senior) . ')')
-            ->select('TestCategoryMaster.TestCategoryID','TestCategoryMaster.TestCategoryName','skill_reports.skill_name')
-            ->where('TestCategoryMaster.IsActive', 1)
-            ->get();
-
-        $orderedReportData = collect();
-        foreach ($cwsnData as $cat) {
-
-            $categoryName = $cat->TestCategoryName . " (" . $cat->skill_name . ")";
-            $data = $groupedReportData->get(
-                $cat->TestCategoryName,
-                collect()
-            );
-            $filteredData = collect([
-                'Current_Term' => $data->get('Current_Term', collect())
-                    ->filter(function ($row) use ($cat) {
-                        return trim($row['Test_Name'] ?? '') === trim($cat->skill_name);
-                    })
-                    ->values(),
-
-                'Previous_Term' => $data->get('Previous_Term', collect())
-                    ->filter(function ($row) use ($cat) {
-                        return trim($row['Test_Name'] ?? '') === trim($cat->skill_name);
-                    })
-                    ->values(),
-            ]);
-
-            $orderedReportData->put($categoryName, $filteredData);
-        }
-
-        return $orderedReportData;
-    }
-
     protected function getCWSNReportData($studentId, $pwd_cat_id, $studentAge, $studentGender, $groupedReportData) {
         $cwsnCat = [23, 40, 39, 3];
 
@@ -731,6 +690,8 @@ trait ReportHelperTrait
 
                 switch ((int)$item->Score) {
                     case 1000:
+                        $formatScore = 'Completion time exceeded 13 minutes';
+                        break;
                     case 1001:
                     case 1002:
                         $formatScore = 'Not calculated';
@@ -839,28 +800,6 @@ trait ReportHelperTrait
                 'bmiLevel'     => null,
             ];
         }
-        
-        $bmiLevel = null;
-        if ($item->TestTypeID == 33) {
-            $score = (float) $item->Score;
-            $veryLean   = $benchmark->very_lean !== null
-                ? (float) $benchmark->very_lean
-                : null;
-
-            $healthRisk = $benchmark->health_risk !== null
-                ? (float) $benchmark->health_risk
-                : null;
-
-            if ($veryLean !== null && $score <= $veryLean) {
-                $bmiLevel = 'Very Lean';
-            }elseif ($healthRisk !== null && $score >= $healthRisk) {
-                $bmiLevel = 'Health Risk';
-            }elseif ($this->isScoreInRange($score, $benchmark->ni)) {
-                $bmiLevel = 'Needs Improvement';
-            }elseif ($this->isScoreInRange($score, $benchmark->hfz)) {
-                $bmiLevel = 'Healthy Fitness Zone';
-            }
-        }
 
         $score = $item->Score ?? $item->RightScore ?? null;
 
@@ -874,12 +813,39 @@ trait ReportHelperTrait
             $score /= $scoreDivisors[$testTypeId];
         }
 
+
         if ($benchmark->ni !== null && $score <= $benchmark->ni) {
             $recommendParam = 'ni';
         } elseif ($benchmark->hfz !== null && $score >= $benchmark->hfz) {
             $recommendParam = 'hfz';
         } else {
             $recommendParam = 'afz';
+        }
+
+        $bmiLevel = null;
+        if ($item->TestTypeID == 33) {
+            $score = (float) $item->Score;
+            $veryLean   = $benchmark->very_lean !== null
+                ? (float) $benchmark->very_lean
+                : null;
+
+            $healthRisk = $benchmark->health_risk !== null
+                ? (float) $benchmark->health_risk
+                : null;
+
+            if ($veryLean !== null && $score <= $veryLean) {
+                $bmiLevel = 'Very Lean';
+                $recommendParam = 'very_lean';                
+            }elseif ($healthRisk !== null && $score >= $healthRisk) {
+                $bmiLevel = 'Health Risk';
+                $recommendParam = 'health_risk';
+            }elseif ($this->isScoreInRange($score, $benchmark->ni)) {
+                $bmiLevel = 'Needs Improvement';
+                $recommendParam = 'ni';
+            }elseif ($this->isScoreInRange($score, $benchmark->hfz)) {
+                $bmiLevel = 'Healthy Fitness Zone';
+                $recommendParam = 'hfz';
+            }
         }
 
         $recommendation = DB::table('cwsn_recommendations')
@@ -930,6 +896,7 @@ trait ReportHelperTrait
             'bmiLevel'    => $bmiLevel,
         ];
     }
+    
     private function isScoreInRange($score, $range){
         
         if ($range === null || $range === '') {
@@ -968,5 +935,149 @@ trait ReportHelperTrait
             'health_risk' => ' ≥ ' . $bmiBenchmarkRow->health_risk,
         ];
     }
+
+    protected function getCWSNReportData_bk($studentId, $pwd_cat_id, $studentAge, $studentGender, $groupedReportData)
+    {
+        $cwsnCat = [23, 40, 39, 3];
+
+        $defaultTests = [
+            23 => '20-m PACER',
+            40 => 'Curl-up',
+            39 => 'Modified Thomas Test',
+            3  => 'BMI',
+        ];
+
+        $cwsnData = DB::table('TestCategoryMaster')
+            ->join('TestTypeMaster', 'TestTypeMaster.TestCategoryID', '=', 'TestCategoryMaster.TestCategoryID')
+            ->join('skill_reports', 'skill_reports.TestTypeMasterID', '=', 'TestTypeMaster.TestTypeID')
+            ->whereIn('TestCategoryMaster.TestCategoryID', $cwsnCat)
+            ->where('TestCategoryMaster.IsActive', 1)
+            ->select(
+                'TestCategoryMaster.TestCategoryID',
+                'TestCategoryMaster.TestCategoryName',
+                'skill_reports.skill_name'
+            )
+            ->orderByRaw('FIELD(TestCategoryMaster.TestCategoryID, ' . implode(',', $cwsnCat) . ')')
+            ->get();
+
+        $orderedReportData = collect();
+
+        foreach ($cwsnCat as $categoryId) {
+
+            $categoryTests = $cwsnData->where('TestCategoryID', $categoryId);
+
+            if ($categoryTests->isEmpty()) {
+                continue;
+            }
+
+            $categoryName = $categoryTests->first()->TestCategoryName;
+
+            $data = $groupedReportData->get($categoryName, collect());
+
+            $currentTests = $data->get('Current_Term', collect());
+            $previousTests = $data->get('Previous_Term', collect());
+
+            /*
+            * Get all tests performed by the student
+            * in Current Term OR Previous Term.
+            */
+            $performedTests = $categoryTests->filter(function ($test) use ($currentTests, $previousTests) {
+
+                $testName = trim($test->skill_name);
+
+                $currentResult = $currentTests->first(function ($row) use ($testName) {
+                    return trim($row['Test_Name'] ?? '') === $testName;
+                });
+
+                $previousResult = $previousTests->first(function ($row) use ($testName) {
+                    return trim($row['Test_Name'] ?? '') === $testName;
+                });
+
+                return $currentResult || $previousResult;
+            });
+
+            /*
+            * If no test was performed in this category,
+            * show the default test.
+            */
+            if ($performedTests->isEmpty()) {
+
+                $defaultTestName = $defaultTests[$categoryId] ?? null;
+
+                $defaultTest = $categoryTests->first(function ($test) use ($defaultTestName) {
+                    return trim($test->skill_name) === trim($defaultTestName);
+                });
+
+                if (!$defaultTest) {
+                    $defaultTest = $categoryTests->first();
+                }
+
+                if ($defaultTest) {
+                    $performedTests = collect([$defaultTest]);
+                }
+            }
+
+            /*
+            * Add every performed test separately.
+            */
+            foreach ($performedTests as $studentTest) {
+
+                $currentTerm = $currentTests->first(function ($row) use ($studentTest) {
+                    return trim($row['Test_Name'] ?? '') ===
+                        trim($studentTest->skill_name);
+                });
+
+                $previousTerm = $previousTests->first(function ($row) use ($studentTest) {
+                    return trim($row['Test_Name'] ?? '') ===
+                        trim($studentTest->skill_name);
+                });
+
+                if (!$currentTerm) {
+                    $currentTerm = [
+                        'Category'       => $categoryName,
+                        'TermId'         => null,
+                        'created_at'     => null,
+                        'ni'             => '',
+                        'afz'            => '',
+                        'hfz'            => '',
+                        'Test_Name'      => $studentTest->skill_name,
+                        'score'          => '',
+                        'recommendation' => '',
+                        'height'         => '',
+                        'weight'         => '',
+                    ];
+                }
+
+                if (!$previousTerm) {
+                    $previousTerm = [
+                        'Category'       => $categoryName,
+                        'TermId'         => null,
+                        'created_at'     => null,
+                        'ni'             => '',
+                        'afz'            => '',
+                        'hfz'            => '',
+                        'Test_Name'      => $studentTest->skill_name,
+                        'score'          => '',
+                        'recommendation' => '',
+                        'height'         => '',
+                        'weight'         => '',
+                    ];
+                }
+
+                $displayKey = $categoryName . ' (' . $studentTest->skill_name . ')';
+
+                $orderedReportData->put(
+                    $displayKey,
+                    collect([
+                        'Current_Term'  => collect([$currentTerm]),
+                        'Previous_Term' => collect([$previousTerm]),
+                    ])
+                );
+            }
+        }
+
+        return $orderedReportData;
+    }
+
     
 }

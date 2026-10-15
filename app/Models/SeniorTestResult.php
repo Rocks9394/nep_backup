@@ -8,5 +8,9 @@ class SeniorTestResult extends Model
    use HasFactory;
 	protected $table = 'SeniorTestResults';
     
- 
+ 	protected $primaryKey = 'ResultId';
+
+    public $incrementing = true;
+
+    protected $keyType = 'int';
 }

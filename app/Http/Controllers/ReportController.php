@@ -1502,7 +1502,7 @@ class ReportController extends Controller {
 
         $school = School::find($schoolId);
 
-		$cwsnClassess = [6, 7, 8, 9, 10, 11, 12];
+		$cwsnClassess = [5, 6, 7, 8, 9, 10, 11, 12];
 		$classList = $school->getClasses
 			->filter(function ($class) use ($cwsnClassess) {
 		        return in_array($class->class_id, $cwsnClassess);
@@ -1551,6 +1551,7 @@ class ReportController extends Controller {
 					$join->on('s.id', '=', 'r.student_id')
 						->where('r.term_id', '=', $TermMasterId);
 				})
+				->leftJoin('TestResultAdditionalData','TestResultAdditionalData.StudentId' ,'=', 'r.student_id')
 		        ->leftJoin('class', 's.class_id', '=', 'class.id')
 				->leftJoin('custom_classes', 's.custom_class_id', '=', 'custom_classes.id')
 			        ->select( 
@@ -1587,6 +1588,7 @@ class ReportController extends Controller {
 							THEN custom_classes.nomenclature 
 							ELSE class.name 
 						 END AS display_classname"),
+				    'TestResultAdditionalData.TimeTaken',
 					'custom_classes.section'
 	            )
 		        ->where('s.school_code', $school->school_code)
@@ -1832,6 +1834,7 @@ class ReportController extends Controller {
 
 				$studentAge = $isValid ? $age : $age;
 
+				$oneMile_time_taken = is_numeric($item->TimeTaken) ? $item->TimeTaken	: '---';
 				$one_mile_score = is_numeric($item->oneMile_run_walk) ? $item->oneMile_run_walk	: '---';
 				if(in_array((int) $one_mile_score, [1000, 1001, 1002])){
 					$one_mile_score = 'Not Calculated';
@@ -1851,7 +1854,7 @@ class ReportController extends Controller {
 
 
 					'oneMile_run_walk' => $one_mile_score,
-
+					'oneMile_time_taken' => $oneMile_time_taken,
 
 					'curlup' => isset($item->curlup) ? (int)$item->curlup : '---',
 	                'modified_curlup' => isset($item->modified_curlup) ? (int)$item->modified_curlup : '---',
