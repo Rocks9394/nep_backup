@@ -255,6 +255,11 @@ function openFastAPIScreen() {
     // Blade context
     const trainerName      = "{{ $trainerName }}";
     let exerciseTitle    = "{{ $title }}";
+	let pageName = "screen4";
+	
+	
+
+	
     const currentTrainerId = "{{ $userId }}";
 	
 	if(exerciseTitle === "Partial curl up 30 sec")
@@ -262,7 +267,16 @@ function openFastAPIScreen() {
 	
 	if(exerciseTitle === "Alternative Hand Wall Toss Test")
 		exerciseTitle = "wall_toss";
-
+	
+	if(exerciseTitle === "Modified Push Ups")
+	{	
+			exerciseTitle = "Modified Push Ups";
+		    pageName = "modified_pushup_tracker";
+	
+	}else{
+		    pageName = "screen4";
+	}
+	
     // Clean test key formatted for FastAPI (e.g., "WingSpan" -> "wingspan")
     const testKey = exerciseTitle.toLowerCase().replace(/[^a-z0-9]/g, '_');
 
@@ -281,7 +295,8 @@ function openFastAPIScreen() {
 
     // Clean secure FastAPI base proxy endpoint
     const baseUrl  = "https://talentid.goforfit.in/fms/";
-    const pageName = "screen4";
+	
+    
 
     const aiUrl = `${baseUrl}${pageName}?${queryParams.toString()}`;
 

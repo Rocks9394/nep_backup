@@ -755,11 +755,6 @@
 	                        <a href="{{ route('fill.dart') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/Dart.svg') }}"></div><span>Fill DART</span></a>
 	                    </div>
 
-                        <div id="activity_gallary">
-                            <a  href="{{ route('activity.gallary') }}"  class="box" ><div>
-                            <img class="img-fluid" alt="" src="{{asset('uploads/icons/age-report.svg') }}"></div><span>Activity Gallery</span></a>
-                        </div>
-
                         <!-- C. REPORTS & MONITORING -->
 
 	                    <div>
@@ -767,12 +762,12 @@
 	                    </div>
 	              
 	                    <div>
-                            <a href="{{ route('trainer.lowerclass.status') }}" class="box"><div>
+                            <a href="{{ route('lowerclasstestsummary') }}" class="box"><div>
                             <img class="img-fluid" alt="" src="{{asset('uploads/icons/lc_test-status.svg') }}"></div><span>Test Summary <br> (Upto Class-3)</span></a>
                         </div>
 	                    
                         <div>
-                            <a href="{{ route('trainer.higherclass.status') }}" class="box"><div>
+                            <a href="{{ route('higherclasstestsummary') }}" class="box"><div>
                             <img class="img-fluid" alt="" src="{{asset('uploads/icons/hc_test-status.svg') }}"></div><span>
                             Test Summary <br> (Class-4 & Above)</span></a>
                         </div>                
@@ -850,11 +845,6 @@
                             <img class="img-fluid" alt="" src="{{asset('uploads/icons/taketest.svg') }}"></div><span>Upload Test Data</span></a>
                         </div> 
 
-                        <div id="activity_gallary">
-                            <a  href="{{ route('activity.gallary') }}"  class="box" ><div>
-                            <img class="img-fluid" alt="" src="{{asset('uploads/icons/age-report.svg') }}"></div><span>Activity Gallery</span></a>
-                        </div>
-
                         <!-- D. MONITORING & REPORTS -->
 
                         <div>
@@ -868,6 +858,10 @@
 
                         <!-- On Development Phase -->
                         @if(Auth::user()->id == 974 || Auth::user()->id == 995)
+                            <div id="activity_gallary">
+                                <a  href="{{ route('activity.gallary') }}"  class="box" ><div>
+                                <img class="img-fluid" alt="" src="{{asset('uploads/icons/age-report.svg') }}"></div><span>Activity Gallery</span></a>
+                            </div>
                            <div>
                                 <a  href="{{ route('skill.reports')}}"  class="box" ><div>
                                 <img class="img-fluid" alt="" src="{{asset('uploads/icons/skills-report.svg') }}"></div><span>Skill Report</span></a>
@@ -875,12 +869,12 @@
                         @endif
 
                         <div>
-                            <a href="{{ route ('trainer.lowerclass.status')}}" class="box"><div>
+                            <a href="{{ route ('lowerclasstestsummary')}}" class="box"><div>
                             <img class="img-fluid" alt="" src="{{asset('uploads/icons/lc_test-status.svg') }}"></div><span>Test Summary <br> (Upto Class-3)</span></a>
                         </div>
 
                         <div>
-                            <a href="{{ route ('trainer.higherclass.status')}}" class="box"><div>
+                            <a href="{{ route ('higherclasstestsummary')}}" class="box"><div>
                             <img class="img-fluid" alt="" src="{{asset('uploads/icons/hc_test-status.svg') }}"></div><span>
                             Test Summary <br> (Class-4 & Above)</span></a>
                         </div> 

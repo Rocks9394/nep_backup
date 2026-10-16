@@ -24,30 +24,28 @@ class DataListingComponent extends Component
     public $enableExportButtons;
     public $enableClassFilter;
     public $enableOnlyClassFilter;
+    public $enableStatusFilter;
     public $enableSkillNameFilter;
     public $enableClassSectionFilter;
-    public $enableStatusFilter;
-    public $enableSchoolTermsFilter;
-    public $enableSportsFilter;
-    public $enableCustomFilter;   // Boolean: whether to show the filter
-    public $customFilterOptions;  // Array: options for dropdown
-    public $selectedCustomFilter;
-
+    public $enableTestStatusFilter;
+    public $enableSchoolTermsFilter;       //added 07-05-2026
+    public $enableStudentCategoryFilter;       //added 07-10-2026
     public $classes;
-    public $skillIds;
+    public $skillIds;    
     public $schoolTerms;
-    public $sports;
-
-    public $statuses;
+    public $testStatus;
+    public $studentCategory;
+    public $status;
     public $pageLength;
     public $enableLengthMenu;
     public $searchPlaceholder;
     public $statusModeFlag;
     public $selectedStatus;
+    public $selectedTestStatus;
 
-    public $selectedClass;     // ADD THIS PROPERTY FOR PRE-SELECTED CLASS
+    public $selectedClass; // ADD THIS PROPERTY FOR PRE-SELECTED CLASS
     public $selectedOnlyClass; // ADD THIS PROPERTY FOR PRE-SELECTED CLASS
-    public $selectedSection;   // ADD THIS FOR PRE-SELECTED SECTION
+    public $selectedSection; // ADD THIS FOR PRE-SELECTED SECTION
     public $exportButtonText;   // ADD THIS TO CHANGE EXPORT BUTTON -> BULK ACTION
 
     public function __construct(
@@ -60,28 +58,25 @@ class DataListingComponent extends Component
         $classes = [],
         $skillIds = [],
         $schoolTerms = [],
-        $sports = [],
-
         $enableClassFilter = false, 
         $enableOnlyClassFilter = false,
         $enableSkillNameFilter = false,
         $enableClassSectionFilter = false, 
+        $enableTestStatusFilter = false,
+        $enableStudentCategoryFilter = false,
         $enableStatusFilter = false,
         $enableSchoolTermsFilter = null,
-        $enableSportsFilter = false,
-        $enableCustomFilter = false, 
-        $customFilterOptions = [],
-        $selectedCustomFilter = null,
-
         $statusModeFlag = 0,
         $enableExportButtons = false,
         $enableLengthMenu = true,
         $pageLength = 100,
         $searchPlaceholder = 'Search...',
-        $selectedClass = null,      // ADD THIS PARAMETER
-        $selectedOnlyClass = null,  // ADD THIS PARAMETER
-        $selectedSection = null,    // ADD THIS PARAMETER
-        $selectedStatus = null,      // ADD THIS PARAMETER
+        $selectedClass = null, // ADD THIS PARAMETER
+        $selectedOnlyClass = null, // ADD THIS PARAMETER
+        $selectedSection = null, // ADD THIS PARAMETER
+        $selectedStatus = null, // ADD THIS PARAMETER
+        $selectedStudentCategory = null, // ADD THIS PARAMETER
+        $selectedTestStatus = null, // ADD THIS PARAMETER
         $exportButtonText = null        //Add this for Export button text
 
         ){
@@ -92,43 +87,46 @@ class DataListingComponent extends Component
         $this->ajaxUrl = $ajaxUrl;             
 
         $this->enableStatusFilter = filter_var($enableStatusFilter, FILTER_VALIDATE_BOOLEAN);
+        $this->enableTestStatusFilter = filter_var($enableTestStatusFilter, FILTER_VALIDATE_BOOLEAN);
+        $this->enableStudentCategoryFilter = filter_var($enableStudentCategoryFilter, FILTER_VALIDATE_BOOLEAN);
         $this->statusModeFlag = (int)$statusModeFlag;
         $this->enableClassFilter = filter_var($enableClassFilter, FILTER_VALIDATE_BOOLEAN);
         $this->enableOnlyClassFilter = filter_var($enableOnlyClassFilter, FILTER_VALIDATE_BOOLEAN);
+
+
+        $this->enableSchoolTermsFilter = filter_var($enableSchoolTermsFilter, FILTER_VALIDATE_BOOLEAN);
+
+
         $this->enableSkillNameFilter = filter_var($enableSkillNameFilter, FILTER_VALIDATE_BOOLEAN);
         $this->enableClassSectionFilter = filter_var($enableClassSectionFilter, FILTER_VALIDATE_BOOLEAN);
-
-         $this->enableSchoolTermsFilter = filter_var($enableSchoolTermsFilter, FILTER_VALIDATE_BOOLEAN);
-         $this->enableSportsFilter = filter_var($enableSportsFilter, FILTER_VALIDATE_BOOLEAN);
-        $this->enableCustomFilter = filter_var($enableCustomFilter, FILTER_VALIDATE_BOOLEAN);
-        $this->customFilterOptions = $customFilterOptions;
-        $this->selectedCustomFilter = $selectedCustomFilter;    
-
         $this->enableExportButtons = filter_var($enableExportButtons, FILTER_VALIDATE_BOOLEAN);
         $this->enableLengthMenu = filter_var($enableLengthMenu, FILTER_VALIDATE_BOOLEAN); 
         $this->pageLength = (int)$pageLength;
-        $this->selectedClass = $selectedClass;          // SET SELECTED CLASS
-        $this->selectedOnlyClass = $selectedOnlyClass;  // SET SELECTED CLASS
-        $this->selectedStatus = $selectedStatus;        // SET SELECTED STATUS
-        $this->selectedSection = $selectedSection;      // SET SELECTED SECTION
+        $this->selectedClass = $selectedClass; // SET SELECTED CLASS
+        $this->selectedOnlyClass = $selectedOnlyClass; // SET SELECTED CLASS
+        $this->selectedStatus = $selectedStatus; // SET SELECTED STATUS
+        $this->selectedTestStatus = $selectedTestStatus; // SET SELECTED STATUS
+        $this->selectedSection = $selectedSection; // SET SELECTED SECTION
+        $this->selectedStudentCategory = $selectedStudentCategory; // SET SELECTED SECTION
         $this->searchPlaceholder = $searchPlaceholder;
         $this->exportButtonText = $exportButtonText;
         
  
-        $this->classes = $this->SchoolClassList();
-        $this->skillIds = $this->SkillIds();
+        $this->classes = $this->SchoolClassList();        
         $this->schoolTerms = $this->getSchoolTerms();
-        $this->sports = $this->getSports();
-
+        $this->skillIds = $this->SkillIds();
+        
         $defaultButtons = $this->enableExportButtons ? [ ['type' => 'excelHtml5', 'text' => 'Excel']] : [];
         $this->exportButtons = array_merge($defaultButtons, $exportButtons ?? []);
 
-
-        // if ($this->enableStatusFilter) {
-        //     $this->statuses = $this->enableStatusFilter();
-        // }
+        if ($this->enableTestStatusFilter) {
+            $this->testStatus = $this->getTestStatus();
+        }
+        if ($this->enableStudentCategoryFilter) {
+            $this->studentCategory = $this->getStudentCategory();
+        }
         if ($this->enableStatusFilter) {
-            $this->statuses = $this->getStatuses();
+            $this->status = $this->getStatus();
         }
     }
 
@@ -138,21 +136,21 @@ class DataListingComponent extends Component
         ->get();
     }
 
-
     protected function SchoolClassList() {
 
         $creatorId = Auth::id();
-        if(Auth::user()->role_id == 4){
-            $schoolId = DB::table('school_reference')->where('school_user_id', $creatorId)->where('status', 1)->value('school_id');
-        }else{
+        
+        if(Auth::user()->role_id == 3){
 
-            if(Session::get('SelectSchoolId')) {   
+            if(Session::get('SelectSchoolId')) {
                 $schoolId = Session::get('SelectSchoolId');
-                
-            }else {
-                
-                $schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
+            }else{
+                $schoolId = DB::table('school_trainers')
+                ->join('schools','schools.id','=','school_trainers.school_id')
+                ->where('school_trainers.trainer_id',$creatorId)->where('school_trainers.status', 1)->value('school_trainers.school_id');
             }
+        }else{
+            $schoolId = DB::table('school_reference')->where('school_user_id',$creatorId)->where('status', 1)->value('school_id');
         }
         
 
@@ -198,10 +196,9 @@ class DataListingComponent extends Component
 
         return $classList;
     }
-    
 
-    protected function getStatuses(): array{
-        
+
+    protected function getTestStatus(): array{
         if ($this->statusModeFlag === 1) {
             return [
                 ['value' => 'all', 'label' => 'All'],
@@ -211,35 +208,53 @@ class DataListingComponent extends Component
         return [
             ['value' => 'all', 'label' => 'All'],
             ['value' => 'complete', 'label' => 'Complete'],
-            ['value' => 'pending', 'label' => 'Ongoing'],
-            ['value' => 'yet_to_start', 'label' => 'Yet To Start'],
+            ['value' => 'incomplete', 'label' => 'Incomplete'],
+        ];
+    }
+    protected function getStudentCategory(): array{
+       
+        return [
+            ['value' => 'all', 'label' => 'All Category'],
+            ['value' => 'normal', 'label' => 'Normal'],
+            ['value' => 'cwsn', 'label' => 'CWSN'],
+        ];
+    }
+
+    protected function getStatus(): array{        
+        return [
+            ['value' => 'active', 'label' => 'Active'],
+            ['value' => 'transfer', 'label' => 'Transfered'],
+            ['value' => 'promoted', 'label' => 'Promoted'],
+            ['value' => 'failed', 'label' => 'Failed'],
+            ['value' => '', 'label' => 'All Students'],
         ];
     }
 
     protected function getSchoolTerms() {
 
         $creatorId = Auth::id();
-        if(Auth::user()->role_id == 4){
-            $schoolId = DB::table('school_reference')->where('school_user_id', $creatorId)->where('status', 1)->value('school_id');
-        }else{
+        if(Auth::user()->role_id == 3){
 
-            if(Session::get('SelectSchoolId')) {   
+            if(Session::get('SelectSchoolId')) {
                 $schoolId = Session::get('SelectSchoolId');
-                
-            }else {
-                
-                $schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
+            }else{
+                $schoolId = DB::table('school_trainers')
+                ->join('schools','schools.id','=','school_trainers.school_id')
+                ->where('school_trainers.trainer_id',$creatorId)->where('school_trainers.status', 1)->value('school_trainers.school_id');
             }
+        }else{
+            $schoolId = DB::table('school_reference')->where('school_user_id',$creatorId)->where('status', 1)->value('school_id');
         }
+        
         $cacheKey = "school_terms_{$schoolId}";
         
         Cache::forget($cacheKey);
         $TermMasterId = $this->getTermId($schoolId);
 
-		$TermIds = $this->getCurrentAndPreviousTermIds($schoolId, (int) $TermMasterId);
-		
-		$terms = TermMaster::whereIn('id', $TermIds)->get();
-
+        $TermIds = $this->getCurrentAndPreviousTermIds($schoolId, (int) $TermMasterId);
+        
+        $terms = TermMaster::whereIn('id', $TermIds)->get();
+    
         return Cache::remember($cacheKey, now()->addHours(6), function () use ($terms) {
             return $terms
                 ->map(fn ($term) => [
@@ -253,29 +268,6 @@ class DataListingComponent extends Component
         });
     }
 
-    protected function getSports() {
-        $userId = Auth::id();
-        
-		if(Auth::user()->role_id == 3){
-			if(Session::get('SelectSchoolId')){	
-				$schoolId = Session::get('SelectSchoolId');	
-			}else{
-				$schoolId = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->value('school_id');
-			}
-		}else{
-			$schoolId = DB::table('school_reference')->where('school_user_id',$userId)->where('status', 1)->value('school_id');
-		}
-
-        $sports = DB::table('student_map_sports')
-        ->join('sports', 'sports.id', '=', 'student_map_sports.sports_id')
-        ->where('school_id',$schoolId)->select('sports.name', 'sports.id')
-        ->groupBy('sports.id', 'sports.name')
-        ->orderBy('sports.name')
-        ->get()
-        ->toArray();
-        return $sports;
-
-    }
 
     public function render() {
 

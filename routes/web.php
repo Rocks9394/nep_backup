@@ -157,9 +157,7 @@ Route::group(['middleware' => 'auth'], function () {
 	
 	Route::post('assessor-app-modified-push-up-record-submit',[App\Http\Controllers\AssessorAppController::class, 'SubmitModifiedPushUpRecord'])->name('modified.push.up.record.submit');
 
-	// to view reports on trainer 
-	Route::get('higherclass/summary', [ReportController::class, 'HigherClassTestSummary'])->name('trainer.higherclass.status');
-	Route::get('lowerclass/summary', [ReportController::class, 'LowerClassTestSummary'])->name('trainer.lowerclass.status');
+	
 	Route::get('report/{id}', [AssessorAppController::class, 'ViewFitnessReport'])->name('trainer.reports.view');
 	Route::get('cwsn/summary', [ReportController::class, 'cwsnTestSummary'])->name('trainer.cwsn.status');
 
@@ -518,6 +516,17 @@ Route::prefix('school')->group(function(){
 
 	
 });
+
+/**
+ * Date : 15-10-2026
+ * Updated Route For Handling TestSummaryResult */
+Route::get('lowerclass/summary', [ReportController::class, 'LowerClassTestSummary'])->name('lowerclasstestsummary');
+Route::get('higherclass/summary', [ReportController::class, 'HigherClassTestSummary'])->name('higherclasstestsummary');
+Route::get('reports/{id?}/{term_id?}', [ReportController::class, 'ViewFitnessReport'])->name('reports.view');
+
+Route::get('downloadReport/{id?}/{term_id?}', [ReportController::class, 'downloadFitnessReport'])->name('reports.download');
+
+
 // for view dart (schools, trainers and school users)
 Route::get('viewdart', [FillDartController::class,'viewSchoolDart'])->name('viewschooldart');
 	

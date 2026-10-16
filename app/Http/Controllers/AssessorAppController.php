@@ -1120,6 +1120,140 @@ class AssessorAppController extends Controller
 
 		$userId = Auth::id();
 
+		if(Session::get('SelectSchoolId')) {
+			$SchoolId = Session::get('SelectSchoolId');
+		}else{
+			$SchoolId = DB::table('school_trainers')
+			->join('schools','schools.id','=','school_trainers.school_id')
+			->where('school_trainers.trainer_id',$userId)
+			->where('school_trainers.status', 1)
+			->value('school_trainers.school_id');
+		}
+		
+		$TermMasterId = $this->getTermId($SchoolId);
+
+	    $school = School::find($SchoolId);
+		
+	    $query = $request->get('query');
+	    $classCustom = $request->get('class_id'); 
+
+		$testStatus = $request->test_status;
+		$skillReportId = $request->skillReportId;
+		$testType = $request->testType;
+
+	    if (!$classCustom) {
+	        return response()->json([]);
+	    }
+
+		$termMasterId =  $this->getTermId($SchoolId);
+		// echo"<pre>";print_r($termMasterId);exit();
+
+	    [$customClassId, $classId, $sectionId] = explode('-', $classCustom, 3);
+		$year = date('Y');
+		$month = date('m');
+		$academicYear = ($month >= 4)
+			? $year . '-' . ($year + 1)
+			: ($year - 1) . '-' . $year;
+
+
+		$getData =  DB::table('students')
+				->where('school_id', (string) $SchoolId)
+				->where('academic_year', $academicYear)
+				->where('status','active')
+				->where('class_id', $classId)
+				->where('custom_class_id', $customClassId)
+				->where('section_id', $sectionId);
+
+
+		if($testType == 'cwsnlist'){
+			$getData->where('students.is_pwd', '1')
+			->join('student_rpwd_mapping', 'students.id', '=', 'student_rpwd_mapping.student_id')
+	        ->join('pwd_types', 'student_rpwd_mapping.pwd_type_id', '=', 'pwd_types.id');
+		}
+
+
+		$select = [
+	        'students.id',
+	        'students.rollno',
+	        'students.student_name',
+	        'students.user_id',
+	    ];
+
+	    if ($testType === 'cwsnlist') {
+	        $select[] = 'students.is_pwd';
+	        $select[] = 'pwd_types.disability_type';
+	    }
+
+		if ($testStatus == "all" && $testType != "cwsnlist") {	
+
+			$students = $getData
+			->when((int) $classId >= 5, function ($query) {
+		  
+		            $query->where('students.is_pwd', '0');
+		        })
+			->select($select)->orderBy('rollno', 'asc')->get();
+
+		} else if ($testStatus == "remaining" && $testType == "allFmsTest") {
+			$students = $getData->whereNotExists(function ($query) use ($skillReportId,$termMasterId) {
+					$query->select(DB::raw(1))
+						->from('skillreport_skilltype_termtype_mapping as mapping')
+						->whereRaw('mapping.student_id = students.id')
+						->where('mapping.skill_report_id', '=', $skillReportId)
+						->where('mapping.term_master_id', '=', $termMasterId);
+				})
+				// ->select('students.id', 'students.rollno', 'students.student_name', 'students.user_id')
+				->select($select)->distinct()
+				->orderBy('students.rollno', 'asc')
+				->get();
+
+		} else if ($testStatus == "remaining" && $testType == "cwsnlist") {
+ 			
+			$categoryId = (int) $request->input('cwsn_type');
+			$students = $getData->whereNotExists(function ($query) use ($termMasterId, $categoryId ) {
+		        $query->select(DB::raw(1))
+		            ->from('SeniorTestResults as mapping')
+		            ->join('skill_reports', 'skill_reports.id', '=', 'mapping.TestTypeID')
+		            ->join('TestTypeMaster', 'TestTypeMaster.TestTypeID', '=', 'skill_reports.TestTypeMasterID')
+		            ->where('TestTypeMaster.TestCategoryID', '=', $categoryId)
+		            ->whereRaw('mapping.StudentID = students.id')
+		            ->where('mapping.TermId', '=', $termMasterId);
+		    })
+		    ->select($select)
+		    ->distinct()
+		    ->orderBy('students.rollno', 'asc')
+		    ->get();
+
+		} else if ($testStatus == "all" && $testType == "cwsnlist") {
+
+			$students = $getData->select($select)->distinct()->orderBy('students.rollno', 'asc')->get();
+
+		} else {
+			
+			$students = $getData
+				->when((int) $classId >= 5, function ($query) {
+		            $query->where('students.is_pwd', '0');
+		        })
+			->whereNotExists(function ($query) use ($skillReportId,$termMasterId) {
+				$query->select(DB::raw(1))
+					->from('SeniorTestResults as mapping')
+					->whereRaw('mapping.StudentID = students.id')
+					->where('mapping.TestTypeID', '=', $skillReportId)
+					->where('mapping.TermId', '=', $termMasterId);
+			})
+			->select($select)->distinct()
+			->orderBy('students.rollno', 'asc')
+			->get();
+		}
+
+	    return response()->json($students);
+	}
+	
+
+	public function getStudentsRoll_bk(Request $request) {
+
+
+		$userId = Auth::id();
+
 		if (Session::has('SelectSchoolId')) {
             $SchoolId = Session::get('SelectSchoolId');
         } else {
@@ -1132,6 +1266,7 @@ class AssessorAppController extends Controller
 
 	    $school = School::find($SchoolId);
 		
+
 	    $query = $request->get('query');
 	    $classCustom = $request->get('class_id'); 
 
@@ -1184,7 +1319,15 @@ class AssessorAppController extends Controller
 
 
 		if ($testStatus == "all" && $testType != "cwsnlist") {
-			$students = $getData->select($select)->distinct()->orderBy('students.rollno', 'asc')->get();
+
+			$students = $getData
+			->when((int) $classId >= 5, function ($query) {
+		  
+		            $query->where('students.is_pwd', '0');
+		        })
+			->select($select)->orderBy('rollno', 'asc')->get();
+
+			//$students = $getData->select($select)->distinct()->orderBy('students.rollno', 'asc')->get();
 
 		} else if ($testStatus == "remaining" && $testType == "allFmsTest") {
 			
@@ -1223,18 +1366,20 @@ class AssessorAppController extends Controller
 
 		} else {
 			
-			$students = $getData->whereNotExists(function ($query) use ($skillReportId, $termMasterId) {
-					$query->select(DB::raw(1))
-						->from('SeniorTestResults as mapping')
-						->whereRaw('mapping.StudentID = students.id')
-						->where('mapping.TestTypeID', '=', $skillReportId)
-						->where('mapping.TermId', '=', $termMasterId);
-				})
-				->select($select)->distinct()
-				->orderBy('students.rollno', 'asc')
-				->get();
-
-			
+			$students = $getData
+				->when((int) $classId >= 5, function ($query) {
+		            $query->where('students.is_pwd', '0');
+		        })
+			->whereNotExists(function ($query) use ($skillReportId,$termMasterId) {
+				$query->select(DB::raw(1))
+					->from('SeniorTestResults as mapping')
+					->whereRaw('mapping.StudentID = students.id')
+					->where('mapping.TestTypeID', '=', $skillReportId)
+					->where('mapping.TermId', '=', $termMasterId);
+			})
+			->select($select)->distinct()
+			->orderBy('students.rollno', 'asc')
+			->get();
 		}
 
 			

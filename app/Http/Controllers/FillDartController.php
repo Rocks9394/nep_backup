@@ -223,7 +223,6 @@ class FillDartController extends Controller
 
 			$healthData["term_$termId"] = array_values($counts);
 		}
-		
 			
 		// echo"<pre>";print_r($termIds);exit();
 

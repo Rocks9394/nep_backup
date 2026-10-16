@@ -187,7 +187,7 @@
             
             <?php  $type = "cwsnlist"; ?>
             <?php if (isset($component)) { $__componentOriginal8fdb99169813d7b2e5e78c9939a9c1f82b695361 = $component; } ?>
-<?php $component = $__env->getContainer()->make(App\View\Components\SpeedGetStudents::class, ['classes' => $classes,'type' => $type,'cwsnType' => $pwd_category_id]); ?>
+<?php $component = $__env->getContainer()->make(App\View\Components\SpeedGetStudents::class, ['classes' => $classes,'type' => $type,'cwsnType' => $pwd_category_id,'title' => $title]); ?>
 <?php $component->withName('speed-get-students'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>

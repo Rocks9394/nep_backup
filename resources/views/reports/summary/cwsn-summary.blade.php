@@ -4,7 +4,7 @@
 
 <style>
 .dropdown.show [aria-expanded="true"] {
-    background:#fff;
+  background:#fff;
 }
 .dropdown .form-control {
     height: 32px !important;
@@ -35,7 +35,7 @@
 
 /* Style for the top-level parent category headers (Row 1) */
 #FitnessTestStatus thead tr:first-child th {
-    background-color: #131340; /* A darker, richer shade to anchor the top group */
+    background-color: #1e2538; /* A darker, richer shade to anchor the top group */
     color: #ffffff;
     font-size: 13px;
     font-weight: 700;
@@ -73,7 +73,7 @@
     <div class="t-mrg2 mb-5 pb-5 px-4">
         <div class="row">
         
-            <div class="col-12 col-md">
+            <div class="col-12 row col-md">
                 <div class="heading-rw mt-0 mt-md-1 mb-0 p-0 d-flex">                
                     <x:back-button title="{{$title}}" />
                 </div>
@@ -83,8 +83,8 @@
                 <div class="tab-content cus-radius pb-5 mt-4">
                     <!-- Infrastructure List Tab -->
                 
-                    <table id="FitnessTestStatus" class="table table-bordered tbl-style display mb-4" style="width:100%">
-                        <thead>
+                        <table id="FitnessTestStatus" class="table table-bordered tbl-style display mb-4" style="width:100%">
+                            <thead>
                             <tr>
                                 <!-- Non-grouped columns spanning 3 rows vertically -->
                                 <th scope="col" rowspan="3">Class</th>
@@ -111,32 +111,30 @@
                             <tr>
                                 <!-- One-mile run/walk parent sub-header spanning VO2 max & Time Taken -->
                                 <th scope="col" colspan="2" class="text-center">One-mile run/walk</th>
-                                <th scope="col" rowspan="2" class="align-middle">20-m Pacer (laps)</th>
-                                <th scope="col" rowspan="2" class="align-middle">Modified 15-m Pacer (laps)</th>
+                                <th scope="col" rowspan="2" class="align-middle">20-m Pacer</th>
+                                <th scope="col" rowspan="2" class="align-middle">Modified 15-m Pacer</th>
 
                                 <!-- Sub-headers for Strength and Endurance (Spanning 2 rows down) -->
-                                <th scope="col" rowspan="2" class="align-middle">Reverse Curl (P|F)</th>
-                                <th scope="col" rowspan="2" class="align-middle">40-m push/walk (P|F)</th>
+                                <th scope="col" rowspan="2" class="align-middle">Reverse Curl</th>
+                                <th scope="col" rowspan="2" class="align-middle">40-m push/walk</th>
                                 <th scope="col" rowspan="2" class="align-middle">Push-ups</th>
-                                <th scope="col" rowspan="2" class="align-middle">Seated Push-ups (sec.ms)</th>
+                                <th scope="col" rowspan="2" class="align-middle">Seated Push-ups</th>
                                 <th scope="col" rowspan="2" class="align-middle">Pull-ups</th>
                                 <th scope="col" rowspan="2" class="align-middle">Modified Pull-ups</th>
                                 <th scope="col" rowspan="2" class="align-middle">Dumbbell Press</th>
-                                <th scope="col" rowspan="2" class="align-middle">Isometric Push-ups (sec.ms)</th>
+                                <th scope="col" rowspan="2" class="align-middle">Isometric Push-ups</th>
                                 <th scope="col" rowspan="2" class="align-middle">Curl-ups</th>
                                 <th scope="col" rowspan="2" class="align-middle">Modified Curl-ups</th>
-                                <th scope="col" rowspan="2" class="align-middle">Trunk Lift (cm)</th>
+                                <th scope="col" rowspan="2" class="align-middle">Trunk Lift</th>
 
                                 <!-- Sub-headers for Flexibility (Spanning 2 rows down) -->
                                 <th scope="col" rowspan="2" class="align-middle">
                                     Shoulder stretch<br>
                                     <span style="font-size: 11px; white-space: nowrap;">Left | Right</span>
-                                    <span style="font-size: 11px; white-space: nowrap;">T | F</span>
                                 </th>
                                 <th scope="col" rowspan="2" class="align-middle">
                                     Back-Saver Sit-and-Reach<br>
                                     <span style="font-size: 11px; white-space: nowrap;">Left | Right</span>
-                                    <span style="font-size: 11px; white-space: nowrap;">(cm.mm)</span>
                                 </th>
                                 <th scope="col" rowspan="2" class="align-middle">
                                     Modified Apley Test<br>
@@ -144,26 +142,31 @@
                                 </th>
 
                                 <!-- Sub-headers for Body Mass Composition (Spanning 2 rows down) -->
-                                <th scope="col" rowspan="2" class="align-middle">BMI (kg/m²)</th>
-                                <th scope="col" rowspan="2" class="align-middle">Height (cm)</th>
-                                <th scope="col" rowspan="2" class="align-middle">Weight (kg)</th>
+                                <th scope="col" rowspan="2" class="align-middle">BMI</th>
+                                <th scope="col" rowspan="2" class="align-middle">Height</th>
+                                <th scope="col" rowspan="2" class="align-middle">Weight</th>
                             </tr>
                             <tr>
                                 <!-- Specific sub-fields under One-mile run/walk -->
-                                <th scope="col">VO₂ max (mL/kg/min)</th>
-                                <th scope="col">Time Taken (mm:ss)</th>
+                                <th scope="col">VO₂ max</th>
+                                <th scope="col">Time Taken</th>
                             </tr>
                         </thead>
-                        <tbody> </tbody>
-                    </table>
+                            <tbody> </tbody>
+                        </table>
+                
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-/* Simple debounce utility */
+
+
+
+
+<script >
+   /* Simple debounce utility */
 function debounce(fn, delay) {
     let timeout;
     return function(...args) {
@@ -187,7 +190,7 @@ $(document).ready(function() {
             data: function(d) {
                 d.class = $('#filter_class').val();
                 d.term = $('#filter_term').val();         
-                d.status = $('#filter_status').val();    
+                d.status = $('#filter_status').val();   
                 d.test = $('.filter_test:checked').map(function () {
                     return $(this).val();
                 }).get();
@@ -259,6 +262,7 @@ $(document).ready(function() {
             }
         ],
 
+
         buttons: [{
             extend: 'collection',
             text: 'Export',
@@ -272,12 +276,13 @@ $(document).ready(function() {
                 },
             ],
         }],
+       
 
         initComplete: function () {
             $('.dt-search input[type="search"]').attr('placeholder', 'Student | Roll No.');
 
             var classList = @json($classList);
-            const $dropdown =$('<select class="form-control" id="filter_class"></select>');
+            const $dropdown = $('<select class="form-control" id="filter_class"></select>');
             classList.forEach(option => {
                 const section = option.section ? ` - ${option.section}` : '';
                 const displayText = option.name + section ;
@@ -290,7 +295,7 @@ $(document).ready(function() {
             /* === Terms Filter === */
             var terms = @json($terms);
             var selectedTermId = @json($TermMasterId);
-            const $termDropdown =$('<select class="form-control" id="filter_term"></select>');
+            const $termDropdown = $('<select class="form-control" id="filter_term"></select>');
             terms.forEach(option => {
                 const displayText =option.academic_year + ' | ' +  option.term_name;
                 const value = option.academic_year + '|' + option.id;
@@ -311,7 +316,7 @@ $(document).ready(function() {
                 { name: 'Complete', status: 'complete'},
                 { name: 'Incomplete', status: 'incomplete'},
             ];
-            const $dropdown1 =$('<select class="form-control" id="filter_status"></select>');
+            const $dropdown1 = $('<select class="form-control" id="filter_status"></select>');
             status.forEach(option => $dropdown1.append(new Option(option.name, option.status)));
             $('<div class="pull-right"></div>').append($dropdown1).appendTo("#FitnessTestStatus_wrapper .top").next('.dt-length').addClass("pull-right");
             $dropdown1.on('change', function() {
@@ -339,9 +344,10 @@ $(document).ready(function() {
                 { name: 'Sit and Reach Test', test: 'sit_and_reach' },
                 { name: 'Shoulder Stretch', test: 'shoulder_stretch' },
                 { name: 'Body Mass Index', test: 'cwsn_bmi' }
+
             ];
         
-            let $dropdown2 =$(`
+            let $dropdown2 = $(`
                 <div class="dropdown" style="display:inline-block;">
                     <button class="form-control dropdown-toggle" type="button" data-toggle="dropdown" id="test_count_label">
                         All Tests <span class="caret"></span>
@@ -350,8 +356,8 @@ $(document).ready(function() {
                 </div>
             `);
 
-            let $list =$dropdown2.find(".dropdown-menu");
-            let $selectAll =$(`
+            let $list = $dropdown2.find(".dropdown-menu");
+            let $selectAll = $(`
                 <li>
                     <label style="font-weight:bold; cursor:pointer;">
                         <input type="checkbox" id="select_all_tests"> Select All
@@ -362,7 +368,7 @@ $(document).ready(function() {
             $list.append($selectAll);
 
             testType.forEach(option => {
-                let $chk =$(`
+                let $chk = $(`
                     <li>
                         <label style="white-space:nowrap; cursor:pointer;">
                             <input type="checkbox" class="filter_test" value="${option.test}" checked> ${option.name}
@@ -420,7 +426,7 @@ $(document).ready(function() {
                     let colIndex = table.column(test + ':name').index();
                     if (colIndex !== undefined) table.column(colIndex).visible(false);
                 });
-                let selectedTests = $('.filter_test:checked').map(function(){ return$(this).val(); }).get();
+                let selectedTests = $('.filter_test:checked').map(function(){ return $(this).val(); }).get();
                 if (selectedTests.length === 0) {
                     testColumns.forEach(test => {
                         let colIndex = table.column(test + ':name').index();
@@ -431,7 +437,7 @@ $(document).ready(function() {
                         let colIndex = table.column(test + ':name').index();
                         if (colIndex !== undefined) table.column(colIndex).visible(true);
                     });
-                    if (selectedTests.includes('cwsn_bmi')) {
+                    if (selectedTests.includes('bmi')) {
                         ['height','weight'].forEach(test => {
                             let colIndex = table.column(test + ':name').index();
                             if (colIndex !== undefined) table.column(colIndex).visible(true);
@@ -460,10 +466,11 @@ $(document).ready(function() {
         }
     });
 
+    
     $('#FitnessTestStatus').on('click', '.btn-link', function(e) {
         e.preventDefault();
-        var pwdTypeId = $(this).attr('data-pwd-type-id');
         
+        var pwdTypeId = $(this).attr('data-pwd-type-id');
         if (!pwdTypeId || pwdTypeId === 'null' || pwdTypeId === 'undefined') {
             Swal.fire({
                 icon: 'warning',

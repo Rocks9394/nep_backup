@@ -24,20 +24,18 @@
     color: #000;
     font-weight: bold;
 }
-.heading-rw {
-        padding: 0 50px;
-        display: flex;
-        align-content: center;
-        align-items: center;
-        justify-content: flex-start;
-    }
+
+input[type=checkbox] {
+    margin-left: 0rem !important;
+}
+
 </style>
 
 <div class="container-fluid">
     <div class="t-mrg2 mb-5 pb-5 px-4">
         <div class="row">
         
-            <div class="col-12 col-md">
+            <div class="col-12 col-md row">
                 <div class="heading-rw mt-0 mt-md-1 mb-0 p-0">                
                     <x:back-button title="{{$title}}" />
                 </div>
@@ -104,8 +102,8 @@ $(document).ready(function() {
             type: 'GET',
             data: function(d) {
                 d.class = $('#filter_class').val();
-                d.term = $('#filter_term').val();         
-                d.status = $('#filter_status').val();   
+                d.term = $('#filter_term').val(); 
+                d.status = $('#filter_status').val();            
                 d.test = $('.filter_test:checked').map(function () {
                     return $(this).val();
                 }).get();
@@ -182,15 +180,15 @@ $(document).ready(function() {
             });
             $('<div class="pull-right"></div>').append($dropdown).appendTo("#FitnessTestStatus_wrapper .top").next('.dt-length').addClass("pull-right");
             $dropdown.on('change', function() { table.ajax.reload(); });
-            
+
             /* === Terms Filter === */
             var terms = @json($terms);
             var selectedTermId = @json($TermMasterId);
             const $termDropdown = $('<select class="form-control" id="filter_term"></select>');
             terms.forEach(option => {
                 const displayText =option.academic_year + ' | ' +  option.term_name;
-                const value = option.term_id ?? option.id;
-                const isSelected = value == selectedTermId;
+                const value = option.academic_year + '|' + option.id;
+                const isSelected = option.id == selectedTermId;
                 $termDropdown.append(new Option(displayText, value, isSelected, isSelected));
             });
 
@@ -230,7 +228,7 @@ $(document).ready(function() {
                     <button class="form-control dropdown-toggle" type="button" data-toggle="dropdown" id="test_count_label">
                         All Tests <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu" style="padding:8px 0px 0px 32px; max-height:300px; overflow:auto; min-width:200px;"></ul>
+                    <ul class="dropdown-menu" style="padding:10px; max-height:300px; overflow:auto; min-width:200px;"></ul>
                 </div>
             `);
 
@@ -332,7 +330,7 @@ $(document).ready(function() {
             Swal.fire({
                 icon: 'warning',
                 title: 'Invalid Age',
-                text: 'The student\'s age does not meet the class-age requirements.',
+                text: 'The student does not meet the class-wise age requirement. You may view or download the report from the Assessment Reports module.',
             });
             return;
         }
