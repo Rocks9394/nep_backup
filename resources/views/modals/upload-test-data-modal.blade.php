@@ -15,7 +15,24 @@
             <div class="modal-body text-center">
 
                 <form id="uploadTestFile" action="javascript:void(0);">
-                    @csrf
+                    @csrf                    
+                    <div class="form-group mb-3 d-flex align-items-center justify-content-center">
+                        <label for="termDetail" class="form-label mb-0 mr-2" style="width: 20%; color: #000">
+                            Select Term: <span style="color: red; font-weight: bold;">*</span>
+                        </label>
+
+                        <select class="form-control w-auto" name="termDetail" id="termDetail" style="width: 80%;" required oninvalid="this.setCustomValidity('Please select an Academic Year | Term.')"
+            onchange="this.setCustomValidity('')">
+                            <option value="">Select Academic Year | Term</option>
+                            @foreach($terms as $term)
+                                <option
+                                    value="{{ $term->academic_year }}|{{ $term->id }}">
+                                    {{ $term->academic_year }} | {{ $term->term_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <input type="hidden" name="event" value="preview">
 
                     <!-- Drag & Drop Area -->
@@ -129,6 +146,15 @@
         fileInput.files = e.dataTransfer.files;
         fileName.textContent = file.name;
         fileName.classList.remove('d-none');
+    });
+
+    $('#uploadtestdata').on('hidden.bs.modal', function () {
+        $('#uploadTestFile')[0].reset();
+        $('#fileInput').val('');
+        $('#fileName').text('').addClass('d-none');
+        $('#uploadProgress').addClass('d-none');
+        $('#dropZone').removeClass('dragover');
+        $('#termDetail').get(0).setCustomValidity('');
     });
 </script>
 

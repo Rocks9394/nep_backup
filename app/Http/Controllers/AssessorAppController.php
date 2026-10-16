@@ -2093,7 +2093,6 @@ class AssessorAppController extends Controller
 		->where('school_user_id',$userId)
 		->where('status', 1)
 		->value('school_id');
-		// $TermMasterId = $this->getTermId($SchoolId);
 
 		$skillIds = DB::table('skill_reports')->get();
 
@@ -2229,8 +2228,12 @@ class AssessorAppController extends Controller
         ->where('user_id', Auth::id())->where('is_active', 'active')
         ->orderBy('created_at', 'desc')
         ->get();
+		$TermMasterId = $this->getTermId($SchoolId);
+		$TermIds = $this->getCurrentAndPreviousTermIds($SchoolId, (int) $TermMasterId);
+        
+        $terms = TermMaster::whereIn('id', $TermIds)->get();
 
-		return view('assessor.upload-test-data', compact('title', 'skillIds', 'SchoolId', 'logs'));
+		return view('assessor.upload-test-data', compact('title', 'skillIds', 'SchoolId', 'TermMasterId','terms' , 'logs'));
 	}
 
 	public function testScoreSample(Request $request) {
@@ -2277,7 +2280,11 @@ class AssessorAppController extends Controller
 
             $skillIds = $request->input('skillIds', []);
             $schoolId = $request->schoolId;
-            $status   = $request->status;
+            $status   = $request->status;			
+
+			list($academicYear, $term_id) = explode('|', $request->termDetails);
+
+			// echo"<pre>";print_r($academic_year);exit();	
 
             if (empty($skillIds)) {
                 return response()->json(['error' => 'No skills selected'], 400);
@@ -2297,12 +2304,6 @@ class AssessorAppController extends Controller
                 ->whereIn('id', $skillIds)
                 ->pluck('skill_name', 'id');
 
-			$year = date('Y');
-			$month = date('m');
-			$academicYear = ($month >= 4)
-				? $year . '-' . ($year + 1)
-				: ($year - 1) . '-' . $year;
-
             if (count($skillIds) === 1) {
 
                 $skillId  = $skillIds[0];
@@ -2312,7 +2313,7 @@ class AssessorAppController extends Controller
                     ->where('school_code', $schoolCode)
 					->where('academic_year', $academicYear)
                     ->whereIn('class_id', $classIds)
-                    ->where('status', 'active')
+                    ->where('status','!=', 'transfer')
                     ->pluck('id')
                     ->toArray();
 
@@ -2324,7 +2325,8 @@ class AssessorAppController extends Controller
                     $skillName,
                     $skillId,
                     $schoolId,
-                    $status
+                    $status,
+					$term_id
                 );
 
                 $fileName = "{$schoolCode}_{$skillName}_{$timestamp}_test_score.xlsx";
@@ -2351,7 +2353,7 @@ class AssessorAppController extends Controller
                         ->where('school_code', $schoolCode)
                         ->where('academic_year', $academicYear)
 						->whereIn('class_id', $classIds)
-                        ->where('status', 'active')
+                        ->where('status','!=', 'transfer')
                         ->pluck('id')
                         ->toArray();
                 }
@@ -2366,7 +2368,8 @@ class AssessorAppController extends Controller
                     $skillName,
                     $skillId,
                     $schoolId,
-                    $status
+                    $status,
+					$term_id
                 );
 
                 $tempFileName = uniqid('skill_', true) . '.xlsx';
@@ -2470,7 +2473,24 @@ class AssessorAppController extends Controller
 			$spreadsheet = IOFactory::load($file->getPathname());
 			$sheet = $spreadsheet->getActiveSheet();
 
-			$skillId = (int) trim($sheet->getCell('A1')->getValue());
+			
+			list($academicYear, $termMasterId) = explode('|', $request->termDetail);
+
+			$cellValue = trim((string) $sheet->getCell('A1')->getValue());
+
+			[$skillId, $term_id] = array_map(
+				'intval',
+				explode('|', $cellValue, 2)
+			);			
+
+			if($termMasterId != $term_id){
+				return response()->json([
+					'error' => true,
+					'icon' => 'error',
+					'title' => 'Invalid Term Selection',
+					'summary' => 'Please select the correct term to upload test data.'
+				]);
+			}
 			if (!$skillId) {
 				return response()->json([
 					'error' => true,
@@ -2492,12 +2512,6 @@ class AssessorAppController extends Controller
 
 			$studentIds = array_unique($studentIds);
 			$totalStudents = count($studentIds);
-
-			$termMasterId = TermMaster::where('school_id', $schoolId)
-				->where('is_active', 1)
-				->whereDate('term_start_date', '<=', today())
-				->whereDate('term_end_date', '>=', today())
-				->value('id');
 
 			if ($action === 'preview') {
 				return response()->json([
@@ -2549,8 +2563,8 @@ class AssessorAppController extends Controller
 
 			if ($action) {
 				$importData = ($skillId >= 1 && $skillId <= 15)
-				? new ImportFMSTestData($schoolId, $action, $userId, $skillId, $log->id)
-				: new ImportFitnessTestData($schoolId, $action, $userId, $skillId, $log->id);
+				? new ImportFMSTestData($schoolId, $action, $userId, $skillId, $termMasterId, $log->id)
+				: new ImportFitnessTestData($schoolId, $action, $userId, $skillId, $termMasterId, $log->id);
 				
 				Excel::import($importData, $file);
 

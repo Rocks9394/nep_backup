@@ -67,7 +67,7 @@
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php $component->withAttributes(['title' => ''.e($title).'']); ?>
 					 <?php $__env->slot('actionsOutside', null, []); ?> 
-				        <div >				        	
+				        <div class="d-flex">				        	
 				        	<a type="button" id="upload_btn" class="btn btn-primary text-light text-center custome-btn-i w-100 mr-2"
                             data-toggle="modal" data-target="#uploadtestdata">
                             <i class="fa-solid fa-upload"></i>Upload Data
@@ -110,7 +110,7 @@
                     ['data' => 'classType', 'name' => 'classType', 'orderable' => false],
                     ['data' => 'downloadTemplate', 'name' => 'downloadTemplate', 'orderable' => false],
                     ['data' => 'downloadSample', 'name' => 'downloadSample', 'orderable' => false]
-                ],'ajaxUrl' => ''.e(route('upload.test.data')).'','enableExportButtons' => false,'enableLengthMenu' => false,'pageLength' => 100,'enableOnlyClassFilter' => false,'enableSkillNameFilter' => false,'selectedOnlyClass' => null,'enableTestStatusFilter' => true,'statusModeFlag' => 1,'exportButtonText' => 'Bulk Action','selectedTestStatus' => 'incomplete','searchPlaceholder' => 'Search: Skill Name','exportButtons' => [
+                ],'ajaxUrl' => ''.e(route('upload.test.data')).'','enableExportButtons' => false,'enableLengthMenu' => false,'pageLength' => 100,'enableOnlyClassFilter' => false,'enableSkillNameFilter' => false,'selectedOnlyClass' => null,'enableTestStatusFilter' => true,'enableSchoolTermsFilter' => true,'statusModeFlag' => 1,'exportButtonText' => 'Bulk Action','selectedTestStatus' => 'incomplete','searchPlaceholder' => 'Search: Skill Name','exportButtons' => [
                     [   
                         'type' => 'custom', 'text' => 'Download selected templates', 'action' => 'allTestTemplates'
                     ]
@@ -139,6 +139,7 @@
 
 
 <script>
+    const currentTermId = <?php echo json_encode($TermMasterId, 15, 512) ?>;
     $('#uploadtestdata').on('hide.bs.modal', function () {
         document.activeElement.blur();
     });
@@ -207,7 +208,8 @@
     function downloadTemplates(skillIds) {
 
         let schoolId = <?php echo json_encode($SchoolId, 15, 512) ?>;
-        let status = $('#filter-status').val();
+        let status = $('#filter-test-status').val();
+        let termDetails = $('#filter-school-terms').val();
 
         if (!skillIds || skillIds.length === 0) {
             Swal.fire({
@@ -230,7 +232,8 @@
                 _token: "<?php echo e(csrf_token()); ?>",
                 skillIds: skillIds,
                 schoolId: schoolId,
-                status: status
+                status: status,
+                termDetails: termDetails
             }),
             xhrFields: { responseType: "blob" },
             success: function(response, status, xhr) {

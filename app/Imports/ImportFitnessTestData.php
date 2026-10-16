@@ -24,6 +24,7 @@ class ImportFitnessTestData implements ToCollection, WithHeadingRow, WithChunkRe
     protected $action;
     protected $userId;
     protected $skillId;
+    protected $termMasterId;
     protected $logId;
 
     protected $insertData = [];
@@ -31,12 +32,13 @@ class ImportFitnessTestData implements ToCollection, WithHeadingRow, WithChunkRe
     protected $skippedCount = 0;
     use UpdateFitnessTestResults;
 
-    public function __construct($schoolId, $action, $userId, $skillId, $logId)
+    public function __construct($schoolId, $action, $userId, $skillId, $termMasterId, $logId)
     {
         $this->school_id = $schoolId;
         $this->action = $action;
         $this->userId = $userId;
         $this->skillId = $skillId;
+        $this->termMasterId = $termMasterId;
         $this->logId = $logId;
     }
 
@@ -53,15 +55,9 @@ class ImportFitnessTestData implements ToCollection, WithHeadingRow, WithChunkRe
 
             $validStudents = Sstudent::where('school_id', $this->school_id)
                 ->whereIn('id', $studentIds)
-                ->where('status', 'active')
+                ->where('status','!=','transfer')
                 ->pluck('id')->toArray();
  
-
-            $TermMasterId = TermMaster::where('school_id', $this->school_id)
-                ->where('is_active', 1)
-                ->whereDate('term_start_date', '<=', today())
-                ->whereDate('term_end_date', '>=', today())
-                ->value('id');
 
             $skillDetails = DB::table('skill_reports')->where('id', $this->skillId)->first();
             
@@ -78,7 +74,7 @@ class ImportFitnessTestData implements ToCollection, WithHeadingRow, WithChunkRe
                 $data = [
                     'SchoolID'  => $this->school_id,
                     'StudentID'=> $studentId,
-                    'TermId'   => $TermMasterId,
+                    'TermId'   => $this->termMasterId,
                     'TestTypeID'=> $this->skillId,
                     'CreatedBy'=> $this->userId,
                     'ModifiedBy'=> $this->userId,
@@ -259,9 +255,9 @@ class ImportFitnessTestData implements ToCollection, WithHeadingRow, WithChunkRe
                     }
 
                     if($this->skillId == 17){
-                        $levels = $this->GetFitnessTestLevel($studentId, $skillDetails->TestTypeMasterID, $score, 'Less_is_better');
+                        $levels = $this->GetFitnessTestLevel($studentId, $skillDetails->TestTypeMasterID, $count, 'Less_is_better');
                     }else{
-                        $levels = $this->GetFitnessTestLevel($studentId, $skillDetails->TestTypeMasterID, $score, 'More_is_better');
+                        $levels = $this->GetFitnessTestLevel($studentId, $skillDetails->TestTypeMasterID, $count, 'More_is_better');
                     }
 
                     $data['Score'] = $count;
@@ -283,7 +279,7 @@ class ImportFitnessTestData implements ToCollection, WithHeadingRow, WithChunkRe
                     DB::table('SeniorTestResults')
                         ->where('SchoolID', $this->school_id)
                         ->where('TestTypeID', $this->skillId)
-                        ->where('TermId', $TermMasterId)
+                        ->where('TermId', $this->termMasterId)
                         ->whereIn('StudentID', $studentIds)
                         ->delete();
                 }
@@ -292,7 +288,7 @@ class ImportFitnessTestData implements ToCollection, WithHeadingRow, WithChunkRe
                     $existingStudentIds = DB::table('SeniorTestResults')
                         ->where('SchoolID', $this->school_id)
                         ->where('TestTypeID', $this->skillId)
-                        ->where('TermId', $TermMasterId)
+                        ->where('TermId', $this->termMasterId)
                         ->pluck('StudentID')
                         ->toArray();
 
@@ -324,7 +320,7 @@ class ImportFitnessTestData implements ToCollection, WithHeadingRow, WithChunkRe
                         ) {
                             $this->UpdateLowerTestStatus(
                                 $studentId,
-                                $TermMasterId,
+                                $this->termMasterId,
                                 $this->skillId,
                                 $data['score'],
                                 $this->school_id,
@@ -334,7 +330,7 @@ class ImportFitnessTestData implements ToCollection, WithHeadingRow, WithChunkRe
                         } else {
                             $this->UpdateSeniorTestStatus(
                                 $studentId,
-                                $TermMasterId,
+                                $this->termMasterId,
                                 $this->skillId,
                                 $data['score'],
                                 $this->school_id,

@@ -40,7 +40,7 @@ class TestScoreTemplete implements
     protected array $skillTypeDescriptions = [];
 
 
-    public function __construct(array $studentIds, string $skillName, int $skillId, int $schoolId, string $status)
+    public function __construct(array $studentIds, string $skillName, int $skillId, int $schoolId, string $status, int $termMasterId)
     {
         
         $this->studentIds = $studentIds;
@@ -48,6 +48,7 @@ class TestScoreTemplete implements
         $this->skillName  = $skillName;
         $this->schoolId   = $schoolId;
         $this->status     = $status;
+        $this->termMasterId     = $termMasterId;
 
         $this->boot();
     }   
@@ -55,12 +56,6 @@ class TestScoreTemplete implements
     protected function boot(): void {
     
         $today = now()->startOfDay();
-
-        $this->termMasterId = TermMaster::where('school_id', $this->schoolId)
-            ->where('is_active', 1)
-            ->where('term_start_date', '<=', $today)
-            ->where('term_end_date', '>=', $today)
-            ->value('id');
 
         if ($this->skillId >= 1 && $this->skillId <= 15) {
             $skillTypes = DB::table('skill_types')
@@ -93,7 +88,7 @@ class TestScoreTemplete implements
                 END AS display_classname")
             )
             ->whereIn('students.id', $this->studentIds)
-            ->where('students.status', 'active');
+            ->where('students.status','!=', 'transfer');
 
 
 
@@ -141,39 +136,6 @@ class TestScoreTemplete implements
             default => array_merge($fixed, ['Score']),
         };
 
-
-
-
-        /*$skillTypes = DB::table('skill_types')
-            ->where('skill_report_id', $this->skillId)
-            ->where('status', 1)
-            ->get();
-
-        if ($this->skillId == 18) { return array_merge($fixedHeaders, ['height_cm_mm', 'weight_kg_gm',]);
-        } elseif ($this->skillId == 22) {
-            return array_merge($fixedHeaders, [
-                'initial_position_cm_mm',
-                'final_position_cm_mm',
-            ]);
-        } elseif ($this->skillId >= 1 && $this->skillId <= 15) {
-            return array_merge(
-                $fixedHeaders,
-                ['Status'],
-                $skillTypes->pluck('description')->toArray(),
-            );
-        } elseif (in_array($this->skillId, [16, 19, 20])) {
-            return array_merge($fixedHeaders, [
-                'min',
-                'sec',
-                'ms',
-            ]);
-        } elseif (in_array($this->skillId, [17, 21, 23])) {
-            return array_merge($fixedHeaders, [
-                'count',
-            ]);
-        }
-
-        return array_merge($fixedHeaders, ['Score']);*/
     }
 
     public function map($student): array
@@ -232,7 +194,8 @@ class TestScoreTemplete implements
                 $sheet->insertNewRowBefore(1, 2);
                 $highestRow = $sheet->getHighestRow();
 
-                $sheet->setCellValue('A1', $this->skillId);
+                // $sheet->setCellValue('A1', $this->skillId);
+                $sheet->setCellValue('A1', $this->skillId . '|' . $this->termMasterId);
                 $sheet->getRowDimension(1)->setVisible(false);
 
                 $sheet->setCellValue('A2', $this->skillName);
@@ -325,10 +288,6 @@ class TestScoreTemplete implements
                 
                 $sheet->getProtection()->setSheet(true);
                 $sheet->getProtection()->setPassword('cisceTestData');
-
-                /*$sheet->getColumnDimension('A')->setVisible(false);
-                $sheet->getStyle("A1:{$lastColumn}1000")->getProtection()->setLocked(true);
-                $sheet->getStyle("F4:{$lastColumn}1000")->getProtection()->setLocked(false);*/
 
                 $sheet->getProtection()->setSort(false);
                 $sheet->getProtection()->setInsertRows(false);

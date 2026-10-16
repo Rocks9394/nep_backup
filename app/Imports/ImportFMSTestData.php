@@ -23,6 +23,7 @@ class ImportFMSTestData implements ToCollection, WithHeadingRow, WithChunkReadin
     protected $action;
     protected $userId;
     protected $skillId;
+    protected $termMasterId;
     protected $logId;
 
     protected $insertData = [];
@@ -30,12 +31,13 @@ class ImportFMSTestData implements ToCollection, WithHeadingRow, WithChunkReadin
     protected $skippedCount = 0;
     use UpdateFitnessTestResults;
 
-    public function __construct($schoolId, $action, $userId, $skillId, $logId)
+    public function __construct($schoolId, $action, $userId, $skillId, $termMasterId, $logId)
     {
         $this->school_id = $schoolId;
         $this->action = $action;
         $this->userId = $userId;
         $this->skillId = $skillId;
+        $this->termMasterId = $termMasterId;
         $this->logId = $logId;
     }
 
@@ -56,15 +58,9 @@ class ImportFMSTestData implements ToCollection, WithHeadingRow, WithChunkReadin
 
             $validStudents = Sstudent::where('school_id', $this->school_id)
                 ->whereIn('id', $studentIds)
-                ->where('status', 'active')
+                ->where('status','!=','transfer')
                 ->pluck('id')->toArray();
                 
-
-            $TermMasterId = TermMaster::where('school_id', $this->school_id)
-                ->where('is_active', 1)
-                ->whereDate('term_start_date', '<=', today())
-                ->whereDate('term_end_date', '>=', today())
-                ->value('id');
 
             $skillMapping = DB::table('skill_types')
                 ->where('skill_report_id', $this->skillId)
@@ -107,7 +103,7 @@ class ImportFMSTestData implements ToCollection, WithHeadingRow, WithChunkReadin
                     if ($allEmpty) {
                         $rowInsertData[] = [
                             'school_id' => $this->school_id,
-                            'term_master_id' => $TermMasterId,
+                            'term_master_id' => $this->termMasterId,
                             'student_id' => $studentId,
                             'skill_report_id' => $this->skillId,
                             'skill_type_id' => null,
@@ -136,7 +132,7 @@ class ImportFMSTestData implements ToCollection, WithHeadingRow, WithChunkReadin
 
                             $rowInsertData[] = [
                                 'school_id' => $this->school_id,
-                                'term_master_id' => $TermMasterId,
+                                'term_master_id' => $this->termMasterId,
                                 'student_id' => $studentId,
                                 'skill_report_id' => $this->skillId,
                                 'skill_type_id' => $skillTypeId,
@@ -162,7 +158,7 @@ class ImportFMSTestData implements ToCollection, WithHeadingRow, WithChunkReadin
                     DB::table('skillreport_skilltype_termtype_mapping')
                         ->where('school_id', $this->school_id)  
                         ->where('skill_report_id', $this->skillId)
-                        ->where('term_master_id', $TermMasterId)
+                        ->where('term_master_id', $this->termMasterId)
                         ->whereIn('student_id', $studentIds)
                         ->delete();
                 }
@@ -171,7 +167,7 @@ class ImportFMSTestData implements ToCollection, WithHeadingRow, WithChunkReadin
                     $existingStudentIds = DB::table('skillreport_skilltype_termtype_mapping')
                         ->where('school_id', $this->school_id)
                         ->where('skill_report_id', $this->skillId)
-                        ->where('term_master_id', $TermMasterId)
+                        ->where('term_master_id', $this->termMasterId)
                         ->pluck('student_id')
                         ->toArray();
 
@@ -205,7 +201,7 @@ class ImportFMSTestData implements ToCollection, WithHeadingRow, WithChunkReadin
 
                         $this->UpdateLowerTestStatus(
                             $studentId,
-                            $TermMasterId,
+                            $this->termMasterId,
                             $this->skillId,
                             $score,
                             $this->school_id,

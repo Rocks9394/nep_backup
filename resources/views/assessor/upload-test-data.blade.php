@@ -111,6 +111,7 @@
                 :enable-skill-name-filter="false"
                 :selectedOnlyClass="null"
                 :enable-test-status-filter="true"
+                :enable-school-terms-filter="true"
                 :status-mode-flag="1"
                 :exportButtonText="'Bulk Action'"
                 :selectedTestStatus="'incomplete'"
@@ -138,6 +139,7 @@
 {{-- modal close --}}
 
 <script>
+    const currentTermId = @json($TermMasterId);
     $('#uploadtestdata').on('hide.bs.modal', function () {
         document.activeElement.blur();
     });
@@ -207,6 +209,7 @@
 
         let schoolId = @json($SchoolId);
         let status = $('#filter-test-status').val();
+        let termDetails = $('#filter-school-terms').val();
 
         if (!skillIds || skillIds.length === 0) {
             Swal.fire({
@@ -229,7 +232,8 @@
                 _token: "{{ csrf_token() }}",
                 skillIds: skillIds,
                 schoolId: schoolId,
-                status: status
+                status: status,
+                termDetails: termDetails
             }),
             xhrFields: { responseType: "blob" },
             success: function(response, status, xhr) {
