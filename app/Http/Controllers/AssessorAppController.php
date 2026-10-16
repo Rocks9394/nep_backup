@@ -2093,6 +2093,7 @@ class AssessorAppController extends Controller
 		->where('school_user_id',$userId)
 		->where('status', 1)
 		->value('school_id');
+		// $TermMasterId = $this->getTermId($SchoolId);
 
 		$skillIds = DB::table('skill_reports')->get();
 
@@ -2296,6 +2297,12 @@ class AssessorAppController extends Controller
                 ->whereIn('id', $skillIds)
                 ->pluck('skill_name', 'id');
 
+			$year = date('Y');
+			$month = date('m');
+			$academicYear = ($month >= 4)
+				? $year . '-' . ($year + 1)
+				: ($year - 1) . '-' . $year;
+
             if (count($skillIds) === 1) {
 
                 $skillId  = $skillIds[0];
@@ -2303,6 +2310,7 @@ class AssessorAppController extends Controller
 
                 $studentIds = DB::table('students')
                     ->where('school_code', $schoolCode)
+					->where('academic_year', $academicYear)
                     ->whereIn('class_id', $classIds)
                     ->where('status', 'active')
                     ->pluck('id')
@@ -2341,7 +2349,8 @@ class AssessorAppController extends Controller
                 if (!isset($studentCache[$classKey])) {
                     $studentCache[$classKey] = DB::table('students')
                         ->where('school_code', $schoolCode)
-                        ->whereIn('class_id', $classIds)
+                        ->where('academic_year', $academicYear)
+						->whereIn('class_id', $classIds)
                         ->where('status', 'active')
                         ->pluck('id')
                         ->toArray();
@@ -2407,33 +2416,6 @@ class AssessorAppController extends Controller
 		$schoolCode = DB::table('schools')
 			->where('id', $schoolId)
 			->value('school_code');
-			
-		// DB::table('test_import_status')->updateOrInsert(
-	    //     ['school_id' => $schoolId],
-	    //     ['status' => DB::raw('status')]
-	    // );
-
-	    // $statusRow = DB::table('test_import_status')->where('school_id', $schoolId)->first();
-
-	    // if ($statusRow->status === 'processing') {
-	    //     $lastUpdated = Carbon::parse($statusRow->updated_at);
-	    //     if ($lastUpdated->diffInMinutes(now()) <= 5) {
-	    //     	return response()->json([
-		// 	    	'error' => 'error',
-		// 	        'icon' => 'info',
-		// 	        'title' => 'Import in Progress',
-		// 	        'summary' => 'An import is already in progress. Please wait before uploading again.'
-		// 	    ]);
-	    //     }
-
-	    //     DB::table('test_import_status')->where('school_id', $schoolId)->update(['status' => 'idle']);
-	    // }
-
-	    // DB::table('test_import_status')->where('school_id', $schoolId)->update([
-	    //     'status' => 'processing',
-	    //     'updated_at' => now()
-	    // ]);
-
 		try {
 			$validator = Validator::make($request->all(), [
 				'test_score' => [

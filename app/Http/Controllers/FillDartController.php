@@ -46,6 +46,12 @@ class FillDartController extends Controller
 		$userId = $user->id;
 		$roleId = $user->role_id;
 		$title = 'Dashboard';
+
+		$year = date('Y');
+        $month = date('m');
+        $academicYear = ($month >= 4)
+            ? $year . '-' . ($year + 1)
+            : ($year - 1) . '-' . $year;
 		
 		if(Auth::user()->role_id == 3){
 			if(Session::get('SelectSchoolId')){	
@@ -137,8 +143,13 @@ class FillDartController extends Controller
 			return view('fill-darts.dashboard', compact('title','SchoolTrainers','SchoolName', 'hasSchools','user'));
 		}
 
+		if($request->term_id){
+			list($academic_year, $term_id) = explode('|', $request->term_id);			
+			$academicYear = $academic_year;
+		}
+
 		$baseQuery = DB::table('schools_assessment as s')
-            ->where('s.school_id', $schoolId);
+            ->where('s.school_id', $schoolId)->where('academic_year', $academicYear);
         
 
         $regTrainers = DB::table('users')->where('role_id', 3)->count('id');
@@ -162,7 +173,8 @@ class FillDartController extends Controller
 		$terms = TermMaster::whereIn('id', $termIds)->get();
 				
 		if($request->has('term_id')){
-			$selectedTerm = $request->term_id;
+			// $selectedTerm = $request->term_id;
+			list($academic_year, $selectedTerm) = explode('|', $request->term_id);
 			$isValidTerm = TermMaster::where('id', $selectedTerm)
 			->where('school_id', $schoolId)
 			->exists();

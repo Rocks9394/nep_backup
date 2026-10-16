@@ -22,7 +22,13 @@ table#students-sports-mapping-table th.dt-orderable-none .dt-column-order { disp
 <div class="responsive mt-4 pt-2">
     <div class="datatable-wrapper">
 
-    
+        <?php if(isset($actionsOutside)): ?>
+            <div class="datatable-actions-outside d-flex justify-content-between align-items-center mb-3">
+                <?php echo e($actionsOutside); ?>
+
+            </div>
+        <?php endif; ?>
+
         <div class="datatable-toolbar d-flex justify-content-between align-items-center mb-3">
             <div id="<?php echo e($id); ?>-filters" class="d-flex align-items-center gap-2"></div>
         </div>
@@ -51,34 +57,36 @@ table#students-sports-mapping-table th.dt-orderable-none .dt-column-order { disp
 
 
 <?php $__env->startPush('scripts'); ?>
-<script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
 <script>
 $(function () {
     const tableId = '#<?php echo e($id); ?>';
     const selectAllId = '#<?php echo e($id); ?>-select-all';
     const selectedIds = new Set();
-    const termIds = new Set();
-    const enableClassFilter = <?php echo json_encode($enableClassFilter ?? false, 15, 512) ?>;
-    const enableOnlyClassFilter = <?php echo json_encode($enableOnlyClassFilter ?? false, 15, 512) ?>;
-    const enableSkillNameFilter = <?php echo json_encode($enableSkillNameFilter ?? false, 15, 512) ?>;
-    const enableStatusFilter = <?php echo json_encode($enableStatusFilter ?? false, 15, 512) ?>;
-    const enableClassSectionFilter = <?php echo json_encode($enableClassSectionFilter ?? false, 15, 512) ?>;
-    const enableSchoolTermsFilter = <?php echo json_encode($enableSchoolTermsFilter ?? false, 15, 512) ?>;
-    const enableSportsFilter = <?php echo json_encode($enableSportsFilter ?? false, 15, 512) ?>;
-    const enableCustomFilter = <?php echo json_encode($enableCustomFilter, 15, 512) ?>;
-    const customFilterOptions = <?php echo json_encode($customFilterOptions ?? [], 15, 512) ?>;
-    const selectedCustomFilter = <?php echo json_encode($selectedCustomFilter ?? null, 15, 512) ?>;
-
-    const enableLengthMenu = <?php echo json_encode($enableLengthMenu ?? true, 15, 512) ?>;
-    const pageLength = <?php echo json_encode($pageLength ?? 100, 15, 512) ?>;
 
     const selectedClass = <?php echo json_encode($selectedClass ?? null, 15, 512) ?>; 
     const selectedOnlyClass = <?php echo json_encode($selectedOnlyClass ?? null, 15, 512) ?>; 
     const selectedSkillName = <?php echo json_encode($selectedSkillName ?? null, 15, 512) ?>; 
     const selectedSection = <?php echo json_encode($selectedSection ?? null, 15, 512) ?>;
-    const selectedStatus = <?php echo json_encode($selectedStatus ?? null, 15, 512) ?>;    
+    const selectedStatus = <?php echo json_encode($selectedStatus ?? null, 15, 512) ?>;
+    const selectedTestStatus = <?php echo json_encode($selectedTestStatus ?? null, 15, 512) ?>;
+    const selectedStudentCategory = <?php echo json_encode($selectedStudentCategory ?? null, 15, 512) ?>;
+    const enableClassFilter = <?php echo json_encode($enableClassFilter ?? false, 15, 512) ?>;
+    const enableOnlyClassFilter = <?php echo json_encode($enableOnlyClassFilter ?? false, 15, 512) ?>;
+    const enableSkillNameFilter = <?php echo json_encode($enableSkillNameFilter ?? false, 15, 512) ?>;
+    const enableTestStatusFilter = <?php echo json_encode($enableTestStatusFilter ?? false, 15, 512) ?>;
+    const enableStudentCategoryFilter = <?php echo json_encode($enableStudentCategoryFilter ?? false, 15, 512) ?>;
+    const enableStatusFilter = <?php echo json_encode($enableStatusFilter ?? false, 15, 512) ?>;
+    const enableClassSectionFilter = <?php echo json_encode($enableClassSectionFilter ?? false, 15, 512) ?>;
+
+    const enableSchoolTermsFilter = <?php echo json_encode($enableSchoolTermsFilter ?? false, 15, 512) ?>;
+
+
+    const enableLengthMenu = <?php echo json_encode($enableLengthMenu ?? true, 15, 512) ?>;
+    const pageLength = <?php echo json_encode($pageLength ?? 100, 15, 512) ?>;
     const exportButtonText = <?php echo json_encode($exportButtonText ?? null, 15, 512) ?>;
+
     const buttonsConfig = [];
+
 
     <?php $__currentLoopData = $exportButtons; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $btn): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
@@ -97,7 +105,7 @@ $(function () {
                 text: '<?php echo e($btn['text']); ?>',
                 action: function (e, dt, node, config) {
                     if (typeof window['<?php echo e($btn['action'] ?? ''); ?>'] === 'function') {
-                        window['<?php echo e($btn['action']); ?>'](e, dt, node, config, Array.from(selectedIds), Array.from(termIds));
+                        window['<?php echo e($btn['action']); ?>'](e, dt, node, config, Array.from(selectedIds));
                     } else {
                         console.warn('Custom action not found: <?php echo e($btn['action'] ?? ''); ?>');
                     }
@@ -109,14 +117,19 @@ $(function () {
 
     const columnsConfig = [
         {
-            data: 'id', orderable: false, searchable: false, targets: 0,
+            data: 'id', orderable: false, searchable: false,
             render: function (data, type, row) {
                 const checked = selectedIds.has(data) ? 'checked' : '';
-                const isDisabled = ['Yet to Start','Ongoing','Incomplete'].includes(row.test_status);
-                const disabled = isDisabled ? 'disabled' : '';
-                return `<input type="checkbox" class="row-checkbox" data-term ="${row.term_id}" id="${row.test_status}" value="${row.student_id}" ${checked} ${disabled}/>`;
+                //const isDisabled =['processing', 'requested', 'sent', 'failed'].includes(row.email_status) || ['requested', 'processing'].includes(row.report_status) || ['Incomplete'].includes(row.test_status) || row.status == 'transfer';
+                const isDisabled =['processing', 'requested'].includes(row.email_status) || ['requested', 'processing'].includes(row.report_status) || ['Incomplete'].includes(row.test_status) || row.status == 'transfer';
+                let disabled = isDisabled ? 'disabled' : '';
+                if(row.is_pwd == 1 && row.status == 'active'){
+                    disabled = '';
+                }
+                return `<input type="checkbox" class="row-checkbox" id="${row.test_status}" value="${data}" ${checked} ${disabled}/>`;
             }
         },
+
 
         ...<?php echo json_encode($columns); ?>
 
@@ -124,37 +137,34 @@ $(function () {
 
     const buttonsConfigFinal = buttonsConfig.length > 0 ? [{
         extend: 'collection',
-        text: exportButtonText ? exportButtonText : 'Export',
+        text: exportButtonText ? exportButtonText : 'Export', 
         className: 'exportButton',
         buttons: buttonsConfig
     }] : [];
 
 
     const domConfig = enableLengthMenu 
-        ? `<"top"lf><"filter-right"B>rt<"bottom"ip><"clear">`  
+        ? `<"top"lf><"filter-right"B>rt<"bottom"ip><"clear">`  // With length menu ('l')
         : `<"top"f><"filter-right"B>rt<"bottom"ip><"clear">`;
-
 
 
     const table = $(tableId).DataTable({
         dom: domConfig,
         lengthChange: enableLengthMenu,
-        lengthMenu: enableLengthMenu ? [ 
-            [20, 40, 60, 80, 100, -1],
-            [20, 40, 60, 80, 100, 'All']
+        lengthMenu: enableLengthMenu ? [ // CONDITIONAL LENGTH MENU OPTIONS
+            [50, 100, 200, 500, -1],
+            [50, 100, 200, 500, 'All']
         ] : false,
         pageLength: pageLength,
         info: true,
         responsive: true,
         processing: true,
         serverSide: true,
-        order: [],  
         ajax: {
             url: "<?php echo e($ajaxUrl); ?>",
             data: function (d) {
                 d.selectedOnlyClass = $('#filter-only-class').val();
-                d.enableSportsFilter = $('#filter-sports').val();
-                d.custom = $('#filter-custom').val();
+                d.status = $('#filter-status').length ? $('#filter-status').val() : selectedStatus;
                 $('[id^="filter-"]').each(function () {
                     const name = $(this).attr('id').replace('filter-', '');
                     d[name] = $(this).val();
@@ -194,6 +204,7 @@ $(function () {
         },
         columns: columnsConfig,
         buttons: buttonsConfigFinal,
+
         language: {
             searchPlaceholder: "<?php echo e($searchPlaceholder); ?>",
             search: ""
@@ -203,17 +214,20 @@ $(function () {
 
             $('#<?php echo e($id); ?>_filter input').attr('placeholder', "<?php echo e($searchPlaceholder); ?>");
 
+            /* Added 07-05-2026 */
             if(enableSchoolTermsFilter){
 
 
-                const TermList = <?php echo json_encode($schoolTerms ?? [], 15, 512) ?>;      
+                const TermList = <?php echo json_encode($schoolTerms ?? [], 15, 512) ?>;  
+                console.log(TermList);
                 const $dropdown = $('<select class="form-select form-select-sm ms-2" id="filter-school-terms" style="font-size: 13px;color: #2c2d78;"></select>');               
 
                 TermList.forEach(option => {
                     const displayText = `${option.academic_year} | ${option.term_name}`;
-                    const value = option.term_id;
+                    const value = option.academic_year + '|' + option.term_id;
         
-                    const isSelected = (value == currentTermId); 
+                    // const isSelected = (value == currentTermId); 
+                    const isSelected = (option.term_id == currentTermId);
                     $dropdown.append(new Option(displayText, value, false, isSelected));
                 });
 
@@ -229,9 +243,10 @@ $(function () {
 
             }
 
+
             if (enableClassFilter) {
                 const classList = <?php echo json_encode($classes ?? [], 15, 512) ?>;
-                const $dropdown = $('<select class="form-select form-select-sm ms-2" id="filter-class-section" style="font-size: 13px;color: #2c2d78;"></select>');               
+                const $dropdown = $('<select class="form-select form-select-sm ms-2" id="filter-class-section"></select>');               
                 $dropdown.append(new Option('All Classes', ''));
 
                 classList.forEach(option => {
@@ -254,11 +269,86 @@ $(function () {
                 }        
             }
 
+            if (enableSkillNameFilter) {
+                const skillIds = <?php echo json_encode($skillIds ?? [], 15, 512) ?>;
+                const seenSkillIds = new Set();
+                const uniqueSkillIds = [];
+
+                skillIds.forEach(item => {
+                    if (!seenSkillIds.has(item.id)) {
+                        seenSkillIds.add(item.id);
+                        uniqueSkillIds.push(item);
+                    }
+                });
+
+                const $dropdown = $('<select class="form-select form-select-sm ms-2" id="filter-skill"></select>');
+                $dropdown.append(new Option('All Skills', ''));
+
+                uniqueSkillIds.forEach(option => {
+                    const displayText = option.skill_name;
+                    const value = option.id;
+                    $dropdown.append(new Option(displayText, value));
+                });
+
+                const $skillsFilterContainer = $('<div class="pull-right"></div>').append($dropdown);
+                $skillsFilterContainer.appendTo(`${tableId}_wrapper .top`).next('.dt-length').addClass("pull-right");
+
+                $dropdown.on('change', function () {
+                    table.draw();
+                });
+
+                $.fn.dataTable.ext.errMode = 'throw';
+                table.settings()[0].ajax.data = function(d) {
+                    const skillId = $dropdown.val();
+                    if (skillId) {
+                        d.skills = skillId;
+                    } else {
+                        d.skills = null;
+                    }
+                };
+            }
+
+
+
+            if (enableOnlyClassFilter) {
+                const classList = <?php echo json_encode($classes ?? [], 15, 512) ?>;
+                const seenClassIds = new Set();
+                const uniqueClassData = [];
+
+                classList.forEach(item => {
+                    if (!seenClassIds.has(item.class_id)) {
+                        seenClassIds.add(item.class_id);
+                        uniqueClassData.push(item);
+                    }
+                });
+
+                const $dropdown = $('<select class="form-select form-select-sm ms-2" id="filter-only-class"></select>');               
+                $dropdown.append(new Option('All Classes', ''));
+
+                uniqueClassData.forEach(option => {
+                    const displayText = option.name;
+                    const value = option.class_id;
+                    const isSelected = (selectedOnlyClass == value);
+                    $dropdown.append(new Option(displayText, value, false, isSelected));
+                });
+                
+                const $classFilterContainer = $('<div class="pull-right"></div>').append($dropdown);
+                $classFilterContainer.appendTo(`${tableId}_wrapper .top`).next('.dt-length').addClass("pull-right");
+
+                if (selectedClass) {
+                    setTimeout(() => {
+                        $dropdown.trigger('change');
+                        // console.log('Triggered filter for pre-selected class:', selectedClass);
+                    }, 100);
+                }  
+            }
+
+
             if (enableClassSectionFilter) {
 
                 const classList = <?php echo json_encode($classes ?? [], 15, 512) ?>;
-                const $classDropdown = $('<select class="form-select form-select-sm ms-2" id="filter-class" style="font-size: 13px;color: #2c2d78;"></select>'); 
-                const $sectionDropdown = $('<select class="form-select form-select-sm ms-2" id="filter-section" style="font-size: 13px;color: #2c2d78;"></select>'); 
+                const $classDropdown = $('<select class="form-select form-select-sm ms-2" id="filter-class"></select>'); 
+                const $sectionDropdown = $('<select class="form-select form-select-sm ms-2" id="filter-section"></select>'); 
                 
                 $sectionDropdown.append(new Option('All Section', ''));
                 $classDropdown.append(new Option('All Classes', ''));
@@ -305,62 +395,73 @@ $(function () {
                 const $sectionFilterContainer = $('<div class="pull-right"></div>').append($sectionDropdown);
                 $classFilterContainer.appendTo(`${tableId}_wrapper .top`);
                 $sectionFilterContainer.appendTo(`${tableId}_wrapper .top`);
+
             }
 
 
-            if(enableStatusFilter) {
-
-                const testStatus = <?php echo json_encode($statuses ?? [], 15, 512) ?>;
-                const $statusDropDown = $('<select class="form-control form-select-sm ms-2"" id="filter-status" style="font-size: 13px;color: #2c2d78;"></select>');
-                testStatus.forEach(option => {  
+            if(enableStatusFilter){
+                const studentStatus = <?php echo json_encode($status ?? [], 15, 512) ?>;
+                const $statusDropDown = $('<select class="form-control form-select-sm ms-2"" id="filter-status"></select>');
+                studentStatus.forEach(option => {  
                     const isSelected = option.value === selectedStatus;                
                     $statusDropDown.append(new Option(option.label, option.value, false, isSelected));
                 });
 
-                const $filterContainer = $('<div class="pull-right"></div>').append($statusDropDown);
-                $filterContainer.appendTo(`${tableId}_wrapper .top`).next('.dt-length').addClass("pull-right");
+                const $statusFilterContainer = $('<div class="pull-right"></div>').append($statusDropDown);
+                $statusFilterContainer.appendTo(`${tableId}_wrapper .top`).next('.dt-length').addClass("pull-right");
+                
+                $('[id^="filter-"]').on('change', function () {
+                    table.ajax.reload();
+                });
+            }
+
+            if(enableTestStatusFilter){
+                const testStatus = <?php echo json_encode($testStatus ?? [], 15, 512) ?>;
+                const $testStatusDropDown = $('<select class="form-control form-select-sm ms-2"" id="filter-test-status"></select>');
+                testStatus.forEach(option => {  
+                    const isSelected = option.value === selectedTestStatus;                
+                    $testStatusDropDown.append(new Option(option.label, option.value, false, isSelected));
+                });
+
+                const $testFilterContainer = $('<div class="pull-right"></div>').append($testStatusDropDown);
+                $testFilterContainer.appendTo(`${tableId}_wrapper .top`).next('.dt-length').addClass("pull-right");
                 if ($('#upload_test_data_wrapper').length) {
                     const $wrapper = $('#upload_test_data_wrapper .top');
-                    const $statusDiv = $wrapper.find('#filter-status').parent();
+                    const $statusDiv = $wrapper.find('#filter-test-status').parent();
                     const $skillDiv = $wrapper.find('#filter-skill').parent();
 
                     $statusDiv.insertBefore($skillDiv);
                 }
+                $('[id^="filter-"]').on('change', function () {
+                    table.ajax.reload();
+                });
             }
-            if(enableSportsFilter){
-                console.log('filter enabled');
-                const sportsList = <?php echo json_encode($sports ?? [], 15, 512) ?>;
-                const $sportsDropdown = $('<select class="form-select form-select-sm ms-2" id="filter-sports" style="font-size: 13px;color: #2c2d78;"></select>');               
-                $sportsDropdown.append(new Option('All Sports', ''));
-                sportsList.forEach(option => {
-                    const displayText = option.name;
-                    const value = option.id;
-                    $sportsDropdown.append(new Option(displayText, value, false));
+
+            if(enableStudentCategoryFilter){
+                const studentCategory = <?php echo json_encode($studentCategory ?? [], 15, 512) ?>;
+                console.log(studentCategory);
+                const $studentCategoryDropDown = $('<select class="form-control form-select-sm ms-2"" id="filter-student-category"></select>');
+                studentCategory.forEach(option => {  
+                    const isSelected = option.value === selectedStudentCategory;                
+                    $studentCategoryDropDown.append(new Option(option.label, option.value, false, isSelected));
                 });
 
-                const $sportsFilter = $('<div class="pull-right"></div>').append($sportsDropdown);
-                $sportsFilter.appendTo(`${tableId}_wrapper .top`).next('.dt-length').addClass("pull-right"); 
+                const $studentCategoryContainer = $('<div class="pull-right"></div>').append($studentCategoryDropDown);
+                $studentCategoryContainer.appendTo(`${tableId}_wrapper .top`).next('.dt-length').addClass("pull-right");
                 
-            }
-            if(enableCustomFilter && customFilterOptions.length>0){
-                const $customDropdown = $('<select class="form-select form-select-sm ms-2" id="filter-custom" style="font-size: 13px;color: #2c2d78;"></select>');
-                customFilterOptions.forEach(opt => { $customDropdown.append(new Option(opt.label, opt.value, false, selectedCustomFilter==opt.value)); });
-                
-                $('<div class="pull-right"></div>').append($customDropdown).appendTo(`${tableId}_wrapper .top`).next('.dt-length').addClass("pull-right"); 
+                $('[id^="filter-"]').on('change', function () {
+                    table.ajax.reload();
+                });
             }
 
 
-            $('[id^="filter-"]').on('change', function () {
-                table.ajax.reload();
-            });
         }
-
     });
 
     
+
     // FIXED: Select All checkbox handler
     $(selectAllId).on('change', function () {
-
         const checked = this.checked;
         const visibleRows = table.rows({ search: 'applied' }).nodes();
         
@@ -370,13 +471,10 @@ $(function () {
 
             this.checked = checked;
             const id = $(this).val();
-            const term_id = $(this).attr('data-term');
             if (checked) {
                 selectedIds.add(id);
-                termIds.add(term_id);
             } else {
                 selectedIds.delete(id);
-                termIds.delete(term_id);
             }
         });
     });
@@ -385,13 +483,10 @@ $(function () {
     // FIXED: Individual row checkbox handler
     $(tableId).on('change', '.row-checkbox', function () {
         const id = $(this).val();
-         const term_id = $(this).attr('data-term');
         if (this.checked) {
             selectedIds.add(id);
-            termIds.add(term_id);
         } else {
             selectedIds.delete(id);
-             termIds.delete(term_id);
             // Uncheck select-all when any checkbox is unchecked
             $(selectAllId).prop('checked', false);
         }
@@ -415,6 +510,7 @@ $(function () {
             $(this).prop('checked', selectedIds.has(id));
         });
 
+        // Update select-all checkbox for CURRENT PAGE only
         const currentPageRows = table.rows({ page: 'current', search: 'applied' }).nodes();
         const currentPageCheckboxes = $('.row-checkbox', currentPageRows);
         const allCurrentPageChecked = currentPageCheckboxes.length > 0 && currentPageCheckboxes.length === currentPageCheckboxes.filter(':checked').length;        

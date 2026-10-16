@@ -58,28 +58,26 @@
 
 <div class="container">
     <div class="t-mrg2 mb-5 pb-5">
-        <div class="datatable-actions-outside d-flex justify-content-between align-items-center mb-3">
-            <div class="all-chaptr-cards mb-4" style="margin: 0;">
-                <div class="row">
-                    <x:back-button title="{{$title}}" />
-                </div>
-            </div>
+        <div class="all-chaptr-cards mb-4" style="margin: 0;">
+			<div class="row">
+				<x:back-button title="{{$title}}" >
+					<x-slot name="actionsOutside">
+				        <div class="d-flex">				        	
+				        	<a type="button" id="upload_btn" class="btn btn-primary text-light text-center custome-btn-i w-100 mr-2"
+                            data-toggle="modal" data-target="#uploadtestdata">
+                            <i class="fa-solid fa-upload"></i>Upload Data
+                            </a>
+                            @if($logs->isNotEmpty())
+                            <a type="button" class="btn btn-primary custome-btn-i w-100" data-toggle="modal" data-target="#testHistoryModal">
+                                View History
+                            </a>
+                            @endif
 
-            <div style="color: #ffffff;">
-                <div class="d-flex">
-                    <a type="button" id="upload_btn" class="btn btn-primary text-light text-center custome-btn-i w-100 mr-2"
-                    data-toggle="modal" data-target="#uploadtestdata">
-                    <i class="fa-solid fa-upload"></i>Upload Data
-                    </a>
-                        
-                    @if($logs->isNotEmpty())
-                    <a type="button" class="btn btn-primary custome-btn-i w-100" data-toggle="modal" data-target="#testHistoryModal">
-                        View History
-                    </a>
-                    @endif
-                </div>
-            </div>
-        </div>
+				        </div>
+				    </x-slot>
+				</x:back-button>
+			</div>
+		</div>
 
         <div class="alert alert-info d-flex align-items-start gap-2" role="alert" style="border-left: 4px solid #0d6efd;">
             <i class="bi bi-info-circle-fill text-primary"></i>
@@ -108,14 +106,14 @@
                 ajax-url="{{ route('upload.test.data') }}"
                 :enable-export-buttons="false"
                 :enableLengthMenu="false"
-				:exportButtonText="'Bulk Action'"
                 :pageLength="100"
                 :enable-only-class-filter="false"
                 :enable-skill-name-filter="false"
                 :selectedOnlyClass="null"
-                :enable-status-filter="true"
+                :enable-test-status-filter="true"
                 :status-mode-flag="1"
-                :selectedStatus="'incomplete'"
+                :exportButtonText="'Bulk Action'"
+                :selectedTestStatus="'incomplete'"
                 searchPlaceholder="Search: Skill Name"
                 data-class-id=""
                 data-section=""
@@ -208,7 +206,7 @@
     function downloadTemplates(skillIds) {
 
         let schoolId = @json($SchoolId);
-        let status = $('#filter-status').val();
+        let status = $('#filter-test-status').val();
 
         if (!skillIds || skillIds.length === 0) {
             Swal.fire({

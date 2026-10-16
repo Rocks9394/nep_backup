@@ -677,9 +677,9 @@
     </button>
 
     <div class="mobile-term-wrapper">
-        <select name="term" id="mobileTerm" class="mobile-term-select">
+        <select name="term_id" id="mobileTerm" class="mobile-term-select">
             <?php $__currentLoopData = $terms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <option value="<?php echo e($term->id); ?>"
+                <option value="<?php echo e($term->academic_year); ?>|<?php echo e($term->id); ?>"
                     <?php echo e($selectedTerm == $term->id ? 'selected' : ''); ?>>
                     <?php echo e($term->academic_year); ?> | <?php echo e($term->term_name); ?>
 
@@ -756,11 +756,6 @@
 	                        <a href="<?php echo e(route('fill.dart')); ?>" class="box"><div><img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/Dart.svg')); ?>"></div><span>Fill DART</span></a>
 	                    </div>
 
-                        <div id="activity_gallary">
-                            <a  href="<?php echo e(route('activity.gallary')); ?>"  class="box" ><div>
-                            <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/age-report.svg')); ?>"></div><span>Activity Gallery</span></a>
-                        </div>
-
                         <!-- C. REPORTS & MONITORING -->
 
 	                    <div>
@@ -768,12 +763,12 @@
 	                    </div>
 	              
 	                    <div>
-                            <a href="<?php echo e(route('trainer.lowerclass.status')); ?>" class="box"><div>
+                            <a href="<?php echo e(route('lowerclasstestsummary')); ?>" class="box"><div>
                             <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/lc_test-status.svg')); ?>"></div><span>Test Summary <br> (Upto Class-3)</span></a>
                         </div>
 	                    
                         <div>
-                            <a href="<?php echo e(route('trainer.higherclass.status')); ?>" class="box"><div>
+                            <a href="<?php echo e(route('higherclasstestsummary')); ?>" class="box"><div>
                             <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/hc_test-status.svg')); ?>"></div><span>
                             Test Summary <br> (Class-4 & Above)</span></a>
                         </div>                
@@ -851,11 +846,6 @@
                             <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/taketest.svg')); ?>"></div><span>Upload Test Data</span></a>
                         </div> 
 
-                        <div id="activity_gallary">
-                            <a  href="<?php echo e(route('activity.gallary')); ?>"  class="box" ><div>
-                            <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/age-report.svg')); ?>"></div><span>Activity Gallery</span></a>
-                        </div>
-
                         <!-- D. MONITORING & REPORTS -->
 
                         <div>
@@ -869,6 +859,10 @@
 
                         <!-- On Development Phase -->
                         <?php if(Auth::user()->id == 974 || Auth::user()->id == 995): ?>
+                            <div id="activity_gallary">
+                                <a  href="<?php echo e(route('activity.gallary')); ?>"  class="box" ><div>
+                                <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/age-report.svg')); ?>"></div><span>Activity Gallery</span></a>
+                            </div>
                            <div>
                                 <a  href="<?php echo e(route('skill.reports')); ?>"  class="box" ><div>
                                 <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/skills-report.svg')); ?>"></div><span>Skill Report</span></a>
@@ -876,12 +870,12 @@
                         <?php endif; ?>
 
                         <div>
-                            <a href="<?php echo e(route ('trainer.lowerclass.status')); ?>" class="box"><div>
+                            <a href="<?php echo e(route ('lowerclasstestsummary')); ?>" class="box"><div>
                             <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/lc_test-status.svg')); ?>"></div><span>Test Summary <br> (Upto Class-3)</span></a>
                         </div>
 
                         <div>
-                            <a href="<?php echo e(route ('trainer.higherclass.status')); ?>" class="box"><div>
+                            <a href="<?php echo e(route ('higherclasstestsummary')); ?>" class="box"><div>
                             <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/hc_test-status.svg')); ?>"></div><span>
                             Test Summary <br> (Class-4 & Above)</span></a>
                         </div> 
@@ -936,7 +930,7 @@
                     <div class="select-terms">
                         <select name="term" id="term" class="term-select">
                             <?php $__currentLoopData = $terms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $term): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($term->id); ?>"
+                                <option value="<?php echo e($term->academic_year); ?>|<?php echo e($term->id); ?>"
                                     <?php echo e($selectedTerm == $term->id ? 'selected' : ''); ?>>
                                     <?php echo e($term->academic_year); ?> | <?php echo e($term->term_name); ?>
 

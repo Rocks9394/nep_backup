@@ -231,15 +231,16 @@ window.addEventListener("message", (event) => {
     if (!event.origin.includes("goforfit.in")) return;
 
     const data = event.data;
+	console.log("data detail:", data);
 
     // 2. Check if the message is from our AI sync
     if (data && data.type === "AI_SYNC_DATA") {
-        console.log("Wingspan AI data received:", data);
+        console.log("Modified PushUp AI data received:", data);
 
-        // Extract wingspan value (handles both wingspanScore and direct scalar)
-        const score = data.wingspanScore || data.wingspan || data.value;
+        // Extract wingspan value (handles both modified push up and direct scalar)
+        const score = data.reps || data.value;
 
-        // 3. Fill the Wingspan input field using ID: wingspan_height_id
+        // 3. Fill the modified push up input field using ID: ModifiedpushUpCount
         const inputElem = document.getElementById('ModifiedpushUpCount');
         if (score && inputElem) {
             inputElem.value = score;

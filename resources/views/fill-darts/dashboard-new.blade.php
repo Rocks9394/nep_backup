@@ -677,9 +677,9 @@
     </button>
 
     <div class="mobile-term-wrapper">
-        <select name="term" id="mobileTerm" class="mobile-term-select">
+        <select name="term_id" id="mobileTerm" class="mobile-term-select">
             @foreach($terms as $term)
-                <option value="{{ $term->id }}"
+                <option value="{{ $term->academic_year }}|{{ $term->id }}"
                     {{ $selectedTerm == $term->id ? 'selected' : '' }}>
                     {{ $term->academic_year }} | {{ $term->term_name }}
                 </option>
@@ -989,7 +989,7 @@
                     <div class="select-terms">
                         <select name="term" id="term" class="term-select">
                             @foreach($terms as $term)
-                                <option value="{{ $term->id }}"
+                                <option value="{{ $term->academic_year }}|{{ $term->id }}"
                                     {{ $selectedTerm == $term->id ? 'selected' : '' }}>
                                     {{ $term->academic_year }} | {{ $term->term_name }}
                                 </option>

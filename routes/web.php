@@ -484,7 +484,7 @@ Route::prefix('school')->group(function(){
     Route::post('add-school-user', [SchoolRecordController::class,'addSchoolUsers'])->name('add.school.user');
 
 
-    Route::get('create-users', [SchoolRecordController::class, 'CreateUsers'])->name('create.users')->middleware('module_access:create.users');
+    Route::get('view-school-admin', [SchoolRecordController::class, 'CreateUsers'])->name('create.users')->middleware('module_access:create.users');
 	Route::post('viewers/store', [SchoolRecordController::class, 'StoreViewers'])->name('viewers.store');
 	Route::post('users/action', [SchoolRecordController::class, 'handleUsersAction'])->name('users.action');
 	Route::post('export-users', [SchoolRecordController::class, 'exportSchoolUsers'])->name('export.school.users');
