@@ -38,7 +38,7 @@ class StudentDashboardController extends Controller
         
 	}	
 
-    public function dashboard(){
+    public function dashboard_bk(){
         $title = "Student Dashboard";
         // $studentId = Auth::guard('sstudent')->user()->id;
 
@@ -240,4 +240,277 @@ class StudentDashboardController extends Controller
         
         return view('parent.student-dashboard', compact('title', 'getBmiBenchmark', 'studentData', 'studentAge', 'getFitnessBenchmark', 'bmiRecord','class','classId','fmsTestData','fitnessTest', 'terms', 'selectedTerm'));
     }
+
+    public function dashboard(Request $request){
+        $title = "Student Dashboard";
+
+        $year = date('Y');
+        $month = date('m');
+
+        $academicYear = ($month >= 4)
+            ? $year . '-' . ($year + 1)
+            : ($year - 1) . '-' . $year;
+        [$startYear, $endYear] = explode('-', $academicYear);
+        $previousAcademicYear = ($startYear - 1) . '-' . ($endYear - 1);
+
+
+        if (Session::has('student_id')) {
+            $student_id = Session::get('student_id');
+        } else {
+            $student_id = Auth::guard('sstudent')->user()->id;
+        }
+
+        $student = DB::table('students')
+            ->where('id', $student_id)
+            ->select(
+                'apaarId',
+                'student_uid',
+                'school_id'
+            )
+            ->first();
+
+        if (!$student) {
+            return redirect()->route('students.view.dashboard');
+        }
+
+        $SchoolId = $student->school_id;
+        $apaarId  = $student->apaarId;
+
+        if ($request->filled('termSelect')) {
+            // [$selectedYear, $term_id] = explode('|', $request->termSelect);
+            $selectedYear = $request->termSelect;
+        } else {
+            $selectedYear = $academicYear;
+        }
+
+        if (!empty($apaarId)) {
+            $studentDetails = DB::table('students')
+                ->where('academic_year', $selectedYear)
+                ->where('apaarId', $apaarId)
+                ->select('id', 'school_id', 'student_uid')->first();
+            $studentId = $studentDetails->id; 
+            $SchoolId = $studentDetails->school_id; 
+        } else {
+            $studentId = DB::table('students')
+                ->where('school_id', (string) $SchoolId)
+                ->where('academic_year', $selectedYear)
+                ->where('student_uid', $student->student_uid)
+                ->value('id');
+        }
+
+        if (!$studentId) {
+            return redirect()->route('students.view.dashboard');
+        }
+        
+        $selectedTermId = $this->getTermId($SchoolId, $selectedYear);
+
+        $studentData = DB::table('students')
+            ->join('schools', 'schools.id', '=', 'students.school_id')
+            ->leftJoin(
+                'custom_classes',
+                'students.custom_class_id',
+                '=',
+                'custom_classes.id'
+            )
+            ->join(
+                'class',
+                'custom_classes.class_id',
+                '=',
+                'class.id'
+            )
+            ->select(
+                'schools.school_name as school_name',
+                'schools.id as school_id',
+                'students.student_name',
+                'students.class_id',
+                'students.custom_class_id',
+                'students.gender',
+                'students.dob',
+                'custom_classes.section',
+                'students.rollno',
+                'students.is_pwd',
+                DB::raw("
+                    CASE
+                        WHEN custom_classes.nomenclature IS NOT NULL
+                            AND custom_classes.nomenclature <> ''
+                        THEN custom_classes.nomenclature
+                        ELSE class.name
+                    END AS className
+                ")
+            )
+            ->where('students.id', $studentId)
+            ->first();
+
+        if (!$studentData) {
+            abort(404, 'Student details not found.');
+        }
+
+        $dob = Carbon::parse($studentData->dob);
+        $studentAge = $dob->age;
+
+        $ageGender = $studentAge .
+            strtolower(substr($studentData->gender, 0, 1));
+
+        $classId = $studentData->class_id;
+
+        $bmiRecord = DB::table('SeniorTestResults as str')
+            ->join(
+                'term_masters as tm',
+                'tm.id',
+                '=',
+                'str.TermId'
+            )
+            ->select(
+                'str.height',
+                'str.weight',
+                'str.score',
+                'str.level'
+            )
+            ->where('str.TestTypeID', 18)
+            ->where('str.StudentID', $studentId)
+            ->where('str.TermId', $selectedTermId)
+            ->orderBy('str.ResultId', 'desc')
+            ->first();
+
+        $getBmiBenchmark = $this->getBmiBenchmark($ageGender);
+
+        $class = DB::table('custom_classes')
+            ->join(
+                'class',
+                'class.id',
+                '=',
+                'custom_classes.class_id'
+            )
+            ->select(
+                'custom_classes.id',
+                'class_id',
+                'section',
+                DB::raw("
+                    CASE
+                        WHEN custom_classes.nomenclature IS NOT NULL
+                            AND custom_classes.nomenclature <> ''
+                        THEN custom_classes.nomenclature
+                        ELSE class.name
+                    END AS classname
+                ")
+            )
+            ->where('class.id', $classId)
+            ->where('school_id', $SchoolId)
+            ->orderBy('custom_classes.orders', 'ASC')
+            ->get();
+
+        $fmsApplicable = DB::table('class_fitness_tests')
+            ->where('class_id', $classId)
+            ->pluck('test_type_id')
+            ->toArray();
+
+        $fmsTestData = DB::table('TestTypeMaster')
+            ->join(
+                'skill_reports',
+                'skill_reports.TestTypeMasterID',
+                '=',
+                'TestTypeMaster.TestTypeID'
+            )
+            ->join(
+                'skillreport_skilltype_termtype_mapping as sst',
+                function ($join) use ($studentId, $selectedTermId) {
+
+                    $join->on(
+                        'sst.skill_report_id',
+                        '=',
+                        'skill_reports.id'
+                    )
+                    ->where('sst.student_id', $studentId)
+                    ->where('sst.term_master_id', $selectedTermId);
+                }
+            )
+            ->select(
+                'TestTypeMaster.TestTypeID',
+                'skill_reports.skill_name',
+                'skill_reports.icons',
+                DB::raw('COUNT(sst.id) as score')
+            )
+            ->whereIn(
+                'TestTypeMaster.TestTypeID',
+                $fmsApplicable
+            )
+            ->groupBy(
+                'TestTypeMaster.TestTypeID',
+                'skill_reports.skill_name',
+                'skill_reports.icons'
+            )
+            ->get();
+
+        foreach ($fmsTestData as $item) {
+
+            $item->outcome = match ((int) $item->score) {
+                1 => 'Emerging',
+                2 => 'Developing',
+                3 => 'Acquired',
+                4 => 'Advanced',
+                5 => 'Accomplished',
+                default => 'Not Attempted',
+            };
+        }
+
+        $fitnessTest = DB::table('SeniorTestResults as str')
+            ->join(
+                'skill_reports',
+                'skill_reports.id',
+                '=',
+                'str.TestTypeID'
+            )
+            ->where('str.StudentID', $studentId)
+            ->where('str.TermId', $selectedTermId)
+            ->whereNotIn('str.TestTypeID', [18])
+            ->get();
+
+        $levelLabels = [
+            'L0' => 'Inadequate',
+            'L1' => 'Very Low',
+            'L2' => 'Low',
+            'L3' => 'Developing',
+            'L4' => 'Moderate',
+            'L5' => 'Good',
+            'L6' => 'High',
+            'L7' => 'Excellent',
+            'L8' => 'Extraordinary',
+        ];
+
+        foreach ($fitnessTest as $item) {
+            $item->levelOutcome =
+                $levelLabels[$item->level] ?? 'Unknown';
+        }
+
+        if (in_array($studentData->class_id, [1, 2, 3])) {
+            $categories_id2 = [6, 2];
+        } else {
+            $categories_id2 = [
+                3,
+                10,
+                12,
+                11,
+                8,
+                9,
+                5,
+                4,
+                15
+            ];
+        }
+
+        $categoty = $studentData->gender == 'Male'
+            ? 'Boys'
+            : 'Girls';
+
+        $getFitnessBenchmark = $this->getBenchmark(
+            $studentAge,
+            $categoty,
+            $categories_id2
+        );
+        
+        return view( 'parent.student-dashboard', compact( 'title', 'studentId', 'getBmiBenchmark', 'studentData', 'studentAge', 'getFitnessBenchmark', 'bmiRecord','class', 'classId',  'fmsTestData', 'fitnessTest', 'selectedTermId', 'academicYear', 'previousAcademicYear', 'selectedYear')
+        );
+    }
+
+    
 }

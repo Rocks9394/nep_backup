@@ -59,8 +59,6 @@ class StudentRecordController extends Controller
 	}
 
 	public function skillReport(Request $request) {
-
-
 		
 		$user = Auth::guard('sstudent')->user();
 	    if (!$user) {
@@ -121,12 +119,14 @@ class StudentRecordController extends Controller
 				$userId = SwitchUser::switchuser($user->id,  $termId);
 		        $UserData = DB::table('students')->select($selectedItem)->where('id', $userId)->first();
 
-		        $reportCardDetail = DB::select('CALL getStudentsReportTermWize(?, ?)', [$UserData->id, $termId]);			
-				$formatReportData($reportCardDetail);
+		        if(isset($UserData)){
+			        $reportCardDetail = DB::select('CALL getStudentsReportTermWize(?, ?)', [$UserData->id, $termId]);			
+					$formatReportData($reportCardDetail);
 
-				$classname = Helper::getClassAndSection($UserData->custom_class_id);
-		        $UserData->className = $classname;
-		        $UserData->dob  = date('d-M-Y', strtotime($UserData->dob));
+					$classname = Helper::getClassAndSection($UserData->custom_class_id);
+			        $UserData->className = $classname;
+			        $UserData->dob  = date('d-M-Y', strtotime($UserData->dob));
+			    }
 			}
 			
 
@@ -220,12 +220,15 @@ class StudentRecordController extends Controller
 	        	$userId = SwitchUser::switchuser($user->id,  $termId);
 		        $UserData = DB::table('students')->select($selectedItem)->where('id', $userId)->first();
 
-	            $reportCardDetail = DB::select('CALL getStudentsReportTermWize(?, ?)', [$UserData->id, $termId]);
-	            $formatReportData($reportCardDetail);
+		        if (isset($UserData)) {
 
-		        $classname = Helper::getClassAndSection($UserData->custom_class_id);
-		        $UserData->className = $classname;
-		        $UserData->dob  = date('d-M-Y', strtotime($UserData->dob));
+		            $reportCardDetail = DB::select('CALL getStudentsReportTermWize(?, ?)', [$UserData->id, $termId]);
+		            $formatReportData($reportCardDetail);
+
+			        $classname = Helper::getClassAndSection($UserData->custom_class_id);
+			        $UserData->className = $classname;
+			        $UserData->dob  = date('d-M-Y', strtotime($UserData->dob));
+			    }
 	        }
 
  	        $html = view('parent.partials.daily_tracker_details', compact('dailyReportCard'))->render();

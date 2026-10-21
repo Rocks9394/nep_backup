@@ -93,16 +93,28 @@
 
    @else
 
-      <div class=" mt-4">
-         <div class="col-12 student-report">
-            <div class="row activity_cards mb-5">
-               <div class="col-12 col-md-12 mt-5 p-0">
-                  <div class="card" style="text-align: center; min-height: auto; box-shadow: none;">
-                     <h4>No Report Available</h4>
-                  </div>
+      <div class="col-12 mt-4">
+           <div class="card border-0 shadow-sm">
+               <div class="card-body py-5">
+
+                   <div class="d-flex flex-column align-items-center">
+                       <div class="mb-3">
+                           <i class="fas fa-calendar-alt text-muted"
+                              style="font-size: 45px;"></i>
+                       </div>
+
+                       <h5 class="mb-2 text-dark">
+                           No Report Data Available
+                       </h5>
+
+                       <p class="text-muted mb-0 text-center">
+                           There is no Skill Reports data available for the selected session.
+                           Please select another session or check back later.
+                       </p>
+                   </div>
+
                </div>
-            </div>
-         </div>
+           </div>
       </div>
 
    @endif

@@ -363,8 +363,11 @@ Route::get('cwsn-downloadReport/{id?}/{term_id?}', [ReportController::class, 'do
  * */
 
 Route::middleware('auth.auth_student')->group(function () {
+	
 	// testing dashboard
 	Route::get('student/dashboard', [StudentDashboardController::class, 'dashboard'])->name('student.test.dashboard');
+	Route::get('view-dashboard', [StudentDashboardController::class,'dashboard'])->name('students.view.dashboard');
+
 	
 	Route::get('student-dashboard', [StudentRecordController::class, 'index'])->name('student.dashboard');
 	Route::get('skill-report', [StudentRecordController::class,'skillReport'])->name('skill.report');
@@ -383,6 +386,7 @@ Route::middleware('auth.auth_student')->group(function () {
 	Route::get('reporttest', [StudentRecordController::class,'skillReportTest'])->name('skill.report2'); 
 	Route::get('student-profile', [StudentRecordController::class,'viewProfile'])->name('student.profile');
 	Route::put('student-profile-update', [StudentRecordController::class,'updateProfile'])->name('profile.update');
+	
 	
 
 });

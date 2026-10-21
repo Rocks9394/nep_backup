@@ -1624,6 +1624,41 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		}
 
    	}
+	/**
+   	 * Update Email id
+   	 * */
+	public function updateEmailId(Request $request){
+
+		try {
+			$request->validate([
+				'email' => 'required|email'
+			]);
+
+			$studentId = $request->student_id;
+			$email = $request->email;
+			$student = DB::table('students')->where('id', $studentId)->first();
+			// Update Email
+			DB::table('students')
+				->where('id', $studentId)
+				->update([
+					'email_id' => $email,
+					'email_flag' => '1',
+					'updated_at' => now(),
+				]);
+
+			return response()->json([
+				'status' => 'success',
+				'message' => 'Email Id updated successfully.'
+			]);
+
+		} catch (\Exception $e) {
+
+			return response()->json([
+				'status' => 'fail',
+				'message' => 'Something went wrong. Please try again.'
+			]);
+		}
+	}
 
    	/**
    	 * Add or Register New Student Student.

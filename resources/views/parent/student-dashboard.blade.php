@@ -157,7 +157,8 @@
     @php
         $BmiClassess = ['1','2','3','4','5','6','7','8','9','10','11','12'];
         $juniorClassess = ['1','2','3',];
-        $seniorClassess = ['4','5','6','7','8','9','10','11','12'];
+        $siniorClassess = ['4','5','6','7','8','9','10','11','12'];
+
     @endphp
 
 <div class="all-chaptr-cards">
@@ -172,18 +173,21 @@
                             </svg>
                         </span>
                     </a>                
-                    <h1 class="ml-md-4 mb-0">Back to home</h1>
+                    <h1 class="ml-md-4 mt-1 px-2">Back to home</h1>
                 </div>            
             </div>
             <div class="col-auto mt-3">
                 <div class="select-terms">
-                    <select name="term" id="term" class="term-select">
-                        @foreach($terms as $term)
-                            <option value="{{ $term->id }}"
-                                {{ $selectedTerm == $term->id ? 'selected' : '' }}>
-                                {{ $term->academic_year }} | {{ $term->term_name }}
-                            </option>
-                        @endforeach
+                    <select name="term" id="termSelect" class="term-select">
+                        <option value="{{ $previousAcademicYear }}"
+                            {{ $selectedYear == $previousAcademicYear ? 'selected' : '' }}>
+                            Academic Year: {{ $previousAcademicYear }}
+                        </option>
+
+                        <option value="{{ $academicYear }}"
+                            {{ $selectedYear == $academicYear ? 'selected' : '' }}>
+                            Academic Year: {{ $academicYear }}
+                        </option>
                     </select>
                 </div>
             </div>
@@ -248,7 +252,7 @@
                                 <img src="{{ asset('assets/imgs/height-icon.jpg') }}" alt="Height" class="img-fluid img lazy-image" loading="lazy" />
                                 <div class="weight-input">
                                     <h4>Height</h4>
-                                    <span>{{ $bmiRecord->height ?? '---' }} cm</span>
+                                    <span>{{ !empty($bmiRecord->height) ? $bmiRecord->height . ' cm' : '---' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -257,7 +261,7 @@
                                 <img src="{{ asset('assets/imgs/weight-icon.png') }}" alt="weight" class="img-fluid img lazy-image" loading="lazy" />
                                 <div class="weight-input">
                                     <h4>Weight</h4>
-                                    <span>{{ $bmiRecord->weight ?? '---' }} kg</span>
+                                    <span>{{ !empty($bmiRecord->weight) ? $bmiRecord->weight . ' kg' : '---' }}</span>
                                 </div>
                             </div>
                             <div class="clearfix"></div>
@@ -295,50 +299,48 @@
 
             <div class="row no-gutters">
 
-                @if(count($fmsTestData) > 0)
-                    <h2 class="test-heading text-center mt-2 mb-3">FMS Development Tests</h2>
-
+                @if (in_array((string) $classId, $juniorClassess))   
+                <h2 class="test-heading text-center mt-2 mb-3">FMS Development Tests</h2>
                     @foreach($fmsTestData as $test)
                         <div class="col-12 col-md-6 col-lg-6 col-xl-4">
                             <div class="test-box">
                                 <div class="tests left-text">
-                                    <img src="{{ asset('uploads/BatteryOfTests/' . $test->icons) }}" 
-                                        alt="logo" class="img-fluid img lazy-image" loading="lazy" />
-
+                                    <img src="{{ asset('uploads/icons/BatteryOfTests/' . $test->icons) }}" alt="logo" class="img-fluid img lazy-image" loading="lazy" />
                                     <div class="left-text w-100">
                                         <h4>{{ $test->skill_name }}</h4>
-
-                                        <div class="score-bar w-100">
+                                        <div class="score-bar w-100" id="scoreBar">
                                             <div class="segment"></div>
                                             <div class="segment"></div>
                                             <div class="segment"></div>
                                             <div class="segment"></div>
                                             <div class="segment"></div>
                                         </div>
-
                                         <div class="score-outcome d-flex justify-content-between align-items-center">
-                                            <div class="score-label">{{ $test->score }}</div>                           
+                                            <div class="score-label" id="scoreLabel">{{ $test->score }}</div>                           
                                             <div class="outcome">{{ $test->outcome }}</div>                           
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    @endforeach
+                    @endforeach 
+                @else
+                    @if(!in_array((string) $classId, $siniorClassess))
+                        <h2 class="test-heading text-center">You have not given FMS tests yet</h2>
+                    @endif
                 @endif
-
     
             </div>
             <div class="clearfix"></div>
             <div class="row no-gutters">
 
-                @if ((in_array((string) $classId, $juniorClassess) || in_array((string) $classId, $seniorClassess)) && $fitnessTest->isNotEmpty())
+                @if (in_array((string) $classId, $juniorClassess) || in_array((string) $classId, $siniorClassess))  
                 <h2 class="test-heading text-center mt-2 mb-3">Fitness Tests</h2>
                     @foreach($fitnessTest as $index => $test) 
                         <div class="col-12 col-md-6 col-lg-6 col-xl-4">
                             <div class="test-box">
                                 <div class="tests left-text">
-                                    <img src="{{ asset('uploads/BatteryOfTests/' . $test->icons) }}" alt="logo" class="img-fluid img lazy-image" loading="lazy" />
+                                    <img src="{{ asset('uploads/icons/BatteryOfTests/' . $test->icons) }}" alt="logo" class="img-fluid img lazy-image" loading="lazy" />
                                     <div class="left-text w-100">
                                         <h4>{{ $test->skill_name }}</h4>
                                         <div class="level-box">
@@ -360,133 +362,73 @@
                                 </div>
                             </div>
                         </div>
-                    @endforeach 
+                    @endforeach  
+                @else
+                    <h2 class="test-heading text-center mb-4 mt-5 pt-3 pt-md-5 mb-md-5">You have not given any Fitness tests yet</h2>
                 @endif
             </div>
         </div>
+        <!-- @php
+            $id  = Crypt::encryptString($studentId);
+            $view_link = route('reports.view', ['id' => $id, 'term_id' => $selectedTermId]);
+            $download_link = route('reports.download', ['id' => $id, 'term_id' => $selectedTermId]);
+        @endphp -->
+
+        @php
+            $id = Crypt::encryptString($studentId);
+
+            if ($studentData->is_pwd == '1') {
+                $viewRoute = 'cwsn.reports.view';
+                $downloadRoute = 'cwsn.reports.download';
+            } else {
+                $viewRoute = 'reports.view';
+                $downloadRoute = 'reports.download';
+            }
+
+            $view_link = route($viewRoute, ['id' => $id, 'term_id' => $selectedTermId]);
+            $download_link = route($downloadRoute, [ 'id' => $id, 'term_id' => $selectedTermId]);
+        @endphp
 
         
-        <div class="form-row download-report mb-4">
+        <div class="form-row download-report mb-5">
             <div class="col-12 col-sm-4 col-lg-4 mb-3">
-                <!-- <a href="#" class="btn btn-primary btn-lg w-100" onclick="availbleSoon();">View Report </a> -->
-                <a href="{{ route('reports.view.test')}}" class="btn btn-primary btn-lg w-100" target="_blank">View Report </a>
+                {{-- <a href="#" class="btn btn-primary btn-lg w-100" data-toggle="tooltip" data-placement="top" title="End of the term"> --}}
+                <a href="{{$view_link}}" class="btn btn-primary btn-lg w-100" target="_blank">
+                    View Report 
+                </a>
             </div>
             <div class="col-12 col-sm-4 col-lg-4 mb-3">
-                <!-- <a href="#" class="btn btn-primary btn-lg w-100" onclick="availbleSoon();">Download Report </a> -->
-                <a href="{{ route('download.fitness.reports')}}" class="btn btn-primary btn-lg w-100">Download Report </a>
+                {{-- <a href="#" class="btn btn-primary btn-lg w-100" data-toggle="tooltip" data-placement="top" title="End of the term"> --}}
+                <a href="{{$download_link}}" class="btn btn-primary btn-lg w-100" target="_blank">
+                    Download Report 
+                </a>
             </div>
+            <!-- <div class="col-12 col-sm-4 col-lg-4 mb-3">
+                <a class="btn btn-primary btn-lg w-100 notAvailable" target="_blank">Fitness History <i class="fa fa-angle-right"></i> </a>
+            </div> -->
             <div class="col-12 col-sm-4 col-lg-4 mb-3">
                 <a href="" id="openFitnessModal" class="btn btn-primary btn-lg w-100" >National Benchmark </a>
             </div>
         </div>
-
         {{-- code end here --}}
     </div> 
 </div>
 
+
 <!-- BMI benchmark modal  -->
-<div id="bmiModal" class="modal" data-backdrop="static" data-keyboard="false">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; margin-top:30px; border: 0px; font-size: 14px; border-collapse: collapse; color:#333; text-align:left;">
-            <tr style="background-color: #ccc;">
-                <td style="padding: 5px 10px; font-weight: bold; color:#000; font-size: 16px;" colspan="8">BMI Benchmarks for {{ $studentAge }} years {{ $studentData->gender }}</td>
-            </tr>
-            <tr style="font-weight: bold; text-align: center; background-color: #eee; font-size: 12px; color: #000;">
-                <td>UW</td>
-                <td>N</td>
-                <td>OW</td>
-                <td>OB</td>
-            </tr>
-                    
-            @if(is_array($getBmiBenchmark) && count($getBmiBenchmark) > 0)
-            <tr>
-                <td class="text-center" style="padding: 5px 10px; color: #000;">{{ $getBmiBenchmark['UW'] ?? 'N/A' }}</td>
-                <td class="text-center" style="padding: 5px 10px; color: #000;">{{ $getBmiBenchmark['N'] ?? 'N/A' }}</td>
-                <td class="text-center" style="padding: 5px 10px; color: #000;">{{ $getBmiBenchmark['OW'] ?? 'N/A' }}</td>
-                <td class="text-center" style="padding: 5px 10px; color: #000;">{{ $getBmiBenchmark['OB'] ?? 'N/A' }}</td>
-            </tr>
-            @endif
-        </table>
-    </div>
-</div>
+@include('modals.bmi-benchmarks-modal');
 
 <!-- fitness benchmark modal  -->
-
-<div id="fitnessBenchmark" class="modal" data-backdrop="static" data-keyboard="false">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; margin-top:30px; border: 0px; font-size: 14px; border-collapse: collapse; color:#333; text-align:left;">
-            <tr>
-                <td>
-                    <table border="1" cellpadding="0" cellspacing="0" style="width: 100%; border: 1px solid #0A87CD; font-size: 12px; border-collapse: collapse; color:#000;">
-                        <tr style="background-color: #0A87CD;">
-                            <td style="padding: 5px 10px; font-weight: bold; color:#fff; font-size: 14px;" colspan="8">Fitness Benchmarks for {{ $studentAge }} years {{ $studentData->gender }}</td>
-                        </tr>
-                        <tr style="font-weight: bold; background-color: #fecd0a; font-size: 12px; color: #000;">
-                            <td style="padding: 4px;"></td>
-                            <td style="padding: 4px;">L1 (Very Low)</td>
-                            <td style="padding: 4px;">L2 (Low)</td>
-                            <td style="padding: 4px;">L3 (Developing)</td>
-                            <td style="padding: 4px;">L4 (Moderate)</td>
-                            <td style="padding: 4px;">L5 (Good)</td>
-                            <td style="padding: 4px;">L6 (High)</td>
-                            <td style="padding: 4px;">L7 (Excellent)</td>
-                        </tr>
-                        <tr style="background-color: #fff6d1; font-weight: 500; color:#333;">
-                            <td style="padding: 4px;"></td>
-                            <td style="padding: 4px;">< 20 %ile</td>
-                            <td style="padding: 4px;">≥ 20 %ile</td>
-                            <td style="padding: 4px;">≥ 40 %ile</td>
-                            <td style="padding: 4px;">≥ 60 %ile</td>
-                            <td style="padding: 4px;">≥ 70 %ile</td>
-                            <td style="padding: 4px;">≥ 80 %ile</td>
-                            <td style="padding: 4px;">≥ 90 %ile</td>
-                        </tr>
-                        
-                        @forelse($getFitnessBenchmark as $key => $skillname)
-                        <tr>            
-                            <td style="padding: 4px; font-weight: bold; color: #000;">{{ $skillname->skill_name }}</td>
-                            @foreach($skillname->ranges as $level => $range)
-                                <td style="padding: 4px;">{{ $range }}</td>
-                            @endforeach
-                        </tr>
-                        @empty
-                                <tr>                                                  
-                                <td style="padding: 4px;" colspan="8"> 
-                                    <p style="text-align:center;"> <span style="padding: 4px; font-weight: bold; color: #000;">Note : </span> No Fitness Benchmarks available for a {{ $studentAge }}-year-old {{ $studentData->gender }}.</p>
-                                </td>
-                                
-                                </tr>                                                 
-                        @endforelse       
-
-                    </table>
-                </td>
-            </tr>
-        </table>
-    </div>
-</div>
+@include('modals.fitness-benchmarks-modal');
 
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
 
-    function availbleSoon(){
-        Swal.fire({
-            title: 'Under Maintenance',
-            icon: 'info',
-            text: 'This feature will be available soon. Please try again later.',
-            allowOutsideClick: false
-        });
-
-        return;
-    }
     // google gague for bmi 
 
-    if (document.getElementById('bmi_gauge')) {
-        google.charts.load('current', {'packages':['gauge']});
-        google.charts.setOnLoadCallback(drawChart);
-    }
+    google.charts.load('current', {'packages':['gauge']});
+    google.charts.setOnLoadCallback(drawChart);
 
     function drawChart() {
         const bmi = {{ $bmiRecord->score ?? 0 }};
@@ -592,7 +534,6 @@
 
         function getColorByScore(score) {
             if (score <= 1) return '#f44336'; // red
-            if (score <= 2) return '#ffee00'; // orange
             if (score <= 3) return '#ff9800'; // orange
             if (score === 4) return '#8bc34a'; // light green
             return '#4caf50'; // green
@@ -659,8 +600,7 @@
 
     // for overall fitness 
 
-    let fitnessTest = @json($fitnessTest ?? []);
-
+    let fitnessTest = @json($fitnessTest);
     const levelMap = {
         'L0': 0,
         'L1': 1,
@@ -686,44 +626,33 @@
     const overallPercentile = ((avgScore) / maxScore) * 100;
 
     // Display the initial structure
-    const overallFitnessEl = document.getElementById('overallFitness');
+    document.getElementById('overallFitness').innerHTML = `
+    <h4>Overall Fitness Level</h4>
+    <span>0 %ile</span>
+    `;
 
-    if (overallFitnessEl) {
-        overallFitnessEl.innerHTML = `
-            <h4>Overall Fitness Level</h4>
-            <span>0 %ile</span>
-        `;
 
-        const spanElement = overallFitnessEl.querySelector('span');
+    let start = 0;
+    const end = overallPercentile;
+    const duration = 2000; // 2 seconds
+    const stepTime = 20;   // update every 20ms
+    const increment = end / (duration / stepTime);
 
-        if (spanElement) {
-            let start = 0;
-            const end = overallPercentile;
-            const duration = 2000;
-            const stepTime = 20;
-            const increment = end / (duration / stepTime);
+    const spanElement = document.querySelector('#overallFitness span');
 
-            const timer = setInterval(() => {
-                start += increment;
-                if (start >= end) {
-                    start = end;
-                    clearInterval(timer);
-                }
-                spanElement.textContent = `${start.toFixed(2)} %ile`;
-            }, stepTime);
-        }
+    const timer = setInterval(() => {
+    start += increment;
+    if (start >= end) {
+        start = end;
+        clearInterval(timer);
     }
-
+    spanElement.textContent = `${start.toFixed(2)} %ile`;
+    }, stepTime);
 
 
     // Load Google Charts
-    // google.charts.load('current', {'packages':['corechart']});
-    // google.charts.setOnLoadCallback(drawOverallFitness);
-
-    if (document.getElementById('donut_single')) {
-        google.charts.load('current', { packages: ['corechart'] });
-        google.charts.setOnLoadCallback(drawOverallFitness);
-    }
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawOverallFitness);
 
     function drawOverallFitness() {
         var targetValue = parseFloat(overallPercentile.toFixed(2));
@@ -768,35 +697,28 @@
         }, 50);
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll('.lazy-image').forEach(img => {
+    document.addEventListener("DOMContentLoaded", function() {
+        const images = document.querySelectorAll('.lazy-image');
 
-            const showImage = () => img.classList.add('loaded');
-
-            if (img.complete && img.naturalHeight !== 0) {
-                showImage();
-            } else {
-                img.addEventListener('load', showImage);
-                img.addEventListener('error', showImage);
+        images.forEach(img => {
+            if (img.complete) {
+                img.classList.add('loaded');
             }
+
+            img.addEventListener('load', () => {
+                img.classList.add('loaded');
+            });
         });
     });
 
 
 
-
     // open bmi benchmark 
 
-    const openModalBtn = document.getElementById("openModal");
-    const bmiModal = document.getElementById("bmiModal");
-
-    if (openModalBtn && bmiModal) {
-        openModalBtn.addEventListener("click", function (e) {
+    document.getElementById("openModal").addEventListener("click", function(e) {
             e.preventDefault();
-            bmiModal.style.display = "block";
-        });
-    }
-
+            document.getElementById("bmiModal").style.display = "block";
+    });
     document.querySelector(".close").addEventListener("click", function() {
             document.getElementById("bmiModal").style.display = "none";
     });
@@ -814,15 +736,11 @@
     });
 
     // fitness benchmark modal 
-    const openFitnessModalBtn = document.getElementById("openFitnessModal");
-    const fitnessBenchmarkModal = document.getElementById("fitnessBenchmark");
 
-    if (openFitnessModalBtn && fitnessBenchmarkModal) {
-        openFitnessModalBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-            fitnessBenchmarkModal.style.display = "block";
-        });
-    }
+    document.getElementById("openFitnessModal").addEventListener("click", function(e) {
+        e.preventDefault();
+        document.getElementById("fitnessBenchmark").style.display = "block";
+    });
     const closeButtons = document.querySelectorAll("#fitnessBenchmark .close");
 
     closeButtons.forEach(button => {
@@ -844,31 +762,16 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
-        const termSelect = document.getElementById('term');
+        const yearSelect = document.getElementById('termSelect');
 
-        termSelect.addEventListener('change', function () {
+        yearSelect.addEventListener('change', function () {
             const selectedValue = this.value;
-            saveTerm(selectedValue);
-        });
 
-        function saveTerm(termId) {
-            fetch("{{ route('save.term.session') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({ term_id: termId })
-            }).then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to save term');
-                }
-                window.location.href = window.location.pathname + window.location.search;
-            })
-            .catch(error => {
-                console.error('Error saving term:', error);
-            });
-        }
+            const url = new URL(window.location.href);
+            url.searchParams.set('termSelect', selectedValue);
+
+            window.location.href = url.toString();
+        });
     });
 
 </script>

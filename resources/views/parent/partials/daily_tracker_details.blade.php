@@ -60,9 +60,27 @@
     @endforeach
 
 @else
-    <div class="col-12 col-md-12 mt-5">
-        <div class="card py-5" style="text-align: center;">
-            <h4>No data for this session</h4> 
+    <div class="col-12 mt-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body py-5">
+
+                <div class="d-flex flex-column align-items-center">
+                    <div class="mb-3">
+                        <i class="fas fa-calendar-alt text-muted"
+                           style="font-size: 45px;"></i>
+                    </div>
+
+                    <h5 class="mb-2 text-dark">
+                        No Report Data Available
+                    </h5>
+
+                    <p class="text-muted mb-0 text-center">
+                        There is no daily tracker data available for the selected session.
+                        Please select another session or check back later.
+                    </p>
+                </div>
+
+            </div>
         </div>
     </div>
 @endif
