@@ -20,7 +20,7 @@
                         </a>
                         @endif
 
-                        <h1 class="heading-rw mt-md-0 mt-0 mb-3 mb-0 pt-md-0 pt-0">{{$title}}</h1>
+                        <h1 class="heading-rw mt-md-0 mt-0 mb-0 px-4 pt-md-0 pt-0">{{$title}}</h1>
                     </div>
                 </div>
             </div>

@@ -138,35 +138,47 @@ $videos = [
 ];
 @endphp
 
-<div class="container mt-5">
-    <div class="row mt-4 mb-5">
 
-        @foreach($videos as $video)
-        <div class="col-12 col-sm-6 col-lg-3 mb-3">
-            <div class="video-card"
-                data-toggle="modal"
-                data-target="#videoModal"
-                data-video-id="{{ $video['id'] }}"
-                data-video-title="{{ $video['title'] }}">
+<div class="container">
+	<div class="t-mrg2 mb-5 pb-5">
 
-                <img src="https://img.youtube.com/vi/{{ $video['id'] }}/maxresdefault.jpg"
-                    alt="{{ $video['title'] }}">
+		<div class="all-chaptr-cards mb-4" style="margin: 0;">
+			<div class="row">
+				<x:back-button title="{{$title}}" >
+				</x:back-button>
+			</div>
+		</div>
+      <div class="row mt-5 mb-5">
 
-               <div class="play-icon">
-                  <svg width="40" height="40" viewBox="0 0 16 16" fill="#9d9fa8">
-                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/>
-                  </svg>
+         @foreach($videos as $video)
+         <div class="col-12 col-sm-6 col-lg-3 mb-3">
+               <div class="video-card"
+                  data-toggle="modal"
+                  data-target="#videoModal"
+                  data-video-id="{{ $video['id'] }}"
+                  data-video-title="{{ $video['title'] }}">
+
+                  <img src="https://img.youtube.com/vi/{{ $video['id'] }}/maxresdefault.jpg"
+                     alt="{{ $video['title'] }}">
+
+                  <div class="play-icon">
+                     <svg width="40" height="40" viewBox="0 0 16 16" fill="#9d9fa8">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/>
+                     </svg>
+                  </div>
+
+                  <div class="card-content">
+                     <span>{{ $video['title'] }}</span>
+                  </div>
                </div>
+         </div>
+         @endforeach
 
-               <div class="card-content">
-                  <span>{{ $video['title'] }}</span>
-               </div>
-            </div>
-        </div>
-        @endforeach
-
-    </div>
+      </div>
+   </div>
 </div>
+
+
 <div class="modal fade" id="videoModal" tabindex="-1" area-hidden="true" role="dialog"
      data-backdrop="static"
      data-keyboard="false">

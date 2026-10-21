@@ -36,8 +36,7 @@ class PEActivityController extends Controller
     }
 
 
-	public function getactive()
-	{
+	public function getactive(){
 		$title = 'Get Active';
 		return view('parent.getactive', compact('title'));
 	}

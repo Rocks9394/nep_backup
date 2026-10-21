@@ -43,7 +43,6 @@ class UpdateSchoolsAssessment extends Command
                     StudentID,
                     COUNT(DISTINCT TestTypeID) AS senior_count
                 FROM SeniorTestResults
-                WHERE TestTypeID BETWEEN 18 AND 23
                 GROUP BY StudentID
             ) se 
                 ON se.StudentID = s.id
@@ -114,74 +113,77 @@ class UpdateSchoolsAssessment extends Command
                             SUM(
                                 CASE
                                     WHEN tm.is_pwd = '1'
-                                         AND tm.class_id BETWEEN 6 AND 12
-                                         AND tm.cwsn_count >= 4
+                                        AND tm.class_id BETWEEN 5 AND 12
+                                        AND tm.cwsn_count >= 4
                                     THEN 1
-                                    WHEN (
-                                        tm.is_pwd = 0
-                                        OR tm.is_pwd IS NULL
-                                        OR tm.class_id NOT BETWEEN 6 AND 12
-                                    )
-                                    AND (
-                                        (
-                                            tm.fms_count = 15
-                                            AND tm.senior_count = 3
-                                        )
-                                        OR tm.senior_count = 6
-                                    )
+
+                                    WHEN tm.is_pwd = '0'
+                                        AND tm.class_id BETWEEN 4 AND 12
+                                        AND tm.senior_count = 6
+                                    THEN 1
+
+
+                                    WHEN tm.is_pwd = '0'
+                                        AND tm.class_id NOT BETWEEN 4 AND 12
+                                        AND tm.senior_count = 3
+                                        AND tm.fms_count = 15
                                     THEN 1
 
                                     ELSE 0
-
                                 END
                             ) AS completed,
 
                             SUM(
                                 CASE
                                     WHEN tm.is_pwd = '1'
-                                         AND tm.class_id BETWEEN 6 AND 12
-                                         AND tm.cwsn_count BETWEEN 1 AND 3
+                                        AND tm.class_id BETWEEN 5 AND 12
+                                        AND tm.cwsn_count > 0
+                                        AND tm.cwsn_count < 4
                                     THEN 1
-                                    WHEN (
-                                        tm.is_pwd = 0
-                                        OR tm.is_pwd IS NULL
-                                        OR tm.class_id NOT BETWEEN 6 AND 12
-                                    )
-                                    AND (
-                                        tm.fms_count > 0
-                                        OR tm.senior_count > 0
-                                    )
-                                    AND NOT (
-                                        (
+
+                                    WHEN tm.is_pwd = '0'
+                                        AND tm.class_id BETWEEN 4 AND 12
+                                        AND tm.senior_count > 0
+                                        AND tm.senior_count < 6
+                                    THEN 1
+
+                                    WHEN tm.is_pwd = '0'
+                                        AND tm.class_id NOT BETWEEN 4 AND 12
+                                        AND tm.fms_count BETWEEN 0 AND 15
+                                        AND tm.senior_count BETWEEN 0 AND 3
+                                        AND (
+                                            tm.fms_count > 0
+                                            OR tm.senior_count > 0
+                                        )
+                                        AND NOT (
                                             tm.fms_count = 15
                                             AND tm.senior_count = 3
                                         )
-                                        OR tm.senior_count = 6
-                                    )
                                     THEN 1
 
                                     ELSE 0
-
                                 END
                             ) AS ongoing,
 
                             SUM(
                                 CASE
                                     WHEN tm.is_pwd = '1'
-                                         AND tm.class_id BETWEEN 6 AND 12
-                                         AND tm.cwsn_count = 0
+                                        AND tm.class_id BETWEEN 5 AND 12
+                                        AND tm.cwsn_count = 0
                                     THEN 1
-                                    WHEN (
-                                        tm.is_pwd = 0
-                                        OR tm.is_pwd IS NULL
-                                        OR tm.class_id NOT BETWEEN 6 AND 12
-                                    )
-                                    AND tm.fms_count = 0
-                                    AND tm.senior_count = 0
+
+                                    WHEN tm.is_pwd = '0'
+                                        AND tm.class_id BETWEEN 4 AND 12
+                                        AND tm.senior_count = 0
+                                    THEN 1
+
+                                    WHEN tm.is_pwd = '0'
+                                        AND tm.class_id NOT BETWEEN 4 AND 12
+                                        AND tm.fms_count = 0
+                                        AND tm.senior_count = 0
                                     THEN 1
 
                                     ELSE 0
-
                                 END
                             ) AS yet_to_start,
 

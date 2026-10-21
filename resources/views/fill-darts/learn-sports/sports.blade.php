@@ -108,6 +108,15 @@
       color: #333;
    }
 
+   .expand_btn{
+      background-color: #ff8810 !important;
+      color: #fff !important;
+   }
+   .expand_btn:hover{
+      background-color: #ff8810 !important;
+      color: #fff !important;
+   }
+
 
    @media only screen and (max-width: 767px) {
       
@@ -185,16 +194,9 @@
                      </div>
                      <div class="col-2 col-sm-auto col-md-auto d-none d-sm-none d-md-none d-lg-block">
                         <button type="button" class="btn btn-primary expand_btn">
-                           <span>
-                              <svg width="24"
-                                 height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd"
-                                 clip-rule="evenodd">
-                                 <path
-                                    d="M14 19h-14v-1h14v1zm9.247-8.609l-3.247 4.049-3.263-4.062-.737.622 4 5 4-5-.753-.609zm-9.247 2.609h-14v-1h14v1zm0-6h-14v-1h14v1z" />
-                              </svg>
-                           </span>
-                           Expand All
-                        </button>                   
+                           <i class="fa-solid fa-caret-down btn-icon px-2"></i>
+                           <span class="btn-text">Expand</span>
+                        </button>
                      </div>
                   </div>
 
@@ -310,19 +312,34 @@
 
 <script>
 
-  $(".btn-primary").click(function() {
+   $(".expand_btn").data("closedAll", true);
 
-      if ($(this).data("closedAll")) {
-          $(".collapse").collapse("show");
+   $(".expand_btn").on("click", function () {
+      const isClosed = $(this).data("closedAll");
+
+      if (isClosed) {
+         $(".collapse").collapse("show");
+
+         $(".expand_btn").data("closedAll", false);
+
+         $(".expand_btn .btn-icon")
+               .removeClass("fa-caret-down")
+               .addClass("fa-caret-up");
+
+         $(".expand_btn .btn-text").text("Collapse");
+
       } else {
-          $(".collapse").collapse("hide");
+         $(".collapse").collapse("hide");
+
+         $(".expand_btn").data("closedAll", true);
+
+         $(".expand_btn .btn-icon")
+               .removeClass("fa-caret-up")
+               .addClass("fa-caret-down");
+
+         $(".expand_btn .btn-text").text("Expand");
       }
-
-      // save last state
-      $(this).data("closedAll", !$(this).data("closedAll"));
-  });
-
-  $(".btn-primary").data("closedAll", true);
+   });
 
    $(document).ready(function() {
       $("#sidebar").mCustomScrollbar({

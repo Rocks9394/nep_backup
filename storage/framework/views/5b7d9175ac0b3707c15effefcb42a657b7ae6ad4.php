@@ -1022,6 +1022,14 @@
                     </div>
                 </div>
             </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div id="cwsnSkillChart" style="height: 500px;"></div>
+                    </div>
+                </div>
+            </div>
             <!-- <div class="row g-3 mb-4">
                 <div class="col-md-12">
                     <div class="card">
@@ -1166,6 +1174,8 @@
 
 <script>
 
+    
+
     document.addEventListener('DOMContentLoaded', function () {
         const termSelects = document.querySelectorAll('#term, #mobileTerm');
 
@@ -1216,6 +1226,284 @@
     });
 
     document.addEventListener('DOMContentLoaded', function() {
+
+    // Separate CWSN Skill Analysis
+(function () {
+    const cwsnCategories = <?php echo json_encode($cwsnCategories, 15, 512) ?>;
+    const cwsnSeries = <?php echo json_encode($cwsnChartSeries, 15, 512) ?>;
+    const selectedTermId = String(<?php echo json_encode($selectedTerm, 15, 512) ?>);
+
+    const container = document.getElementById('cwsnSkillChart');
+
+    if (!container) return;
+
+    // Only selected term's CWSN data
+    const currentCwsnSeries = cwsnSeries
+        .filter(series =>
+            series.name.startsWith(`Term ${selectedTermId} -`)
+        )
+        .map(series => ({
+            name: series.name.split(' - ').slice(1).join(' - '),
+            data: series.data,
+            color: series.color
+        }));
+
+    if (document.getElementById('cwsnSkillChart')) {
+
+            try {
+
+                const chartContainer = document.getElementById('cwsnSkillChart');
+                const isMobile = window.innerWidth <= 767;
+                if (isMobile) {
+                    chartContainer.innerHTML = '';
+                    chartContainer.style.height = 'auto';
+                    chartContainer.style.minHeight = '0';
+                    const mobileTitle = document.createElement('div');
+                    mobileTitle.innerHTML = 'Skill Analysis';
+                    mobileTitle.style.width = '100%';
+                    mobileTitle.style.textAlign = 'center';
+                    mobileTitle.style.fontSize = '18px';
+                    mobileTitle.style.fontWeight = '500';
+                    mobileTitle.style.color = '#000000';
+                    mobileTitle.style.marginBottom = '15px';
+                    chartContainer.appendChild(mobileTitle);
+
+                    skillCategories.forEach(function (skillName, skillIndex) {
+                        const skillWrapper = document.createElement('div');
+                        skillWrapper.className = 'mobile-skill-wrapper';
+                        skillWrapper.style.width = '100%';
+                        skillWrapper.style.marginBottom = '10px';
+                        const skillTitle = document.createElement('div');
+                        skillTitle.className = 'mobile-skill-name';
+                        skillTitle.innerHTML = skillName;
+                        skillTitle.style.width = '100%';
+                        skillTitle.style.fontSize = '13px';
+                        skillTitle.style.fontWeight = '500';
+                        skillTitle.style.color = '#000000';
+                        skillTitle.style.marginBottom = '2px';
+                        skillTitle.style.textAlign = 'center';
+                        const barContainer = document.createElement('div');
+                        barContainer.className = 'mobile-skill-bar';
+                        barContainer.style.width = '100%';
+                        barContainer.style.height = '55px';
+                        skillWrapper.appendChild(skillTitle);
+                        skillWrapper.appendChild(barContainer);
+
+                        chartContainer.appendChild(skillWrapper);
+                        const skillSeries = currentTermSeries.map(function (series) {
+                            return {
+                                name: series.name,
+                                data: [series.data[skillIndex]]
+                            };
+                        });
+
+                        Highcharts.chart(barContainer, {
+                            chart: {
+                                type: 'column',
+                                backgroundColor: '#ffffff',
+                                height: 55,
+                                margin: [0, 0, 0, 0],
+                                spacing: [0, 0, 0, 0]
+                            },
+                            title: {
+                                text: null
+                            },
+                            credits: {
+                                enabled: false
+                            },
+                            exporting: {
+                                enabled: false
+                            },
+                            accessibility: {
+                                enabled: false
+                            },
+                            xAxis: {
+                                categories: [''],
+                                visible: false
+                            },
+                            yAxis: {
+                                min: 0,
+                                max: 100,
+                                visible: false,
+                                title: {
+                                    text: null
+                                },
+                                gridLineWidth: 0
+                            },
+                            legend: {
+                                enabled: false
+                            },
+                            tooltip: {
+                                formatter: function () {
+                                    return `
+                                        <b>${skillName}</b><br>
+                                        ${this.series.name}:
+                                        ${this.y} (${Math.round(this.percentage)}%)
+                                    `;
+                                }
+                            },
+                            plotOptions: {
+                                series: {
+                                    stacking: 'percent',
+                                    pointPadding: 0,
+                                    groupPadding: 0,
+                                    borderWidth: 1,
+                                    pointWidth: 32,
+                                    dataLabels: {
+                                        enabled: true,
+                                        formatter: function () {
+                                            const level = this.series.name.split(' - ')[1] || this.series.name;
+                                            return `${level} (${Math.round(this.percentage)}%)`;
+                                        },
+                                        style: {
+                                            textOutline: 'none',
+                                            fontSize: '9px',
+                                            fontWeight: '500'
+                                        }
+                                    },
+                                    states: {
+                                        inactive: {
+                                            opacity: 1
+                                        },
+                                        hover: {
+                                            enabled: false
+                                        }
+                                    },
+                                    point: {
+                                        events: {
+                                            mouseOver: function () {
+                                                const chart = this.series.chart;
+                                                chart.series.forEach(function (s) {
+                                                    s.group.attr({
+                                                        opacity:
+                                                            s.index ===
+                                                            this.series.index
+                                                                ? 1
+                                                                : 0.2
+                                                    }, this);
+                                                }, this);
+                                            }
+                                        }
+                                    },
+                                    events: {
+                                        mouseOut: function () {
+                                            this.chart.series.forEach(function (s) {
+                                                s.group.attr({
+                                                    opacity: 1
+                                                });
+                                            });
+                                        }
+                                    }
+                                }
+                            },
+                            series: currentCwsnSeries
+                        });
+                    });
+                } else {
+                    Highcharts.chart('cwsnSkillChart', {
+                        chart: {
+                            type: 'column',
+                            backgroundColor: '#ffffff',
+                            plotBackgroundColor: '#ffffff'
+                        },
+                        title: {
+                            text: 'Skill Analysis',
+                            style: {
+                                color: '#000000'
+                            }
+                        },
+                        xAxis: {
+                            categories: cwsnCategories,
+                            labels: {
+                                style: {
+                                    fontSize: '13px',
+                                    fontWeight: '500',
+                                    color: '#000000'
+                                }
+                            },
+                            lineWidth: 0,
+                            gridLineWidth: 0
+                        },
+                        yAxis: {
+                            min: 0,
+                            labels: {
+                                formatter: function () {
+                                    return Math.round(this.value);
+                                }
+                            },
+                            gridLineWidth: 0,
+                            title: {
+                                text: null
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        plotOptions: {
+                            series: {
+                                stacking: 'percent',
+                                pointPadding: 0,
+                                groupPadding: 0,
+                                borderWidth: 1,
+                                dataLabels: {
+                                    enabled: true,
+                                    formatter: function () {
+                                        const level = this.series.name.split(' - ')[1] || this.series.name;
+                                        return `${level} (${Math.round(this.percentage)}%)`;
+                                    },
+                                    style: {
+                                        textOutline: 'none',
+                                        fontSize: '12px'
+                                    }
+                                },
+                                states: {
+                                    inactive: {
+                                        opacity: 1
+                                    }
+                                },
+                                point: {
+                                    events: {
+                                        mouseOver: function () {
+                                            const chart = this.series.chart;
+                                            chart.series.forEach(function (s) {
+                                                s.group.attr({
+                                                    opacity:
+                                                        s.index ===
+                                                        this.series.index
+                                                            ? 1
+                                                            : 0.2
+                                                }, this);
+                                            }, this);
+                                        }
+                                    }
+                                },
+                                events: {
+                                    mouseOut: function () {
+                                        this.chart.series.forEach(function (s) {
+                                            s.group.attr({
+                                                opacity: 1
+                                            });
+                                        });
+                                    }
+                                }
+                            }
+                        },
+                        tooltip: {
+                            formatter: function () {
+                                return `Students: ${this.y} (${Math.round(this.percentage)}%)`;
+                            }
+                        },
+                        series: currentCwsnSeries
+                    });
+                }
+            } catch (error) {
+                console.error('Skill Chart Error:', error);
+                document.getElementById('cwsnSkillChart').innerHTML =
+                    '<div class="map-error">Error loading skill chart</div>';
+            }
+        }
+
+})();
         // counter 
 		const counters = document.querySelectorAll('.counter');
 		counters.forEach(counter => {

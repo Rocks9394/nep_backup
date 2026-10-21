@@ -48,7 +48,8 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path('logs/scheduler.log'));
 
         $schedule->command('schools:update-assessment')
-            ->dailyAt('10:16')
+            // ->everyMinute()
+            ->dailyAt('02:00')
             ->timezone('Asia/Kolkata')
             ->withoutOverlapping(3600)
             ->onOneServer()

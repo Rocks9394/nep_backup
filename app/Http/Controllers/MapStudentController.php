@@ -37,36 +37,24 @@ class MapStudentController extends Controller
 		 
 		 $userId  =  \Auth::id();
 		 $role_id =  \Auth::user()->role_id;
-		 $SchoolTrainers = DB::table('school_trainers')->where('trainer_id',$userId)->where('status', 1)->pluck('school_id');
-		
-		if($role_id != 3)
-		{
-			die('--you are not a teacher. teacher can only access--');
-		}
-		
-		if(empty($SchoolTrainers))
-		{
-			die('--we dont have access for this panel. sorry for inconvenation--');
-		}
 
-		$schoolId = $SchoolTrainers[0];
-		
-		// $classes_test = DB::table('custom_classes')
-		// ->join('class','class.id','=','custom_classes.class_id')
-		// ->select('custom_classes.id','class_id','section',
-
-		// 	DB::raw("CASE 
-	    //         WHEN custom_classes.nomenclature IS NOT NULL AND custom_classes.nomenclature <> '' 
-	    //         THEN custom_classes.nomenclature 
-	    //         ELSE class.name 
-	    //       END AS classname")
+		if(Session::get('SelectSchoolId')){	
+			$schoolId = Session::get('SelectSchoolId');
 			
-		// 	// 'class.name AS classname'
-		// )
-		// ->WhereIn('school_id', array($schoolId))
-		// ->orderBy('custom_classes.orders', 'ASC')
-		// ->get();
+		}else {			
+			$SchoolTrainers = DB::table('school_trainers')
+			->join('schools','schools.id','=','school_trainers.school_id')
+			->select('schools.school_name','schools.id','schools.logo')
+			->where('school_trainers.trainer_id',$userId)->where('school_trainers.status', 1)->get();
+			$schoolId = $SchoolTrainers[0]->id;		  	
+		}	
+		
 
+		$year = date('Y');
+		$month = date('m');
+		$academicYear = ($month >= 4)
+			? $year . '-' . ($year + 1)
+			: ($year - 1) . '-' . $year;
 
 		$classes = DB::table('custom_classes')
 		->join('class','class.id','=','custom_classes.class_id')
@@ -81,6 +69,7 @@ class MapStudentController extends Controller
 		)
 		->where('students.status','active')
 		->WhereIn('students.school_id', array($schoolId))
+		->where('students.academic_year', $academicYear)
 		->groupBy(
 			'custom_classes.id',
 			'custom_classes.class_id',

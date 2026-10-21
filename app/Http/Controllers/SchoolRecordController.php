@@ -4585,7 +4585,14 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	    $schoolId = DB::table('school_reference')->where('school_user_id', $creatorId)->where('status', 1) ->value('school_id');
 	    $school = School::find($schoolId);
 
-	    if ($request->ajax()) {	      
+		$year = date('Y');
+		$month = date('m');
+		$academicYear = ($month >= 4)
+			? $year . '-' . ($year + 1)
+			: ($year - 1) . '-' . $year;
+		
+	    if ($request->ajax()) {	    
+
 
 	        $query = DB::table('students as s')
 	            ->leftJoin('class as c', 's.class_id', '=', 'c.id')
@@ -4599,6 +4606,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	            ->leftJoin('sports as sp', 'sms.sports_id', '=', 'sp.id')
 	            ->leftJoin('users as u', 'sms.submitted_by', '=', 'u.id')
 	            ->where('s.school_code', '=', $school->school_code)
+				->where('s.academic_year', $academicYear)
 	            ->select(
 	                's.id as student_id',
 	                's.student_name as student_name',
