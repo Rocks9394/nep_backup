@@ -57,7 +57,7 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 
 use App\Exports\StudentsCredentialsExport;
-use App\Exports\SchoolUserCredentials;
+use App\Exports\SchoolAdminCredentials;
 use App\Exports\TrainerCredentials;
 use App\Models\DashboardModule;
 use App\Services\DataTableListService;
@@ -4298,37 +4298,25 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	 * Date : 23-10-2025
 	 * Function: Create School's users.
 	 * */
-	public function CreateUsers() {
+	public function viewSchoolAdmin() {
 
-		$title = 'Create Viewer';
+		$title = 'Delegate Portal Access';
 
 		$user = Auth::user();
 		$DashboardModule = DashboardModule::select('role_id','name','slug','route_name','icon','order_no','status')
 		->whereIn('role_id', [0, $user->role_id])
-		->where('status',1)->orderBy('name')->get();
+		->where('status',1)->orderBy('order_no')->get();
 
         $school_id = DB::table('school_reference')->where('school_user_id', $user->id)->where('status', 1)->value('school_id');
-		
-		// $schoolUsers = DB::table('school_reference as sref')
-	    // ->join('users as u', 'u.id', '=', 'sref.school_user_id')
-	    // ->where('sref.school_id', $school_id)
-	    // ->select('u.id','u.self_registrationId as self_registrationId', 'u.userid' ,'u.name', 'u.email','u.phone', 'u.position',
-	    //     DB::raw("CASE WHEN sref.status = 1 THEN 'Active' ELSE 'Inactive' END as status")
-	    // )->where('u.role_id', 2)->get();    		// RoleId 2 is for School Users
-	   
 
 		$schoolUsers = DB::table('school_reference as sref')
 			->join('users as u', 'u.id', '=', 'sref.school_user_id')
 			->join('usermetas as um', 'um.user_id', '=', 'u.id')
-			->leftJoin(DB::raw('
-				JSON_TABLE(
-					um.module_access,
-					"$[*]" COLUMNS (route_name VARCHAR(255) PATH "$")
-				) as jm
-			'), DB::raw('1'), '=', DB::raw('1'))
-			->leftJoin('dashboard_modules as m', 'm.route_name', '=', 'jm.route_name')
+			->leftJoin('dashboard_modules as m', function ($join) {
+				$join->whereRaw("JSON_CONTAINS(um.module_access, JSON_QUOTE(m.route_name))");
+			})
 			->where('sref.school_id', $school_id)
-			->where('u.role_id', 2)
+			->where('u.role_id', 8)
 			->select(
 				'u.id',
 				'u.self_registrationId',
@@ -4340,12 +4328,14 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				'um.gender',
 				'um.dob',
 				'um.qualification',
-				DB::raw("GROUP_CONCAT(DISTINCT m.name SEPARATOR ', ') as module_names"),
+				DB::raw("GROUP_CONCAT(DISTINCT m.name ORDER BY m.order_no ASC SEPARATOR ', ') as module_names"),
 				DB::raw("CASE WHEN sref.status = 1 THEN 'Active' ELSE 'Inactive' END as status")
 			)
-			->groupBy('u.id','u.self_registrationId','u.userid','u.name','u.email','u.phone','um.gender','um.dob','um.qualification','u.position','sref.status')
+			->groupBy(
+				'u.id','u.self_registrationId','u.userid','u.name','u.email',
+				'u.phone','um.gender','um.dob','um.qualification','u.position','sref.status'
+			)
 			->get();
-
 
 	   	// echo "<pre>"; print_r($schoolUsers);exit();
 
@@ -4355,9 +4345,8 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 		$SchoolDetails = DB::table('schools')->select('school_name','logo','school_code')->where('id', $school_id)->first();
 
 
-		return view('school.users.school-users', compact('title','state_list','cities','DashboardModule','schoolUsers','SchoolDetails'));
+		return view('school.admin.view-school-admin', compact('title','state_list','cities','DashboardModule','schoolUsers','SchoolDetails'));
 	}
-
 
 	private function generateUserId() {
 	    $prefix = 'GFFSU';
@@ -4373,8 +4362,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	    return $userid;
 	}
 
-
-	public function StoreViewers(Request $request) {
+	public function storeSchoolAdmin(Request $request) {
 
         $request->validate([
             'trainerName' => 'required|string|max:255',
@@ -4400,24 +4388,14 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	            'email' => $request->email,
 	            'phone' => $request->mobile,                
 	            'position' => $request->designation,
-	            'userid' => $this->generateUserId(),
+	            'userid' => $request->email,
 	            'self_registrationId' => $this->generateUserId(),
 	            'password' => Hash::make($password), 
-	            'role_id' => 2,   
+	            'role_id' => 8,   
 	            'status' => 1, 
 	            'created_at' => now(),
 	            'updated_at' => now(),
 	        ]);
-
-
-	        /*
-	        $legacyRole = \DB::table('roles')->where('id', 2)->first();
-		    $spatieRole = SpatieRole::where('name', $legacyRole->name)->first();
-
-		    if ($spatieRole) {
-		        $user->assignRole($spatieRole->name);
-		    }
-			*/
 
 	        $creatorId = Auth::id();
 	        $schoolId = DB::table('school_reference')->where('school_user_id', $creatorId)->where('status', 1)->value('school_id');
@@ -4450,23 +4428,21 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	        DB::commit();
 
 			if ($request->ajax()) {
-				return response()->json(['status' => 'success', 'message' => 'Viewer added and linked to school successfully!']);
+				return response()->json(['status' => 'success', 'message' => 'School Admin added and linked to school successfully!']);
 			}
-			return redirect()->back()->with('success', 'Viewer added and linked to school successfully!');
+			return redirect()->back()->with('success', 'School Admin added and linked to school successfully!');
 
         } catch (\Throwable $e) {
 	       DB::rollBack();
 
 			if ($request->ajax()) {
-				return response()->json(['status' => 'error', 'message' => 'Failed to add viewer: ' . $e->getMessage()], 500);
+				return response()->json(['status' => 'error', 'message' => 'Failed to add School Admin: ' . $e->getMessage()], 500);
 			}
-			return redirect()->back()->with('error', 'Failed to add viewer: ' . $e->getMessage());
+			return redirect()->back()->with('error', 'Failed to add School Admin: ' . $e->getMessage());
 	    }
     }
 
-
-    public function handleUsersAction(Request $request) {
-
+    public function handleAdminAction(Request $request) {
 	    $request->validate([
 	        'users_id' => 'required|integer|exists:users,id',
 	        'action' => 'required|string|in:activate,deactivate,delete'
@@ -4475,7 +4451,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	    $users = User::find($request->users_id);
 
 	    if(!$users) {
-	        return response()->json(['success' => false, 'message' => 'Trainer not found']);
+	        return response()->json(['success' => false, 'message' => 'School Admin not found']);
 	    }
 
 	    switch($request->action) {
@@ -4483,14 +4459,14 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	            DB::table('school_reference')->where('school_user_id', $request->users_id)->update(
 	            	[  'status' => 1 , 'updated_at' => now()]
 			    );
-	            $message = 'Trainer activated successfully';
+	            $message = 'School Admin activated successfully';
 	            break;
 
 	        case 'deactivate':
 	            DB::table('school_reference')->where('school_user_id', $request->users_id)->update(
 	            	[ 'status' => 0, 'updated_at' => now()]
 			    );
-	            $message = 'Trainer deactivated successfully';
+	            $message = 'School Admin deactivated successfully';
 	            break;
 
 	        case 'delete':
@@ -4500,7 +4476,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 
                 $users->delete();
 
-	            $message = 'Trainer deleted successfully';
+	            $message = 'School Admin deleted successfully';
 	            break;
 
 	        default:
@@ -4510,30 +4486,21 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 	    return response()->json(['success' => true, 'message' => $message]);
 	}
 
-
-
-	public function exportSchoolUsers(Request $request) {
+	public function exportAdminCredentials(Request $request) {
 
 	    $schoolUserIds = $request->input('school_user_ids', []);
 	    if(empty($schoolUserIds)) {
 
-	        return response()->json(['message' => 'No users selected'], 400);
+	        return response()->json(['message' => 'No School Admin selected'], 400);
 	    }
 
 	    $timestamp = Carbon::now()->format('Ymd_His');
-		if($request->role=='trainer'){
-			$fileName = "trainers-credential_{$timestamp}.xlsx";
-			return Excel::download(new TrainerCredentials($schoolUserIds), $fileName);
-		}
-		else{
-			$fileName = "school-users_{$timestamp}.xlsx";
-			return Excel::download(new SchoolUserCredentials($schoolUserIds), $fileName);
-		}
+		$fileName = "school-admins_{$timestamp}.xlsx";
+		return Excel::download(new SchoolAdminCredentials($schoolUserIds), $fileName);
 
 	}
 
-
-	public function updateViewer(Request $request){
+	public function updateAdminDetails(Request $request){
 
 		$userId = $request->viewerId;
 
@@ -4542,12 +4509,15 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			'gender'         => 'required|string',
 			'qualification'  => 'required|string|max:255',
 			'email'          => 'required|email|unique:users,email,' . $userId,			
-            'mobile' => 'required|digits:10|unique:users,phone,' . $userId,
+            'mobile' 		 => 'required|digits:10|unique:users,phone,' . $userId,
 			'designation'    => 'required|string',
 			'dob'            => 'required|date',
 			'module_access'  => 'required|array|min:1',
 			'module_access.*'=> 'string'
 		]);
+
+		$dob = $request->dob;
+		$password = str_replace('-', '', $dob).'@f365';
 
 		DB::table('users')
 			->where('id', $userId)
@@ -4556,6 +4526,7 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 				'email'      => $request->email,
 				'phone'      => $request->mobile,
 				'position'   => $request->designation,
+				'password' 	 => Hash::make($password),
 				'updated_at' => now(),
 			]);
 
@@ -4575,7 +4546,6 @@ ORDER BY r.date DESC, r.created_at DESC LIMIT 7;
 			'message' => 'Viewer details updated successfully!',
 		]);
 	}
-
 
 
 	public function StudentsSportsMapping(Request $request, DataTableListService $dataTable) {

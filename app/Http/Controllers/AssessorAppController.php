@@ -215,7 +215,7 @@ class AssessorAppController extends Controller
 		$skillTypes = DB::table('skill_types')->where('skill_report_id',$skillReport->id)->where('status', 1)->get();
 		
 		#echo "<pre>";
-		#print_r($skillReport);
+		#print_r($skillTypes);
 		#die('--change the details--');
 
 		$title             = $skillReport->skill_name;
@@ -460,6 +460,14 @@ class AssessorAppController extends Controller
 			$classes = $seniorclasses;
 			$title = $skillReport->skill_name;
 			return view('assessor.modified-push-ups', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
+		}
+		elseif($skillReport->skill_name == 'Modified Curl-up')
+		{
+			//die('--change the detail modified curl up- by bhawani');
+
+			$classes = $seniorclasses;
+			$title = $skillReport->skill_name;
+			return view('assessor.modified-curl-up', compact('title', 'skillTypes', 'skillReportId', 'TestTypeMasterID', 'classes', 'SchoolId'));
 		}
 		else
 		{

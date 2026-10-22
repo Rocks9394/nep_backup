@@ -421,7 +421,7 @@ class LoginController extends Controller
 
 
 	    if ((Auth::attempt(array_merge($credentials, ['email' => $loginField]), $remember) 
-    	|| Auth::attempt(array_merge($credentials, ['userid' => $loginField]), $remember)) && in_array(Auth::user()->role_id, [2, 4])) {
+    	|| Auth::attempt(array_merge($credentials, ['userid' => $loginField]), $remember)) && in_array(Auth::user()->role_id, [8, 4])) {
     		
 	        $user = Auth::user();
 	        $request->session()->regenerate();

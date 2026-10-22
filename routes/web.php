@@ -488,11 +488,11 @@ Route::prefix('school')->group(function(){
     Route::post('add-school-user', [SchoolRecordController::class,'addSchoolUsers'])->name('add.school.user');
 
 
-    Route::get('view-school-admin', [SchoolRecordController::class, 'CreateUsers'])->name('create.users')->middleware('module_access:create.users');
-	Route::post('viewers/store', [SchoolRecordController::class, 'StoreViewers'])->name('viewers.store');
-	Route::post('users/action', [SchoolRecordController::class, 'handleUsersAction'])->name('users.action');
-	Route::post('export-users', [SchoolRecordController::class, 'exportSchoolUsers'])->name('export.school.users');
-	Route::post('update-viewer-details', [SchoolRecordController::class, 'updateViewer'])->name('update.viewer.details');
+    Route::get('view-school-admin', [SchoolRecordController::class, 'viewSchoolAdmin'])->name('view.school.admin')->middleware('module_access:view.school.admin');
+	Route::post('store-admin', [SchoolRecordController::class, 'storeSchoolAdmin'])->name('store.admin');
+	Route::post('admin-action', [SchoolRecordController::class, 'handleAdminAction'])->name('admin.action');
+	Route::post('export-admin', [SchoolRecordController::class, 'exportAdminCredentials'])->name('export.school.admin');
+	Route::post('update-admin-details', [SchoolRecordController::class, 'updateAdminDetails'])->name('update.admin.details');
 
 	Route::get('students-sports', [SchoolRecordController::class, 'StudentsSportsMapping'])->name('students-sports-mapping')->middleware('module_access:managestudent');
 	Route::post('students-sports/export', [SchoolRecordController::class, 'ExportStudentsSportsMapping'])->name('expoort.students-sports-mapping');

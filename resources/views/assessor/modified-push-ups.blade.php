@@ -49,7 +49,7 @@
             
             <div class="col-12">
                 <div class="form mb-4">
-                    <h3 class="mb-3 mt-4 text-center">Enter Push Ups/ Modified Push Ups Score</h3>
+                    <h3 class="mb-3 mt-4 text-center">Enter Modified Push Ups Score</h3>
                     <div class="input-group mb-3 text-center">
                         <span class="form-control single-input">
                             <label for="pushUpCount" class="form-label">Counts</label>
@@ -237,7 +237,7 @@ window.addEventListener("message", (event) => {
     if (data && data.type === "AI_SYNC_DATA") {
         console.log("Modified PushUp AI data received:", data);
 
-        // Extract wingspan value (handles both modified push up and direct scalar)
+        // Extract modified curl up value (handles both modified push up and direct scalar)
         const score = data.reps || data.value;
 
         // 3. Fill the modified push up input field using ID: ModifiedpushUpCount

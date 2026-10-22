@@ -6,7 +6,7 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Illuminate\Support\Facades\DB;
 
-class SchoolUserCredentials implements FromCollection, WithHeadings
+class SchoolAdminCredentials implements FromCollection, WithHeadings
 {
     protected $schoolUserIds;
 
@@ -53,7 +53,7 @@ class SchoolUserCredentials implements FromCollection, WithHeadings
         $assignedModulesStr = implode('  ,  ', $assignedModules); // comma separated
 
         $data[] = [
-            'ViewerID'        => $user->userid ?? '',
+            'School Admin ID' => $user->self_registrationId ?? '',
             'Name'            => $user->name,
             'Email'           => $user->email,
             'Phone'           => $user->phone,
@@ -77,7 +77,7 @@ class SchoolUserCredentials implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
-            'ViewerID',
+            'School Admin ID',
             'Name',
             'Email',
             'Phone',

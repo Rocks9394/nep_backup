@@ -259,33 +259,18 @@
 					--}}
 
 
-					
-					@if(!$user || $user->role_id != 2)
-
-						<div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
-	                        <a href="{{ route('learn.sports') }}" class="box"><div><img class="img-fluid" alt="" src="{{asset('uploads/icons/Learn-Sports.svg') }}"></div><span>Learn Sports</span></a>
-	                    </div>
-
-					    <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
-					        <a href="{{ route('getactive') }}" class="box">
-					            <div><img class="img-fluid" alt="" src="{{ asset('uploads/icons/Get-Active.svg') }}"></div>
-					            <span>Get Active</span>
-					        </a>
-					    </div>
-
-					    <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
-					        <a href="{{ route('admin.manual') }}" target="_blank" class="box">
-					            <div><img class="img-fluid" alt="" src="{{ asset('uploads/icons/trainer-manual2.svg') }}"></div>
-					            <span>Training Manual</span>
-					        </a>
-					    </div>
-
-					    <div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
-					        <a href="{{ route('test.videos') }}" class="box">
-					            <div><img class="img-fluid" alt="" src="{{ asset('uploads/icons/test-demo.svg') }}"></div>
-					            <span>Battery of Tests</span>
-					        </a>
-					    </div>
+					@if(Auth::user()->role_id == '8')
+					    @forelse($dashboardModules as $module)
+							<div class="col-4 col-md-3 col-lg-2 col-xl-2 mb-4">
+								<a href="{{ route($module->route_name) }}" class="box"><div>
+								<img class="img-fluid" alt="{{ $module->name }}" src="{{ asset('uploads/icons/'.$module->icon) }}"></div><span>{{ $module->name }} </span></a>
+							</div>
+					    @empty
+					        <div class="alert alert-warning text-center mt-4 fixed-bottom">
+					            <h6>No Modules Assigned</h6>
+					            <p>Please contact your school administration to have your modules assigned.</p>
+					        </div>
+					    @endforelse
 					@endif
 
 

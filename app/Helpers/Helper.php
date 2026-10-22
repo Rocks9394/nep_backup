@@ -262,7 +262,7 @@ class Helper
 
 			switch ($roleId) {
 
-				case 2: //School-User Dashboard
+				case 8: //School-User Dashboard
 					$schoolRef = DB::table('school_reference')->where('school_user_id', $userId)->first();
 					$SchoolDetails = DB::table('schools')->select('school_name','logo','school_code')->where('id', $schoolRef->school_id)->first();
 

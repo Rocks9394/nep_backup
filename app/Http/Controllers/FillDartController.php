@@ -81,67 +81,15 @@ class FillDartController extends Controller
 
 		$SchoolName = 'Select School';
 		$dashboardModules = collect();
-
-		// Role-based dashboard logic
-		switch ($roleId) {
-			case 2: // School Role
-				$schoolRef = DB::table('school_reference')
-					->where('school_user_id', $userId)
-					->first();
-				
-				$schoolDetails = null;
-				if ($schoolRef) {
-					$schoolDetails = DB::table('schools')
-						->select('school_name', 'logo', 'school_code')
-						->where('id', $schoolRef->school_id)
-						->first();
-				}
-
-				if ($schoolRef && $schoolRef->status == 1) {
-					$allowedModules = json_decode($user->usermeta->module_access ?? '[]', true);
-					$dashboardModules = DB::table('dashboard_modules')
-						->whereIn('route_name', $allowedModules)
-						->whereIn('role_id', [0,4])
-						->where('status', 1)
-						->orderBy('order_no', 'asc')
-						->get();
-				}
-
-				return view('fill-darts.dashboard', compact(
-					'title', 'SchoolTrainers', 'schoolDetails', 'hasSchools', 'dashboardModules','user'
-				));
-				break;
-
-			case 3:
-				
-				if($hasSchools && $SchoolTrainers->count() == 1) {           //Automatically select if belong to single school.
-					Session::put('SelectSchoolId', $SchoolTrainers->pluck('id')->first());
-				}
-
-				$select_school_id = $request->input('select_school_id');
-				if($hasSchools &&  !empty($select_school_id)) { 			// User selected a school from modal
-				 	Session::put('SelectSchoolId', $select_school_id);	
-				}
-
-				$schoolId = Session::get('SelectSchoolId');
-				if(!$schoolId) {
-				   return view('fill-darts.dashboard', compact('title','SchoolTrainers','SchoolName', 'hasSchools'));
-				}
-
-				break;
-
-		    default:
-		        break;
-		}
 		
 		if($schoolId){
 			$SchoolName = DB::table('schools')->select('school_name', 'logo')->where('id', $schoolId)->first();
 		}
 		
 		// Access check for role 4
-		if ($roleId != 4 && $roleId != 3) {
-			return view('fill-darts.dashboard', compact('title','SchoolTrainers','SchoolName', 'hasSchools','user'));
-		}
+		// if ($roleId != 4 && $roleId != 3) {
+		// 	return view('fill-darts.dashboard', compact('title','SchoolTrainers','SchoolName', 'hasSchools','user'));
+		// }
 
 		if($request->term_id){
 			list($academic_year, $term_id) = explode('|', $request->term_id);			
@@ -309,6 +257,59 @@ class FillDartController extends Controller
 		$totalCompleted = $totals->total_completed;
 		$totalOngoing = $totals->total_ongoing;
 		$totalYetToStart = $totals->total_yet_to_start;
+
+
+		// Role-based dashboard logic
+		switch ($roleId) {
+			case 8: // School Role
+				$schoolRef = DB::table('school_reference')
+					->where('school_user_id', $userId)
+					->first();
+				
+				$schoolDetails = null;
+				if ($schoolRef) {
+					$schoolDetails = DB::table('schools')
+						->select('school_name', 'logo', 'school_code')
+						->where('id', $schoolRef->school_id)
+						->first();
+				}
+
+				if ($schoolRef && $schoolRef->status == 1) {
+					$allowedModules = json_decode($user->usermeta->module_access ?? '[]', true);
+					$dashboardModules = DB::table('dashboard_modules')
+						->whereIn('route_name', $allowedModules)
+						->whereIn('role_id', [0, 4])
+						->where('status', 1)
+						->orderBy('order_no', 'asc')
+						->get();
+				}
+
+				// return view('fill-darts.dashboard', compact(
+				// 	'title', 'SchoolTrainers', 'schoolDetails', 'hasSchools', 'dashboardModules','user'
+				// ));
+				break;
+
+			case 3:
+				
+				if($hasSchools && $SchoolTrainers->count() == 1) {           //Automatically select if belong to single school.
+					Session::put('SelectSchoolId', $SchoolTrainers->pluck('id')->first());
+				}
+
+				$select_school_id = $request->input('select_school_id');
+				if($hasSchools &&  !empty($select_school_id)) { 			// User selected a school from modal
+				 	Session::put('SelectSchoolId', $select_school_id);	
+				}
+
+				$schoolId = Session::get('SelectSchoolId');
+				// if(!$schoolId) {
+				//    return view('fill-darts.dashboard', compact('title','SchoolTrainers','SchoolName', 'hasSchools'));
+				// }
+
+				break;
+
+		    default:
+		        break;
+		}
 				
 		return view('fill-darts.dashboard-new', compact(
 			'title',
@@ -316,6 +317,7 @@ class FillDartController extends Controller
 			'SchoolName',
 			'hasSchools',
 			'user',
+			'dashboardModules',
 			'totalStudents',
 			'totalCompleted',
 			'totalOngoing',
