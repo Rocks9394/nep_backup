@@ -774,7 +774,7 @@
 	                                           
                         <div>
                             <a href="{{ route ('trainer.cwsn.status')}}" class="box"><div>
-                            <img class="img-fluid" alt="" src="{{asset('uploads/icons/lc_test-status.svg') }}"></div><span>CWSN Summary <br> (Class-6 & Above)</span></a>
+                            <img class="img-fluid" alt="" src="{{asset('uploads/icons/hc_test-status.svg') }}"></div><span>CWSN Summary <br> (Class-5 & Above)</span></a>
                         </div>						
 					@endif
 
@@ -881,7 +881,7 @@
 
                         <div>
                             <a href="{{ route ('trainer.cwsn.status')}}" class="box"><div>
-                            <img class="img-fluid" alt="" src="{{asset('uploads/icons/lc_test-status.svg') }}"></div><span>CWSN Summary <br> (Class-6 & Above)</span></a>
+                            <img class="img-fluid" alt="" src="{{asset('uploads/icons/hc_test-status.svg') }}"></div><span>CWSN Summary <br> (Class-5 & Above)</span></a>
                         </div>
 
                      

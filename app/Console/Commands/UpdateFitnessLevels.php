@@ -27,7 +27,7 @@ class UpdateFitnessLevels extends Command
         DB::table('SeniorTestResults as r')
             ->join('skill_reports as sr', 'sr.id', '=', 'r.TestTypeID')
 			->where('level','N.A.')
-        //    ->where('SchoolID', 15)
+        //    ->where('SchoolID', 2824)
             ->orderBy('r.ResultId')
             ->select(
                 'r.*',
