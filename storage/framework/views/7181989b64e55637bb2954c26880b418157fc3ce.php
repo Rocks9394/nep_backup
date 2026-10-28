@@ -805,7 +805,7 @@
 
                         <div>
                             <a href="<?php echo e(route('view.school.admin')); ?>" class="box"><div>
-                            <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/manage-stds.svg')); ?>"></div><span> Create Viewer </span></a>
+                            <img class="img-fluid" alt="" src="<?php echo e(asset('uploads/icons/manage-stds.svg')); ?>"></div><span> Delegate Portal Access </span></a>
                         </div>
 
                         <!-- B. PLANNING & LEARNING -->
@@ -892,28 +892,19 @@
                     <?php endif; ?>
 
                     
-					<?php if($user && $user->role_id == 2): ?>
+					<?php if(Auth::user()->role_id == '8'): ?>
 					    <?php $__empty_1 = true; $__currentLoopData = $dashboardModules; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $module): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-					        <div>
-					            <a href="<?php echo e(route($module->route_name)); ?>" class="box">
-					                <div>
-					                    <img class="img-fluid" alt="<?php echo e($module->name); ?>" src="<?php echo e(asset('uploads/icons/'.$module->icon)); ?>">
-					                </div>
-					                <span><?php echo e($module->name); ?></span>
-					            </a>
-					        </div>
+							<div>
+								<a href="<?php echo e(route($module->route_name)); ?>" class="box"><div>
+								<img class="img-fluid" alt="<?php echo e($module->name); ?>" src="<?php echo e(asset('uploads/icons/'.$module->icon)); ?>"></div><span><?php echo e($module->name); ?> </span></a>
+							</div>
 					    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
 					        <div class="alert alert-warning text-center mt-4 fixed-bottom">
-					            <h6>Your Account is Deactivated</h6>
-					            <p>Please contact your school administrator to activate your account.</p>
+					            <h6>No Modules Assigned</h6>
+					            <p>Please contact your school administration to have your modules assigned.</p>
 					        </div>
 					    <?php endif; ?>
-
-
 					<?php endif; ?>
-					
-
-                    
                     
                 </div>
 
@@ -1095,11 +1086,7 @@
     <p>Please contact your school administrator to activate your account.</p>
   </div>
   	
-<?php elseif(!$getActiveTerm && Auth::user()->role_id == 3): ?>
-	<div class="alert alert-warning text-center mt-4 fixed-bottom" >
-    <h4>No Active Terms</h4>
-    <p>Please contact your school administrator to update terms in profile section.</p>
-  </div>
+
 <?php endif; ?>
 
 
@@ -2296,4 +2283,4 @@
 </script>
 
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/fill-darts/dashboard-new.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /var/www/nep/resources/views/fill-darts/dashboard-new.blade.php ENDPATH**/ ?>

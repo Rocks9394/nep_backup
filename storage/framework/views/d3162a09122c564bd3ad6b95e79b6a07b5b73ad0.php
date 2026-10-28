@@ -54,4 +54,4 @@
   $('body').addClass('error');
 </script>
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/errors/500.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /var/www/nep/resources/views/errors/500.blade.php ENDPATH**/ ?>

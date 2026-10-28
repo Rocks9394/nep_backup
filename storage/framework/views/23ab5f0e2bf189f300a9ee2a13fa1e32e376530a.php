@@ -923,4 +923,4 @@ unset($__errorArgs, $__bag); ?>
 	
 </script>
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\nep\resources\views/school/profile/index.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.filldart-app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /var/www/nep/resources/views/school/profile/index.blade.php ENDPATH**/ ?>
